@@ -361,7 +361,8 @@ async function downloadAddon(payload, type, fromUpdate = false) {
     const res = await store.downloadData(payloadres);
 
     if (res.status < 300) {
-        window.open(res.data.data.url, '_blank');
+        // window.open(res.data.data.url, '_blank');
+        window.location.href = res.data.data.url;
     }
 }
 
