@@ -1,0 +1,79 @@
+@import '../styles/settings.scss';
+
+@font-face {
+    font-family: "helvetica";
+    font-weight: 400;
+    font-style: normal;
+    font-display: auto;
+    unicode-range: U+000-5FF;
+    src: local("helvetica"), url("/fonts/helvetica/Helvetica.woff") format("woff");
+}
+
+body,
+html,
+p,
+div,
+input,
+span,
+a,
+button {
+    font-family: 'helvetica';
+}
+
+.text-h3 {
+    font-size: 1.5rem !important;
+}
+
+.btn-primary {
+    background-color: $base-primary-color !important;
+    color: #fff;
+}
+
+.bg-light-secondary {
+    background-color: $base-light-secondary;
+}
+
+.text-primary {
+    color: $base-primary-color !important;
+}
+
+.no-underline {
+    text-decoration: none !important;
+}
+.pointer {
+    cursor: pointer;
+}
+.card-light-primary {
+    background: $base-light-primary !important;
+    box-shadow: none;
+}
+.fw-bold {
+    font-weight: bold !important;
+}
+.invalid-feedback {
+    color: rgb(176, 0, 32);
+    font-size: 12px;
+}
+// .vue-date-picker {
+//     padding-top: 16px;
+//     padding-bottom: 16px;
+//     border: 1px solid rgba(2, 3, 3, .35);
+// }
+.no-padding {
+    padding: 0 !important;
+}
+
+.form-label {
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+.v-input__details {
+    pointer-events: none;
+}
+
+.no-scroll::-webkit-scrollbar {
+    display: none !important;
+}
