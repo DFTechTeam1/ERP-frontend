@@ -274,5 +274,9 @@
     "tutorialVideo": "Tutorial Video",
     "previewImage": "Preview Image",
     "upgradeAddon": "Upgrade Addon",
-    "aboutUpgrade": "About Upgrade"
+    "aboutUpgrade": "About Upgrade",
+    "projectList": "Project List",
+    "ledWidthRequired": "Led Width is Required",
+    "ledHeightRequired": "Led Height is required",
+    "ledArea": "LED Area"
 }

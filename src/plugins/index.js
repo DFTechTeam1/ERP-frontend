@@ -52,6 +52,7 @@ if (jwt != null) {
 axios.defaults.baseURL = import.meta.env.VITE_API_URL
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*'
 axios.defaults.headers.common['Access-Control-Allow-Methods'] = '*'
+axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true'
 
 export function registerPlugins (app) {
   app.provide('axios', app.config.globalProperties.axios)

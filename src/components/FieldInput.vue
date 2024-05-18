@@ -23,7 +23,7 @@
             <template 
                 v-if="props.suffixText != ''"
                 v-slot:append-inner>
-                {{ props.suffixText }}
+                <span v-html="props.suffixText"></span>
             </template>
 
             <template 

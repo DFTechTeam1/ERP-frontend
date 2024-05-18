@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { useNotification } from "@kyvg/vue3-notification";
+import axios from "axios";
 
 const { notify } = useNotification();
 
@@ -69,8 +70,23 @@ export const useProjectStore = defineStore('project', {
 
             return true;
         },
-        initProjects() {
+        async initProjects() {
+            try {
+                const resp = await axios.get('/production/eventTypes');
 
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async initClassList() {
+            try {
+                const resp = await axios.get('/production/classList');
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
         },
     },
 })
