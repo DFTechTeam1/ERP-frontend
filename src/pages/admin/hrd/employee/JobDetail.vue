@@ -36,7 +36,7 @@
                         v-model="boss_id"
                         :isRequired="isBossRequired"
                         inputType="select"
-                        :select-options="listOfAllEmployees"
+                        :select-options="listOfAllProjectManagers"
                         :error-message="errors.boss_id"></field-input>
                 </v-col>
                 <v-col
@@ -218,7 +218,7 @@ watch(level, (values) => {
         isBossRequired.value = true
     }
 
-    store.getAll({min_level: values});
+    store.getProjectManager();
 })
 
 const levels = ref([
@@ -245,7 +245,7 @@ const {
  } = storeToRefs(storePosition)
 
 const { 
-    listOfAllEmployees,
+    listOfAllProjectManagers
  } = storeToRefs(store)
 
 const storeJobDetail = () => {

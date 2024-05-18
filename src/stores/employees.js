@@ -8,6 +8,7 @@ export const useEmployeesStore = defineStore('employees', {
     state: () => ({
         employees: [],
         allEmployees: [],
+        allProjectManagers: [],
         employeeGeneralInformation: null,
         employeeJobDetail: null,
         employeeEducation: null,
@@ -21,6 +22,7 @@ export const useEmployeesStore = defineStore('employees', {
     }),
     getters: {
         listOfEmployees: (state) => state.employees,
+        listOfAllProjectManagers: (state) => state.allProjectManagers,
         listOfAllEmployees: (state) => state.allEmployees,
         totalOfEmployees: (state) => state.totalEmployees,
         errorValidationData: (state) => state.errorValidation,
@@ -64,6 +66,15 @@ export const useEmployeesStore = defineStore('employees', {
                 .then((res) => {
                     this.allEmployees = res.data.data;
                 });
+        },
+        async getProjectManager() {
+            try {
+                const resp = await axios.get('/employees/getProjectManagers');
+                this.allProjectManagers = resp.data.data;
+                return resp;
+            } catch (error) {
+                return error;
+            }
         },
         async updateData(payload, uid) {
             try {

@@ -35,6 +35,7 @@
                                     :members="detail.members"></task-member>
 
                                 <task-deadline
+                                    v-if="detail.start_date.length && detail.end_date.length"
                                     :start-date="detail.start_date"
                                     :end-date="detail.end_date"></task-deadline>
                             </div>
@@ -101,7 +102,9 @@
                         <!-- end description -->
 
                         <deadline-form
-                            :is-show="showDeadlineForm"></deadline-form>
+                            :is-show="showDeadlineForm"
+                            @close-event="showDeadlineForm = false"
+                            @save-event="saveDate"></deadline-form>
                     </v-col> <!-- END LEFT CONTENT -->
 
                     <!-- RIGHT CONTENT -->
@@ -231,8 +234,8 @@ const detail = ref({
         {id: 1, name: 'Ricky', color: 'primary', initial: 'R'},
         {id: 1, name: 'Rony', color: 'brown', initial: 'RO'},
     ],
-    start_date: 'Apr 20',
-    end_date: 'Apr 23',
+    start_date: '',
+    end_date: '',
     attachments: [],
     comments: [],
 })
@@ -242,6 +245,11 @@ watch(props, (values) => {
         show.value = values.isShow
     }
 })
+
+function saveDate(payload) {
+    detail.value.start_date = payload.startDate;
+    detail.value.end_date = payload.endDate;
+}
 
 function updateDescription() {
     if (description_quill.value.getText().length > 1) {

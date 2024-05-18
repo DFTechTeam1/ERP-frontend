@@ -75,6 +75,14 @@
                             </v-card-text>
                         </v-card>
                     </v-window-item>
+
+                    <v-window-item value="tab-equipment-check">
+                        <v-card flat>
+                            <v-card-text>
+                                <equipment-list></equipment-list>
+                            </v-card-text>
+                        </v-card>
+                    </v-window-item>
                 </v-window>
             </div>
         </v-card>
@@ -87,7 +95,8 @@ import { useI18n } from 'vue-i18n';
 import GeneralInformation from './detail/general//GeneralView.vue';
 import TeamView from './detail/teams/TeamList.vue';
 import KanbanView from './detail/task/KanbanView.vue';
-import ReferencesView from './detail/references/ReferencesView.vue'
+import ReferencesView from './detail/references/ReferencesView.vue';
+import EquipmentList from './detail/equipment/EquipmentList.vue';
 
 const { t } = useI18n();
 
@@ -109,5 +118,5 @@ const breadcrumbs = ref([
     },
 ]);
 
-const tab = ref('tab-task')
+const tab = ref('tab-equipment-check')
 </script>

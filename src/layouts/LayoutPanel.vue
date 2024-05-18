@@ -414,7 +414,7 @@
   
   async function logout() {
     await authStore.logout();
-    router.push({ path: "/auth/a/login" });
+    router.push({ path: "/auth/p/login" });
   }
   </script>
   
