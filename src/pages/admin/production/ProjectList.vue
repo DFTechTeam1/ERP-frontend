@@ -158,6 +158,7 @@ import { useI18n } from 'vue-i18n';
 import { useEmployeesStore } from '@/stores/employees'
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
+
 import { 
     mdiCogOutline, 
     mdiEyeCircle, 
@@ -261,7 +262,7 @@ const headers = ref([
 ]);
 
 function showForm() {
-    router.push({path: '/admin/employees/create'});
+    router.push({path: '/admin/production/project/create'});
 }
 
 function deleteEmployee(uid) {

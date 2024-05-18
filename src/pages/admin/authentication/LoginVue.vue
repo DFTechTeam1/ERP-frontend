@@ -54,6 +54,9 @@ import { ref } from 'vue';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup'
 import { useAuthenticationStore } from '@/stores/authentication'
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 const store = useAuthenticationStore();
 
@@ -69,7 +72,11 @@ const submitData = handleSubmit(async values => {
     await store.login(values)
     isLoading.value = false;
 
-    window.location.href = window.location.origin + '/admin/dashboard';
+    if (route.path == '/auth/a/login') {
+        window.location.href = window.location.origin + '/admin/dashboard';
+    } else if (route.path == '/auth/p/login') {
+        window.location.href = window.location.origin + '/panel/addons';
+    }
 });
 
 const [email, emailAttrs] = defineField('email');

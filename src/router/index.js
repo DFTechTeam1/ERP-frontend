@@ -32,10 +32,11 @@ import ProjectList from '@/pages/admin/production/ProjectList.vue';
 import AddonList from '@/pages/panel/AddonList.vue';
 import AddonForm from '@/pages/panel/AddonForm.vue';
 import PanelSetting from '@/pages/panel/SettingView.vue';
+import DetailProject from "@/pages/admin/production/DetailProject.vue";
+import ProjectForm from "@/pages/admin/production/FormView.vue";
 import { createRouter, createWebHistory } from "vue-router/auto";
 import moment from "moment";
 import { useEncrypt } from "@/compose/encrypt";
-import DetailProject from "@/pages/admin/production/DetailProject.vue";
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
@@ -59,11 +60,23 @@ const router = createRouter({
     },
     // Ko edwin
     {
+      path: "/auth/p",
+      name: "LayoutLoginPanel",
+      component: LayoutAuth,
+      children: [
+        {
+          path: "login",
+          name: "LoginInternalPanel",
+          component: LoginVue,
+        },
+      ],
+    },
+    {
       path: "/addons",
       name: "Addons Page",
       component: AddonsList,
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
       },
     },
     {
@@ -200,6 +213,14 @@ const router = createRouter({
                 parentData: "Production",
               },
             },
+            {
+              path: 'project/create',
+              name: "Create Project",
+              component: ProjectForm,
+              meta: {
+                parentData: "Production",
+              },
+            },
           ],
         },
         {
@@ -323,7 +344,7 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to) => {
+router.beforeEach((to, from) => {
   // TODO: DELETED SOON
   if (to.path == '/') {
     return {
@@ -358,6 +379,7 @@ router.beforeEach((to) => {
       path: "/admin/dashboard",
     };
   }
+
   // instead of having to check every route record with
   // to.matched.some(record => record.meta.requiresAuth)
   if (to.meta.requiresAuth && !localStorage.getItem("dfauth")) {
