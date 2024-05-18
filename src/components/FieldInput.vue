@@ -55,6 +55,11 @@
                     color="red"
                     v-if="props.isRequired"></v-icon>
             </template>
+
+            <template v-slot:item="{ props, item }"
+                v-if="props.customOptions">
+                <slot :props="props" :item="item" name="selectOption"></slot>
+            </template>
         </v-autocomplete>
 
         <v-date-picker
@@ -117,6 +122,10 @@ const props = defineProps({
         default: false,
     },
     isMultiple: {
+        type: Boolean,
+        default: false,
+    },
+    customOptions: {
         type: Boolean,
         default: false,
     },

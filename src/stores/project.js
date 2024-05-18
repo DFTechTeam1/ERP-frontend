@@ -47,6 +47,24 @@ export const useProjectStore = defineStore('project', {
                 last_update: '1 April 2024 10:15'
             },
         ],
+        equipments: [
+            {
+                uid: '88383',
+                name: 'Laptop',
+                image: '/user.png',
+                qty: '1',
+                status_text: 'requested',
+                status_color: 'primary',
+            },
+            {
+                uid: '88384',
+                name: 'Mouse',
+                image: '/user.png',
+                qty: '1',
+                status_text: 'ready',
+                status_color: 'success',
+            },
+        ],
     }),
     getters: {
         detailProject: (state) => state.detail,
@@ -58,6 +76,9 @@ export const useProjectStore = defineStore('project', {
         },
         getTeams() {
             return this.teams;  
+        },
+        getEquipments() {
+            return this.equipments;
         },
         editBasicInformation(payload) {
             console.log('payload', payload);

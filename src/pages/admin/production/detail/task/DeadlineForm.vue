@@ -1,7 +1,8 @@
 <template>
     <v-dialog
         v-model="show"
-        width="auto">
+        width="auto"
+        persistent>
         <v-card flat
             class="p-0">
             <v-card-text class="card-deadline-body">
@@ -48,7 +49,8 @@
                     <v-btn
                         variant="flat"
                         color="white"
-                        class="w-100 mb-3">
+                        class="w-100 mb-3"
+                        @click.prevent="cancel">
                         {{ $t('cancel') }}
                     </v-btn>
                 </v-form>
@@ -72,13 +74,15 @@ import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 
-const { defineField, handleSubmit, errors } = useForm({
+const emit = defineEmits(['close-event', 'save-event']);
+
+const { defineField, handleSubmit, errors, resetForm } = useForm({
     validationSchema: yup.object({
         startDate: yup.string().nullable(),
         endDate: yup.string().when('startDate', {
             is: (value) => value != undefined,
             then: function () {
-                return yup.string().min(startDate.value, t('dateMustBeGreater', {date: startDate.value})).required(t('endDateRequired'))
+                return yup.date().min(startDate.value, t('dateMustBeGreater', {date: startDate.value})).required(t('endDateRequired'))
             },
             otherwise: function () {
                 return yup.string().nullable()
@@ -111,20 +115,32 @@ watch(props, (values) => {
     }
 });
 
+function cancel() {
+    resetForm();
+
+    emit('close-event');
+}
+
 function activeFieldAction(type) {
     activeField.value = type;
 }
 
 function updatedDate(values) {
-    var dateChoose = _date.format(values, 'year') + ', ' + _date.format(values, 'monthAndDate');
+    var dateChoose = _date.format(values, 'monthAndDate');
     if (activeField.value == 'start') {
         startDate.value = dateChoose;
     } else if (activeField.value == 'end') {
         endDate.value = dateChoose;
     }
+
+    activeField.value = null;
 }
 
 const saveDate = handleSubmit((values) => {
     console.log('values', values);
+
+    emit('save-event', values);
+
+    cancel();
 })
 </script>

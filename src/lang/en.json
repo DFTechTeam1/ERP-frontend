@@ -278,5 +278,6 @@
     "projectList": "Project List",
     "ledWidthRequired": "Led Width is Required",
     "ledHeightRequired": "Led Height is required",
-    "ledArea": "LED Area"
+    "ledArea": "LED Area",
+    "requestEquipment": "Request Equipment"
 }

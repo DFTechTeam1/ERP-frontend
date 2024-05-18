@@ -62,7 +62,7 @@
                                 :label="t('pic')"
                                 v-if="useGetRole() != 'pm'"
                                 inputType="select"
-                                :select-options="[]"></field-input>
+                                :select-options="projectManagerList"></field-input>
                         </v-col>
 
                         <v-col
@@ -163,6 +163,9 @@ import * as yup from 'yup';
 import { mdiCloseCircle, mdiPlus } from '@mdi/js';
 import { useGetRole } from '@/compose/getRole';
 import { useProjectStore } from '@/stores/project';
+import { useEmployeesStore } from '@/stores/employees';
+
+const employeeStore = useEmployeesStore();
 
 const store = useProjectStore();
 
@@ -221,6 +224,8 @@ const eventTypeList = ref([]);
 
 const classList = ref([]);
 
+const projectManagerList = ref([]);
+
 onMounted(() => {
     if (fields.value.length) {
         calculateArea();
@@ -228,7 +233,16 @@ onMounted(() => {
 
     initEventType();
     initClassList();
+    initProjectManager();
 })
+
+async function initProjectManager() {
+    const resp = await employeeStore.getProjectManager();
+
+    if (resp.status < 300) {
+        projectManagerList.value = resp.data.data;
+    }
+}
 
 async function initEventType() {
     const resp = await store.initProjects();

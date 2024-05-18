@@ -58,6 +58,15 @@ export const useInventoriesStore = defineStore('inventories', {
                 return error;
             }
         },
+        async getAll() {
+            try {
+                const resp = await axios.get('/inventories/getAll');
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
         async storeData(payload, uid = '') {
             try {
                 if (uid) {
