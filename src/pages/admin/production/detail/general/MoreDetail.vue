@@ -54,7 +54,7 @@
                             <div class="field-item">
                                 <p class="key">{{ $t('note') }}</p>
                                 <p class="value">
-                                    {{ props.detail.note}}
+                                    {{ props.detail.note }}
                                 </p>
                             </div>
 
@@ -68,7 +68,7 @@
                             <div class="field-item">
                                 <p class="key">{{ $t('clientPortal') }}</p>
                                 <a class="value" href="#">
-                                    {{ props.detail.client_portal_url}}
+                                    {{ props.detail.client_portal }}
                                 </a>
                             </div>
 

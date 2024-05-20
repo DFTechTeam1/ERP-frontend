@@ -49,7 +49,7 @@
                                 :is-multiple="true"
                                 :label="t('position')"
                                 inputType="select"
-                                :select-options="listOfAllPositions"
+                                :select-options="positions"
                                 :is-required="false"></field-input>
                         </v-col>
                         <v-col
@@ -127,7 +127,6 @@ import * as yup from 'yup';
 import { mdiClose } from '@mdi/js';
 import { onMounted } from 'vue';
 import { usePositionStore } from '@/stores/position';
-import { storeToRefs } from 'pinia';
 
 const storePosition = usePositionStore();
 
@@ -190,9 +189,7 @@ const doFilter = handleSubmit((values) => {
     emit('filterEvent', values);
 })
 
-const {
-    listOfAllPositions
-} = storeToRefs(storePosition)
+const positions = ref([]);
 
 function closeFilter() {
     resetForm();
@@ -200,8 +197,12 @@ function closeFilter() {
     emit('closeEvent');
 }
 
-function initPosittion() {
-    storePosition.getAll();
+async function initPosittion() {
+    const resp = await storePosition.getAll();
+
+    if (resp.status < 300) {
+        positions.value = resp.data.data;
+    }
 }
 
 onMounted(() => {

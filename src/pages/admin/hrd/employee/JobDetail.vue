@@ -11,7 +11,7 @@
                         inputType="select"
                         v-model="position_id"
                         :error-message="errors.position_id"
-                        :select-options="listOfAllPositions"></field-input>
+                        :select-options="positions"></field-input>
                 </v-col>
                 <v-col
                     cols="12"
@@ -236,13 +236,15 @@ const statusOptions = ref([
     {title: t('internship'), value: 5},
 ])
 
-const initPosition = async () => {
-    await storePosition.getAll()
-}
+const positions = ref([]);
 
-const { 
-    listOfAllPositions,
- } = storeToRefs(storePosition)
+const initPosition = async () => {
+    const resp = await storePosition.getAll();
+
+    if (resp.status < 300) {
+        positions.value = resp.data.data;
+    }
+}
 
 const { 
     listOfAllProjectManagers

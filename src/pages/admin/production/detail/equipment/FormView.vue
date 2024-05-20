@@ -11,7 +11,9 @@
             <v-card-text>
                 <v-form>
                     <div class="item-wrapper">
-                        <div class="item-equipment bg-grey-lighten-3 rounded">
+                        <div class="item-equipment bg-grey-lighten-3 rounded"
+                            v-for="(field, x) in fields"
+                            :key="x">
                             <v-row>
                                 <v-col
                                     cols="12"
@@ -20,6 +22,8 @@
                                     <field-input
                                         :label="t('name')"
                                         inputType="select"
+                                        v-model="field.value.inventory_id"
+                                        :error-message="errors[`equipments[${x}].inventory_id`]"
                                         :custom-options="true"
                                         :select-options="inventories">
                                         <template v-slot:selectOption="{props, item}">
@@ -49,13 +53,16 @@
                                     lg="6"
                                     md="6">
                                     <field-input
+                                        v-model="field.value.qty"
+                                        :error-message="errors[`equipments[${x}].qty`]"
                                         :label="t('quantity')"></field-input>
                                 </v-col>
                             </v-row>
                         </div>
 
                         <div class="item-equipment bg-grey-lighten-3 rounded d-flex align-center justify-center mt-3">
-                            <v-btn>
+                            <v-btn
+                                @click.prevent="push({inventory_id: '', qty: 1})">
                                 <v-icon
                                     :icon="mdiPlusCircle"></v-icon>
                             </v-btn>
@@ -80,6 +87,8 @@ import { watch } from 'vue';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useInventoriesStore } from '@/stores/inventories';
+import { useForm, useFieldArray, useField } from 'vee-validate';
+import * as yup from 'yup';
 
 const storeInventory = useInventoriesStore();
 
@@ -91,6 +100,22 @@ const props = defineProps({
         default: false,
     },
 });
+
+const { handleSubmit, errors } = useForm({
+    validationSchema: yup.object({
+        equipments: yup.array().of(
+            yup.object().shape({
+                inventory_id: yup.string().required(t('inventoryItemRequired')),
+                qty: yup.number()
+                    .transform((currentValue) => currentValue == "" ? undefined : currentValue)
+                    .required(t('qtyRequired'))
+                    .typeError(t('mustBeNumber'))
+            })
+        )
+    })
+})
+
+const { push, fields } = useFieldArray('equipments');
 
 const show = ref(false);
 

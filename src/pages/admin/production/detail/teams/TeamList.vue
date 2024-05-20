@@ -72,10 +72,18 @@ import { ref } from 'vue'
 import { useProjectStore } from '@/stores/project'
 import { useI18n } from 'vue-i18n'
 import { mdiCogOutline, mdiTrashCanOutline } from '@mdi/js';
+import { watch } from 'vue';
+import { onMounted } from 'vue';
 
 const { t } = useI18n()
 
 const store = useProjectStore()
+
+const props = defineProps({
+    detail: {
+        default: null,
+    },
+})
 
 const listTeams = ref([])
 const totalItems = ref(0)
@@ -118,4 +126,8 @@ function initTeams() {
 function showForm() {
 
 }
+
+onMounted(() => {
+    console.log('team', props.detail);
+})
 </script>

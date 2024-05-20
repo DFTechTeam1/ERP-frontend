@@ -37,11 +37,18 @@ export const usePositionStore = defineStore("position", {
         })
         .catch();
     },
-    async getAll() {
-      await axios.get('/positions/all')
-        .then((res) => {
-          this.allPositions = res.data.data;
-        });
+    async getAll(payload = null) {
+      try {
+        var endpoint = '/positions/all';
+        if (payload) {
+          endpoint += "?search=" + payload.name;
+        }
+        const resp = await axios.get(endpoint)
+        
+        return resp;
+      } catch (error) {
+        return error;
+      }
     },
     async storeData(payload) {
       try {
@@ -60,7 +67,6 @@ export const usePositionStore = defineStore("position", {
         });
         return this.storeDataResult;
       } catch (error) {
-        console.log("masuk catch", error);
         this.errorValidation = error.response.data.message;
         return error;
       }

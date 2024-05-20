@@ -15,20 +15,20 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import BasicSection from './BasicSection'
 import MoreDetail from './MoreDetail'
-import { useProjectStore } from '@/stores/project'
-
-const store = useProjectStore();
+import { watch } from 'vue';
 
 const detailProject = ref(null);
 
-onMounted(() => {
-    initProjectDetail();
+const props = defineProps({
+    detail: {
+        default: null,
+    },
 });
 
-function initProjectDetail() {
-    detailProject.value = store.getDetail();
-}
+watch(props, (values) => {
+    detailProject.value = values.detail;
+})
 </script>

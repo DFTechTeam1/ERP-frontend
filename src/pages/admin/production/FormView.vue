@@ -10,7 +10,7 @@
             </v-card-item>
 
             <v-card-text class="mt-3">
-                <v-form>
+                <v-form @submit="validateData">
                     <v-row>
                         <v-col
                             cols="12"
@@ -18,23 +18,38 @@
                             md="6">
                             <field-input
                                 :label="t('name')"
+                                :error-message="errors.name"
                                 v-model="name"></field-input>
 
                             <date-picker
-                                :label="t('eventDate')"></date-picker>
+                                :label="t('eventDate')"
+                                v-model="project_date"
+                                :error-message="errors.project_date"></date-picker>
 
                             <field-input
-                                :label="t('venue')"></field-input>
+                                :label="t('venue')"
+                                v-model="venue"
+                                :error-message="errors.venue"></field-input>
 
                             <field-input
                                 :label="t('collaboration')"
-                                :is-required="false"></field-input>
+                                :is-required="false"
+                                v-model="collaboration"
+                                :error-message="errors.collaboration"></field-input>
 
                             <field-input
                                 :is-readonly="true"
                                 :suffix-text="'m<sup>2</sup>'"
                                 :label="t('ledArea')"
+                                :error-message="errors.led_area"
                                 v-model="led_area"></field-input>
+
+                            <field-input
+                                v-model="marketing_id"
+                                :error-message="errors.marketing_id"
+                                :label="t('marketing')"
+                                input-type="select"
+                                :select-options="marketingList"></field-input>
                         </v-col>
 
                         <v-col
@@ -43,24 +58,35 @@
                             md="6">
                             <field-input
                                 :label="t('clientPortal')"
-                                v-model="client_portal"></field-input>
+                                v-model="client_portal"
+                                :error-message="errors.client_portal"></field-input>
 
                             <field-input
                                 :label="t('eventType')"
                                 inputType="select"
-                                :select-options="eventTypeList"></field-input>
+                                :select-options="eventTypeList"
+                                v-model="event_type"
+                                :error-message="errors.event_type"></field-input>
 
                             <field-input
                                 :label="t('eventClass')"
                                 inputType="select"
-                                :select-options="classList"></field-input>
+                                :select-options="classList"
+                                v-model="classification"
+                                :error-message="errors.classification"></field-input>
 
                             <field-input
-                                :label="t('note')"></field-input>
+                                :label="t('note')"
+                                :is-required="false"
+                                v-model="note"
+                                :error-message="errors.note"></field-input>
 
                             <field-input
                                 :label="t('pic')"
+                                :is-multiple="true"
                                 v-if="useGetRole() != 'pm'"
+                                v-model="pic"
+                                :error-message="errors.pic"
                                 inputType="select"
                                 :select-options="projectManagerList"></field-input>
                         </v-col>
@@ -103,6 +129,7 @@
                                                 </v-row>
 
                                                 <v-icon
+                                                    @click.prevent="removeLed(key)"
                                                     v-if="key != 0"
                                                     class="close-icon"
                                                     :icon="mdiCloseCircle"
@@ -127,8 +154,11 @@
                     <v-btn
                         class="mt-5"
                         variant="flat"
-                        color="primary">
-                        {{ $t('save') }}
+                        color="primary"
+                        :disabled="loading"
+                        type="submit">
+                        <template v-if="loading">{{ $t('processing') }}</template>
+                        <template v-else>{{ $t('save') }}</template>
                     </v-btn>
                 </v-form>
             </v-card-text>
@@ -164,6 +194,13 @@ import { mdiCloseCircle, mdiPlus } from '@mdi/js';
 import { useGetRole } from '@/compose/getRole';
 import { useProjectStore } from '@/stores/project';
 import { useEmployeesStore } from '@/stores/employees';
+import { usePositionStore } from '@/stores/position';
+import { useRouter } from 'vue-router';
+import { watch } from 'vue';
+
+const router = useRouter();
+
+const positionStore = usePositionStore();
 
 const employeeStore = useEmployeesStore();
 
@@ -171,18 +208,19 @@ const store = useProjectStore();
 
 const { t } = useI18n();
 
-const { defineField, errors, setFieldValue } = useForm({
+const { defineField, errors, setFieldValue, handleSubmit } = useForm({
     validationSchema: yup.object({
         name: yup.string().required(),
-        client_portal: yup.string().required(),
-        date: yup.string().required(),
-        event_type: yup.string().required(),
-        venue: yup.string().required(),
-        marketing_id: yup.string().required(),
+        client_portal: yup.string().required(t('clientPortalRequired')),
+        project_date: yup.string().required(t('projectDateRequired')),
+        event_type: yup.string().required(t('eventTypeRequired')),
+        venue: yup.string().required(t('venueRequired')),
+        marketing_id: yup.string().required(t('marketingRequired')),
         collaboration: yup.string().nullable(),
         note: yup.string().nullable(),
-        classification: yup.string().required(),
+        classification: yup.string().required(t('eventClassRequired')),
         led_area: yup.string().required(),
+        pic: yup.array().required(t('picRequired')),
         led: yup.array().of(
             yup.object().shape({
                 width: yup.string().required(t('ledWidthRequired')),
@@ -199,8 +237,16 @@ const { defineField, errors, setFieldValue } = useForm({
 
 const [name] = defineField('name');
 const [client_portal] = defineField('client_portal');
-const { push, fields } = useFieldArray('led');
+const [project_date] = defineField('project_date');
+const [event_type] = defineField('event_type');
+const [venue] = defineField('venue');
+const [marketing_id] = defineField('marketing_id');
+const [collaboration] = defineField('collaboration');
+const [note] = defineField('note');
+const [classification] = defineField('classification');
 const [led_area] = defineField('led_area');
+const [pic] = defineField('pic');
+const { push, fields, remove } = useFieldArray('led');
 
 const breadcrumbs = ref([
     {
@@ -220,11 +266,15 @@ const breadcrumbs = ref([
     },
 ]);
 
+const loading = ref(false);
+
 const eventTypeList = ref([]);
 
 const classList = ref([]);
 
 const projectManagerList = ref([]);
+
+const marketingList = ref([]);
 
 onMounted(() => {
     if (fields.value.length) {
@@ -234,7 +284,29 @@ onMounted(() => {
     initEventType();
     initClassList();
     initProjectManager();
+    initMarketing();
 })
+
+async function initMarketing() {
+    // get marketing id
+    const position = await positionStore.getAll({name: 'marketing'})
+    
+    if (position.status < 300) {
+        const selectedPosition = position.data.data[0].value;
+        const resp = await employeeStore.getByPosition({id: selectedPosition});
+        
+
+        if (resp.status < 300) {
+            marketingList.value = resp.data.data.paginated.map((i) => {
+                return {
+                    value: i.uid,
+                    title: i.name,
+                }
+            });
+        }
+    }
+
+}
 
 async function initProjectManager() {
     const resp = await employeeStore.getProjectManager();
@@ -245,7 +317,7 @@ async function initProjectManager() {
 }
 
 async function initEventType() {
-    const resp = await store.initProjects();
+    const resp = await store.initEventTypes();
 
     if (resp.status < 300) {
         eventTypeList.value = resp.data.data;
@@ -278,4 +350,33 @@ function calculateArea() {
 function updateLedArea() {
     calculateArea();
 }
+
+function removeLed(key) {
+    remove(key);
+
+    calculateArea();
+}
+
+const validateData = handleSubmit(async (values) => {
+    loading.value = true;
+
+    const resp = await store.storeProject(values);
+
+    loading.value = false;
+
+    if (resp.status < 300) {
+        router.push({path: '/admin/production/projects'});
+    }
+})
+
+watch(name, (values) => {
+    console.log('w name', values);
+    if (values.length) {
+        var portal = values
+            .replace(/ /g, "-")
+            .replace(/[^\w-]+/g, "");
+
+        setFieldValue('client_portal', portal);
+    }
+})
 </script>
