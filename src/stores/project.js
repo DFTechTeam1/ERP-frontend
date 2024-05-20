@@ -6,6 +6,8 @@ const { notify } = useNotification();
 
 export const useProjectStore = defineStore('project', {
     state: () => ({
+        projects: [],
+        totalProjects: 0,
         detail: {
             name: 'Golden Wedding anniv Joseph Lim& Silvia Tan',
             date: '7 Januari 2024',
@@ -69,10 +71,18 @@ export const useProjectStore = defineStore('project', {
     getters: {
         detailProject: (state) => state.detail,
         listOfTeams: (state) => state.teams,
+        listOfProjects: (state) => state.projects,
+        totalOfProjects: (state) => state.totalProjects,
     },
     actions: {
-        getDetail() {
-            return this.detail;
+        async getDetail(payload) {
+            try {
+                const resp = await axios.get('/production/project/' + payload.id);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
         },
         getTeams() {
             return this.teams;  
@@ -80,18 +90,33 @@ export const useProjectStore = defineStore('project', {
         getEquipments() {
             return this.equipments;
         },
-        editBasicInformation(payload) {
-            console.log('payload', payload);
-
-            notify({
-                title: 'Success',
-                text: 'Success edit project',
-                type: 'success',
-            });
-
-            return true;
+        async editBasicInformation(payload, uid) {
+            try {
+                const resp = await axios.put('/production/project/basic/' + uid, payload);
+    
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+    
+                return resp;
+            } catch (error) {
+                return error;
+            }
         },
         async initProjects() {
+            try {
+                const resp = await axios.get('/production/project');
+
+                this.projects = resp.data.data.paginated;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async initEventTypes() {
             try {
                 const resp = await axios.get('/production/eventTypes');
 
@@ -109,5 +134,20 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
+        async storeProject(payload) {
+            try {
+                const resp = await axios.post('/production/project', payload);
+
+                notify({
+                    title: "Success",
+                    text: resp.data.message,
+                    type: "success",
+                  });
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        }
     },
 })

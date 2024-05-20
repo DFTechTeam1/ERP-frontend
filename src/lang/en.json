@@ -279,5 +279,16 @@
     "ledWidthRequired": "Led Width is Required",
     "ledHeightRequired": "Led Height is required",
     "ledArea": "LED Area",
-    "requestEquipment": "Request Equipment"
+    "requestEquipment": "Request Equipment",
+    "inventoryItemRequired": "Inventory Item is required",
+    "qtyRequired": "Qty is required",
+    "marketing": "Marketing",
+    "clientPortalRequired": "Client Portal is required",
+    "projectDateRequired": "Project Date is Required",
+    "venueRequired": "Venue is Required",
+    "marketingRequired": "Marekting is Required",
+    "eventClassRequired": "Event Class is Required",
+    "picRequired": "PIC is Required",
+    "date": "Date",
+    "filterProject": "Filter Project"
 }

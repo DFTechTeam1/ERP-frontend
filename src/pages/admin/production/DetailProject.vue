@@ -1,7 +1,7 @@
 <template>
     <div>
         <breadcrumb-data
-            :title="$t('brands')"
+            :title="$t('project')"
             :breadcrumbs="breadcrumbs"></breadcrumb-data>
 
         <v-card>
@@ -49,13 +49,15 @@
                     class="w-100"
                     v-model="tab">
                     <v-window-item value="tab-general">
-                        <general-information />
+                        <general-information 
+                            :detail="detailProject" />
                     </v-window-item>
                     
                     <v-window-item value="tab-teams">
                         <v-card flat>
                             <v-card-text>
-                                <team-view></team-view>
+                                <team-view
+                                    :detail="detailProject"></team-view>
                             </v-card-text>
                         </v-card>
                     </v-window-item>
@@ -90,13 +92,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import GeneralInformation from './detail/general//GeneralView.vue';
 import TeamView from './detail/teams/TeamList.vue';
 import KanbanView from './detail/task/KanbanView.vue';
 import ReferencesView from './detail/references/ReferencesView.vue';
 import EquipmentList from './detail/equipment/EquipmentList.vue';
+import { useRoute } from 'vue-router';
+import { useProjectStore } from '@/stores/project';
+
+const store = useProjectStore();
+
+const route = useRoute();
 
 const { t } = useI18n();
 
@@ -108,8 +116,8 @@ const breadcrumbs = ref([
     },
     {
         title: t('project'),
-        disabled: true,
-        href: 'breadcrumbs_link_1',
+        disabled: false,
+        href: '/admin/production/projects',
     },
     {
         title: t('detail'),
@@ -118,5 +126,19 @@ const breadcrumbs = ref([
     },
 ]);
 
-const tab = ref('tab-equipment-check')
+const detailProject = ref(null);
+
+const tab = ref('tab-general')
+
+async function initProjectDetail() {
+    const resp = await store.getDetail({id: route.params.id});
+
+    if (resp.status < 300) {
+        detailProject.value = resp.data.data;
+    }
+}
+
+onMounted(() => {
+    initProjectDetail();
+})
 </script>

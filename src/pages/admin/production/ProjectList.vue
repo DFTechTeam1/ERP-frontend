@@ -6,7 +6,7 @@
 
         <table-list
             :headers="headers"
-            :items="listOfEmployees"
+            :items="listOfProjects"
             :totalItems="totalItems"
             :loading="loading"
             :itemsPerPage="itemsPerPage"
@@ -15,40 +15,36 @@
             :fullCustomBody="true"
             :hasCheckbox="false"
             :btnAddText="$t('createProject')"
-            :filter-tooltip="t('filterEmployee')"
+            :filter-tooltip="t('filterProject')"
             @bulk-delete-event="bulkDelete"
             @add-data-event="showForm"
-            @table-event="initEmployees"
+            @table-event="initProjects"
             @filter-action="showFilter"
             @clear-filter-action="clearFilter">
 
             <template v-slot:bodytable="{ value }">
                 <tr>
                     <td>
-                        <div class="d-flex align-center ga-4">
-                            <v-avatar
-                                :image="'/user.png'"
-                                size="40"></v-avatar>
-                            <div>
-                                <p class="fw-bold">{{ value.name }}</p>
-                                <p class="email">{{ value.email }}</p>
-                            </div>
-                        </div>
+                        <router-link 
+                            :to="'/admin/production/project/' + value.uid"
+                            style="color: #000; font-weight: bold;">{{ value.name }}</router-link>
                     </td>
-                    <td>{{ value.position }}</td>
-                    <td>{{ value.employee_id }}</td>
-                    <td>{{ value.level_staff }}</td>
                     <td>
-                        <div>
-                            <v-chip
-                                :color="value.status_color">
-                                {{ value.status }}
-                            </v-chip>
-                        </div>
+                        <p class="fw-bold">{{ value.project_date }}</p>
                     </td>
-                    <td>{{ value.join_date }}</td>
-                    <td>{{ value.phone }}</td>
-                    <td>{{ value.placement }}</td>
+                    <td>{{ value.marketing }}</td>
+                    <td>{{ value.venue }}</td>
+                    <td>{{ value.pic }}</td>
+                    <td>{{ value.event_type }}</td>
+                    <td>
+                        <p class="fw-bold">{{ value.led_area }} m<sup>2</sup></p>
+                    </td>
+                    <td>
+                        <v-chip
+                            :color="value.event_class_color">
+                            {{ value.event_class }}
+                        </v-chip>
+                    </td>
                     <td>
                         <v-menu
                             open-on-click>
@@ -155,7 +151,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useEmployeesStore } from '@/stores/employees'
+import { useProjectStore } from '@/stores/project'
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 
@@ -172,11 +168,11 @@ const { t } = useI18n();
 
 const router = useRouter();
 
-const store = useEmployeesStore();
+const store = useProjectStore();
 
 const { 
-    listOfEmployees,
-    totalOfEmployees,
+    listOfProjects,
+    totalOfProjects,
  } = storeToRefs(store);
 
 const showConfirmation = ref(false);
@@ -204,60 +200,52 @@ const headers = ref([
         sortable: true
     },
     {
-        title: t('position'),
-        key: 'position',
+        title: t('date'),
+        key: 'project_date',
         align: 'start',
-        // width: 15,
         sortable: true
     },
     {
-        title: t('nip'),
-        key: 'nip',
+        title: t('marketing'),
+        key: 'marketing',
         align: 'start',
-        // width: 15,
         sortable: true
     },
     {
-        title: t('level'),
-        key: 'level',
+        title: t('venue'),
+        key: 'venue',
         align: 'start',
-        // width: 15,
         sortable: true
     },
     {
-        title: t('status'),
-        key: 'status',
+        title: t('pic'),
+        key: 'pic',
         align: 'start',
-        // width: 15,
         sortable: true
     },
     {
-        title: t('joinDate'),
-        key: 'joinDate',
+        title: t('eventType'),
+        key: 'event_type',
         align: 'start',
-        // width: 15,
         sortable: true
     },
     {
-        title: t('phone'),
-        key: 'phone',
+        title: t('ledArea'),
+        key: 'led_area',
         align: 'start',
-        // width: 15,
         sortable: true
     },
     {
-        title: t('placement'),
-        key: 'placement',
+        title: t('eventClass'),
+        key: 'classification',
         align: 'start',
-        // width: 15,
         sortable: true
     },
     {
-        title: t('action'),
-        key: 'action',
+        title: t('action'), 
+        key: 'uid',
         align: 'start',
-        width: '50',
-        sortable: false
+        sortable: true
     },
 ]);
 
@@ -282,11 +270,11 @@ async function doBulkDelete(payload) {
     if ((deleteData.status != undefined) && (deleteData.status < 300)) {
         showConfirmation.value = false;
         selectedIds.value = [];
-        initEmployees();
+        initProjects();
     }
 }
 
-async function initEmployees(payload = '') {
+async function initProjects(payload = '') {
     if (payload == '' && searchParam.value != '') {
         payload = {filter: searchParam.value}
     } else if (payload != '' && searchParam.value != '') {
@@ -294,9 +282,9 @@ async function initEmployees(payload = '') {
     }
 
     loading.value = true;
-    await store.initEmployees(payload);
+    await store.initProjects(payload);
     loading.value = false;
-    totalItems.value = totalOfEmployees.value;
+    totalItems.value = totalOfProjects.value;
 }
 
 function addAsUser(id) {
@@ -319,13 +307,13 @@ function showFilter() {
 
 function clearFilter() {
     searchParam.value = '';
-    initEmployees();
+    initProjects();
     showClearFilter.value = false;
 }
 
 function doFilter(payload) {
     searchParam.value = payload;
-    initEmployees();
+    initProjects();
     isShowFilter.value = false;
     showClearFilter.value = true;
 }

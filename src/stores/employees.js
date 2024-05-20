@@ -216,6 +216,15 @@ export const useEmployeesStore = defineStore('employees', {
                         type: 'error',
                     });
                 })
+        },
+        async getByPosition(payload) {
+            try {
+                const resp = await axios.get('employees?itemsPerPage=10&page=1&search[position_id][0]=' + payload.id);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
         }
     }
 })

@@ -38,10 +38,9 @@
 
 <script setup>
     import { mdiAsterisk } from '@mdi/js';
-    import { ref } from 'vue';
+    import { ref, onMounted } from 'vue';
     
     import { useDate } from 'vuetify/lib/framework.mjs';
-import { string } from 'yup';
 
     const _date = useDate();
 
@@ -83,4 +82,10 @@ import { string } from 'yup';
         model.value = _date.format(date.value, 'year') + ', ' + _date.format(date.value, 'monthAndDate');
         isShowDatePicker.value = false;
     }
+
+    onMounted(() => {
+        if (model.value) {
+            date.value = new Date(model.value);
+        }
+    })
 </script>

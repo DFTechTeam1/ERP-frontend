@@ -8,15 +8,15 @@
     
             <template v-else>
                 <div class="names">
-                    <p class="name">{{ props.detail.name }}</p>
+                    <p class="name">{{ name }}</p>
                     <p class="date">
-                        7 Januari 2024 (<span class="pm">Thalia</span>)
+                        {{ projectDate }} (<span class="pm">{{ pic }}</span>)
                     </p>
                     <v-chip
                         color="primary"
-                        >Wedding</v-chip>
-                    <v-chip color="success">
-                        B (Standart)
+                        >{{ eventType }}</v-chip>
+                    <v-chip :color="eventClassColor">
+                        {{ eventClass }}
                     </v-chip>
                 </div>
         
@@ -35,7 +35,7 @@
         <basic-form 
             :is-open="isOpenForm"
             :basic-data="props.detail"
-            @close-form="isOpenForm = false"></basic-form>
+            @close-form="closeForm"></basic-form>
     </div>
 </template>
 
@@ -70,13 +70,43 @@
 <script setup>
 import { mdiPencil } from '@mdi/js';
 import BasicForm from './BasicForm.vue'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const isOpenForm = ref(false);
+
+const name = ref(null);
+const projectDate = ref(null);
+const eventClass = ref(null);
+const eventClassColor = ref(null);
+const eventType = ref(null);
+const pic = ref(null);
+const formDetailValue = ref(null);
 
 const props = defineProps({
     detail: {
         default: null,
     },
 })
+
+watch(props, (values) => {
+    if (values.detail) {
+        name.value = props.detail.name;
+        projectDate.value = props.detail.project_date;
+        eventClass.value = props.detail.event_class;
+        eventClassColor.value = props.detail.event_class_color;
+        eventType.value = props.detail.event_type;
+        pic.value = props.detail.pic;
+    }
+})
+
+function closeForm(payload) {
+    console.log('res', payload);
+    isOpenForm.value = false;
+    name.value = payload.name;
+    projectDate.value = payload.project_date;
+    eventClass.value = payload.event_class;
+    eventClassColor.value = payload.event_class_color;
+    eventType.value = payload.event_type;
+    pic.value = payload.pic;
+}
 </script>
