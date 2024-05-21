@@ -290,5 +290,19 @@
     "eventClassRequired": "Event Class is Required",
     "picRequired": "PIC is Required",
     "date": "Date",
-    "filterProject": "Filter Project"
+    "filterProject": "Filter Project",
+    "passwordRequired": "Password is Required",
+    "roleRequired": "Role is Required",
+    "isForExternalUser": "Is for external user?",
+    "selectEmployee": "Select Employee",
+    "deleteUser": "Delete User",
+    "deleteUserConfirmation": "Are you sure delete this user?",
+    "editUser": "Edit User",
+    "fillIfWantChangePass": "Fill in if you want to change the password",
+    "generatePassword": "Generate Password",
+    "goToDashboard": "Go to Dashboard",
+    "previewImageRequired": "Preview image is required",
+    "addonFileRequired": "Addon file is required",
+    "tutorialVideoRequired": "Tutorial video is required",
+    "descriptionRequired": "Description is required"
 }

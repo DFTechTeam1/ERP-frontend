@@ -22,79 +22,97 @@
         <!-- MENU ITEMS -->
         <v-list
           density="compact"
-          v-model:opened="open"
           class="v-list-scroll no-scroll">
-          <template v-for="(menuData, i) in menus" :key="i">
-            <template v-if="menuData.is_subheader && !rail">
-              <v-list-subheader>{{ menuData.title }}</v-list-subheader>
-            </template>
 
-            <template v-for="(menuList, x) in menuData.menus" :key="x">
-              <!-- SINGLE MENU -->
-              <template v-if="!menuList.children.length">
+          <template
+            v-for="(menus, menuKey) in layoutItems"
+            :key="menuKey">
+          
+            <v-list-subheader v-if="!rail">{{ menuKey }}</v-list-subheader>
+
+            <template
+              v-for="(menu) in menus"
+              :key="menu.id">
+
+              <template v-if="!menu.children.length">
                 <v-list-item
                   class="sub-menu pointer"
                   color="blue"
-                  v-if="permissions.indexOf(menuList.permission) != -1"
                   :class="{
-                    'menu-active': activeMenuGetters == menuList.href,
+                    'menu-active': activeMenuGetters == menu.link,
                     'menu-collapsed': rail,
                   }"
                   base-color="#000"
-                  @click="navigate(menuList.href)"
-                >
+                  @click="navigate(menu.link)">
                   <template v-slot:prepend>
-                    <v-icon size="18" :icon="menuList.icon"></v-icon>
+                    <v-img size="18" 
+                      :src="menu.icon" 
+                      width="15" 
+                      height="15"
+                      class="mr-2"></v-img>
                   </template>
                   <template v-slot:title>
-                    {{ menuList.name }}
+                    {{ menu.name }}
                   </template>
                 </v-list-item>
               </template>
-              <!-- END SINGLE MENU -->
 
-              <!-- NESTED MENU -->
               <template v-else>
+
                 <v-list-group
-                  :value="menuList.name"
-                  :color="'blue'"
-                  :class="{ 'menu-group-collapsed': rail }"
-                >
+                  :value="menu.name"
+                  color="blue"
+                  :class="{
+                    'menu-group-collapsed': rail
+                  }">
+                  
                   <template v-slot:activator="{ props }">
-                    <v-list-item 
-                      v-bind="props" 
+                    <v-list-item
+                      v-bind="props"
                       class="sub-menu pointer">
+
                       <template v-slot:prepend>
-                        <v-icon size="18" :icon="menuList.icon"></v-icon>
+                        <v-img size="18" 
+                          :src="menu.icon"
+                          width="15"
+                          height="15"
+                          class="mr-2"></v-img>
                       </template>
                       <template v-slot:title>
-                        {{ menuList.name }}
+                        {{ menu.name }}
                       </template>
+
                     </v-list-item>
                   </template>
 
                   <v-list-item
-                    v-for="(children, c) in menuList.children"
+                    v-for="(children, c) in menu.children"
                     :key="c"
                     class="sub-menu pointer"
                     :class="{
-                      'menu-active': children.href == activeMenuGetters,
+                      'menu-active': children.link == activeMenuGetters,
                       'menu-collapsed': rail,
                     }"
-                    @click="navigate(children.href)"
+                    @click="navigate(children.link)"
                   >
                     <template v-slot:prepend>
-                      <v-icon size="10" :icon="children.icon"></v-icon>
+                      <v-icon 
+                        :icon="mdiCircleOutline"
+                        size="15"></v-icon>
                     </template>
                     <template v-slot:title>
                       {{ children.name }}
                     </template>
                   </v-list-item>
+
                 </v-list-group>
+
               </template>
-              <!-- NESTED MENU -->
+
             </template>
+
           </template>
+
         </v-list>
         <!-- END MENU ITEMS -->
 
@@ -145,76 +163,99 @@
         <!-- End Logo -->
 
         <!-- MENU ITEMS -->
-        <v-list density="compact" v-model:opened="open" class="v-list-scroll">
-          <template v-for="(menuData, i) in menus" :key="i">
-            <template v-if="menuData.is_subheader && !rail">
-              <v-list-subheader class="sub-header">{{ menuData.title }}</v-list-subheader>
-            </template>
+        <v-list
+          density="compact"
+          class="v-list-scroll no-scroll">
 
-            <template v-for="(menuList, x) in menuData.menus" :key="x">
-              <!-- SINGLE MENU -->
-              <template v-if="!menuList.children.length">
+          <template
+            v-for="(menus, menuKey) in layoutItems"
+            :key="menuKey">
+          
+            <v-list-subheader v-if="!rail">{{ menuKey }}</v-list-subheader>
+
+            <template
+              v-for="(menu) in menus"
+              :key="menu.id">
+
+              <template v-if="!menu.children.length">
                 <v-list-item
                   class="sub-menu pointer"
                   color="blue"
-                  v-if="permissions.indexOf(menuList.permission) != -1"
                   :class="{
-                    'menu-active': activeMenuGetters == menuList.href,
+                    'menu-active': activeMenuGetters == menu.link,
                     'menu-collapsed': rail,
                   }"
                   base-color="#000"
-                  @click="navigate(menuList.href)"
-                >
+                  @click="navigate(menu.link)">
                   <template v-slot:prepend>
-                    <v-icon size="18" :icon="menuList.icon"></v-icon>
+                    <v-img size="18" 
+                      :src="menu.icon" 
+                      width="15" 
+                      height="15"
+                      class="mr-2"></v-img>
                   </template>
                   <template v-slot:title>
-                    {{ menuList.name }}
+                    {{ menu.name }}
                   </template>
                 </v-list-item>
               </template>
-              <!-- END SINGLE MENU -->
 
-              <!-- NESTED MENU -->
               <template v-else>
+
                 <v-list-group
-                  :value="menuList.name"
-                  :color="'blue'"
-                  :class="{ 'menu-group-collapsed': rail }"
-                >
+                  :value="menu.name"
+                  color="blue"
+                  :class="{
+                    'menu-group-collapsed': rail
+                  }">
+                  
                   <template v-slot:activator="{ props }">
-                    <v-list-item v-bind="props" class="sub-menu pointer">
+                    <v-list-item
+                      v-bind="props"
+                      class="sub-menu pointer">
+
                       <template v-slot:prepend>
-                        <v-icon size="18" :icon="menuList.icon"></v-icon>
+                        <v-img size="18" 
+                          :src="menu.icon"
+                          width="15"
+                          height="15"
+                          class="mr-2"></v-img>
                       </template>
                       <template v-slot:title>
-                        {{ menuList.name }}
+                        {{ menu.name }}
                       </template>
+
                     </v-list-item>
                   </template>
 
                   <v-list-item
-                    v-for="(children, c) in menuList.children"
+                    v-for="(children, c) in menu.children"
                     :key="c"
                     class="sub-menu pointer"
                     :class="{
-                      'menu-active': children.href == activeMenuGetters,
+                      'menu-active': children.link == activeMenuGetters,
                       'menu-collapsed': rail,
                     }"
-                    @click="navigate(children.href)"
+                    @click="navigate(children.link)"
                   >
                     <template v-slot:prepend>
-                      <v-icon size="10" :icon="children.icon"></v-icon>
+                      <v-icon 
+                        :icon="mdiCircleOutline"
+                        size="15"></v-icon>
                     </template>
                     <template v-slot:title>
                       {{ children.name }}
                     </template>
                   </v-list-item>
+
                 </v-list-group>
+
               </template>
-              <!-- NESTED MENU -->
+
             </template>
+
           </template>
+
         </v-list>
         <!-- END MENU ITEMS -->
       </v-navigation-drawer>
@@ -351,7 +392,7 @@
 
 <script setup>
 import AppFooter from "@/components/AppFooter.vue";
-import { mdiMenu, mdiPower } from "@mdi/js";
+import { mdiCircleOutline, mdiMenu, mdiPower } from "@mdi/js";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 import { ref, onMounted } from "vue";
 import { useMenusStore } from "@/stores/menus";
@@ -360,6 +401,7 @@ import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { mdiBellBadgeOutline, mdiAccount, mdiTable } from "@mdi/js";
 import { useEncrypt } from '@/compose/encrypt';
+import { useBreakToken } from '@/compose/breakToken';
 
 var encodedText = localStorage.getItem('dfauth');
 const saltKey = import.meta.env.VITE_SALT_KEY;
@@ -390,6 +432,8 @@ const menus = ref([]);
 const { activeMenuGetters, pathNameGetters } = storeToRefs(store);
 
 const open = ref([]);
+
+const layoutItems = ref(useBreakToken('menus'));
 
 const accountLists = ref([
   { title: "Click Me" },

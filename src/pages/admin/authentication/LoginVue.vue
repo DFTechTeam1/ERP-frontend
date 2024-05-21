@@ -54,9 +54,11 @@ import { ref } from 'vue';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup'
 import { useAuthenticationStore } from '@/stores/authentication'
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
+
+const router = useRouter();
 
 const store = useAuthenticationStore();
 
@@ -69,13 +71,17 @@ const { errors, handleSubmit, defineField } = useForm({
 
 const submitData = handleSubmit(async values => {
     isLoading.value = true;
-    await store.login(values)
+    const resp = await store.login(values)
     isLoading.value = false;
 
-    if (route.path == '/auth/a/login') {
-        window.location.href = window.location.origin + '/admin/dashboard';
-    } else if (route.path == '/auth/p/login') {
-        window.location.href = window.location.origin + '/panel/addons';
+    if (resp.status < 300) {
+        if (route.path == '/auth/a/login') {
+            window.location.href = window.location.origin + '/admin/dashboard';
+            // router.push({path: '/admin/dashboard'});
+        } else if (route.path == '/auth/p/login') {
+            window.location.href = window.location.origin + '/panel/addons';
+            // router.push({path: '/panel/addons'});
+        }
     }
 });
 

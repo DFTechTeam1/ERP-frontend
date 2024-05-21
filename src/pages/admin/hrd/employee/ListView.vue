@@ -132,12 +132,10 @@
             :deleteIds="selectedIds"
             @action-bulk-submit="doBulkDelete"></confirmation-modal>
 
-        <confirmation-modal
-            :title="$t('addAsUser')"
-            :text="$t('addAsUserConfirmation')"
-            :showConfirm="showConfirmationAddtoUser"
-            :deleteIds="selectedAddUserId"
-            @action-bulk-submit="doAddUser"></confirmation-modal>
+        <add-as-user-view
+            :is-show="showConfirmationAddtoUser"
+            :employee_id="selectedAddUserId"
+            @close-form-add-user="closeFormAddUser"></add-as-user-view>
 
         <filter-employee 
             :show="isShowFilter"
@@ -166,6 +164,7 @@ import {
     mdiAccountPlus
  } from '@mdi/js';
 import FilterEmployee from './FilterEmployee.vue';
+import AddAsUserView from './AddAsUser.vue';
 
 const { t } = useI18n();
 
@@ -300,7 +299,17 @@ async function initEmployees(payload = '') {
 
 function addAsUser(id) {
     showConfirmationAddtoUser.value = true;
-    selectedAddUserId.value = {user_id: id};
+    selectedAddUserId.value = id;
+}
+
+function closeFormAddUser(payload) {
+    console.log('payload ref', payload);
+    showConfirmationAddtoUser.value = false;
+    selectedAddUserId.value = null;
+
+    if (payload.refresh) {
+        initEmployees();
+    }
 }
 
 function editEmployee(uid) {

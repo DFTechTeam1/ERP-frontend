@@ -30,7 +30,9 @@
                                     label-idle="Drop files here..."
                                     allow-multiple="true"
                                     max-files="1"
+                                    v-on:updatefiles="updateMainAddon"
                                 ></file-pond-com>
+                                <div class="invalid-feedback" v-if="errors.addon_file">{{ errors.addon_file }}</div>
                             </div>
                             <div class="file-picker mb-3">
                                 <v-label>{{ $t('tutorialVideo') }}</v-label>
@@ -41,23 +43,15 @@
                                     allow-multiple="true"
                                     :accepted-file-types="allowedTypes"
                                     max-files="1"
+                                    v-on:updatefiles="updateTutorialVideo"
                                 ></file-pond-com>
+                                <div class="invalid-feedback" v-if="errors.tutorial_video">{{ errors.tutorial_video }}</div>
                             </div>
                             <div class="file-picker mb-3">
                                 <v-label>{{ $t('previewImage') }}</v-label>
 
-                                <!-- <template v-if="detailData">
-                                    <div class="my-4">
-                                        <v-avatar 
-                                            class="border"
-                                            size="100">
-                                            <v-img
-                                                :src="detailData.preview_img"></v-img>
-                                        </v-avatar>
-                                    </div>
-                                </template> -->
-
                                 <file-pond-com
+                                    v-on:updatefiles="updatePreviewImage"
                                     ref="pondPreview"
                                     class-name="my-pond"
                                     label-idle="Drop files here..."
@@ -65,6 +59,8 @@
                                     :accepted-file-types="allowedTypes"
                                     max-files="1"
                                 ></file-pond-com>
+                                <div class="invalid-feedback" v-if="errors.preview_image">{{ errors.preview_image }}</div>
+                                
                             </div>
                         </v-col>
                         <v-col
@@ -76,6 +72,7 @@
                                     style="height: 200px;"
                                     ref="description_quill"
                                     @update:content="updateDescription" />
+                                <div class="invalid-feedback" v-if="errors.description">{{ errors.description }}</div>
                             </div>
                         </v-col>
                     </v-row>
@@ -114,16 +111,22 @@ const { t } = useI18n();
 const { handleSubmit, defineField, errors, setFieldValue } = useForm({
     validationSchema: yup.object({
         name: yup.string().required(t('nameRequired')),
+        preview_image: yup.string().required(t('previewImageRequired')),
+        addon_file: yup.string().required(t('addonFileRequired')),
+        tutorial_video: yup.string().required(t('tutorialVideoRequired')),
+        description: yup.string().required(t('descriptionRequired'))
     }),
 });
 
 const [name] = defineField('name');
+const [preview_image] = defineField('preview_image');
+const [addon_file] = defineField('addon_file');
+const [tutorial_video] = defineField('tutorial_video');
+const [description] = defineField('description');
 
 const detailData = ref(null);
 
 const description_quill = ref(null);
-
-const description = ref(null);
 
 const pond = ref(null);
 
@@ -157,9 +160,9 @@ const breadcrumbs = ref([
 
 function updateDescription() {
     if (description_quill.value.getText().length > 1) {
-        description.value = description_quill.value.getHTML();
+        setFieldValue('description', description_quill.value.getHTML());
     } else {                                                                                                                                                                                                                                                                                                                                                                              
-        description.value = null;
+        setFieldValue('description', '');
     }
 
 }
@@ -167,15 +170,13 @@ function updateDescription() {
 const validateData = handleSubmit(async (values) => {
     loading.value = true;
     var formData = new FormData();
-    var addonFile = !pond.value ? null : (pond.value.getFiles().length ? pond.value.getFiles()[0].file : null);
-    var tutorialVideo = !pondTutorial.value ? null : (pondTutorial.value.getFiles().length ? pondTutorial.value.getFiles()[0].file : null);
-    var previewImage = !pondPreview.value ? null : (pondPreview.value.getFiles().length ? pondPreview.value.getFiles()[0].file : null);
-    formData.append('addon_file', addonFile);
-    formData.append('tutorial_video', tutorialVideo);
-    formData.append('preview_image', previewImage);
+
+    formData.append('addon_file', addon_file.value);
+    formData.append('tutorial_video', tutorial_video.value);
+    formData.append('preview_image', preview_image.value);
     formData.append('name', values.name);
     formData.append('description', description.value);
-    
+    console.log('values', values);
     const response = await store.storeAddon(formData);
     loading.value = false;
     
@@ -195,6 +196,33 @@ async function initDetail() {
             description_quill.value.setHTML(detailData.value.description);
         }
     }
+}
+
+function updatePreviewImage() {
+    var _value = null;
+    if ((pondPreview.value) && pondPreview.value.getFile()) {
+        _value = pondPreview.value.getFile().file;
+    }
+    
+    setFieldValue('preview_image', _value);
+}
+
+function updateMainAddon() {
+    var _value = null;
+    if ((pond.value) && pond.value.getFile()) {
+        _value = pond.value.getFile().file;
+    }
+    
+    setFieldValue('addon_file', _value);
+}
+
+function updateTutorialVideo() {
+    var _value = null;
+    if ((pondTutorial.value) && pondTutorial.value.getFile()) {
+        _value = pondTutorial.value.getFile().file;
+    }
+    
+    setFieldValue('tutorial_video', _value);
 }
 
 onMounted(() => {
