@@ -86,6 +86,15 @@ export const useUserStore = defineStore('user', {
             } catch (error) {
                 return error;
             }
-        }
+        },
+        async activateAccount(payload) {
+            try {
+                const resp = await axios.get('/users/activate/' + payload.encrypted);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
     }
 })

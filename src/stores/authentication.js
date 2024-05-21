@@ -13,17 +13,21 @@ export const useAuthenticationStore = defineStore('authentication', {
     },
     actions: {
         async login(payload) {
-            await axios.post('/auth/login', payload)
-                .then((res) => {
-                    localStorage.setItem('dfauth', res.data.data.token);
-                })
-                .catch(err => {
-                    notify({
-                        title: 'Error',
-                        text: err.response.data.message,
-                        type: 'error',
-                    });
-                })
+            try {
+                const resp = await axios.post('/auth/login', payload);    
+
+                localStorage.setItem('dfauth', resp.data.data.token);
+
+                return resp
+            } catch (error) {
+                notify({
+                    title: 'Error',
+                    text: error.response.data.message,
+                    type: 'error',
+                });
+
+                return error;
+            }
         },
         async sendForgotPassword(payload) {
             await axios.post('/auth/send-forgot-password', payload)

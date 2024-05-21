@@ -37,6 +37,15 @@ export const useRoleStore = defineStore('role', {
                 })
                 .catch()
         },
+        async getAllRoles() {
+            try {
+                const resp = await axios.get('/roles/getAll');
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
         async initPermissions() {
             await axios.get('/permissions/getAll')
                 .then((res) => {

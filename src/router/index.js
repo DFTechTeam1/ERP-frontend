@@ -34,13 +34,28 @@ import AddonForm from '@/pages/panel/AddonForm.vue';
 import PanelSetting from '@/pages/panel/SettingView.vue';
 import DetailProject from "@/pages/admin/production/DetailProject.vue";
 import ProjectForm from "@/pages/admin/production/FormView.vue";
+import ActivateAccount from "@/pages/admin/authentication/ActivateAccount.vue";
+import LayoutEmpty from "@/layouts/LayoutEmpty.vue";
 import { createRouter, createWebHistory } from "vue-router/auto";
 import moment from "moment";
 import { useEncrypt } from "@/compose/encrypt";
+import LayoutDefault from "@/layouts/LayoutDefault.vue";
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes: [
+    {
+      path: '/activate',
+      name: "Activate Component",
+      component: LayoutEmpty,
+      children: [
+        {
+          path: ":encrypted",
+          name: "Activate Account",
+          component: ActivateAccount,
+        },
+      ]
+    },
     {
       path: "/auth/a",
       name: "LayoutLogin",
@@ -82,7 +97,7 @@ const router = createRouter({
     {
       path: "/panel",
       name: "Layout addons",
-      component: LayoutPanel,
+      component: LayoutDefault,
       children: [
         {
           path: "setting",

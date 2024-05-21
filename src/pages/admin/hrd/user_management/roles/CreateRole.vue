@@ -61,9 +61,11 @@
                     <v-btn
                         class="mt-5"
                         variant="outlined"
+                        :disabled="loading"
                         color="primary"
                         type="submit">
-                        {{ $t('save') }}
+                        <template v-if="loading">{{ $t('processing') }}</template>
+                        <template v-else>{{ $t('save') }}</template>
                     </v-btn>
                 </v-form>
             </v-card-text>
@@ -132,6 +134,8 @@ const [name] = defineField('name');
 
 const detailRole = ref(null);
 
+const loading = ref(false);
+
 const title = ref(t('createRole'));
 
 const breadcrumbs = ref([
@@ -155,6 +159,7 @@ const breadcrumbs = ref([
 const { listOfPermissions } = storeToRefs(store);
 
 const validateData = handleSubmit(async(values) => {
+    loading.value = true;
     var permissions = [];
     document.querySelectorAll('.form-check-input:checked').forEach(element => {
         permissions.push(element.value);
@@ -167,6 +172,8 @@ const validateData = handleSubmit(async(values) => {
     }
 
     const storeData = await store.storeData(values);
+
+    loading.value = false;
 
     if (storeData.status < 300) {
         router.push({path: '/admin/user-management/roles'});
