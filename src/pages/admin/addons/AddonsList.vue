@@ -188,6 +188,11 @@
                 <ask-developer
                     :is-show="isShowAsk"
                     @close-ask="isShowAsk = false"></ask-developer>
+
+                <download-preview
+                    :is-show="showDownloadModal"
+                    :link="linkDownload"
+                    @close-download-view="closeDownloadView"></download-preview>
             </div>
         </v-main>
     </v-app>
@@ -296,6 +301,7 @@ import { ref, onMounted } from 'vue'
 import DetailAddon from './DetailAddon.vue'
 import AskDeveloper from './AskDeveloper.vue'
 import { useAddonStore } from '@/stores/addon'
+import DownloadPreview from './DownloadLink.vue'
 
 const store = useAddonStore();
 
@@ -310,6 +316,10 @@ const pageLength = ref(1);
 const detailListItem = ref(null)
 
 const isShowDetailList = ref(false)
+
+const showDownloadModal = ref(false);
+
+const linkDownload = ref('');
 
 const loading = ref(false);
 
@@ -356,7 +366,6 @@ function updatePagination(content) {
 }
 
 async function downloadAddon(payload, type, fromUpdate = false) {
-    console.log('payload', payload);
     var payloadres = {id: payload.uid, type: type};
 
     if (fromUpdate) {
@@ -366,8 +375,15 @@ async function downloadAddon(payload, type, fromUpdate = false) {
 
     if (res.status < 300) {
         // window.open(res.data.data.url, '_blank');
-        window.location.href = res.data.data.url;
+        // window.location.href = res.data.data.url;
+        linkDownload.value = res.data.data.url;
+        showDownloadModal.value = true;
     }
+}
+
+function closeDownloadView() {
+    linkDownload.value = '';
+    showDownloadModal.value = false;
 }
 
 async function initUpdatedAddons() {
