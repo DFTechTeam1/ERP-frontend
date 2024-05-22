@@ -41,7 +41,7 @@
                                     class-name="my-pond"
                                     label-idle="Drop files here..."
                                     allow-multiple="true"
-                                    :accepted-file-types="allowedTypes"
+                                    :accepted-file-types="allowedTutorialVideoTypes"
                                     max-files="1"
                                     v-on:updatefiles="updateTutorialVideo"
                                 ></file-pond-com>
@@ -55,8 +55,8 @@
                                     ref="pondPreview"
                                     class-name="my-pond"
                                     label-idle="Drop files here..."
-                                    allow-multiple="true"
-                                    :accepted-file-types="allowedTypes"
+                                    :allow-multiple="false"
+                                    :accepted-file-types="allowedPreviewImageTypes"
                                     max-files="1"
                                 ></file-pond-com>
                                 <div class="invalid-feedback" v-if="errors.preview_image">{{ errors.preview_image }}</div>
@@ -138,7 +138,11 @@ const pondPreview = ref(null);
 
 const loading = ref(false);
 
-const allowedTypes = ref('image/jpg, image/jpeg, image/png, image/webp, video/*')
+// const allowedTypes = ref('image/jpg, image/jpeg, image/png, image/webp, video/*');
+
+const allowedPreviewImageTypes = ref('image/*');
+
+const allowedTutorialVideoTypes = ref('video/*');
 
 const breadcrumbs = ref([
     {
@@ -176,7 +180,7 @@ const validateData = handleSubmit(async (values) => {
     formData.append('preview_image', preview_image.value);
     formData.append('name', values.name);
     formData.append('description', description.value);
-    console.log('values', values);
+    
     const response = await store.storeAddon(formData);
     loading.value = false;
     

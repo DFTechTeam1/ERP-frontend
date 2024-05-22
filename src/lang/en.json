@@ -304,5 +304,6 @@
     "previewImageRequired": "Preview image is required",
     "addonFileRequired": "Addon file is required",
     "tutorialVideoRequired": "Tutorial video is required",
-    "descriptionRequired": "Description is required"
+    "descriptionRequired": "Description is required",
+    "imageSizeIsTooBig": "Image size is to big, please make sure image size does not exceed 500x500 size"
 }

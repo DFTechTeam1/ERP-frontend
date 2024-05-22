@@ -10,6 +10,7 @@ import { QuillEditor } from '@vueup/vue-quill'
 import VueFilePond from "vue-filepond";
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.esm.js';
 import FilePondPluginTypePreview from 'filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.esm.js'
+import FilePondPluginImageValidateSize from 'filepond-plugin-image-validate-size';
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
@@ -21,7 +22,8 @@ import 'vue-select/dist/vue-select.css';
 
 const FilePond = VueFilePond(
     FilePondPluginImagePreview,
-    FilePondPluginTypePreview
+    FilePondPluginTypePreview,
+    FilePondPluginImageValidateSize
 );
 
 export function registerComponent(app) {

@@ -26,7 +26,7 @@
                 <!-- upper -->
                 <div class="upper-section">
                     <div class="upper-item">
-                        <div class="image"></div>
+                        <div class="image" id="image"></div>
                     </div>
                     <div class="upper-item">
                         <!-- updated addon -->
@@ -48,7 +48,8 @@
                                         :key="i"
                                         class="list d-flex align-center justify-space-between pointer"
                                         :id="'updated-list-' + i"
-                                        @click.prevent="activatedUpdate(i)">
+                                        @click.prevent="activatedUpdate(i)"
+                                        @mouseover="updatePreviewImage(list)">
                                         <p>{{ list.addon.name }}</p>
                 
                                         <div class="action d-flex align-center ga-1">
@@ -123,9 +124,12 @@
                                     md="4"
                                     v-for="(list, x) in lists"
                                     :key="x">
-                                    <v-card class="card-item" height="430">
+                                    <v-card class="card-item" 
+                                        max-height="450"
+                                        min-height="450">
                                         <v-img
-                                            :src="list.preview_img"></v-img>
+                                            :src="list.preview_img"
+                                            height="390"></v-img>
     
                                         <v-card-text>
                                             <div class="d-flex align-center justify-space-between">
@@ -374,6 +378,10 @@ async function initUpdatedAddons() {
     if (resp.status < 300) {
         updated.value = resp.data.data;
     }
+}
+
+function updatePreviewImage(addon) {
+    document.getElementById('image').style.backgroundImage = `url('${addon.addon.preview_img_path}')`;
 }
 
 onMounted(() => {
