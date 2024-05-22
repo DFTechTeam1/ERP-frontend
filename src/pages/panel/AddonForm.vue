@@ -174,12 +174,12 @@ function updateDescription() {
 const validateData = handleSubmit(async (values) => {
     loading.value = true;
     var formData = new FormData();
-
-    formData.append('addon_file', addon_file.value);
-    formData.append('tutorial_video', tutorial_video.value);
-    formData.append('preview_image', preview_image.value);
+    console.log('values', values);
+    formData.append('addon_file', values.addon_file);
+    formData.append('tutorial_video', values.tutorial_video);
+    formData.append('preview_image', values.preview_image);
     formData.append('name', values.name);
-    formData.append('description', description.value);
+    formData.append('description', values.description);
     
     const response = await store.storeAddon(formData);
     loading.value = false;
