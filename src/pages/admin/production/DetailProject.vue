@@ -73,7 +73,8 @@
                     <v-window-item value="tab-references">
                         <v-card flat>
                             <v-card-text>
-                                <references-view></references-view>
+                                <references-view
+                                    :media="references"></references-view>
                             </v-card-text>
                         </v-card>
                     </v-window-item>
@@ -128,6 +129,8 @@ const breadcrumbs = ref([
 
 const detailProject = ref(null);
 
+const references = ref([]);
+
 const tab = ref('tab-general')
 
 async function initProjectDetail() {
@@ -135,6 +138,7 @@ async function initProjectDetail() {
 
     if (resp.status < 300) {
         detailProject.value = resp.data.data;
+        references.value = detailProject.value.references;
     }
 }
 

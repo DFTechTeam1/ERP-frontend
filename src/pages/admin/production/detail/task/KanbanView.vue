@@ -2,23 +2,25 @@
     <div class="kanban-wrapper">
         <div class="kanban-item">
             <template
-                v-for="(board, keyBoard) in boards"
+                v-for="(board, keyBoard) in listOfPorjectBoards"
                 :key="keyBoard">
                 
                 <draggable
                     class="list-group"
-                    :list="board.items"
+                    :list="board.tasks"
                     group="people"
                     @change="log"
                     @start="isDrag = true"
                     @end="isDrag = false"
                     itemKey="name"
                 >
+                
                     <template #item="{ element }">
                         <div 
                             class="list-group-item position-relative" 
+                            style="min-height: 50px;"
                             @click="chooseCard(element, board)">
-                            {{ element.name }}
+                            <p style="font-size: 16px;">{{ element.name }}</p>
 
                             <div class="deadline" v-if="element.deadline">
                                 <p class="time text-right mt-3">
@@ -37,19 +39,20 @@
                     </template>
 
                     <template #footer>
-                        <template v-if="!board.items.length">
+                        <template v-if="!board.tasks.length">
                             <p class="text-center">No Task</p>
                         </template>
                         <v-btn
                             variant="outlined"
                             color="primary"
-                            class="w-100 mt-3">
-                            Add Task
+                            class="w-100 mt-3"
+                            @click.prevent="addTask(board)">
+                            {{ $t('addTask') }}
                         </v-btn>
                     </template>
 
                     <template #header>
-                        <p class="title">{{ board.title }}</p>
+                        <p class="title">{{ board.name }}</p>
                     </template>
                 </draggable>
             </template>
@@ -57,6 +60,11 @@
             <task-detail
                 :is-show="showDetail"
                 @close-event="showDetail = false"></task-detail>
+
+            <task-form
+                :board="selectedBoard"
+                :is-show="showTaskForm"
+                @close-event="closeTaskForm"></task-form>
         </div>
     </div>
 </template>
@@ -125,49 +133,19 @@ import draggable from "vuedraggable";
 import { ref } from 'vue'
 import { mdiClockOutline } from "@mdi/js";
 import TaskDetail from './TaskDetail';
+import { storeToRefs } from "pinia";
+import { useProjectStore } from "@/stores/project";
+import TaskForm from './AddTaskForm.vue';
+
+const store = useProjectStore();
+
+const { listOfPorjectBoards } = storeToRefs(store);
 
 const isDrag = ref(false);
 
-const boards = ref([
-    {
-        title: 'Backlog',
-        items: [
-            { name: "Create modelling", id: 1, deadline: '4 Apr' },
-            { name: "Animating", id: 2, deadline: '10 Apr' },
-            { name: "Create frontend", id: 3, deadline: '15 Apr' },
-            { name: "Integrate between backend and frontend", id: 4, deadline: '15 Apr' },
-            { name: "Authentication", id: 4, deadline: '15 Apr' },
-        ],
-    },
-    {
-        title: 'To Do',
-        items: [
-            { name: "Create Authorization page", id: 1, deadline: '15 Apr' },
-            { name: "Create dummy employee", id: 2, deadline: '15 Apr' },
-            { name: "Integrate with Google Sheet", id: 3, deadline: '15 Apr' }
-        ],
-    },
-    {
-        title: 'On Progress',
-        items: [],
-    },
-    {
-        title: 'Review by PM',
-        items: [],
-    },
-    {
-        title: 'Review by Client',
-        items: [],
-    },
-    {
-        title: 'Revise',
-        items: [],
-    },
-    {
-        title: 'Completed',
-        items: [],
-    },
-])
+const selectedBoard = ref(null);
+
+const showTaskForm = ref(false);
 
 const showDetail = ref(false);
 
@@ -179,6 +157,18 @@ function chooseCard(task, board) {
     console.log('oke', task);
     console.log('board', board);
 
+    store.setDetailTask({task: task, board: board});
+
     showDetail.value = true;
+}
+
+function addTask(board) {
+    selectedBoard.value = board;
+    showTaskForm.value = true;
+}
+
+function closeTaskForm() {
+    selectedBoard.value = null;
+    showTaskForm.value = false;
 }
 </script>

@@ -48,6 +48,8 @@ if (jwt != null) {
 
 
 }
+import.meta.env.PROD = true;
+console.log('en', import.meta.env.MODE);
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*'

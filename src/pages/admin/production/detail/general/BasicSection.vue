@@ -22,6 +22,7 @@
         
                 <div class="action">
                     <v-icon
+                        v-if="canEditProject"
                         :icon="mdiPencil"
                         @click.prevent="isOpenForm = true"
                         size="22"
@@ -35,6 +36,7 @@
         <basic-form 
             :is-open="isOpenForm"
             :basic-data="props.detail"
+            v-if="canEditProject"
             @close-form="closeForm"></basic-form>
     </div>
 </template>
@@ -70,7 +72,8 @@
 <script setup>
 import { mdiPencil } from '@mdi/js';
 import BasicForm from './BasicForm.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const isOpenForm = ref(false);
 
@@ -88,6 +91,8 @@ const props = defineProps({
     },
 })
 
+const canEditProject = ref(false);
+
 watch(props, (values) => {
     if (values.detail) {
         name.value = props.detail.name;
@@ -99,14 +104,20 @@ watch(props, (values) => {
     }
 })
 
-function closeForm(payload) {
-    console.log('res', payload);
+onMounted(() => {
+    canEditProject.value = useCheckPermission('edit_project');
+});
+
+function closeForm(payload = null) {
     isOpenForm.value = false;
-    name.value = payload.name;
-    projectDate.value = payload.project_date;
-    eventClass.value = payload.event_class;
-    eventClassColor.value = payload.event_class_color;
-    eventType.value = payload.event_type;
-    pic.value = payload.pic;
+
+    if (payload) {
+        name.value = payload.name;
+        projectDate.value = payload.project_date;
+        eventClass.value = payload.event_class;
+        eventClassColor.value = payload.event_class_color;
+        eventType.value = payload.event_type;
+        pic.value = payload.pic;
+    }
 }
 </script>

@@ -23,6 +23,8 @@
                         <field-input
                             :label="t('eventType')"
                             v-model="event_type"
+                            input-type="select"
+                            :select-options="eventTypeList"
                             :error-message="errors.event_type"></field-input>
                         <field-input
                             :label="t('collaboration')"
@@ -32,16 +34,14 @@
                         <field-input
                             :label="t('status')"
                             v-model="status"
+                            input-type="select"
+                            :select-options="projectStatus"
                             :error-message="errors.status"></field-input>
                         <field-input
                             :label="t('note')"
                             v-model="note"
                             :error-message="errors.note"
                             :is-required="false"></field-input>
-                        <date-picker
-                            :label="t('eventDate')"
-                            v-model="date"
-                            :error-message="errors.date"></date-picker>
                         <field-input
                             :label="t('clientPortal')"
                             v-model="client_portal"
@@ -49,9 +49,11 @@
 
                         <v-btn
                             varian="outlined"
+                            :disabled="loading"
                             color="primary"
                             type="submit">
-                            {{ $t('save') }}
+                            <template v-if="loading">{{ $t('processing') }}</template>
+                            <template v-else>{{ $t('save') }}</template>
                         </v-btn>
                     </v-form>
                 </v-card-text>
@@ -66,10 +68,13 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
+import { useProjectStore } from '@/stores/project';
+
+const store = useProjectStore();
 
 const { t } = useI18n();
 
-defineEmits(['close-form'])
+const emit = defineEmits(['close-form'])
 
 const { handleSubmit, defineField, errors, setValues } = useForm({
     validationSchema: yup.object({
@@ -78,7 +83,6 @@ const { handleSubmit, defineField, errors, setValues } = useForm({
         collaboration: yup.string().nullable(),
         status: yup.string().required(),
         note: yup.string().nullable(),
-        date: yup.string().nullable(),
         client_portal: yup.string().required(),
     })
 })
@@ -88,7 +92,6 @@ const [event_type] = defineField('event_type')
 const [collaboration] = defineField('collaboration')
 const [status] = defineField('status')
 const [note] = defineField('note')
-const [date] = defineField('date')
 const [client_portal] = defineField('client_portal')
 
 const props = defineProps({
@@ -103,24 +106,56 @@ const props = defineProps({
 
 const dialog = ref(false);
 
-const validateData = handleSubmit((values) => {
-    console.log('values', values);
+const loading = ref(false);
+
+const eventTypeList = ref([]);
+
+const projectStatus = ref([]);
+
+const validateData = handleSubmit(async (values) => {
+    loading.value = true;
+    const resp = await store.editMoreDetail(values, props.data.uid);
+    loading.value = false;
+
+    if (resp.status < 300) {
+        emit('close-form', resp.data.data);
+    }
 })
+
+async function initEventType() {
+    const resp = await store.initEventTypes();
+
+    if (resp.status < 300) {
+        eventTypeList.value = resp.data.data;
+    }
+}
+
+async function initProjectStatus() {
+    const resp = await store.initProjectStatus();
+
+    if (resp.status < 300) {
+        projectStatus.value = resp.data.data;
+    }
+}
 
 watch(props, (values) => {
     if (values) {
         dialog.value = values.isOpen
     }
 
+    if (values.isOpen) {
+        initEventType();
+        initProjectStatus();
+    }
+
     if (values.data) {
         setValues({
             venue: values.data.venue,
-            event_type: values.data.event_type,
+            event_type: values.data.event_type_raw,
             collaboration: values.data.collaboration,
-            status: values.data.status,
+            status: values.data.status_raw,
             note: values.data.note,
-            date: values.data.date,
-            client_portal: values.data.client_portal_url,
+            client_portal: values.data.client_portal,
         })
     }
 })

@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useNotification } from "@kyvg/vue3-notification";
 import axios from "axios";
+import { showNotification } from "@/compose/notification";
 
 const { notify } = useNotification();
 
@@ -8,21 +9,9 @@ export const useProjectStore = defineStore('project', {
     state: () => ({
         projects: [],
         totalProjects: 0,
-        detail: {
-            name: 'Golden Wedding anniv Joseph Lim& Silvia Tan',
-            date: '7 Januari 2024',
-            pic: 'Thalia',
-            event_type: 'wedding',
-            class: 'Standard',
-            class_color: 'success',
-            venue: "Haris Gubeng Surabaya",
-            collaboration: "Nuansa",
-            note: "Luasan 20m",
-            status: "On Going",
-            days_to_go: 30,
-            client_portal_url: 'localhost:3000/client-portal',
-            description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, provident. Ullam eum atque nesciunt, tempore saepe officia assumenda suscipit quam nulla mollitia est, cum laborum nisi. Aut aperiam odio consequuntur!"
-        },
+        detail: null,
+        projectBoards: [],
+        detailTask: null,
         teams: [
             {
                 uid: '99383',
@@ -70,7 +59,9 @@ export const useProjectStore = defineStore('project', {
     }),
     getters: {
         detailProject: (state) => state.detail,
+        detailOfTask: (state) => state.detailTask,
         listOfTeams: (state) => state.teams,
+        listOfPorjectBoards: (state) => state.projectBoards,
         listOfProjects: (state) => state.projects,
         totalOfProjects: (state) => state.totalProjects,
     },
@@ -79,13 +70,21 @@ export const useProjectStore = defineStore('project', {
             try {
                 const resp = await axios.get('/production/project/' + payload.id);
 
+                this.detail = resp.data.data;
+                this.projectBoards = resp.data.data.boards;
+
                 return resp;
             } catch (error) {
                 return error;
             }
         },
         getTeams() {
-            return this.teams;  
+            this.teams = this.detail.teams;
+
+            return this.teams;
+        },
+        setDetailTask(payload) {
+            this.detailTask = payload;
         },
         getEquipments() {
             return this.equipments;
@@ -94,6 +93,21 @@ export const useProjectStore = defineStore('project', {
             try {
                 const resp = await axios.put('/production/project/basic/' + uid, payload);
     
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+    
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async editMoreDetail(payload, uid) {
+            try {
+                const resp = await axios.put('/production/project/moreDetail/' + uid, payload);
+
                 notify({
                     title: 'Success',
                     text: resp.data.message,
@@ -125,9 +139,48 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
+        async initProjectStatus() {
+            try {
+                const resp = await axios.get('/production/status');
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
         async initClassList() {
             try {
                 const resp = await axios.get('/production/classList');
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async storeReferences(payload, id) {
+            try {
+                const resp = await axios.post(`production/project/${id}/references`, payload);
+
+                if (this.detail) {
+                    this.detail.references = resp.data.data;
+                }
+
+                showNotification(resp.data.message);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async deleteReference(payload, projectId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/references/delete`, payload);
+
+                if (this.detail) {
+                    this.detail.references = resp.data.data;
+                }
+
+                showNotification(resp.data.message);
 
                 return resp;
             } catch (error) {
@@ -142,7 +195,44 @@ export const useProjectStore = defineStore('project', {
                     title: "Success",
                     text: resp.data.message,
                     type: "success",
-                  });
+                });
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async addTask(payload, boardId) {
+            try {
+                const resp = await axios.post('/production/project/' + boardId + '/task', payload);
+
+                this.projectBoards = resp.data.data.boards;
+                this.detail = resp.data.data;
+
+                showNotification(resp.data.message);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async storeDescription(payload, boardId) {
+            try {
+                const resp = await axios.post('/production/project/' + boardId + '/description', payload);
+
+                // replace description in state
+                this.detailTask.task.description = payload.description;
+
+                showNotification(resp.data.message);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async getPMMembers(payload) {
+            try {
+                const resp = await axios.get('/production/project/' + payload.project_id + '/getProjectMembers');
 
                 return resp;
             } catch (error) {

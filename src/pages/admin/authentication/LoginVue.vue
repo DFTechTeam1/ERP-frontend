@@ -1,7 +1,7 @@
 <template>
     <div class="mt-xl-0 mt-5 mw-100">
         <h2 class="text-h3 font-weight-bold mb-2">
-            Welcome to DF Data Center
+            Welcome to DF Data Centerr
         </h2>
         <v-form @submit="submitData">
             <v-text-field

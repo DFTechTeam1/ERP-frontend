@@ -1,5 +1,5 @@
 <template>
-    <div class="member">
+    <div class="member" v-if="members.length">
         <p style="font-size: 13px; margin-bottom: 5px;">{{ $t('members') }}</p>
         <v-avatar
             class="mr-1 pointer"

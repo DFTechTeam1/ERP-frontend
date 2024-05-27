@@ -305,5 +305,11 @@
     "addonFileRequired": "Addon file is required",
     "tutorialVideoRequired": "Tutorial video is required",
     "descriptionRequired": "Description is required",
-    "imageSizeIsTooBig": "Image size is to big, please make sure image size does not exceed 500x500 size"
+    "imageSizeIsTooBig": "Image size is to big, please make sure image size does not exceed 500x500 size",
+    "deleteReference": "Delete Reference",
+    "deleteReferenceConfirmation": "Are you sure to delete this reference?",
+    "addTask": "Add Task",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "assignPic": "Assign PIC"
 }

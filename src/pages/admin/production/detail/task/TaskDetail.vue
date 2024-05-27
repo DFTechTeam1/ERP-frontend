@@ -10,7 +10,7 @@
                         <v-icon
                             :icon="mdiLaptop"
                             size="20"></v-icon>
-                        <p>{{ detail.name }}</p>
+                        <p>{{ detailOfTask.task.name }}</p>
                     </div>
 
                     <v-icon
@@ -32,7 +32,7 @@
                         <template v-if="detail.members.length">
                             <div class="generic d-flex ga-5">
                                 <task-member
-                                    :members="detail.members"></task-member>
+                                    :members="detailOfTask.task.pics"></task-member>
 
                                 <task-deadline
                                     v-if="detail.start_date.length && detail.end_date.length"
@@ -43,7 +43,10 @@
                         <!-- end members, deadline -->
 
                         <!-- description -->
-                        <div class="description mt-10">
+                        <div class="description"
+                            :class="{
+                                'mt-10': detailOfTask.task.pics.length
+                            }">
                             <div class="title-desc d-flex align-center justify-space-between">
                                 <div class="d-flex align-center ga-5">
                                     <v-icon
@@ -53,7 +56,7 @@
                                 </div>
 
                                 <v-btn
-                                    v-if="!isAddDescription && detail.description.length"
+                                    v-if="!isAddDescription && detailOfTask.task.description"
                                     variant="flat"
                                     size="small"
                                     color="white"
@@ -63,15 +66,15 @@
                             </div>
 
                             <div class="value-desc">
-                                <template v-if="!detail.description.length && !isAddDescription">
+                                <template v-if="!detailOfTask.task.description && !isAddDescription">
                                     <div class="desc-empty"
                                         @click.prevent="isAddDescription = true">
                                         {{ $t('addMoreDetail') }}
                                     </div>
                                 </template>
 
-                                <template v-if="detail.description.length && !isAddDescription">
-                                    <p v-html="detail.description" class="mt-4"></p>
+                                <template v-if="detailOfTask.task.description && !isAddDescription">
+                                    <p v-html="detailOfTask.task.description" class="mt-4"></p>
                                 </template>
 
                                 <template v-if="isAddDescription">
@@ -86,12 +89,14 @@
                                         <v-btn
                                             variant="flat"
                                             color="black"
+                                            :disabled="loading"
                                             @click.prevent="saveDescription">
                                             {{ $t('save') }}
                                         </v-btn>
                                         <v-btn
                                             variant="flat"
                                             color="white"
+                                            :disabled="loading"
                                             @click.prevent="closeEditor">
                                             {{ $t('cancel') }}
                                         </v-btn>
@@ -131,7 +136,8 @@
                                     <v-btn
                                         variant="flat"
                                         class="w-100 text-left mb-3"
-                                        color="grey-darken-1">
+                                        color="grey-darken-1"
+                                        @click.prevent="choosePic">
                                         <v-icon
                                             class="mr-1"
                                             :icon="mdiAccountSupervisor"
@@ -172,6 +178,11 @@
                 </v-row>
             </v-card-text>
         </v-card>
+
+
+        <add-pic-form
+            :is-show="showPicForm"></add-pic-form>
+
     </v-dialog>
 </template>
 
@@ -206,8 +217,17 @@ import {
 import TaskMember from './TaskMember.vue';
 import TaskDeadline from './TaskDeadline.vue';
 import DeadlineForm from './DeadlineForm.vue';
+import AddPicForm from './AddPicForm.vue'
+import { useProjectStore } from '@/stores/project';
+import { storeToRefs } from 'pinia';
+
+const store = useProjectStore();
+
+const { detailOfTask } = storeToRefs(store);
 
 const show = ref(false);
+
+const showPicForm = ref(false);
 
 const isAddDescription = ref(false);
 
@@ -216,6 +236,8 @@ const showDeadlineForm = ref(false);
 const description_quill = ref(null);
 
 const description = ref(null);
+
+const loading = ref(false);
 
 defineEmits(['close-event']);
 
@@ -264,10 +286,17 @@ function closeEditor() {
     isAddDescription.value = false;
 }
 
-function saveDescription() {
-    detail.value.description = description.value == null ? '' : description.value
+async function saveDescription() {
+    loading.value = true;
+    var descriptionData = description.value == null ? '' : description.value;
+    detail.value.description = descriptionData;
+    const resp = await store.storeDescription({description: descriptionData}, detailOfTask.value.task.uid);
+    loading.value = false;
 
-    closeEditor();
+    if (resp.status < 300) {
+        closeEditor();
+    }
+
 }
 
 function editDescription() {
@@ -276,5 +305,9 @@ function editDescription() {
     setTimeout(() => {
         description_quill.value.setHTML(description.value);
     }, 200);
+}
+
+function choosePic() {
+    showPicForm.value = true;
 }
 </script>

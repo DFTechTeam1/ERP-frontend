@@ -1,7 +1,8 @@
 <template>
     <v-dialog
         v-model="show"
-        max-width="600">
+        max-width="600"
+        v-on:afterLeave="closeModal">
         <v-card flat>
             <v-card-text v-if="props.image">
                 <v-img
@@ -15,6 +16,8 @@
 import { ref, watch } from 'vue';
 
 const show = ref(false);
+
+const emit = defineEmits(['close-detail-image']);
 
 const props = defineProps({
     isShow: {
@@ -31,4 +34,9 @@ watch(props, (values) => {
         show.value = values.isShow
     }
 })
+
+function closeModal() {
+    show.value = false;
+    emit('close-detail-image');
+}
 </script>

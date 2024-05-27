@@ -5,6 +5,7 @@ import FieldInput from './FieldInput.vue'
 import YearPicker from './YearPicker.vue'
 import DatePicker from './DatePicker.vue'
 import FilePicker from './FilePicker.vue'
+import ButtonSubmit from './ButtonSubmit.vue'
 import vSelect from 'vue-select';
 import { QuillEditor } from '@vueup/vue-quill'
 import VueFilePond from "vue-filepond";
@@ -38,5 +39,6 @@ export function registerComponent(app) {
         .component('date-picker', DatePicker)
         .component('file-pond-com', FilePond)
         .component('VueDatePicker', VueDatePicker)
+        .component('ButtonSubmit', ButtonSubmit)
         .component('file-picker', FilePicker);
 }

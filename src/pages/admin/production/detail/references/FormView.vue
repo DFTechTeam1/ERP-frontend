@@ -18,27 +18,24 @@
 
             <v-card-text
                 class="mt-5">
-                <v-form>
-                    <field-input
-                        :label="t('name')"
-                        v-model="name"
-                        :error-message="errors.name"></field-input>
-
+                <v-form
+                    @submit="validateData">
                         <file-pond-com
                             ref="pond"
                             class-name="my-pond"
                             label-idle="Drop files here..."
                             allow-multiple="true"
-                            accepted-file-types="image/jpeg, image/png"
+                            v-on:updatefiles="updateImages"
+                            accepted-file-types="image/png, image/jpg, image/jpeg, image/webp, applicaation/pdf"
                         ></file-pond-com>
+                        <div class="invalid-feedback" 
+                            style="padding-inline: 16px;"
+                            v-if="fileErrorRequired">
+                            File is required
+                        </div>
 
-                        <v-btn
-                            class="mt-5 w-100"
-                            variant="flat"
-                            color="primary"
-                            type="submit">
-                            {{ $t('save') }}
-                        </v-btn>
+                        <button-submit
+                            :is-loading="loading"></button-submit>
                 </v-form>
             </v-card-text>
         </v-card>
@@ -48,21 +45,33 @@
 <script setup>
 import { mdiClose } from '@mdi/js';
 import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
 import * as yup from 'yup';
-import { useForm } from 'vee-validate';
+import { useForm, useFieldArray } from 'vee-validate';
+import { storeToRefs } from 'pinia';
+import { useProjectStore } from '@/stores/project';
 
-const { t } = useI18n();
+const store = useProjectStore();
 
-const { defineField, errors } = useForm({
+const { detailProject } = storeToRefs(store);
+
+const { errors, handleSubmit, resetForm } = useForm({
     validationSchema: yup.object({
-        name: yup.string().required(),
+        files: yup.array().of(
+            yup.object().shape({
+                path: yup.string().required(),
+            }),
+        ),
     }),
+    initialValues: {
+        files: [
+            {path: ''},
+        ],
+    },
 });
 
-const [name] = defineField('name');
+const { replace } = useFieldArray('files');
 
-defineEmits(['close-event']);
+const emit = defineEmits(['close-event']);
 
 const props = defineProps({
     isShow: {
@@ -73,11 +82,53 @@ const props = defineProps({
 
 const show = ref(false);
 
+const loading = ref(false);
+
 const pond = ref(null);
+
+const fileErrorRequired = ref(false);
 
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow
     }
 })
+
+watch(errors, (values) => {
+    if (values['files[0].path']) {
+        fileErrorRequired.value = true;
+    }
+})
+
+const validateData = handleSubmit(async(values) => {
+    loading.value = true;
+    var formData = new FormData();
+    for (let a = 0; a < values.files.length; a++) {
+        formData.append(`files[${a}][path]`, values.files[a].path);
+    }
+    const resp = await store.storeReferences(formData, detailProject.value.uid);
+    loading.value = false;
+
+    if (resp.status < 300) {
+        resetForm();
+        emit('close-event');
+    }
+});
+
+function updateImages() {
+    if (pond.value.getFiles().length) {
+        var files = [];
+        for (let a = 0; a < pond.value.getFiles().length; a++) {
+            files.push({
+                path: pond.value.getFiles()[a].file
+            });
+        }
+
+        replace(files);
+        fileErrorRequired.value = false;
+    } else {
+        replace([{path: ''}]);
+        fileErrorRequired.value = true;
+    }
+}
 </script>
