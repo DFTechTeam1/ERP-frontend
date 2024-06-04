@@ -4,9 +4,9 @@
             <v-skeleton-loader
                 type="list-item-three-line"
                 width="100%"
-                v-if="!props.detail"></v-skeleton-loader>
+                v-if="!detailProject"></v-skeleton-loader>
 
-            <template v-if="props.detail">
+            <template v-if="detailProject">
                 <div class="fields w-100">
                     <v-row>
                         <v-col
@@ -19,28 +19,28 @@
                                     {{ $t('venue') }}
                                 </p>
                                 <p class="value">
-                                    {{ venue }}
+                                    {{ detailProject.venue }}
                                 </p>
                             </div>
     
                             <div class="field-item">
                                 <p class="key">{{ $t('eventType') }}</p>
                                 <p class="value">
-                                    {{ eventType }}
+                                    {{ detailProject.event_type }}
                                 </p>
                             </div>
 
                             <div class="field-item">
                                 <p class="key">{{ $t('collaboration') }}</p>
                                 <p class="value">
-                                    {{ collaboration }}
+                                    {{ detailProject.collaboration }}
                                 </p>
                             </div>
 
                             <div class="field-item">
                                 <p class="key">{{ $t('status') }}</p>
                                 <p class="value">
-                                    {{ status }}
+                                    {{ detailProject.status }}
                                 </p>
                             </div>
     
@@ -54,21 +54,21 @@
                             <div class="field-item">
                                 <p class="key">{{ $t('note') }}</p>
                                 <p class="value">
-                                    {{ note }}
+                                    {{ detailProject.note }}
                                 </p>
                             </div>
 
                             <div class="field-item">
                                 <p class="key">{{ $t('daysToGo') }}</p>
                                 <p class="value">
-                                    {{ props.detail.days_to_go}}
+                                    {{ detailProject.days_to_go }}
                                 </p>
                             </div>
 
                             <div class="field-item">
                                 <p class="key">{{ $t('clientPortal') }}</p>
                                 <a class="value" href="#">
-                                    {{ clientPortal }}
+                                    {{ detailProject.client_portal }}
                                 </a>
                             </div>
 
@@ -88,7 +88,6 @@
         </div>
 
         <more-detail-form
-            :data="payloadForm"
             :is-open="openForm"
             v-if="canEditProject"
             @close-form="closeForm"></more-detail-form>
@@ -121,62 +120,25 @@
 </style>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { mdiPencil } from '@mdi/js';
 import MoreDetailForm from './MoreDetailForm.vue'
 import { useCheckPermission } from '@/compose/checkPermission';
+import { useProjectStore } from '@/stores/project';
+import { storeToRefs } from 'pinia';
+
+const store = useProjectStore();
+const { detailProject } = storeToRefs(store);
 
 const openForm = ref(false);
 
-const props = defineProps({
-    detail: {
-        default: null,
-    },
-})
-
-const venue = ref(null);
-const collaboration = ref(null);
-const eventType = ref(null);
-const status = ref(null);
-const note = ref(null);
-const clientPortal = ref(null);
-
 const canEditProject = ref(false);
-
-const payloadForm = ref(null);
 
 onMounted(() => {
     canEditProject.value = useCheckPermission('edit_project');
 });
 
-watch(props, (values) => {
-    initDisplayData(values.detail);
-})
-
-function initDisplayData(values) {
-    venue.value = values.venue;
-    collaboration.value = values.collaboration;
-    eventType.value = values.event_type;
-    status.value = values.status;
-    note.value = values.note;
-    clientPortal.value = values.client_portal;
-
-    payloadForm.value = {
-        venue: values.venue,
-        event_type_raw: values.event_type_raw,
-        collaboration: values.collaboration,
-        status_raw: values.status_raw,
-        note: values.note,
-        client_portal: values.client_portal,
-        uid: props.detail.uid,
-    };
-}
-
-function closeForm(payload = null) {
+function closeForm() {
     openForm.value = false;
-
-    if (payload) {
-        initDisplayData(payload);
-    }
 }
 </script>

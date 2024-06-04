@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { useNotification } from "@kyvg/vue3-notification";
 import axios from "axios";
 import { showNotification } from "@/compose/notification";
+import { useEncrypt } from '@/compose/encrypt';
 
 const { notify } = useNotification();
 
@@ -70,8 +71,13 @@ export const useProjectStore = defineStore('project', {
             try {
                 const resp = await axios.get('/production/project/' + payload.id);
 
-                this.detail = resp.data.data;
-                this.projectBoards = resp.data.data.boards;
+                const saltKey = import.meta.env.VITE_SALT_KEY;
+                const { decodedString } = useEncrypt(resp.data.data.detail, saltKey);
+
+                console.log('decodedString', decodedString);
+
+                this.detail = decodedString;
+                this.projectBoards = decodedString.boards;
 
                 return resp;
             } catch (error) {
@@ -92,7 +98,9 @@ export const useProjectStore = defineStore('project', {
         async editBasicInformation(payload, uid) {
             try {
                 const resp = await axios.put('/production/project/basic/' + uid, payload);
-    
+                
+                this.detail = resp.data.data;
+
                 notify({
                     title: 'Success',
                     text: resp.data.message,
@@ -113,6 +121,8 @@ export const useProjectStore = defineStore('project', {
                     text: resp.data.message,
                     type: 'success',
                 });
+
+                this.detail = resp.data.data;
     
                 return resp;
             } catch (error) {
@@ -216,12 +226,15 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
-        async storeDescription(payload, boardId) {
+        async storeDescription(payload, taskId) {
             try {
-                const resp = await axios.post('/production/project/' + boardId + '/description', payload);
+                const resp = await axios.post('/production/project/' + taskId + '/description', payload);
 
                 // replace description in state
-                this.detailTask.task.description = payload.description;
+                // this.detailTask.task.description = payload.description;
+                this.detailTask = resp.data.data.task;
+                this.detail = resp.data.data.full_detail;
+                this.projectBoards = resp.data.data.full_detail.boards;
 
                 showNotification(resp.data.message);
 
@@ -232,7 +245,22 @@ export const useProjectStore = defineStore('project', {
         },
         async getPMMembers(payload) {
             try {
-                const resp = await axios.get('/production/project/' + payload.project_id + '/getProjectMembers');
+                const resp = await axios.get('/production/project/' + payload.project_id + '/getProjectMembers/' + payload.task_id);
+                console.log('resp pm member', resp);
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async assignMemberToTask(payload, taskId) {
+            try {
+                const resp = await axios.post('/production/project/' + taskId + '/task/assignMember', payload);
+
+                this.detailTask = resp.data.data.task;
+                this.detail = resp.data.data.full_detail;
+                this.projectBoards = resp.data.data.full_detail.boards;
+
+                showNotification(resp.data.message);
 
                 return resp;
             } catch (error) {

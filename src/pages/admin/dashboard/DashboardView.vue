@@ -94,7 +94,10 @@
 </template>
   
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 const options = ref({
     dataLabels: {
@@ -121,6 +124,10 @@ const options = ref({
 });
 
 const series = ref([44, 55, 41, 17, 15]);
+
+onMounted(() => {
+    console.log('route', route);
+})
 
 </script>
 

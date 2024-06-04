@@ -109,6 +109,7 @@
     "email": "Email",
     "placement": "Placement",
     "createEmployee": "Create Employee",
+    "detailEmployee": "Detail Employee",
     "create": "Create",
     "experience": "Experience",
     "documents": "Documents",
@@ -311,5 +312,9 @@
     "addTask": "Add Task",
     "startDate": "Start Date",
     "endDate": "End Date",
-    "assignPic": "Assign PIC"
+    "assignPic": "Assign PIC",
+    "selected": "Selected",
+    "available": "Available",
+    "purchasePriceRequired": "Purchase price is required",
+    "noTeams": "No Teams"
 }

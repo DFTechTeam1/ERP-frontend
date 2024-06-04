@@ -4,19 +4,19 @@
             <v-skeleton-loader
                 type="list-item-three-line"
                 width="100%"
-                v-if="!props.detail"></v-skeleton-loader>
+                v-if="!detailProject"></v-skeleton-loader>
     
             <template v-else>
                 <div class="names">
-                    <p class="name">{{ name }}</p>
+                    <p class="name">{{ detailProject.name }}</p>
                     <p class="date">
-                        {{ projectDate }} (<span class="pm">{{ pic }}</span>)
+                        {{ detailProject.project_date }} (<span class="pm">{{ detailProject.pic }}</span>)
                     </p>
                     <v-chip
                         color="primary"
-                        >{{ eventType }}</v-chip>
-                    <v-chip :color="eventClassColor">
-                        {{ eventClass }}
+                        >{{ detailProject.event_type }}</v-chip>
+                    <v-chip :color="detailProject.event_class_color">
+                        {{ detailProject.event_class }}
                     </v-chip>
                 </div>
         
@@ -72,18 +72,15 @@
 <script setup>
 import { mdiPencil } from '@mdi/js';
 import BasicForm from './BasicForm.vue'
-import { ref, watch, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useCheckPermission } from '@/compose/checkPermission';
+import { useProjectStore } from '@/stores/project';
+import { storeToRefs } from 'pinia';
+
+const store = useProjectStore();
+const { detailProject } = storeToRefs(store);
 
 const isOpenForm = ref(false);
-
-const name = ref(null);
-const projectDate = ref(null);
-const eventClass = ref(null);
-const eventClassColor = ref(null);
-const eventType = ref(null);
-const pic = ref(null);
-const formDetailValue = ref(null);
 
 const props = defineProps({
     detail: {
@@ -93,31 +90,11 @@ const props = defineProps({
 
 const canEditProject = ref(false);
 
-watch(props, (values) => {
-    if (values.detail) {
-        name.value = props.detail.name;
-        projectDate.value = props.detail.project_date;
-        eventClass.value = props.detail.event_class;
-        eventClassColor.value = props.detail.event_class_color;
-        eventType.value = props.detail.event_type;
-        pic.value = props.detail.pic;
-    }
-})
-
 onMounted(() => {
     canEditProject.value = useCheckPermission('edit_project');
 });
 
-function closeForm(payload = null) {
+function closeForm() {
     isOpenForm.value = false;
-
-    if (payload) {
-        name.value = payload.name;
-        projectDate.value = payload.project_date;
-        eventClass.value = payload.event_class;
-        eventClassColor.value = payload.event_class_color;
-        eventType.value = payload.event_type;
-        pic.value = payload.pic;
-    }
 }
 </script>

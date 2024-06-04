@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup'
 import { useAuthenticationStore } from '@/stores/authentication'
@@ -75,9 +75,10 @@ const submitData = handleSubmit(async values => {
     isLoading.value = false;
 
     if (resp.status < 300) {
+        console.log('route path', route);
         if (route.path == '/auth/a/login') {
-            window.location.href = window.location.origin + '/admin/dashboard';
-            // router.push({path: '/admin/dashboard'});
+            // window.location.href = window.location.origin + '/admin/dashboard';
+            router.push({path: '/admin/dashboard'});
         } else if (route.path == '/auth/p/login') {
             window.location.href = window.location.origin + '/panel/addons';
             // router.push({path: '/panel/addons'});
@@ -89,4 +90,8 @@ const [email, emailAttrs] = defineField('email');
 const [password, passwordAttrs] = defineField('password');
 
 const isLoading = ref(false);
+
+onMounted(() => {
+    console.log('route', route);
+})
 </script>

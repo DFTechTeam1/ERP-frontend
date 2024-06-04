@@ -188,6 +188,8 @@ onMounted(() => {
     if (route.params.id) {
         getEmployeeDetail(route.params.id);
         breadcrumbTitle.value = t('edit');
+    } else {
+        getProvinces();
     }
 })
 </script>

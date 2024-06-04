@@ -10,6 +10,7 @@
                     <v-icon
                         :icon="mdiClose"
                         size="20"
+                        @click.prevent="emit('close-event')"
                         color="red"></v-icon>
                 </v-card-title>
             </v-card-item>
@@ -28,28 +29,47 @@
                 </template>
                 <template v-else>
                     <v-list density="compact"
-                        max-height="300px">
+                        max-height="300px"
+                        v-for="(member, i) in members"
+                        :key="i">
+                        <v-list-subheader :title="t(i)"></v-list-subheader>
+
+                        <template v-if="!member.length">
+                            <span class="text-center w-100 d-block">Empty List</span>
+                        </template>
+
                         <v-list-item
-                            v-for="(member, i) in members"
-                            :key="i"
-                            :value="member"
+                            v-for="(memberList, x) in member"
+                            :key="x"
+                            :value="memberList"
                             class="pointer mb-2"
-                            :active="member.select"
+                            :active="memberList.selected"
                             color="primary"
-                            @click.prevent="chooseUser(member)">
-                        
+                            @click.prevent="chooseUser(memberList.selected ? null : memberList)">
+
                             <template v-slot:prepend>
-                                <v-avatar
-                                    size="30">
+                                <v-avatar>
                                     <v-img
-                                        :src="member.image"></v-img>
+                                        :src="memberList.image"></v-img>
                                 </v-avatar>
                             </template>
-                    
+
                             <v-list-item-title>
-                                <p style="font-size: 14px" class="m-0 fw-bold">{{ member.name }}</p>
-                                <p style="font-size: 12px;" class="m-0">{{ member.email }}</p>
+                                <p style="font-size: 14px" class="m-0 fw-bold">{{ memberList.name }}</p>
+                                <p style="font-size: 12px;" class="m-0">{{ memberList.email }}</p>
                             </v-list-item-title>
+                            
+                            <template v-slot:append
+                                v-if="memberList.selected">
+                                <v-list-item-action end>
+                                    <v-icon
+                                        :icon="mdiClose"
+                                        class="pointer"
+                                        @click.prevent="removeMember(memberList)"
+                                        size="20"
+                                        color="red"></v-icon>
+                                </v-list-item-action>
+                            </template>
     
                         </v-list-item>
                     </v-list>
@@ -59,9 +79,12 @@
                     class="w-100 mt-3"
                     variant="flat"
                     color="primary"
+                    :disabled="loading"
                     @click.prevent="submitUser">
-                    {{ $t('save') }}
+                    <template v-if="loading">{{ $t('processing') }}</template>
+                    <template v-else>{{ $t('save') }}</template>
                 </v-btn>
+
             </v-card-text>
         </v-card>
     </v-dialog>
@@ -71,17 +94,24 @@
 import { mdiClose } from '@mdi/js';
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
-import { watch, onMounted, ref } from 'vue';
+import { watch, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const store = useProjectStore();
 
 const { detailOfTask } = storeToRefs(store);
 
-const show = ref(true);
+const show = ref(false);
 
 const loadingGetTeams = ref(false);
 
+const loading = ref(false);
+
 const selectedUser = ref([]);
+
+const emit = defineEmits(['close-event']);
 
 const props = defineProps({
     isShow: {
@@ -90,59 +120,89 @@ const props = defineProps({
     },
 });
 
-const members = ref([
-    {id: 1, name: 'Ilham Meru', email: 'gumilang.dev@gmail.com', 'image': '/user.png', select: false},
-    {id: 2, name: 'Rocky', email: 'rocky@gmail.com', 'image': '/user.png', select: false},
-    {id: 3, name: 'Lebe', email: 'lebe@gmail.com', 'image': '/user.png', select: false},
-    {id: 4, name: 'John Wick', email: 'johnwick224@gmail.com', 'image': '/user.png', select: false},
-    {id: 5, name: 'John cena', email: 'cena7738@gmail.com', 'image': '/user.png', select: false},
-]);
+const members = ref({});
+
+const removedUser = ref([]);
 
 async function getPicMember(payload) {
     loadingGetTeams.value = true;
     const resp = await store.getPMMembers(payload);
     loadingGetTeams.value = false;
-
+    
     if (resp.status < 300) {
-        members.value = resp.data.data;
+        members.value.selected = resp.data.data.selected;
+        members.value.available = resp.data.data.available;
     }
 }
 
 function chooseUser(member) {
-    var newMember = members.value.map((elem) => {
-        if (elem.id == member.id) {
-            if (elem.select) {
-                elem.select = false;
-            } else {
-                elem.select = true;
-            }
-        }
+    if (member) {
+        member.selected = true;
 
-        return elem;
-    })
+        members.value.selected.push(member);
 
-    members.value = newMember;
+        var available = members.value.available.filter((elem) => {
+            return elem.uid != member.uid;
+        });
+
+        members.value.available = available;
+
+        var filterRemoved = removedUser.value.filter((filter) => {
+            return filter.uid != member.uid;
+        });
+        console.log('filterRemoved', filterRemoved);
+        removedUser.value = filterRemoved;
+    }
 }
 
-function submitUser() {
-    selectedUser.value = members.value.filter((elem) => {
-        return elem.select;
-    }).map((item) => {
-        return item.uid;
-    })
+async function submitUser() {
+    selectedUser.value = members.value.selected;
 
-    console.log('selected', selectedUser.value);
+    var users = [];
+    for (let a = 0; a < selectedUser.value.length; a++) {
+        users.push(selectedUser.value[a].uid);
+    }
+
+    var removed = removedUser.value.map((elem) => {
+        return elem.uid;
+    });
+
+    var payload = {
+        users: users,
+        removed: removed
+    }
+
+    loading.value = true;
+    const resp = await store.assignMemberToTask(payload, detailOfTask.value.uid); 
+    loading.value = false;
+
+    if (resp.status < 300) {
+        emit('close-event');
+    }
 }
 
-onMounted(() => {
-    getPicMember({project_id: detailOfTask.value.board.project_id});
-});
+function removeMember(member) {
+    removedUser.value.push(member);
+    
+    member.selected = false;
+
+    members.value.available.push(member);
+
+    var selected = members.value.selected.filter((elem) => {
+        return elem.uid != member.uid;
+    });
+
+    members.value.selected = selected;
+}
 
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow;
     }
     
-    getPicMember({project_id: detailOfTask.value.board.project_id});
+    if (values.isShow) {
+        getPicMember({project_id: detailOfTask.value.project_id, task_id: detailOfTask.value.uid});
+    }
+
 })
 </script>

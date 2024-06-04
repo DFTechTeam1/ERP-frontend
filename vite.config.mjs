@@ -63,13 +63,13 @@ export default defineConfig(({command, mode}) => {
       ],
     },
     server: {
-      https: {
-        key: fs.readFileSync(path.resolve(__dirname, './192.168.99.51-key.pem')),
-        cert: fs.readFileSync(path.resolve(__dirname, './192.168.99.51.pem')),
-      },
+      // https: {
+      //   key: fs.readFileSync(path.resolve(__dirname, './192.168.99.51-key.pem')),
+      //   cert: fs.readFileSync(path.resolve(__dirname, './192.168.99.51.pem')),
+      // },
       // Make sure the server is accessible over the local network
-      host: '192.168.99.51',
-      port: 5173,
+      // host: '192.168.99.51',
+      // port: 5173,
     },
   }
 })

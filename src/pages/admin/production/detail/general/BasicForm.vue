@@ -68,8 +68,10 @@ import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { mdiClose } from '@mdi/js'
 import { useProjectStore } from '@/stores/project'
+import { storeToRefs } from 'pinia';
 
 const store = useProjectStore();
+const { detailProject } = storeToRefs(store);
 
 const emit = defineEmits(['close-form']);
 
@@ -88,7 +90,7 @@ const props = defineProps({
     },
 })
 
-const { errors, defineField, handleSubmit, resetForm, setValues } = useForm({
+const { errors, defineField, handleSubmit, setValues } = useForm({
     validationSchema: yup.object({
         name: yup.string().required(t('nameRequired')),
         date: yup.string().required(t('dateRequired')),
@@ -113,18 +115,22 @@ watch(props, (values) => {
         dialog.value = values.isOpen;
     }
 
-    if (values.basicData) {
-        setValues({
-            name: values.basicData.name,
-            date: values.basicData.project_date,
-            event_type: values.basicData.event_type_raw,
-            classification: values.basicData.event_class_raw,
-        })
-    }
-
     initEventTypes();
     initClassList();
 })
+
+watch(detailProject, (values) => {
+    setForm(values);
+})
+
+function setForm(values) {
+    setValues({
+        name: values.name,
+        date: values.project_date,
+        event_type: values.event_type_raw,
+        classification: values.event_class_raw,
+    })
+}
 
 async function initClassList() {
     const resp = await store.initClassList();
@@ -144,11 +150,11 @@ async function initEventTypes() {
 
 const validateData = handleSubmit(async (values) => {
     loading.value = true;
-    const storeData = await store.editBasicInformation(values, props.basicData.uid)
+    const storeData = await store.editBasicInformation(values, detailProject.value.uid)
     loading.value = false;
 
     if (storeData.status < 300) {
-        resetForm();
+        setForm(detailProject.value);
 
         emit('close-form', storeData.data.data);
     }

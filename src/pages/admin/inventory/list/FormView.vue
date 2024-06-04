@@ -247,6 +247,7 @@
                                     md="4">
                                     <field-input
                                         v-model="purchase_price"
+                                        :error-message="errors.purchase_price"
                                         :label="t('purchasePrice')"
                                         :isRequired="false"
                                         :prefixText="t('rupiah')"></field-input>
@@ -355,8 +356,8 @@ const { errors, handleSubmit, defineField, resetForm, setErrors, setValues } = u
         stock: yup.number(t('fieldMustBeNumber')).required(t('stockRequired')),
         year_of_purchase: yup.string().nullable(),
         warranty: yup.string().nullable(),
-        purchase_price: yup.string().nullable(),
-        description: yup.string().required(),
+        purchase_price: yup.string().required(t('purchasePriceRequired')),
+        description: yup.string().nullable(),
         item_locations: yup.array().of(
             yup.object().shape({
                 location: yup.number(t('fieldMustBeNumber'))
@@ -416,6 +417,7 @@ const validateData = handleSubmit(async values => {
     formData.append('year_of_purchase', values.year_of_purchase == undefined ? '' : values.year_of_purchase);
 
     var storeData;
+    isLoading.value = true;
     if (detailData.value) {
         formData.append('_method', "PUT");
         formData.append('current_images', currentImages);
@@ -435,6 +437,7 @@ const validateData = handleSubmit(async values => {
     } else {
         storeData = await store.storeData(formData);
     }
+    isLoading.value = false;
 
     useError(storeData, setErrors);
 

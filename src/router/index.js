@@ -25,6 +25,7 @@ import InventoriesView from '@/pages/admin/inventory/list/ListView.vue';
 import InventoryForm from '@/pages/admin/inventory/list/FormView.vue';
 import InventoryDetail from '@/pages/admin/inventory/list/DetailView.vue';
 import EmployeeView from '@/pages/admin/hrd/employee/ListView.vue';
+import DetailEmployee from '@/pages/admin/hrd/employee/DetailEmployee.vue';
 import EmployeeForm from '@/pages/admin/hrd/employee/FormView.vue';
 import AddonsList from '@/pages/admin/addons/AddonsList.vue';
 import SettingView from '@/pages/admin/setting/SettingView.vue';
@@ -156,6 +157,13 @@ const router = createRouter({
               component: EmployeeView,
               meta: {
                 requiresAuth: true,
+              }
+            },
+            {
+              path: ':id',
+              component: DetailEmployee,
+              meta: {
+                meta: { requiresAuth: true, permission: 'detail_employee' },
               }
             },
             {
@@ -360,6 +368,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
+  console.log('to', to);
+  console.log('from', from);
   // TODO: DELETED SOON
   if (to.path == '/') {
     return {
@@ -388,6 +398,16 @@ router.beforeEach((to, from) => {
       };
     }
   }
+
+  // if query param have redirect items, redirect it
+  // if (from.query && localStorage.getItem("dfauth")) {
+  //   if (from.query.redirect) {
+  //     console.log('path', from.query.redirect);
+  //     return {
+  //       path: '/admin/production/projects'
+  //     }
+  //   }
+  // }
 
   if (to.path == "/auth/a/login" && localStorage.getItem("dfauth")) {
     return {

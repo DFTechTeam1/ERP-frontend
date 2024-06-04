@@ -69,8 +69,10 @@ import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { useProjectStore } from '@/stores/project';
+import { storeToRefs } from 'pinia';
 
 const store = useProjectStore();
+const { detailProject } = storeToRefs(store);
 
 const { t } = useI18n();
 
@@ -99,9 +101,6 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    data: {
-        default: null,
-    },
 })
 
 const dialog = ref(false);
@@ -114,11 +113,11 @@ const projectStatus = ref([]);
 
 const validateData = handleSubmit(async (values) => {
     loading.value = true;
-    const resp = await store.editMoreDetail(values, props.data.uid);
+    const resp = await store.editMoreDetail(values, detailProject.value.uid);
     loading.value = false;
 
     if (resp.status < 300) {
-        emit('close-form', resp.data.data);
+        emit('close-form');
     }
 })
 
@@ -147,15 +146,17 @@ watch(props, (values) => {
         initEventType();
         initProjectStatus();
     }
+})
 
-    if (values.data) {
+watch(detailProject, (values) => {
+    if (values) {
         setValues({
-            venue: values.data.venue,
-            event_type: values.data.event_type_raw,
-            collaboration: values.data.collaboration,
-            status: values.data.status_raw,
-            note: values.data.note,
-            client_portal: values.data.client_portal,
+            venue: values.venue,
+            event_type: values.event_type_raw,
+            collaboration: values.collaboration,
+            status: values.status_raw,
+            note: values.note,
+            client_portal: values.client_portal,
         })
     }
 })

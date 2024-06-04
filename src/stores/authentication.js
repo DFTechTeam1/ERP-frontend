@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import axios from 'axios'
 import { useNotification } from "@kyvg/vue3-notification";
+import { tokenSetter } from "@/compose/tokenSetter";
 
 const { notify } = useNotification();
 
@@ -17,6 +18,8 @@ export const useAuthenticationStore = defineStore('authentication', {
                 const resp = await axios.post('/auth/login', payload);    
 
                 localStorage.setItem('dfauth', resp.data.data.token);
+
+                tokenSetter();
 
                 return resp
             } catch (error) {

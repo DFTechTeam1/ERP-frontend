@@ -49,6 +49,7 @@
                                 :error-message="errors.marketing_id"
                                 :label="t('marketing')"
                                 input-type="select"
+                                v-if="userRole != 'marketing'"
                                 :select-options="marketingList"></field-input>
                         </v-col>
 
@@ -86,9 +87,25 @@
                                 :is-multiple="true"
                                 v-if="useGetRole() != 'pm'"
                                 v-model="pic"
+                                :custom-options="true"
                                 :error-message="errors.pic"
                                 inputType="select"
-                                :select-options="projectManagerList"></field-input>
+                                :select-options="projectManagerList">
+                                <template v-slot:selectOption="{props, item}">
+                                    <v-list-item
+                                        v-bind="props"
+                                        :prepend-avatar="item.raw.image">
+
+                                        <template v-slot:title>
+                                            {{ item.raw.title }}
+                                        </template>
+                                        <template v-slot:subtitle>
+                                            {{ item.raw.workload_on_date }} Project on this selected date
+                                        </template>
+
+                                    </v-list-item>
+                                </template>
+                            </field-input>
                         </v-col>
 
                         <v-col
@@ -276,10 +293,14 @@ const projectManagerList = ref([]);
 
 const marketingList = ref([]);
 
+const userRole = ref(null);
+
 onMounted(() => {
     if (fields.value.length) {
         calculateArea();
     }
+
+    userRole.value = useGetRole();
 
     initEventType();
     initClassList();
@@ -308,8 +329,8 @@ async function initMarketing() {
 
 }
 
-async function initProjectManager() {
-    const resp = await employeeStore.getProjectManager();
+async function initProjectManager(payload = null) {
+    const resp = await employeeStore.getProjectManager(payload);
 
     if (resp.status < 300) {
         projectManagerList.value = resp.data.data;
@@ -370,13 +391,19 @@ const validateData = handleSubmit(async (values) => {
 })
 
 watch(name, (values) => {
-    console.log('w name', values);
     if (values.length) {
         var portal = values
             .replace(/ /g, "-")
             .replace(/[^\w-]+/g, "");
 
         setFieldValue('client_portal', portal);
+    }
+})
+
+watch(project_date, (values) => {
+    if (values) {
+        // reinit pic
+        initProjectManager({date: values});
     }
 })
 </script>

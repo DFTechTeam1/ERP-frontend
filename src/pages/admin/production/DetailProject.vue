@@ -144,5 +144,5 @@ async function initProjectDetail() {
 
 onMounted(() => {
     initProjectDetail();
-})
+}) 
 </script>

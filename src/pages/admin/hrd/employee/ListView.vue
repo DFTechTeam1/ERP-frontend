@@ -76,7 +76,7 @@
                                 </v-list-item>
                                 <v-list-item
                                     class="pointer"
-                                    @click.prevent="detailInventory(value.uid)">
+                                    @click.prevent="detailEmployee(value.uid)">
                                     <template v-slot:title>
                                         <div
                                             class="d-flex align-center"
@@ -265,6 +265,10 @@ function showForm() {
 
 function deleteEmployee(uid) {
     bulkDelete({value: [{uid: uid}]});
+}
+
+function detailEmployee(employeeUid) {
+    router.push({path: '/admin/employees/' + employeeUid});
 }
 
 async function doAddUser(payload) {

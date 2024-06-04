@@ -157,7 +157,7 @@ function chooseCard(task, board) {
     console.log('oke', task);
     console.log('board', board);
 
-    store.setDetailTask({task: task, board: board});
+    store.setDetailTask(task);
 
     showDetail.value = true;
 }

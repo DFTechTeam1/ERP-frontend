@@ -10,7 +10,7 @@
                         <v-icon
                             :icon="mdiLaptop"
                             size="20"></v-icon>
-                        <p>{{ detailOfTask.task.name }}</p>
+                        <p>{{ detailOfTask.name }}</p>
                     </div>
 
                     <v-icon
@@ -32,7 +32,7 @@
                         <template v-if="detail.members.length">
                             <div class="generic d-flex ga-5">
                                 <task-member
-                                    :members="detailOfTask.task.pics"></task-member>
+                                    :members="detailOfTask.pics"></task-member>
 
                                 <task-deadline
                                     v-if="detail.start_date.length && detail.end_date.length"
@@ -45,7 +45,7 @@
                         <!-- description -->
                         <div class="description"
                             :class="{
-                                'mt-10': detailOfTask.task.pics.length
+                                'mt-10': detailOfTask.pics.length
                             }">
                             <div class="title-desc d-flex align-center justify-space-between">
                                 <div class="d-flex align-center ga-5">
@@ -56,7 +56,7 @@
                                 </div>
 
                                 <v-btn
-                                    v-if="!isAddDescription && detailOfTask.task.description"
+                                    v-if="!isAddDescription && detailOfTask.description"
                                     variant="flat"
                                     size="small"
                                     color="white"
@@ -66,15 +66,15 @@
                             </div>
 
                             <div class="value-desc">
-                                <template v-if="!detailOfTask.task.description && !isAddDescription">
+                                <template v-if="!detailOfTask.description && !isAddDescription">
                                     <div class="desc-empty"
                                         @click.prevent="isAddDescription = true">
                                         {{ $t('addMoreDetail') }}
                                     </div>
                                 </template>
 
-                                <template v-if="detailOfTask.task.description && !isAddDescription">
-                                    <p v-html="detailOfTask.task.description" class="mt-4"></p>
+                                <template v-if="detailOfTask.description && !isAddDescription">
+                                    <p v-html="detailOfTask.description" class="mt-4"></p>
                                 </template>
 
                                 <template v-if="isAddDescription">
@@ -181,6 +181,7 @@
 
 
         <add-pic-form
+            @close-event="closePicForm"
             :is-show="showPicForm"></add-pic-form>
 
     </v-dialog>
@@ -290,7 +291,7 @@ async function saveDescription() {
     loading.value = true;
     var descriptionData = description.value == null ? '' : description.value;
     detail.value.description = descriptionData;
-    const resp = await store.storeDescription({description: descriptionData}, detailOfTask.value.task.uid);
+    const resp = await store.storeDescription({description: descriptionData}, detailOfTask.value.uid);
     loading.value = false;
 
     if (resp.status < 300) {
@@ -303,11 +304,15 @@ function editDescription() {
     isAddDescription.value = true;
     
     setTimeout(() => {
-        description_quill.value.setHTML(description.value);
+        description_quill.value.setHTML(detailOfTask.value.description);
     }, 200);
 }
 
 function choosePic() {
     showPicForm.value = true;
+}
+
+function closePicForm() {
+    showPicForm.value = false;
 }
 </script>

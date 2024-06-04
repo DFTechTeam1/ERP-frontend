@@ -25,6 +25,7 @@ export const useEmployeesStore = defineStore('employees', {
         listOfAllProjectManagers: (state) => state.allProjectManagers,
         listOfAllEmployees: (state) => state.allEmployees,
         totalOfEmployees: (state) => state.totalEmployees,
+        detailOfEmployee: (state) => state.detailEmployee,
         errorValidationData: (state) => state.errorValidation,
         formEmployee: (state) => state.completeFormEmployee,
     },
@@ -67,9 +68,14 @@ export const useEmployeesStore = defineStore('employees', {
                     this.allEmployees = res.data.data;
                 });
         },
-        async getProjectManager() {
+        async getProjectManager(payload = null) {
             try {
-                const resp = await axios.get('/employees/getProjectManagers');
+                var date = '';
+                if (payload) {
+                    date = payload.date;
+                }
+
+                const resp = await axios.get('/employees/getProjectManagers?date=' + date);
                 this.allProjectManagers = resp.data.data;
                 return resp;
             } catch (error) {
@@ -100,8 +106,10 @@ export const useEmployeesStore = defineStore('employees', {
         },
         async detailData(payload) {
             try {
-                this.detailEmployee = await axios.get('/employees/' + payload.uid)
-                return this.detailEmployee.data.data;
+                const resp = await axios.get('/employees/' + payload.uid)
+                this.detailEmployee = resp;
+
+                return resp.data.data
             } catch (error) {
                 return error;
             }
