@@ -71,6 +71,32 @@
                                     {{ detailProject.client_portal }}
                                 </a>
                             </div>
+                            <div class="field-item">
+                                <p class="key">{{ $t('ledArea') }}</p>
+                                <p class="value">
+                                    {{ detailProject.led_area }} m<sup>2</sup>
+                                </p>
+
+                                <div class="led-detail">
+                                    <table style="width: 300px; border-collapse: collapse;">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-left" style="padding: 4px 8px; border: 1px solid #e4e4e4; background-color: #f6f6f6;">Width</th>
+                                                <th class="text-left" style="padding: 4px 8px; border: 1px solid #e4e4e4; background-color: #f6f6f6;">Height</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr
+                                                
+                                                v-for="(led, x) in detailProject.led_detail"
+                                                :key="x">
+                                                <td style="padding: 4px 8px; border: 1px solid #e4e4e4;">{{ led.width }} m</td>
+                                                <td style="padding: 4px 8px; border: 1px solid #e4e4e4;">{{ led.height }} m</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
 
                         </v-col>
                     </v-row>

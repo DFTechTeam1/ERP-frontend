@@ -4,7 +4,7 @@ import axios from "axios";
 
 export function tokenSetter() {
     var jwt = localStorage.getItem('dfauth');
-
+    
     if (jwt != null) {
         const saltKey = import.meta.env.VITE_SALT_KEY;
         var encodedText = localStorage.getItem('dfauth');

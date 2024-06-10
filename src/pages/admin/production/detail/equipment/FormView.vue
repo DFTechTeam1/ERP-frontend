@@ -5,11 +5,20 @@
         max-width="600">
         <v-card>
             <v-card-item>
-                <v-card-title>{{ $t('requestEquipment') }}</v-card-title>
+                <v-card-title class="d-flex align-center justify-space-between">
+                    {{ $t('requestEquipment') }}
+
+                    <v-icon
+                        :icon="mdiClose"
+                        class="pointer"
+                        size="20"
+                        @click.prevent="$emit('close-event')"
+                        color="red"></v-icon>
+                </v-card-title>
             </v-card-item>
 
             <v-card-text>
-                <v-form>
+                <v-form @submit="validateData">
                     <div class="item-wrapper">
                         <div class="item-equipment bg-grey-lighten-3 rounded"
                             v-for="(field, x) in fields"
@@ -68,6 +77,18 @@
                             </v-btn>
                         </div>
                     </div>
+
+                    <v-btn
+                        class="mt-3 w-100"
+                        variant="flat"
+                        :disabled="loading"
+                        color="primary"
+                        type="submit">
+                        <template v-if="loading">{{ $t("processing") }}</template>
+                        <template v-else>
+                            {{ $t('save') }}
+                        </template>
+                    </v-btn>
                 </v-form>
             </v-card-text>
         </v-card>
@@ -82,15 +103,20 @@
 </style>
 
 <script setup>
-import { mdiPlusCircle } from '@mdi/js';
+import { mdiClose, mdiPlusCircle } from '@mdi/js';
 import { watch } from 'vue';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useInventoriesStore } from '@/stores/inventories';
+import { useProjectStore } from '@/stores/project';
 import { useForm, useFieldArray, useField } from 'vee-validate';
 import * as yup from 'yup';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 const storeInventory = useInventoriesStore();
+const store = useProjectStore();
 
 const { t } = useI18n();
 
@@ -100,6 +126,8 @@ const props = defineProps({
         default: false,
     },
 });
+
+const emit = defineEmits(['close-event']);
 
 const { handleSubmit, errors } = useForm({
     validationSchema: yup.object({
@@ -119,6 +147,8 @@ const { push, fields } = useFieldArray('equipments');
 
 const show = ref(false);
 
+const loading = ref(false);
+
 const inventories = ref([]);
 
 watch(props, (values) => {
@@ -136,4 +166,14 @@ async function initInventories() {
         inventories.value = resp.data.data;
     }
 }
+
+const validateData = handleSubmit(async (values) => {
+    console.log('values', values);
+    console.log('route', route.params);
+    const resp = await store.requestEquipment(values, route.params.id);
+
+    if (resp.status < 300) {
+        emit('close-event');
+    }
+})
 </script>

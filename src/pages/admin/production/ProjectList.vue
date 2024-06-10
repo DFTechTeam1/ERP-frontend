@@ -56,7 +56,7 @@
                             </template>
                     
                             <v-list>
-                                <v-list-item
+                                <!-- <v-list-item
                                     class="pointer"
                                     @click.prevent="editEmployee(value.uid)">
                                     <template v-slot:title>
@@ -69,22 +69,26 @@
                                             {{ $t('edit') }}
                                         </div>
                                     </template>
-                                </v-list-item>
+                                </v-list-item> -->
                                 <v-list-item
                                     class="pointer"
                                     @click.prevent="detailInventory(value.uid)">
                                     <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiEyeCircle"
-                                            size="15"></v-icon>
-                                            {{ $t('detail') }}
-                                        </div>
+                                        <router-link 
+                                            :to="'/admin/production/project/' + value.uid"
+                                            style="color: #000; font-weight: bold;">
+                                            <div
+                                                class="d-flex align-center"
+                                                style="gap: 8px; font-size: 12px;">
+                                                <v-icon
+                                                :icon="mdiEyeCircle"
+                                                size="15"></v-icon>
+                                                {{ $t('detail') }}
+                                            </div>
+                                        </router-link>
                                     </template>
                                 </v-list-item>
-                                <v-list-item
+                                <!-- <v-list-item
                                     class="pointer"
                                     @click.prevent="addAsUser(value.uid)"
                                     v-if="!value.user">
@@ -112,7 +116,7 @@
                                             {{ $t('delete') }}
                                         </div>
                                     </template>
-                                </v-list-item>
+                                </v-list-item> -->
                             </v-list>
                         </v-menu>
                     </td>

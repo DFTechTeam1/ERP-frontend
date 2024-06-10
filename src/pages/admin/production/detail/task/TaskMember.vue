@@ -1,6 +1,6 @@
 <template>
     <div class="member" v-if="members.length">
-        <p style="font-size: 13px; margin-bottom: 5px;">{{ $t('members') }}</p>
+        <p v-if="props.withTitle" style="font-size: 13px; margin-bottom: 5px;">{{ $t('members') }}</p>
         <v-avatar
             class="mr-1 pointer"
             v-for="(member, m) in props.members"
@@ -21,6 +21,10 @@
 const props = defineProps({
     members: {
         type: Array,
+    },
+    withTitle: {
+        type: Boolean,
+        default: true,
     },
 })
 </script>

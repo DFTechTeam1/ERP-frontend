@@ -22,6 +22,8 @@ import BrandView from "@/pages/admin/inventory/brand/ListView.vue";
 import UnitView from "@/pages/admin/inventory/unit/ListView.vue";
 import InventoryTypeView from '@/pages/admin/inventory/inventoryType/ListView.vue';
 import InventoriesView from '@/pages/admin/inventory/list/ListView.vue';
+import RequestEquipmentView from '@/pages/admin/inventory/requestEquipment/RequestList.vue';
+import DetailRequestEquipment from '@/pages/admin/inventory/requestEquipment/DetailRequestEquipment.vue';
 import InventoryForm from '@/pages/admin/inventory/list/FormView.vue';
 import InventoryDetail from '@/pages/admin/inventory/list/DetailView.vue';
 import EmployeeView from '@/pages/admin/hrd/employee/ListView.vue';
@@ -292,6 +294,24 @@ const router = createRouter({
               path: "suppliers",
               name: "Suppliers",
               component: SupplierView,
+              meta: {
+                parentData: "Inventories",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: "request-equipment",
+              name: "Request Equipment",
+              component: RequestEquipmentView,
+              meta: {
+                parentData: "Inventories",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: "request-equipment/:projectId",
+              name: "Detail Request Equipment",
+              component: DetailRequestEquipment,
               meta: {
                 parentData: "Inventories",
                 requiresAuth: true,

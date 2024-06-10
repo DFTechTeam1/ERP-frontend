@@ -68,6 +68,7 @@
             variant="flat"
             class="btn-primary"
             size="small"
+            v-if="props.hasAddButton"
             @click.prevent="$emit('addDataEvent')"
           >
             <v-icon :icon="mdiPlus" size="20"></v-icon>
@@ -125,6 +126,10 @@ const { t } = useI18n();
 
 const props = defineProps({
   hasFilter: {
+    type: Boolean,
+    default: true,
+  },
+  hasAddButton: {
     type: Boolean,
     default: true,
   },

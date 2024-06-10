@@ -22,6 +22,22 @@
                             @click="chooseCard(element, board)">
                             <p style="font-size: 16px;">{{ element.name }}</p>
 
+                            <div class="task-type" v-if="element.task_type != ''">
+                                <v-chip
+                                    :color="element.task_type_color"
+                                    size="15"
+                                    style="font-size: 10px;"
+                                    class="px-2 mt-2">
+                                    {{ element.task_type_text }}
+                                </v-chip>
+                            </div>
+
+                            <div v-if="element.pics.length" class="pic mt-1 mb-1">
+                                <task-member
+                                    :members="element.pics"
+                                    :with-title="false"></task-member>
+                            </div>
+
                             <div class="deadline" v-if="element.deadline">
                                 <p class="time text-right mt-3">
                                     <v-icon
@@ -120,6 +136,12 @@
     }
 }
 
+@media all and (max-width: 580px) {
+    .list-group {
+        width: 80% !important;
+    }
+}
+
 .title {
     font-size: 20px;
     font-weight: bold;
@@ -136,6 +158,7 @@ import TaskDetail from './TaskDetail';
 import { storeToRefs } from "pinia";
 import { useProjectStore } from "@/stores/project";
 import TaskForm from './AddTaskForm.vue';
+import TaskMember from "./TaskMember.vue";
 
 const store = useProjectStore();
 
@@ -153,10 +176,7 @@ function log(event) {
     console.log('event', event);
 }
 
-function chooseCard(task, board) {
-    console.log('oke', task);
-    console.log('board', board);
-
+function chooseCard(task) {
     store.setDetailTask(task);
 
     showDetail.value = true;

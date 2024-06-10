@@ -1,97 +1,123 @@
 <template>
     <div>
-        <table-list
-            :headers="headers"
-            :items="listTeams"
-            :totalItems="totalItems"
-            :loading="loading"
-            :itemsPerPage="itemsPerPage"
-            :filterSearch="true"
-            :showClearFilter="showClearFilter"
-            :fullCustomBody="true"
-            :hasCheckbox="false"
-            :btnAddText="$t('requestEquipment')"
-            @add-data-event="showForm"
-            @table-event="initTeams">
+        <div class="d-flex align-end justify-end"
+            v-if="canRequestEquipment">
+            <v-btn
+                variant="flat"
+                color="primary"
+                class="mb-5"
+                @click.prevent="showForm">
+                {{ $t('addEquipment') }}
+            </v-btn>
+        </div>
+        <template v-if="!detailProject">
+            <v-skeleton-loader
+                type="table"></v-skeleton-loader>
+        </template>
+        <template v-else>
+            <v-table>
+                <thead>
+                    <tr>
+                        <th
+                            class="fw-bold"
+                            style="font-size: 16px;"
+                            v-for="(header, i) in headers"
+                            :key="i">
+                            {{ header.title }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="!detailProject.equipments.length">
+                        <td colspan="4" class="text-center">
+                            {{ $t('equipmentIsEmpty') }}
+                        </td>
+                    </tr>
+                    <tr v-else
+                        v-for="(item, x) in detailProject.equipments"
+                        :key="x">
+                        <td>{{ item.inventory.name }}</td>
+                        <td>{{ item.qty }}</td>
+                        <td>
+                            <v-chip
+                                :color="item.status_color">
+                                {{ item.status_text }}
+                            </v-chip>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items ga-4"
+                                v-if="!item.is_cancel"
+                                @click.prevent="cancelItem(item)">
+                                <span
+                                    v-if="canRejectItem">
+                                    <v-icon
+                                        :icon="mdiClose"
+                                        size="20"
+                                        class="pointer"
+                                        color="red"></v-icon>
 
-            <template v-slot:bodytable="{ value }">
-                <tr>
-                    <td>
-                        <div class="d-flex align-items" style="gap: 10px;">
-                            <div class="image">
-                                <v-avatar
-                                    :image="'/user.png'"
-                                    size="40"></v-avatar>
+                                    <v-tooltip
+                                        activator="parent"
+                                        location="end">
+                                        {{ $t('cancel') }}
+                                    </v-tooltip>
+                                </span>
                             </div>
-
-                            <div class="team-data">
-                                <p class="name">{{ value.name }}</p>
-                                <p class="email">{{ value.email }}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td>{{ value.qty }}</td>
-                    <td>
-                        <v-chip
-                            :color="value.status_color">
-                            {{ value.status_text }}
-                        </v-chip>
-                    </td>
-                    <td>
-                        <v-menu
-                            open-on-click>
-                            <template v-slot:activator="{ props }">
-                            <v-icon
-                                v-bind="props"
-                                :icon="mdiCogOutline"
-                                color="blue"></v-icon>
-                            </template>
-                    
-                            <v-list>
-                                <v-list-item
-                                    class="pointer"
-                                    @click.prevent="deleteEmployee(value.uid)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiTrashCanOutline"
-                                            size="15"></v-icon>
-                                            {{ $t('delete') }}
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                            </v-list>
-                        </v-menu>
-                    </td>
-                </tr>
-            </template>
-
-        </table-list>
+                        </td>
+                    </tr>
+                </tbody>
+            </v-table>
+        </template>
 
         <form-view
-            :is-show="isShowForm"></form-view>
+            :is-show="isShowForm"
+            @close-event="isShowForm = false"></form-view>
+
+        <confirmation-modal
+            :text="t('cancelEquipmentConfirmation')"
+            :title="t('cancelItem')"
+            :show-confirm="showConfirmCancel"
+            :delete-ids="selectedIdsToCancel"
+            @actionBulkSubmit="doCancelEquipment"></confirmation-modal>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useProjectStore } from '@/stores/project'
-import { useI18n } from 'vue-i18n'
-import { mdiCogOutline, mdiTrashCanOutline } from '@mdi/js';
+import { ref } from 'vue';
+import { useProjectStore } from '@/stores/project';
+import { useI18n } from 'vue-i18n';
+import { storeToRefs } from 'pinia';
 import FormView from './FormView';
+import { mdiClose } from '@mdi/js';
+import { onMounted } from 'vue';
+import { useGetRole } from '@/compose/getRole';
+import { useCheckPermission } from '@/compose/checkPermission';
+import { useRoute } from 'vue-router';
 
 const { t } = useI18n()
 
 const store = useProjectStore()
 
-const listTeams = ref([])
-const totalItems = ref(0)
-const itemsPerPage = ref(10)
-const loading = ref(false)
-const isShowForm = ref(false)
-const showClearFilter = ref(false)
+const route = useRoute();
+
+const { detailProject } = storeToRefs(store);
+
+const loading = ref(false);
+
+const isShowForm = ref(false);
+
+const showConfirmCancel = ref(false);
+
+const selectedIdsToCancel = ref([]);
+
+const role = ref(null);
+
+const canRejectItem = ref(false);
+
+const canAcceptItem = ref(false);
+
+const canRequestEquipment = ref(false);
+
 const headers = ref([
     {
         title: t('name'),
@@ -119,13 +145,29 @@ const headers = ref([
     },
 ])
 
-function initTeams() {
-    listTeams.value = store.getEquipments()
-
-    totalItems.value = listTeams.value.length
-}
-
 function showForm() {
     isShowForm.value = true;
+}
+
+onMounted(() => {
+    role.value = useGetRole();
+
+    canRejectItem.value = useCheckPermission('reject_request_equipment');
+    canAcceptItem.value = useCheckPermission('accept_request_equipment');
+    canRequestEquipment.value = useCheckPermission('request_inventory_event');
+})
+
+function cancelItem(item) {
+    selectedIdsToCancel.value = [item.uid]
+    showConfirmCancel.value = true;
+}
+
+async function doCancelEquipment(payload) {
+    const resp = await store.cancelItem({id: payload[0]}, route.params.id);
+
+    if (resp.status < 300) {
+        selectedIdsToCancel.value = [];
+        showConfirmCancel.value = false;
+    }
 }
 </script>

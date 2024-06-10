@@ -9,6 +9,7 @@ const { notify } = useNotification();
 export const useProjectStore = defineStore('project', {
     state: () => ({
         projects: [],
+        detailListRequest: [],
         totalProjects: 0,
         detail: null,
         projectBoards: [],
@@ -61,6 +62,7 @@ export const useProjectStore = defineStore('project', {
     getters: {
         detailProject: (state) => state.detail,
         detailOfTask: (state) => state.detailTask,
+        listOfDetailRequestEquipment: (state) => state.detailListRequest,
         listOfTeams: (state) => state.teams,
         listOfPorjectBoards: (state) => state.projectBoards,
         listOfProjects: (state) => state.projects,
@@ -255,6 +257,169 @@ export const useProjectStore = defineStore('project', {
         async assignMemberToTask(payload, taskId) {
             try {
                 const resp = await axios.post('/production/project/' + taskId + '/task/assignMember', payload);
+
+                this.detailTask = resp.data.data.task;
+                this.detail = resp.data.data.full_detail;
+                this.projectBoards = resp.data.data.full_detail.boards;
+
+                showNotification(resp.data.message);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async getTaskTypes() {
+            try {
+                const resp = await axios.get('/production/project/taskType');
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async deleteTask(payload) {
+            try {
+                const resp = await axios.delete('/production/project/' + payload[0] + '/task');
+
+                this.detail = resp.data.data;
+                this.projectBoards = resp.data.data.boards;
+
+                showNotification(resp.data.message);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async requestEquipment(payload, projectId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/equipment`, {items: payload.equipments})
+
+                showNotification(resp.data.message);
+
+                this.detail = resp.data.data;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async listRequestEquipment(projectId) {
+            try {
+                const resp = await axios.get('/production/project/' + projectId + '/equipment')
+                var updatedData = resp.data.data.map((elem) => {
+                    elem.approved = false;
+                    elem.reject = false;
+    
+                    return elem;
+                });
+
+                this.detailListRequest = updatedData;
+                
+                return resp;
+            } catch (error) {
+                return error;
+            }  
+        },
+        async updateRequestEquipment(projectId, payload) {
+            try {
+                const resp = await axios.put('/production/project/' + projectId + '/equipment', payload)
+                var updatedData = resp.data.data.map((elem) => {
+                    elem.approved = false;
+                    elem.reject = false;
+    
+                    return elem;
+                });
+
+                this.detailListRequest = updatedData;
+
+                showNotification(resp.data.message);
+                
+                return resp;
+            } catch (error) {
+                return error;
+            }  
+        },
+        modifyRequestEquipment(item, type) {
+            var updatedData = this.detailListRequest.map((elem) => {
+                
+
+                if (elem.uid == item.uid) {
+                    if (type == 'reject') {
+                        elem.reject = true;
+                        elem.approved = false;
+                    } else {
+                        elem.reject = false;
+                        elem.approved = true;
+                    }
+                }
+
+                return elem;
+            });
+
+            this.detailListRequest = updatedData;
+        },
+        async cancelItem(payload, projectId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/cancelEquipment`, payload);
+
+                this.detail = resp.data.data;
+
+                showNotification(resp.data.message);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async updateDeadline(payload, projectId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/updateDeadline`, payload);
+
+                this.detailTask = resp.data.data.task;
+                this.detail = resp.data.data.full_detail;
+                this.projectBoards = resp.data.data.full_detail.boards;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async uploadTaskAttachment(payload, projectId, taskId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/uploadTaskAttachment/${taskId}`, payload);
+
+                this.detailTask = resp.data.data.task;
+                this.detail = resp.data.data.full_detail;
+                this.projectBoards = resp.data.data.full_detail.boards;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async searchTask(payload, projectId, taskId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/searchTask/${taskId}`, payload);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async getRelatedTask(projectId, taskId) {
+            try {
+                const resp = await axios.get(`/production/project/${projectId}/getRelatedTask/${taskId}`);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async deleteTaskAttachment(projectUid, taskUid, attachmentId) {
+            try {
+                const resp = await axios.delete(`/production/project/${projectUid}/task/${taskUid}/deleteAttachment/${attachmentId}`);
 
                 this.detailTask = resp.data.data.task;
                 this.detail = resp.data.data.full_detail;

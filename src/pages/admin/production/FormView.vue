@@ -331,7 +331,7 @@ async function initMarketing() {
 
 async function initProjectManager(payload = null) {
     const resp = await employeeStore.getProjectManager(payload);
-
+    
     if (resp.status < 300) {
         projectManagerList.value = resp.data.data;
     }

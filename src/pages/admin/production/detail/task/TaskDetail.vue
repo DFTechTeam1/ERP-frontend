@@ -10,7 +10,7 @@
                         <v-icon
                             :icon="mdiLaptop"
                             size="20"></v-icon>
-                        <p>{{ detailOfTask.name }}</p>
+                        <p style="text-wrap: wrap;">{{ detailOfTask.name }}</p>
                     </div>
 
                     <v-icon
@@ -35,9 +35,9 @@
                                     :members="detailOfTask.pics"></task-member>
 
                                 <task-deadline
-                                    v-if="detail.start_date.length && detail.end_date.length"
-                                    :start-date="detail.start_date"
-                                    :end-date="detail.end_date"></task-deadline>
+                                    v-if="(detailOfTask.start_date && detailOfTask.end_date) && (detailOfTask.start_date.length && detailOfTask.end_date.length)"
+                                    :start-date="detailOfTask.start_date_text"
+                                    :end-date="detailOfTask.end_date_text"></task-deadline>
                             </div>
                         </template>
                         <!-- end members, deadline -->
@@ -106,6 +106,16 @@
                         </div>
                         <!-- end description -->
 
+                        <!-- attachments -->
+                        <attachment-view
+                            v-if="detailOfTask.medias.length"
+                            :detail="detailOfTask"></attachment-view>
+
+                        <task-attachment
+                            v-if="detailOfTask.task_link.length"
+                            :detail="detailOfTask"></task-attachment>
+                        <!-- end attachments -->
+
                         <deadline-form
                             :is-show="showDeadlineForm"
                             @close-event="showDeadlineForm = false"
@@ -147,7 +157,8 @@
                                     <v-btn
                                         variant="flat"
                                         class="w-100 text-left mb-3"
-                                        color="grey-darken-1">
+                                        color="grey-darken-1"
+                                        @click.prevent="openAttachmentForm">
                                         <v-icon
                                             class="mr-1"
                                             :icon="mdiAttachment"
@@ -171,6 +182,17 @@
                                             size="20"></v-icon>
                                         {{ $t('move') }}
                                     </v-btn>
+                                    <v-btn
+                                        variant="flat"
+                                        class="w-100 text-left mb-3"
+                                        color="red"
+                                        @click.prevent="deleteTask(detailOfTask.uid)">
+                                        <v-icon
+                                            class="mr-1"
+                                            :icon="mdiTrashCan"
+                                            size="20"></v-icon>
+                                        {{ $t('delete') }}
+                                    </v-btn>
                                 </div>
                             </div>
                         </div>
@@ -183,6 +205,17 @@
         <add-pic-form
             @close-event="closePicForm"
             :is-show="showPicForm"></add-pic-form>
+
+        <attachment-form
+            @close-event="closeAttachmentForm"
+            :is-show="showAttachmentForm"></attachment-form>
+
+        <confirmation-modal
+            :title="t('deleteTask')"
+            :text="t('deleteTaskConfirmation')"
+            :show-confirm="showDeleteForm"
+            :delete-ids="deletedTaskIds"
+            @actionBulkSubmit="doDeleteTask"></confirmation-modal>
 
     </v-dialog>
 </template>
@@ -210,6 +243,7 @@ import {
     mdiLaptop, 
     mdiClose, 
     mdiMenu, 
+    mdiTrashCan,
     mdiClockOutline,
     mdiAccountSupervisor,
     mdiAttachment,
@@ -218,9 +252,15 @@ import {
 import TaskMember from './TaskMember.vue';
 import TaskDeadline from './TaskDeadline.vue';
 import DeadlineForm from './DeadlineForm.vue';
-import AddPicForm from './AddPicForm.vue'
+import AddPicForm from './AddPicForm.vue';
+import AttachmentView from './AttachmentView.vue';
+import TaskAttachment from './TaskAttachment.vue';
+import AttachmentForm from './AttachmentForm.vue';
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const store = useProjectStore();
 
@@ -232,15 +272,21 @@ const showPicForm = ref(false);
 
 const isAddDescription = ref(false);
 
+const showAttachmentForm = ref(false);
+
+const showDeleteForm = ref(false);
+
 const showDeadlineForm = ref(false);
 
 const description_quill = ref(null);
+
+const deletedTaskIds = ref([]);
 
 const description = ref(null);
 
 const loading = ref(false);
 
-defineEmits(['close-event']);
+const emit = defineEmits(['close-event']);
 
 const props = defineProps({
     isShow: {
@@ -270,8 +316,21 @@ watch(props, (values) => {
 })
 
 function saveDate(payload) {
-    detail.value.start_date = payload.startDate;
-    detail.value.end_date = payload.endDate;
+    detail.value.start_date = payload.start_date;
+    detail.value.end_date = payload.end_date;
+}
+
+function deleteTask(taskUid) {
+    showDeleteForm.value = true;
+    deletedTaskIds.value = [taskUid];
+}
+
+async function doDeleteTask(taskIds) {
+    const resp = await store.deleteTask(taskIds);
+
+    if (resp.status < 300) {
+        emit('close-event');
+    }
 }
 
 function updateDescription() {
@@ -314,5 +373,13 @@ function choosePic() {
 
 function closePicForm() {
     showPicForm.value = false;
+}
+
+function openAttachmentForm() {
+    showAttachmentForm.value = true;
+}
+
+function closeAttachmentForm() {
+    showAttachmentForm.value = false;
 }
 </script>

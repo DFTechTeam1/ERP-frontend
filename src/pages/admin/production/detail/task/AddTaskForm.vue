@@ -22,6 +22,14 @@
                         v-model="name"
                         :error-message="errors.name"></field-input>
 
+                    <field-input
+                        class="mt-3"
+                        :label="t('taskType')"
+                        input-type="select"
+                        :select-options="taskTypes"
+                        v-model="task_type"
+                        :error-message="errors.task_type"></field-input>
+
                     <button-submit
                         :is-loading="loading"></button-submit>
                 </v-form>
@@ -47,14 +55,18 @@ const { t } = useI18n();
 const { defineField, errors, handleSubmit, resetForm } = useForm({
     validationSchema: yup.object({
         name: yup.string().required(t('nameRequired')),
+        task_type: yup.string().required(t('taskTypeRequired'))
     }),
 });
 
 const [name] = defineField('name');
+const [task_type] = defineField('task_type');
 
 const loading = ref(false);
 
 const show = ref(false);
+
+const taskTypes = ref([]);
 
 const props = defineProps({
     board: {
@@ -69,8 +81,18 @@ const props = defineProps({
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow;
+
+        initTaskTypes();
     }
 })
+
+async function initTaskTypes() {
+    const resp = await store.getTaskTypes();
+
+    if (resp.status < 300) {
+        taskTypes.value = resp.data.data;
+    }
+}
 
 const validateData = handleSubmit(async(values) => {
     loading.value = true;

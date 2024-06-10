@@ -9,10 +9,12 @@
                 color="primary"
                 :title="t('detailProject')"></v-toolbar>
 
-            <div class="d-flex flex-ro w-100">
+            <div class="w-100 tab-detail-project">
                 <v-tabs
+                    show-arrows
                     v-model="tab"
-                    direction="vertical">
+                    class="border"
+                    :direction="tabDirection">
                 
                     <v-tab
                         color="primary"
@@ -51,6 +53,10 @@
                     <v-window-item value="tab-general">
                         <general-information 
                             :detail="detailProject" />
+                    </v-window-item>
+
+                    <v-window-item value="tab-progress">
+                        <progress-view />
                     </v-window-item>
                     
                     <v-window-item value="tab-teams">
@@ -92,6 +98,18 @@
     </div>
 </template>
 
+<style scoped lang="scss">
+.tab-detail-project {
+    display: flex;
+}
+
+@media all and (max-width: 560px) {
+    .tab-detail-project {
+        display: block !important;
+    }
+}
+</style>
+
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -100,10 +118,14 @@ import TeamView from './detail/teams/TeamList.vue';
 import KanbanView from './detail/task/KanbanView.vue';
 import ReferencesView from './detail/references/ReferencesView.vue';
 import EquipmentList from './detail/equipment/EquipmentList.vue';
+import ProgressView from './detail/progress/ProgressView.vue';
 import { useRoute } from 'vue-router';
 import { useProjectStore } from '@/stores/project';
+import { useDisplay } from 'vuetify/lib/framework.mjs';
 
 const store = useProjectStore();
+
+const { mobile } = useDisplay();
 
 const route = useRoute();
 
@@ -131,6 +153,8 @@ const detailProject = ref(null);
 
 const references = ref([]);
 
+const tabDirection = ref('vertical');
+
 const tab = ref('tab-general')
 
 async function initProjectDetail() {
@@ -144,5 +168,10 @@ async function initProjectDetail() {
 
 onMounted(() => {
     initProjectDetail();
+    if (mobile.value) {
+        tabDirection.value = 'horizontal';
+    } else {
+        tabDirection.value = 'vertical';
+    }
 }) 
 </script>

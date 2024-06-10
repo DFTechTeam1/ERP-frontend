@@ -7,6 +7,8 @@ const { notify } = useNotification();
 export const useInventoriesStore = defineStore('inventories', {
     state: () => ({
         inventories: [],
+        requestEquipments: [],
+        totalRequestEquipment: 0,
         totalInventories: 0,
         errorValidation: null,
         storeDataResult: null,
@@ -14,10 +16,25 @@ export const useInventoriesStore = defineStore('inventories', {
     }),
     getters: {
         listOfInventories: (state) => state.inventories,
+        listOfRequestEquipments: (state) => state.requestEquipments,
         totalOfInventories: (state) => state.totalInventories,
+        totalOfRequestEquipment: (state) => state.totalRequestEquipment,
         errorValidationData: (state) => state.errorValidation,
     },
     actions: {
+        async requestEquipmentList(payload) {
+            let params = {
+                search: payload ? payload.filter : ''
+            };
+
+            await axios.get('/request-equipments', {
+                params: params
+            })
+                .then((res) => {
+                    this.requestEquipments = res.data.data;
+                })
+                .catch()
+        },
         async initInventories(payload) {
             let params = {
                 page: payload ? payload.page : 1,

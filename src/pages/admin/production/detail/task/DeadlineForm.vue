@@ -18,11 +18,11 @@
                             <input 
                                 @click.prevent="activeFieldAction('start')"
                                 type="text" 
-                                v-model="startDate"
+                                v-model="start_date"
                                 class="form-control" 
                                 style="padding: 8px 12px; width: 50%;
                             background-color: #fff; border: 1px solid #e6e6e6; border-radius: 4px;">
-                            <div class="text-red" style="font-size: 12px;" v-if="errors.startDate">{{ errors.startDate }}</div>
+                            <div class="text-red" style="font-size: 12px;" v-if="errors.start_date">{{ errors.start_date }}</div>
                         </div>
                     </div>
                     <div class="form-group mb-3">
@@ -31,11 +31,11 @@
                             <input 
                                 @click.prevent="activeFieldAction('end')"
                                 type="text" 
-                                v-model="endDate"
+                                v-model="end_date"
                                 class="form-control" 
                                 style="padding: 8px 12px; width: 50%;
                             background-color: #fff; border: 1px solid #e6e6e6; border-radius: 4px;">
-                            <div class="text-red" style="font-size: 12px;" v-if="errors.endDate">{{ errors.endDate }}</div>
+                            <div class="text-red" style="font-size: 12px;" v-if="errors.end_date">{{ errors.end_date }}</div>
                         </div>
                     </div>
 
@@ -71,6 +71,15 @@ import { useDate } from 'vuetify/lib/framework.mjs';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
+import { useProjectStore } from '@/stores/project';
+import { storeToRefs } from 'pinia';
+import { useRoute } from 'vue-router';
+
+const store = useProjectStore();
+
+const route = useRoute();
+
+const { detailOfTask } = storeToRefs(store);
 
 const { t } = useI18n();
 
@@ -78,11 +87,11 @@ const emit = defineEmits(['close-event', 'save-event']);
 
 const { defineField, handleSubmit, errors, resetForm } = useForm({
     validationSchema: yup.object({
-        startDate: yup.string().nullable(),
-        endDate: yup.string().when('startDate', {
+        start_date: yup.string().nullable(),
+        end_date: yup.string().when('start_date', {
             is: (value) => value != undefined,
             then: function () {
-                return yup.date().min(startDate.value, t('dateMustBeGreater', {date: startDate.value})).required(t('endDateRequired'))
+                return yup.date().min(start_date.value, t('dateMustBeGreater', {date: start_date.value})).required(t('endDateRequired'))
             },
             otherwise: function () {
                 return yup.string().nullable()
@@ -91,8 +100,8 @@ const { defineField, handleSubmit, errors, resetForm } = useForm({
     })
 })
 
-const [startDate] = defineField('startDate');
-const [endDate] = defineField('endDate');
+const [start_date] = defineField('start_date');
+const [end_date] = defineField('end_date');
 
 const _date = useDate();
 
@@ -126,21 +135,24 @@ function activeFieldAction(type) {
 }
 
 function updatedDate(values) {
-    var dateChoose = _date.format(values, 'monthAndDate');
+    var dateChoose = _date.format(values, 'year') + ', ' + _date.format(values, 'monthAndDate');
     if (activeField.value == 'start') {
-        startDate.value = dateChoose;
+        start_date.value = dateChoose;
     } else if (activeField.value == 'end') {
-        endDate.value = dateChoose;
+        end_date.value = dateChoose;
     }
 
     activeField.value = null;
 }
 
-const saveDate = handleSubmit((values) => {
-    console.log('values', values);
+const saveDate = handleSubmit(async (values) => {
+    values.task_id = detailOfTask.value.uid;
+    const resp = await store.updateDeadline(values, route.params.id);
 
-    emit('save-event', values);
-
-    cancel();
+    if (resp.status < 300) {
+        emit('save-event', values);
+    
+        cancel();
+    }
 })
 </script>

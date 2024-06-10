@@ -4,6 +4,7 @@ import Components from 'unplugin-vue-components/vite'
 import Fonts from 'unplugin-fonts/vite'
 import Vue from '@vitejs/plugin-vue'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+// import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // Utilities
 import { defineConfig, loadEnv } from 'vite'
@@ -15,6 +16,7 @@ import path from 'path';
 export default defineConfig(({command, mode}) => {
   return {
     plugins: [
+      // basicSsl(),
       Vue({
         template: { transformAssetUrls }
       }),
