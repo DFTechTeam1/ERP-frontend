@@ -139,10 +139,10 @@
             :deleteIds="selectedAddUserId"
             @action-bulk-submit="doAddUser"></confirmation-modal>
 
-        <filter-employee 
+        <filter-project 
             :show="isShowFilter"
             @filter-event="doFilter"
-            @close-event="cancelFilter"></filter-employee>
+            @close-event="cancelFilter"></filter-project>
     </div>
 </template>
 
@@ -161,12 +161,9 @@ import { useRouter } from 'vue-router';
 
 import { 
     mdiCogOutline, 
-    mdiEyeCircle, 
-    mdiPencil, 
-    mdiTrashCanOutline,
-    mdiAccountPlus
+    mdiEyeCircle,
  } from '@mdi/js';
-import FilterEmployee from './FilterProject.vue';
+import FilterProject from './FilterProject.vue';
 
 const { t } = useI18n();
 

@@ -131,9 +131,18 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
-        async initProjects() {
+        async initProjects(payload) {
             try {
-                const resp = await axios.get('/production/project');
+                let params = {
+                    page: payload ? payload.page : 1,
+                    itemsPerPage: payload ? payload.itemsPerPage : 10,
+                    sortBy: payload ? payload.sortBy : [],
+                    search: payload ? payload.filter : ''
+                };
+
+                const resp = await axios.get('/production/project', {
+                    params: params
+                });
 
                 this.projects = resp.data.data.paginated;
 

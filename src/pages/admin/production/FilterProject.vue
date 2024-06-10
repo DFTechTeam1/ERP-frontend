@@ -6,7 +6,7 @@
         <v-card>
             <v-card-title>
                 <div class="d-flex align-center justify-space-between">
-                    <span>{{ $t('filterEmployee') }}</span>
+                    <span>{{ $t('filterProject') }}</span>
                     <v-icon
                         :icon="mdiClose"
                         class="cursor-pointer"
@@ -16,100 +16,78 @@
             <v-card-text>
                 <v-form @submit="doFilter">
                     <v-row>
-                        <v-col
-                            cols="12"
-                            lg="6"
-                            md="6">
+                        <v-col cols="12"
+                            style="padding-bottom: 0 !important; padding-top: 0 !important;">
                             <field-input
+                                :label="t('name')"
                                 v-model="name"
-                                :isRequired="false"
-                                :errorMessage="errors.name"
-                                :label="t('name')"></field-input>
+                                :error-message="errors.name"
+                                :is-required="false"></field-input>
                         </v-col>
-                        <v-col
-                            cols="12"
-                            lg="6"
+                    </v-row>
+                    
+                    <v-row>
+                        <v-col cols="12"
+                            style="padding-bottom: 0 !important; padding-top: 0 !important;"
+                            md="6">
+                            <date-picker
+                                :label="t('startDate')"
+                                :is-required="false"
+                                v-model="start_date"></date-picker>
+                        </v-col>
+                        <v-col cols="12"
+                            style="padding-bottom: 0 !important; padding-top: 0 !important;"
+                            md="6">
+                            <date-picker
+                                :label="t('endDate')"
+                                :is-required="false"
+                                v-model="end_date"></date-picker>
+                        </v-col>
+                    </v-row>
+
+                    <v-row>
+                        <v-col cols="12"
+                            style="padding-bottom: 0 !important; padding-top: 0 !important;">
+                            <field-input
+                                v-model="pic"
+                                :error-message="errors.pic"
+                                :is-multiple="true"
+                                :label="t('pic')"
+                                inputType="select"
+                                :select-options="pics"
+                                :is-required="false"></field-input>
+                        </v-col>
+                    </v-row>
+
+                    <v-row>
+                        <v-col cols="12"
+                            style="padding-bottom: 0 !important; padding-top: 0 !important;"
                             md="6">
                             <field-input
-                                v-model="employee_id"
-                                :isRequired="false"
-                                :errorMessage="errors.employee_id"
-                                :label="t('nip')"></field-input>
-                        </v-col>
-                    </v-row>
-
-                    <v-row
-                        class="mt-1">
-                        <v-col
-                            class="pt-0"
-                            cols="12">
-                            <field-input
-                                v-model="position_id"
-                                :error-message="errors.position_id"
-                                :is-multiple="true"
-                                :label="t('position')"
-                                inputType="select"
-                                :select-options="positions"
-                                :is-required="false"></field-input>
-                        </v-col>
-                        <v-col
-                            class="pt-0"
-                            cols="12">
-                            <field-input
-                                v-model="level_staff"
-                                :error-message="errors.level_staff"
-                                :is-multiple="true"
-                                :label="t('level')"
-                                inputType="select"
-                                :select-options="levels"
-                                :is-required="false"></field-input>
-                        </v-col>
-                    </v-row>
-
-                    <v-row
-                        class="mt-1">
-                        <v-col
-                            class="pt-0"
-                            cols="12"
-                            lg="5"
-                            md="5">
-                            <field-input
-                                v-model="join_date_condition"
-                                inputType="select"
-                                :label="t('joinDateCondition')"
-                                :select-options="joinDateConditions"
-                                :is-required="false"></field-input>
-                        </v-col>
-
-                        <v-col
-                            class="pt-0"
-                            cols="12"
-                            lg="7"
-                            md="7">
-                            <date-picker
-                                v-model="join_date"
-                                :label="t('joinDate')"
-                                :is-required="false"></date-picker>
-                        </v-col>
-                    </v-row>
-
-                    <v-row
-                        class="mt-1">
-                        <v-col
-                            class="pt-0"
-                            cols="12">
-                            <field-input
-                                v-model="status"
-                                inputType="select"
-                                :select-options="statusOptions"
+                                v-model="event_type"
+                                :error-message="errors.event_type"
                                 :is-required="false"
-                                :label="t('status')"></field-input>
+                                input-type="select"
+                                :select-options="eventTypeList"
+                                :label="t('eventType')"></field-input>
+                        </v-col>
+                        <v-col cols="12"
+                            style="padding-bottom: 0 !important; padding-top: 0 !important;"
+                            md="6">
+                            <field-input
+                                v-model="classification"
+                                :error-message="errors.classification"
+                                :is-required="false"
+                                input-type="select"
+                                :select-options="classList"
+                                :label="t('eventClass')"></field-input>
                         </v-col>
                     </v-row>
 
                     <v-btn
                         width="100%"
                         type="submit"
+                        class="mt-5"
                         color="primary">
                         {{ $t('search') }}
                     </v-btn>
@@ -126,9 +104,12 @@ import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { mdiClose } from '@mdi/js';
 import { onMounted } from 'vue';
-import { usePositionStore } from '@/stores/position';
+import { useEmployeesStore } from '@/stores/employees';
+import { useProjectStore } from '@/stores/project';
 
-const storePosition = usePositionStore();
+const store = useEmployeesStore();
+
+const storeProject = useProjectStore();
 
 const { t } = useI18n()
 
@@ -141,55 +122,35 @@ const props = defineProps({
 
 const emit = defineEmits(['filterEvent', 'closeEvent']);
 
-const levels = ref([
-    {title: t('manager'), value: 'manager'},
-    {title: t('lead'), value: 'lead'},
-    {title: t('staff'), value: 'staff'},
-    {title: t('juniorStaff'), value: 'junior_staff'},
-])
-
-const joinDateConditions = ref([
-    {title: t('equal'), value: 'equal'},
-    {title: t('lessThan'), value: 'less_than'},
-    {title: t('moreThan'), value: 'more_than'},
-])
-
-const statusOptions = ref([
-    {title: t('permanent'), value: 1},
-    {title: t('contract'), value: 2},
-    {title: t('partTime'), value: 3},
-    {title: t('freelance'), value: 4},
-    {title: t('internship'), value: 5},
-    {title: t('inactive'), value: 6},
-])
-
 const { errors, resetForm, defineField, handleSubmit } = useForm({
     validationSchema: yup.object({
         name: yup.string().nullable(),
-        employee_id: yup.string().nullable(),
-        position_id: yup.array().nullable(),
-        level_staff: yup.array().nullable(), 
-        join_date_condition: yup.string().nullable(),
-        join_date: yup.string().nullable(),
-        status: yup.number().nullable(),
+        start_date: yup.string().nullable(),
+        end_date: yup.string().nullable(),
+        event_type: yup.string().nullable(),
+        classification: yup.string().nullable(),
+        pic: yup.array().nullable(),
     })
 })
 
 const showModal = ref(false);
 const [name] = defineField('name');
-const [employee_id] = defineField('employee_id');
-const [position_id] = defineField('position_id');
-const [level_staff] = defineField('level_staff');
-const [join_date_condition] = defineField('join_date_condition');
-const [join_date] = defineField('join_date');
-const [status] = defineField('status');
+const [start_date] = defineField('start_date');
+const [end_date] = defineField('end_date');
+const [pic] = defineField('pic');
+const [event_type] = defineField('event_type');
+const [classification] = defineField('classification');
 
 const doFilter = handleSubmit((values) => {
     resetForm();
     emit('filterEvent', values);
 })
 
-const positions = ref([]);
+const pics = ref([]);
+
+const classList = ref([]);
+
+const eventTypeList = ref([]);
 
 function closeFilter() {
     resetForm();
@@ -197,19 +158,37 @@ function closeFilter() {
     emit('closeEvent');
 }
 
-async function initPosittion() {
-    const resp = await storePosition.getAll();
+async function initPic() {
+    const resp = await store.getProjectManager();
+    
+    if (resp.status < 300) {
+        pics.value = resp.data.data;
+    }
+}
+
+async function initClassList() {
+    const resp = await storeProject.initClassList();
 
     if (resp.status < 300) {
-        positions.value = resp.data.data;
+        classList.value = resp.data.data;
+    }
+}
+
+async function initEventType() {
+    const resp = await storeProject.initEventTypes();
+
+    if (resp.status < 300) {
+        eventTypeList.value = resp.data.data;
     }
 }
 
 onMounted(() => {
-    initPosittion();
 });
 
 watch(props, (values) => {
+    initPic();
+    initClassList();
+    initEventType();
     showModal.value = values.show
 })
 </script>
