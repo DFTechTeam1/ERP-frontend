@@ -71,7 +71,14 @@
                     <v-window-item value="tab-task">
                         <v-card flat>
                             <v-card-text>
-                                <kanban-view></kanban-view>
+                                <kanban-view
+                                    :can-move-to-progress="canMoveToProgress"
+                                    :can-move-to-review-client="canMoveToReviewClient"
+                                    :can-move-to-review-pm="canMoveToReviewPm"
+                                    :can-move-to-revise="canMoveToRevise"
+                                    :can-move-to-completed="canMoveToCompleted"
+                                    :can-move-task="canMoveTask"
+                                    :can-add-task="canAddTask"></kanban-view>
                             </v-card-text>
                         </v-card>
                     </v-window-item>
@@ -122,6 +129,7 @@ import ProgressView from './detail/progress/ProgressView.vue';
 import { useRoute } from 'vue-router';
 import { useProjectStore } from '@/stores/project';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const store = useProjectStore();
 
@@ -155,6 +163,20 @@ const references = ref([]);
 
 const tabDirection = ref('vertical');
 
+const canMoveToProgress = ref(false);
+
+const canMoveToReviewPm = ref(false);
+
+const canMoveToReviewClient = ref(false);
+
+const canMoveToRevise = ref(false);
+
+const canMoveToCompleted = ref(false);
+
+const canMoveTask = ref(false);
+
+const canAddTask = ref(false);
+
 const tab = ref('tab-general')
 
 async function initProjectDetail() {
@@ -173,5 +195,13 @@ onMounted(() => {
     } else {
         tabDirection.value = 'vertical';
     }
+
+    canMoveToProgress.value = useCheckPermission('move_to_progress');
+    canMoveToReviewClient.value = useCheckPermission('move_task_to_review_client');
+    canMoveToReviewPm.value = useCheckPermission('move_task_to_review_pm');
+    canMoveToRevise.value = useCheckPermission('move_task_to_revise');
+    canMoveToCompleted.value = useCheckPermission('move_task_to_completed');
+    canMoveTask.value = useCheckPermission('move_task');
+    canAddTask.value = useCheckPermission('add_task');
 }) 
 </script>

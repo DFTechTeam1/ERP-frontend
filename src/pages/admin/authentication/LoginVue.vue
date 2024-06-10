@@ -77,8 +77,8 @@ const submitData = handleSubmit(async values => {
     if (resp.status < 300) {
         console.log('route path', route);
         if (route.path == '/auth/a/login') {
-            // window.location.href = window.location.origin + '/admin/dashboard';
-            router.push({path: '/admin/dashboard'});
+            window.location.href = window.location.origin + '/admin/dashboard';
+            // router.push({path: '/admin/dashboard'});
         } else if (route.path == '/auth/p/login') {
             window.location.href = window.location.origin + '/panel/addons';
             // router.push({path: '/panel/addons'});

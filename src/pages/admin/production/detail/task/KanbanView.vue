@@ -7,9 +7,11 @@
                 
                 <draggable
                     class="list-group"
+                    :id="board.name"
                     :list="board.tasks"
                     group="people"
                     @change="log"
+                    :move="moving"
                     @start="isDrag = true"
                     @end="isDrag = false"
                     itemKey="name"
@@ -59,6 +61,7 @@
                             <p class="text-center">No Task</p>
                         </template>
                         <v-btn
+                            v-if="props.canAddTask"
                             variant="outlined"
                             color="primary"
                             class="w-100 mt-3"
@@ -160,6 +163,37 @@ import { useProjectStore } from "@/stores/project";
 import TaskForm from './AddTaskForm.vue';
 import TaskMember from "./TaskMember.vue";
 
+const props = defineProps({
+    canMoveToProgress: {
+        type: Boolean,
+        default: false,
+    },
+    canMoveToReviewClient: {
+        type: Boolean,
+        default: false,
+    },
+    canMoveToReviewPm: {
+        type: Boolean,
+        default: false,
+    },
+    canMoveToRevise: {
+        type: Boolean,
+        default: false,
+    },
+    canMoveToCompleted: {
+        type: Boolean,
+        default: false,
+    },
+    canMoveTask: {
+        type: Boolean,
+        default: false,
+    },
+    canAddTask: {
+        type: Boolean,
+        default: false,
+    },
+})
+
 const store = useProjectStore();
 
 const { listOfPorjectBoards } = storeToRefs(store);
@@ -190,5 +224,25 @@ function addTask(board) {
 function closeTaskForm() {
     selectedBoard.value = null;
     showTaskForm.value = false;
+}
+
+function moving(evt) {
+    console.log('evt', evt);
+
+    console.log(listOfPorjectBoards, listOfPorjectBoards.value);
+    var target = evt.to.id;
+    var from = evt.from.id;
+
+    if (!props.canMoveTask) {
+        return false;
+    } else if (target == 'On Progress' && !props.canMoveToProgress) {
+        return false;
+    } else if ((target == 'Review By Client' || from == 'Review By Client') && !props.canMoveToReviewClient) {
+        return false;
+    } else if ((target == 'Review By PM' || from == 'Review By PM') && !props.canMoveToReviewPm) {
+        return false;
+    } else if ((target == 'Completed' || from == 'Completed') && !props.canMoveToCompleted) {
+        return false;
+    }
 }
 </script>

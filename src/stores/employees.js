@@ -128,6 +128,13 @@ export const useEmployeesStore = defineStore('employees', {
 
                 return deleteResult;
             } catch (error) {
+                if (error.response.status != 422) {
+                    notify({
+                        title: 'Failed',
+                        text: error.response.data.message,
+                        type: 'error',
+                    });
+                }
                 return error;
             }
         },
