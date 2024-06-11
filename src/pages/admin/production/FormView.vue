@@ -363,9 +363,9 @@ function calculateArea() {
         areas.push(total);
     }
     var sum = areas.reduce((a,b) => a + b);
-    var average = sum / areas.length;
+    // var average = sum / areas.length;
 
-    setFieldValue('led_area', average.toString());
+    setFieldValue('led_area', sum.toString());
 }
 
 function updateLedArea() {

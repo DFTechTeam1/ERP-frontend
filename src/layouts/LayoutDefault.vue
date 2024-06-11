@@ -279,7 +279,9 @@
         ></v-icon>
       </template>
 
-      <v-app-bar-title>ERP</v-app-bar-title>
+      <v-app-bar-title>
+        {{ globalAppName }}
+      </v-app-bar-title>
 
       <v-menu open-on-click>
         <template v-slot:activator="{ props }">
@@ -402,6 +404,11 @@ import { storeToRefs } from "pinia";
 import { mdiBellBadgeOutline, mdiAccount, mdiTable } from "@mdi/js";
 import { useEncrypt } from '@/compose/encrypt';
 import { useBreakToken } from '@/compose/breakToken';
+import { useSettingStore } from "@/stores/setting";
+
+const storeSetting = useSettingStore();
+
+const { globalAppName } = storeToRefs(storeSetting);
 
 var encodedText = localStorage.getItem('dfauth');
 const saltKey = import.meta.env.VITE_SALT_KEY;

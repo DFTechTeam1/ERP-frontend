@@ -12,7 +12,7 @@
             :class="{
                 'position-relative': fieldTypeValue == 'password'
             }"
-            :hint="hint"
+            :hint="props.hint"
             :error-messages="props.errorMessage"
             v-if="props.inputType == 'text'">
 
@@ -63,6 +63,7 @@
             :error-messages="props.errorMessage"
             :clearable="true"
             variant="outlined"
+            :hint="props.hint"
             :items="props.selectOptions"
             v-if="props.inputType == 'select'">
             <!-- <template v-slot:prepend-item v-if="!inventoryTypesAll.length">

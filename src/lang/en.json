@@ -339,5 +339,21 @@
     "displayText": "Display text",
     "open": "Open",
     "deleteAttachmentConfirmation": "Are you sure to delete this attachment?",
-    "deleteAttachment": "Delete attachment?"
+    "deleteAttachment": "Delete attachment?",
+    "generalSetting": "General Setting",
+    "emailHost": "Email Host",
+    "port": "Port",
+    "username": "Username",
+    "senderEmail": "Sender Email",
+    "senderName": "Sender Name",
+    "emailSetting": "Email Setting",
+    "appName": "Application Name",
+    "boardNameStartToCalculated": "Board name when the length of work starts to be calculated",
+    "boardNameCalculatedHint": "If a task is moved to the selected board, the calculation time will start immediately.",
+    "assignAt": "Assign at",
+    "startWorkingAt": "Start Working at",
+    "taskName": "Task Name",
+    "superUserRole": "Super user role",
+    "superUserRoleHint": "Any selected role will be cannot be deleted",
+    "productionStaffRole": "Production staff role"
 }

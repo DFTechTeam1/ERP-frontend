@@ -440,6 +440,18 @@ export const useProjectStore = defineStore('project', {
             } catch (error) {
                 return error;
             }
+        },
+        async changeBoard(payload, projectId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/changeTaskBoard`, payload);
+
+                this.detail = resp.data.data;
+                this.projectBoards = resp.data.data.boards;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
         }
     },
 })

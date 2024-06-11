@@ -196,7 +196,7 @@ onMounted(() => {
         tabDirection.value = 'vertical';
     }
 
-    canMoveToProgress.value = useCheckPermission('move_to_progress');
+    canMoveToProgress.value = useCheckPermission('move_task_to_progress');
     canMoveToReviewClient.value = useCheckPermission('move_task_to_review_client');
     canMoveToReviewPm.value = useCheckPermission('move_task_to_review_pm');
     canMoveToRevise.value = useCheckPermission('move_task_to_revise');

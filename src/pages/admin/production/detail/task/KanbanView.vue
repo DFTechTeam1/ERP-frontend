@@ -8,6 +8,7 @@
                 <draggable
                     class="list-group"
                     :id="board.name"
+                    :data-board="board.id"
                     :list="board.tasks"
                     group="people"
                     @change="log"
@@ -162,6 +163,9 @@ import { storeToRefs } from "pinia";
 import { useProjectStore } from "@/stores/project";
 import TaskForm from './AddTaskForm.vue';
 import TaskMember from "./TaskMember.vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 const props = defineProps({
     canMoveToProgress: {
@@ -226,12 +230,14 @@ function closeTaskForm() {
     showTaskForm.value = false;
 }
 
-function moving(evt) {
+async function moving(evt) {
     console.log('evt', evt);
 
-    console.log(listOfPorjectBoards, listOfPorjectBoards.value);
     var target = evt.to.id;
     var from = evt.from.id;
+
+    // targetBoard
+    var targetBoard = document.getElementById(target).getAttribute('data-board');
 
     if (!props.canMoveTask) {
         return false;
@@ -242,6 +248,15 @@ function moving(evt) {
     } else if ((target == 'Review By PM' || from == 'Review By PM') && !props.canMoveToReviewPm) {
         return false;
     } else if ((target == 'Completed' || from == 'Completed') && !props.canMoveToCompleted) {
+        return false;
+    }
+
+    const resp = await store.changeBoard({
+        board_id: targetBoard,
+        task_id: evt.draggedContext.element.id,
+    }, route.params.id);
+
+    if (resp.status > 300) {
         return false;
     }
 }

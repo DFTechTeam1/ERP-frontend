@@ -51,6 +51,10 @@
                         <v-tab 
                             value="tab-general"
                             :text="t('general')"></v-tab>
+
+                        <v-tab 
+                            value="tab-project"
+                            :text="t('project')"></v-tab>
                     </v-tabs>
 
                     <v-window
@@ -58,6 +62,9 @@
                         v-model="tab">
                         <v-window-item value="tab-general">
                             <general-info></general-info>
+                        </v-window-item>
+                        <v-window-item value="tab-project">
+                            <project-info></project-info>
                         </v-window-item>
                     </v-window>
                 </v-card-text>
@@ -74,6 +81,7 @@ import { useI18n } from 'vue-i18n';
 import { useEmployeesStore } from '@/stores/employees';
 import { storeToRefs } from 'pinia';
 import GeneralInfo from './detail/GeneralInfo.vue';
+import ProjectInfo from './detail/ProjectInfo.vue';
 
 const store = useEmployeesStore();
 

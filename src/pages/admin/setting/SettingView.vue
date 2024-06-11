@@ -21,6 +21,9 @@
         <v-window
             class="w-100"
             v-model="tab">
+            <v-window-item value="tab-general">
+                <general-view />
+            </v-window-item>
             <v-window-item value="tab-addon">
                 <addon-setting />
             </v-window-item>
@@ -36,6 +39,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import AddonSetting from './items/AddonSetting.vue';
 import KanbanBoard from './items/KanbanBoard.vue';
+import GeneralView from './items/general/GeneralView.vue';
 import { useCheckPermission } from '@/compose/checkPermission';
 
 const { t } = useI18n();
