@@ -452,6 +452,43 @@ export const useProjectStore = defineStore('project', {
             } catch (error) {
                 return error;
             }
+        },
+        async bulkDelete(payload) {
+            try {
+                var deleteResult = await axios.post('/production/project/bulk', {
+                    ids: payload,
+                });
+
+                notify({
+                    title: 'Success',
+                    text: deleteResult.data.message,
+                    type: 'success',
+                });
+
+                return deleteResult;
+            } catch (error) {
+                if (error.response.status != 422) {
+                    notify({
+                        title: 'Failed',
+                        text: error.response.data.message,
+                        type: 'error',
+                    });
+                }
+                return error;
+            }
+        },
+        async updateTaskName(payload, projectId, taskId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/updateTaskName/${taskId}`, payload);
+
+                this.detailTask = resp.data.data.task;
+                this.detail = resp.data.data.full_detail;
+                this.projectBoards = resp.data.data.full_detail.boards;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
         }
     },
 })

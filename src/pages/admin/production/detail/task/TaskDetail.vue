@@ -10,7 +10,55 @@
                         <v-icon
                             :icon="mdiLaptop"
                             size="20"></v-icon>
-                        <p style="text-wrap: wrap;">{{ detailOfTask.name }}</p>
+                        <p v-if="!editFormName" style="text-wrap: wrap;">{{ detailOfTask.name }}</p>
+                        <v-form class="d-flex align-center ga-4"
+                            :class="{'w-100': editFormName}"
+                            @submit="updateTaskName">
+                            <div class="w-100">
+                                <input type="text" 
+                                    class="form-control" 
+                                    v-model="name"
+                                    v-if="editFormName"
+                                    id="project-name">
+                                <div class="invalid-feedback" 
+                                    style="line-height: 1; margin-top: 5px;"
+                                    v-if="errors.name">
+                                    {{ errors.name }}
+                                </div>
+                            </div>
+    
+                            <v-icon
+                                :icon="mdiPencil"
+                                class="pointer"
+                                v-if="!editFormName"
+                                @click.prevent="editFormName = true"
+                                size="20"></v-icon>
+
+                            <v-btn 
+                                class="btn-update-name"
+                                variant="plain"
+                                density="compact"
+                                :disabled="loadingEditName"
+                                type="submit"
+                                v-if="editFormName">
+                                <v-icon
+                                    :icon="mdiCheck"
+                                    color="success"
+                                    size="20"></v-icon>
+                            </v-btn>
+                            <v-btn
+                                class="btn-update-name"
+                                variant="plain"
+                                density="compact"
+                                :disabled="loadingEditName"
+                                v-if="editFormName"
+                                @click.prevent="editFormName = false">
+                                <v-icon
+                                    :icon="mdiCancel"
+                                    color="red"
+                                    size="20"></v-icon>
+                            </v-btn>
+                        </v-form>
                     </div>
 
                     <v-icon
@@ -45,7 +93,7 @@
                         <!-- description -->
                         <div class="description"
                             :class="{
-                                'mt-10': detailOfTask.pics.length
+                                'mt-10': detailOfTask.pics.length || detailOfTask.start_date
                             }">
                             <div class="title-desc d-flex align-center justify-space-between">
                                 <div class="d-flex align-center ga-5">
@@ -55,14 +103,25 @@
                                     <h3>{{ $t('description') }}</h3>
                                 </div>
 
-                                <v-btn
-                                    v-if="!isAddDescription && detailOfTask.description"
-                                    variant="flat"
-                                    size="small"
-                                    color="white"
-                                    @click.prevent="editDescription">
-                                    {{ $t('edit') }}
-                                </v-btn>
+                                <div>
+                                    <v-btn
+                                        v-if="!isAddDescription && detailOfTask.description"
+                                        variant="flat"
+                                        size="small"
+                                        color="white"
+                                        @click.prevent="editDescription">
+                                        {{ $t('edit') }}
+                                    </v-btn>
+                                    <v-btn
+                                        v-if="!isAddDescription && detailOfTask.description"
+                                        variant="outlined"
+                                        size="small"
+                                        color="red"
+                                        class="ml-2"
+                                        @click.prevent="deleteDescription">
+                                        {{ $t('delete') }}
+                                    </v-btn>
+                                </div>
                             </div>
 
                             <div class="value-desc">
@@ -221,6 +280,17 @@
 </template>
 
 <style lang="scss" scoped>
+.btn-update-name {
+    padding: 0;
+    min-width: auto;
+    width: auto;
+}
+
+.task-name {
+    max-width: 80%;
+    width: 100%;
+}
+
 .desc-empty {
     background-color: #fff;
     padding: 8px 12px;
@@ -247,7 +317,10 @@ import {
     mdiClockOutline,
     mdiAccountSupervisor,
     mdiAttachment,
-    mdiArrowRight
+    mdiArrowRight,
+    mdiPencil,
+    mdiCheck,
+    mdiCancel
  } from '@mdi/js';
 import TaskMember from './TaskMember.vue';
 import TaskDeadline from './TaskDeadline.vue';
@@ -259,14 +332,31 @@ import AttachmentForm from './AttachmentForm.vue';
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
+import { useForm } from 'vee-validate';
+import * as yup from 'yup';
+import { useRoute } from 'vue-router';
 
 const { t } = useI18n();
 
 const store = useProjectStore();
 
+const route = useRoute();
+
 const { detailOfTask } = storeToRefs(store);
 
+const { defineField, errors, setFieldValue, handleSubmit } = useForm({
+    validationSchema: yup.object({
+        name: yup.string().required(),
+    }),
+});
+
+const [name] = defineField('name');
+
 const show = ref(false);
+
+const editFormName = ref(false);
+
+const loadingEditName = ref(false);
 
 const showPicForm = ref(false);
 
@@ -315,6 +405,12 @@ watch(props, (values) => {
     }
 })
 
+watch(editFormName, (values) => {
+    if (values) {
+        setFieldValue('name', detailOfTask.value.name);
+    }
+})
+
 function saveDate(payload) {
     detail.value.start_date = payload.start_date;
     detail.value.end_date = payload.end_date;
@@ -346,6 +442,12 @@ function closeEditor() {
     isAddDescription.value = false;
 }
 
+function deleteDescription() {
+    description.value = null;
+
+    saveDescription();
+}
+
 async function saveDescription() {
     loading.value = true;
     var descriptionData = description.value == null ? '' : description.value;
@@ -355,6 +457,7 @@ async function saveDescription() {
 
     if (resp.status < 300) {
         closeEditor();
+        description.value = null;
     }
 
 }
@@ -382,4 +485,14 @@ function openAttachmentForm() {
 function closeAttachmentForm() {
     showAttachmentForm.value = false;
 }
+
+const updateTaskName = handleSubmit(async (values) => {
+    loadingEditName.value = true;
+    const resp = await store.updateTaskName(values, route.params.id, detailOfTask.value.uid);
+    loadingEditName.value = false;
+
+    if (resp.status < 300) {
+        editFormName.value = false;
+    }   
+})
 </script>

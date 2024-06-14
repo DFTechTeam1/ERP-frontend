@@ -1,5 +1,9 @@
 <template>
     <div class="kanban-wrapper">
+        <div class="loader" id="loader">
+            {{ $t('processing') }}
+        </div>
+
         <div class="kanban-item">
             <template
                 v-for="(board, keyBoard) in listOfPorjectBoards"
@@ -14,7 +18,7 @@
                     @change="log"
                     :move="moving"
                     @start="isDrag = true"
-                    @end="isDrag = false"
+                    @end="endMoving"
                     itemKey="name"
                 >
                 
@@ -94,6 +98,20 @@
     background-color: #f6f6f6;
     height: 500px;
     padding: 12px 0;
+    position: relative;
+
+    .loader {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(122, 122, 123, .5);
+        z-index: 100000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
 
     .kanban-item {
         display: flex;
@@ -210,6 +228,8 @@ const showTaskForm = ref(false);
 
 const showDetail = ref(false);
 
+const movingTask = ref(null);
+
 function log(event) {
     console.log('event', event);
 }
@@ -230,14 +250,9 @@ function closeTaskForm() {
     showTaskForm.value = false;
 }
 
-async function moving(evt) {
-    console.log('evt', evt);
-
+function moving(evt) {
     var target = evt.to.id;
     var from = evt.from.id;
-
-    // targetBoard
-    var targetBoard = document.getElementById(target).getAttribute('data-board');
 
     if (!props.canMoveTask) {
         return false;
@@ -251,10 +266,25 @@ async function moving(evt) {
         return false;
     }
 
+    movingTask.value = evt.draggedContext.element.id;
+}
+
+async function endMoving(evt) {
+    isDrag.value = false;
+    console.log('evt end', evt);
+
+    var target = evt.to.id;
+
+    // targetBoard
+    var targetBoard = document.getElementById(target).getAttribute('data-board');
+    document.getElementById('loader').style.display = 'flex';
+
     const resp = await store.changeBoard({
         board_id: targetBoard,
-        task_id: evt.draggedContext.element.id,
+        task_id: movingTask.value,
     }, route.params.id);
+
+    document.getElementById('loader').style.display = 'none';
 
     if (resp.status > 300) {
         return false;

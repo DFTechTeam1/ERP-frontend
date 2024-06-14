@@ -2,20 +2,50 @@ import { defineStore } from "pinia";
 import { useNotification } from "@kyvg/vue3-notification";
 import axios from 'axios';
 import { showNotification } from "@/compose/notification";
+import { useBreakToken } from "@/compose/breakToken";
 
 const { notify } = useNotification();
 
 export const useSettingStore = defineStore('setting', {
     state: () => ({
         appName: 'ERP',
+        boardStartCalculated: null,
+        kanbanList: [],
+        addonSetting: [],
+        kanbanSetting: [],
+        generalSetting: [],
+        emailSetting: [],
     }),
     getters: {
         globalAppName: (state) => state.appName,
+        globalBoardCalculated: (state) => state.boardStartCalculated,
+        globalKanbanList: (state) => state.kanbanList,
+        globalAddonSetting: (state) => state.addonSetting,
+        globalKanbanSetting: (state) => state.kanbanSetting,
+        globalEmailSetting: (state) => state.emailSetting,
+        globalGeneralSetting: (state) => state.generalSetting
     },
     actions: {
+        setBoardCalculated() {
+            this.boardStartCalculated = useBreakToken('board_start_calcualted');
+        },
+        async initAllSetting() {
+            try {
+                const resp = await axios.get('/setting');
+
+                this.addonSetting = resp.data.data.addon;
+                this.kanbanSetting = resp.data.data.kanban;
+                this.generalSetting = resp.data.data.general;
+                this.emailSetting = resp.data.data.email;
+            } catch (error) {
+                return error;
+            }
+        },
         async initKanban() {
             try {
                 const setting = await axios.get('/setting/kanban')
+
+                this.kanbanList = setting.data.data.boards;
                 
                 return setting;
             } catch (error) {
@@ -24,15 +54,16 @@ export const useSettingStore = defineStore('setting', {
         },
         async storeKanban(payload) {
             try {
-                const response = await axios.post('/setting/kanban', {boards: payload.settings})
+                const resp = await axios.post('/setting/kanban', {boards: payload.settings})
 
-                notify({
-                    title: 'Success',
-                    text: response.data.message,
-                    type: 'success',
-                });
+                this.addonSetting = resp.data.data.addon;
+                this.kanbanSetting = resp.data.data.kanban;
+                this.generalSetting = resp.data.data.general;
+                this.emailSetting = resp.data.data.email;
 
-                return response;
+                showNotification(resp.data.message);
+
+                return resp;
             } catch (error) {
                 if (error.response.status != 422) {
                     notify({
@@ -77,7 +108,14 @@ export const useSettingStore = defineStore('setting', {
 
                 if (type == 'general') {
                     this.appName = payload.app_name;
+
+                    localStorage.setItem('app_name', this.appName);
                 }
+
+                this.addonSetting = resp.data.data.addon;
+                this.kanbanSetting = resp.data.data.kanban;
+                this.generalSetting = resp.data.data.general;
+                this.emailSetting = resp.data.data.email;
 
                 showNotification(resp.data.message);
 
@@ -85,6 +123,9 @@ export const useSettingStore = defineStore('setting', {
             } catch (error) {
                 return error;
             }
+        },
+        setAppName() {
+            this.appName = localStorage.getItem('app_name');
         }
     }
 });

@@ -57,13 +57,16 @@
 import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useSettingStore } from '@/stores/setting';
 import { useRoleStore } from '@/stores/role';
+import { storeToRefs } from 'pinia';
 
 const store = useSettingStore();
 
 const storeRole = useRoleStore();
+
+const { globalGeneralSetting } = storeToRefs(store);
 
 const { t } = useI18n();
 
@@ -81,7 +84,7 @@ const [board_start_calcualted] = defineField('board_start_calcualted');
 const [super_user_role] = defineField('super_user_role');
 const [production_staff_role] = defineField('production_staff_role');
 
-const loading = ref(false);
+const loading = ref(true);
 
 const boards = ref([]);
 
@@ -113,23 +116,17 @@ const validateData = handleSubmit(async (values) => {
 })
 
 async function initSetting() {
-    loading.value = true;
-    const resp = await store.getSetting({code: 'general'});
-    loading.value = false;
-
-    if (resp.status < 300) {
-        resp.data.data.forEach((elem) => {
-            if (elem.key == 'app_name') {
-                setFieldValue('app_name', elem.value);
-            } else if (elem.key == 'board_start_calcualted') {
-                setFieldValue('board_start_calcualted', parseInt(elem.value));
-            } else if (elem.key == 'super_user_role') {
-                setFieldValue('super_user_role', parseInt(elem.value));
-            } else if (elem.key == 'production_staff_role') {
-                setFieldValue('production_staff_role', elem.value);
-            }
-        })
-    }
+    globalGeneralSetting.value.forEach((elem) => {
+        if (elem.key == 'app_name') {
+            setFieldValue('app_name', elem.value);
+        } else if (elem.key == 'board_start_calcualted') {
+            setFieldValue('board_start_calcualted', parseInt(elem.value));
+        } else if (elem.key == 'super_user_role') {
+            setFieldValue('super_user_role', parseInt(elem.value));
+        } else if (elem.key == 'production_staff_role') {
+            setFieldValue('production_staff_role', elem.value);
+        }
+    })
 }
 
 async function initRoles() {
@@ -143,5 +140,12 @@ async function initRoles() {
 onMounted(() => {
     initRoles();
     initBoards();
+})
+
+watch(globalGeneralSetting, (values) => {
+    if (values) {
+        initSetting();
+        loading.value = false;
+    }
 })
 </script>

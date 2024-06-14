@@ -71,6 +71,7 @@ export const useRoleStore = defineStore('role', {
                     text: this.storeDataResult.data.message,
                     type: 'success',
                 });
+
                 return this.storeDataResult;
             } catch (error) {
                 this.errorValidation = error.response.data.errors;

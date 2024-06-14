@@ -355,5 +355,8 @@
     "taskName": "Task Name",
     "superUserRole": "Super user role",
     "superUserRoleHint": "Any selected role will be cannot be deleted",
-    "productionStaffRole": "Production staff role"
+    "productionStaffRole": "Production staff role",
+    "deleteProject": "Delete Project",
+    "deleteProjectConfirmation": "Are you sure to delete this project?",
+    "cannotDeleteCalculatedBoardHint": "This board is a marker for the start of the work time for each task. This board cannot be delete"
 }

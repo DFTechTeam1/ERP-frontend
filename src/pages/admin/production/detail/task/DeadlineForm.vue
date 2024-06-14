@@ -18,10 +18,9 @@
                             <input 
                                 @click.prevent="activeFieldAction('start')"
                                 type="text" 
+                                id="start-date"
                                 v-model="start_date"
-                                class="form-control" 
-                                style="padding: 8px 12px; width: 50%;
-                            background-color: #fff; border: 1px solid #e6e6e6; border-radius: 4px;">
+                                class="form-control">
                             <div class="text-red" style="font-size: 12px;" v-if="errors.start_date">{{ errors.start_date }}</div>
                         </div>
                     </div>
@@ -31,10 +30,9 @@
                             <input 
                                 @click.prevent="activeFieldAction('end')"
                                 type="text" 
+                                id="end-date"
                                 v-model="end_date"
-                                class="form-control" 
-                                style="padding: 8px 12px; width: 50%;
-                            background-color: #fff; border: 1px solid #e6e6e6; border-radius: 4px;">
+                                class="form-control">
                             <div class="text-red" style="font-size: 12px;" v-if="errors.end_date">{{ errors.end_date }}</div>
                         </div>
                     </div>
@@ -138,11 +136,13 @@ function updatedDate(values) {
     var dateChoose = _date.format(values, 'year') + ', ' + _date.format(values, 'monthAndDate');
     if (activeField.value == 'start') {
         start_date.value = dateChoose;
+        document.getElementById('start-date').focus();
     } else if (activeField.value == 'end') {
         end_date.value = dateChoose;
+        document.getElementById('end-date').focus();
     }
 
-    activeField.value = null;
+    // activeField.value = null;
 }
 
 const saveDate = handleSubmit(async (values) => {

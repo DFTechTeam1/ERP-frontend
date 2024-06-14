@@ -77,3 +77,15 @@ button {
 .no-scroll::-webkit-scrollbar {
     display: none !important;
 }
+
+.form-control {
+    font-size: 12px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    padding: 4px 8px;
+    width: 100%;
+
+    &:focus {
+        outline: none !important;
+    }
+}

@@ -102,10 +102,10 @@
                                             {{ $t('addAsUser') }}
                                         </div>
                                     </template>
-                                </v-list-item>
+                                </v-list-item> -->
                                 <v-list-item
                                     class="pointer"
-                                    @click.prevent="deleteEmployee(value.uid)">
+                                    @click.prevent="deleteProject(value.uid)">
                                     <template v-slot:title>
                                         <div
                                             class="d-flex align-center"
@@ -116,7 +116,7 @@
                                             {{ $t('delete') }}
                                         </div>
                                     </template>
-                                </v-list-item> -->
+                                </v-list-item>
                             </v-list>
                         </v-menu>
                     </td>
@@ -126,18 +126,11 @@
         </table-list>
 
         <confirmation-modal
-            :title="$t('deleteEmployee')"
-            :text="$t('deleteEmployeeConfirmation')"
+            :title="$t('deleteProject')"
+            :text="$t('deleteProjectConfirmation')"
             :showConfirm="showConfirmation"
             :deleteIds="selectedIds"
             @action-bulk-submit="doBulkDelete"></confirmation-modal>
-
-        <confirmation-modal
-            :title="$t('addAsUser')"
-            :text="$t('addAsUserConfirmation')"
-            :showConfirm="showConfirmationAddtoUser"
-            :deleteIds="selectedAddUserId"
-            @action-bulk-submit="doAddUser"></confirmation-modal>
 
         <filter-project 
             :show="isShowFilter"
@@ -162,6 +155,7 @@ import { useRouter } from 'vue-router';
 import { 
     mdiCogOutline, 
     mdiEyeCircle,
+    mdiTrashCanOutline,
  } from '@mdi/js';
 import FilterProject from './FilterProject.vue';
 
@@ -254,15 +248,8 @@ function showForm() {
     router.push({path: '/admin/production/project/create'});
 }
 
-function deleteEmployee(uid) {
+function deleteProject(uid) {
     bulkDelete({value: [{uid: uid}]});
-}
-
-async function doAddUser(payload) {
-    console.log('payload add user', payload);
-
-    await store.addToUser(payload);
-    showConfirmationAddtoUser.value = false;
 }
 
 async function doBulkDelete(payload) {

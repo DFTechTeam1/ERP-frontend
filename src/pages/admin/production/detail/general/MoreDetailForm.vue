@@ -47,6 +47,31 @@
                             v-model="client_portal"
                             :error-message="errors.client_portal"></field-input>
 
+                        <field-input
+                            :label="t('pic')"
+                            :is-multiple="true"
+                            v-if="useGetRole() != 'pm'"
+                            v-model="pic"
+                            :custom-options="true"
+                            :error-message="errors.pic"
+                            inputType="select"
+                            :select-options="projectManagerList">
+                            <template v-slot:selectOption="{props, item}">
+                                <v-list-item
+                                    v-bind="props"
+                                    :prepend-avatar="item.raw.image">
+
+                                    <template v-slot:title>
+                                        {{ item.raw.title }}
+                                    </template>
+                                    <template v-slot:subtitle>
+                                        {{ item.raw.workload_on_date }} Project on this selected date
+                                    </template>
+
+                                </v-list-item>
+                            </template>
+                        </field-input>
+
                         <v-btn
                             varian="outlined"
                             :disabled="loading"
@@ -70,9 +95,13 @@ import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
+import { useEmployeesStore } from '@/stores/employees';
+import { useGetRole } from '@/compose/getRole';
 
 const store = useProjectStore();
 const { detailProject } = storeToRefs(store);
+
+const employeeStore = useEmployeesStore();
 
 const { t } = useI18n();
 
@@ -86,6 +115,7 @@ const { handleSubmit, defineField, errors, setValues } = useForm({
         status: yup.string().required(),
         note: yup.string().nullable(),
         client_portal: yup.string().required(),
+        pic: yup.array().required(t('picRequired')),
     })
 })
 
@@ -95,6 +125,7 @@ const [collaboration] = defineField('collaboration')
 const [status] = defineField('status')
 const [note] = defineField('note')
 const [client_portal] = defineField('client_portal')
+const [pic] = defineField('pic')
 
 const props = defineProps({
     isOpen: {
@@ -110,6 +141,8 @@ const loading = ref(false);
 const eventTypeList = ref([]);
 
 const projectStatus = ref([]);
+
+const projectManagerList = ref([]);
 
 const validateData = handleSubmit(async (values) => {
     loading.value = true;
@@ -137,6 +170,14 @@ async function initProjectStatus() {
     }
 }
 
+async function initProjectManager(payload = null) {
+    const resp = await employeeStore.getProjectManager(payload);
+    
+    if (resp.status < 300) {
+        projectManagerList.value = resp.data.data;
+    }
+}
+
 watch(props, (values) => {
     if (values) {
         dialog.value = values.isOpen
@@ -145,6 +186,7 @@ watch(props, (values) => {
     if (values.isOpen) {
         initEventType();
         initProjectStatus();
+        initProjectManager();
     }
 })
 
@@ -157,6 +199,7 @@ watch(detailProject, (values) => {
             status: values.status_raw,
             note: values.note,
             client_portal: values.client_portal,
+            pic: values.pic_ids,
         })
     }
 })

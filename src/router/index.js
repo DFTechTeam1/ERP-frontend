@@ -38,6 +38,7 @@ import PanelSetting from '@/pages/panel/SettingView.vue';
 import DetailProject from "@/pages/admin/production/DetailProject.vue";
 import ProjectForm from "@/pages/admin/production/FormView.vue";
 import ActivateAccount from "@/pages/admin/authentication/ActivateAccount.vue";
+import RedirectingView from '@/pages/admin/RedirectingView.vue';
 import LayoutEmpty from "@/layouts/LayoutEmpty.vue";
 import { createRouter, createWebHistory } from "vue-router/auto";
 import moment from "moment";
@@ -56,6 +57,18 @@ const router = createRouter({
           path: ":encrypted",
           name: "Activate Account",
           component: ActivateAccount,
+        },
+      ]
+    },
+    {
+      path: '/redirect',
+      name: "Redirecting Account",
+      component: LayoutEmpty,
+      children: [
+        {
+          path: ":logout",
+          name: "Redirect Logout",
+          component: RedirectingView,
         },
       ]
     },

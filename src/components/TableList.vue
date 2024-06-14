@@ -66,7 +66,7 @@
 
           <v-btn
             variant="flat"
-            class="btn-primary"
+            color="primary"
             size="small"
             v-if="props.hasAddButton"
             @click.prevent="$emit('addDataEvent')"
@@ -100,7 +100,7 @@
       </template>
 
       <template v-slot:item.uid="{ value }" v-if="!props.fullCustomBody">
-        <slot name="action" :value="value"></slot>
+        <slot name="action" :value="value" :items="itemsTable"></slot>
 
       </template>
 

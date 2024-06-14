@@ -130,8 +130,8 @@
               <v-avatar image="/userprofile.jpg" size="40"></v-avatar>
 
               <div class="v-sheet-profile">
-                <p class="name">Ilham</p>
-                <p class="position">Fullstack Developer</p>
+                <p class="name">{{ username ? username : email }}</p>
+                <p class="position" v-if="position">{{ position }}</p>
               </div>
             </div>
 
@@ -261,129 +261,131 @@
       </v-navigation-drawer>
     </template>
 
-    <v-app-bar :elevation="2" class="position-fixed">
-      <template v-slot:prepend>
-        <v-icon
-          size="18"
-          :icon="mdiMenu"
-          class="pointer"
-          @click.stop="drawer = !drawer"
-          v-if="mobile"
-        ></v-icon>
-        <v-icon
-          size="18"
-          :icon="mdiMenu"
-          class="pointer"
-          @click.stop="rail = !rail"
-          v-if="!mobile"
-        ></v-icon>
-      </template>
-
-      <v-app-bar-title>
-        {{ globalAppName }}
-      </v-app-bar-title>
-
-      <v-menu open-on-click>
-        <template v-slot:activator="{ props }">
+    <div class="header-wrapper">
+      <v-app-bar :elevation="2" class="position-fixed">
+        <template v-slot:prepend>
           <v-icon
-            v-bind="props"
-            :icon="mdiBellBadgeOutline"
-            color="blue"
-            class="header-bell"
+            size="18"
+            :icon="mdiMenu"
+            class="pointer"
+            @click.stop="drawer = !drawer"
+            v-if="mobile"
+          ></v-icon>
+          <v-icon
+            size="18"
+            :icon="mdiMenu"
+            class="pointer"
+            @click.stop="rail = !rail"
+            v-if="!mobile"
           ></v-icon>
         </template>
-
-        <v-list>
-          <v-list-item>
-            <template v-slot:title>
-              <p class="text-center">No Notification</p>
-            </template>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-
-      <v-menu open-on-click>
-        <template v-slot:activator="{ props }">
-          <v-avatar
-            class="header-account"
-            size="46"
-            image="/userprofile.jpg"
-            v-bind="props"
-          >
-          </v-avatar>
-        </template>
-
-        <v-list>
-          <v-list-item>
-            <template v-slot:title>
-              <div class="box-profile-floating">
-                <div class="profile-preview">
-                  <p class="title">User Profile</p>
-                  <div class="d-flex align-center" style="gap: 10px">
-                    <v-avatar image="/userprofile.jpg" size="90"></v-avatar>
-
-                    <div class="profile-detail">
-                      <p class="name">Ilham Meru Gumilang</p>
-                      <p class="position">Fullstack Developer</p>
-                      <p class="email">gumilang.dev@gmail.com</p>
+  
+        <v-app-bar-title>
+          {{ globalAppName }}
+        </v-app-bar-title>
+  
+        <v-menu open-on-click>
+          <template v-slot:activator="{ props }">
+            <v-icon
+              v-bind="props"
+              :icon="mdiBellBadgeOutline"
+              color="blue"
+              class="header-bell"
+            ></v-icon>
+          </template>
+  
+          <v-list>
+            <v-list-item>
+              <template v-slot:title>
+                <p class="text-center">No Notification</p>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+  
+        <v-menu open-on-click>
+          <template v-slot:activator="{ props }">
+            <v-avatar
+              class="header-account"
+              size="46"
+              image="/userprofile.jpg"
+              v-bind="props"
+            >
+            </v-avatar>
+          </template>
+  
+          <v-list>
+            <v-list-item>
+              <template v-slot:title>
+                <div class="box-profile-floating">
+                  <div class="profile-preview">
+                    <p class="title">User Profile</p>
+                    <div class="d-flex align-center" style="gap: 10px">
+                      <v-avatar image="/userprofile.jpg" size="90"></v-avatar>
+  
+                      <div class="profile-detail">
+                        <p class="name" v-if="username">{{ username }}</p>
+                        <p class="position" v-if="position">{{ position }}</p>
+                        <p class="email">{{ email }}</p>
+                      </div>
                     </div>
                   </div>
+  
+                  <v-divider style="margin: 10px 0"></v-divider>
                 </div>
+              </template>
+            </v-list-item>
+  
+            <v-list-item>
+              <template v-slot:prepend>
+                <div class="icon-profile">
+                  <v-icon :icon="mdiAccount"></v-icon>
+                </div>
+              </template>
+  
+              <template v-slot:title>
+                <div class="dropdown-profile-wrapper">
+                  <p class="title">Profile</p>
+                  <p class="subtitle">Account Setting</p>
+                </div>
+              </template>
+            </v-list-item>
+  
+            <v-list-item>
+              <template v-slot:prepend>
+                <div class="icon-profile">
+                  <v-icon :icon="mdiTable"></v-icon>
+                </div>
+              </template>
+  
+              <template v-slot:title>
+                <div class="dropdown-profile-wrapper">
+                  <p class="title">My task</p>
+                  <p class="subtitle">To do and Daily task</p>
+                </div>
+              </template>
+            </v-list-item>
+  
+            <v-list-item>
+              <template v-slot:title>
+                <v-btn
+                  variant="outlined"
+                  color="primary"
+                  width="100%"
+                  size="small"
+                  type="button"
+                  @click.prevent="logout"
+                >
+                  Logout
+                </v-btn>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-app-bar>
+    </div>
 
-                <v-divider style="margin: 10px 0"></v-divider>
-              </div>
-            </template>
-          </v-list-item>
-
-          <v-list-item>
-            <template v-slot:prepend>
-              <div class="icon-profile">
-                <v-icon :icon="mdiAccount"></v-icon>
-              </div>
-            </template>
-
-            <template v-slot:title>
-              <div class="dropdown-profile-wrapper">
-                <p class="title">Profile</p>
-                <p class="subtitle">Account Setting</p>
-              </div>
-            </template>
-          </v-list-item>
-
-          <v-list-item>
-            <template v-slot:prepend>
-              <div class="icon-profile">
-                <v-icon :icon="mdiTable"></v-icon>
-              </div>
-            </template>
-
-            <template v-slot:title>
-              <div class="dropdown-profile-wrapper">
-                <p class="title">My task</p>
-                <p class="subtitle">To do and Daily task</p>
-              </div>
-            </template>
-          </v-list-item>
-
-          <v-list-item>
-            <template v-slot:title>
-              <v-btn
-                variant="outlined"
-                color="primary"
-                width="100%"
-                size="small"
-                type="button"
-                @click.prevent="logout"
-              >
-                Logout
-              </v-btn>
-            </template>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-app-bar>
-
-    <v-main style="min-height: 300px; background-color: #fbfbfb45;">
+    <v-main style="min-height: 300px; background-color: transparent;">
       <div class="main-content-drawer maxWidth">
         <RouterView />
         <AppFooter></AppFooter>
@@ -440,6 +442,12 @@ const { activeMenuGetters, pathNameGetters } = storeToRefs(store);
 
 const open = ref([]);
 
+const username = ref(null);
+
+const email = ref(null);
+
+const position = ref(null);
+
 const layoutItems = ref(useBreakToken('menus'));
 
 const accountLists = ref([
@@ -466,12 +474,31 @@ onMounted(() => {
     // }
   }
 
-  console.log('check', menus.value);
-
   if (pathNameGetters.value) {
     open.value = [pathNameGetters.value];
   }
   store.navigateMenu(route.fullPath);
+
+  // set app name
+  storeSetting.setAppName();
+  storeSetting.setBoardCalculated();
+
+  // set user name on header and sidebar
+  var user = useBreakToken('user');
+  
+  if (
+    (user) && (user.employee)
+  ) {
+    username.value = user.employee.name;
+    email.value = user.email;
+    position.value = user.employee.position.name;
+  } else if (
+    (user) && (!user.employee)
+  ) {
+    username.value = null;
+    email.value = user.email;
+    position.value = null;
+  }
 });
 
 function navigate(path) {
@@ -559,14 +586,16 @@ async function logout() {
   }
 }
 .maxWidth {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 .main-content-drawer {
-  padding: 15px;
+  padding: 15px 40px;
 }
 .main-sidebar {
   color: $text-secondary;
+  box-shadow: 0 2px 8px rgba(47, 43, 61, 0.12), 0 0 transparent, 0 0 transparent;
+  border: none;
 }
 header {
   box-shadow: none !important;
@@ -627,12 +656,17 @@ header {
   display: block !important;
 }
 .menu-active {
-  background-color: $base-primary-color !important;
-  color: #fff !important;
+  background-color: $base-light-primary !important;
+  background: linear-gradient(270deg, rgba(115,103,240, .7), rgb(115,103,240)) !important;
   border-radius: 8px !important;
+  
+  .v-list-item-title {
+    color: #fff !important;
+  }
 }
 .v-list-item-title {
   font-weight: 300 !important;
   font-size: 0.875rem !important;
+  color: rgb(47,43,61);
 }
 </style>

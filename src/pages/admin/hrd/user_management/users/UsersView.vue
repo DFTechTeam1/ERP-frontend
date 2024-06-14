@@ -11,11 +11,13 @@
           :loading="loading"
           :itemsPerPage="itemsPerPage"
           :filterSearch="true"
+          :has-add-button="useCheckPermission('create_user')"
           :btnAddText="$t('createUser')"
           @bulk-delete-event="bulkDelete"
           @add-data-event="showForm"
           @table-event="initUsers">
-          <template v-slot:action="{ value }">
+          <template v-slot:action="{ value, items }">
+            
               <v-menu
                   open-on-click>
                   <template v-slot:activator="{ props }">
@@ -27,32 +29,34 @@
           
                   <v-list>
                       <v-list-item
-                          class="pointer"
-                          @click.prevent="editUser(value)">
-                          <template v-slot:title>
-                              <div
-                                  class="d-flex align-center"
-                                  style="gap: 8px; font-size: 12px;">
-                                  <v-icon
-                                  :icon="mdiPencil"
-                                  size="15"></v-icon>
-                                  {{ $t('edit') }}
-                              </div>
-                          </template>
+                            v-if="checkEditAction(value, items) && useCheckPermission('edit_user')"
+                            class="pointer"
+                            @click.prevent="editUser(value)">
+                            <template v-slot:title>
+                                <div
+                                    class="d-flex align-center"
+                                    style="gap: 8px; font-size: 12px;">
+                                    <v-icon
+                                    :icon="mdiPencil"
+                                    size="15"></v-icon>
+                                    {{ $t('edit') }}
+                                </div>
+                            </template>
                       </v-list-item>
                       <v-list-item
-                          class="pointer"
-                          @click.prevent="deleteUser(value)">
-                          <template v-slot:title>
-                              <div
-                                  class="d-flex align-center"
-                                  style="gap: 8px; font-size: 12px;">
-                                  <v-icon
-                                  :icon="mdiTrashCanOutline"
-                                  size="15"></v-icon>
-                                  {{ $t('delete') }}
-                              </div>
-                          </template>
+                            class="pointer"
+                            v-if="checkDeleteAction(value, items) && useCheckPermission('delete_user')"
+                            @click.prevent="deleteUser(value)">
+                            <template v-slot:title>
+                                <div
+                                    class="d-flex align-center"
+                                    style="gap: 8px; font-size: 12px;">
+                                    <v-icon
+                                    :icon="mdiTrashCanOutline"
+                                    size="15"></v-icon>
+                                    {{ $t('delete') }}
+                                </div>
+                            </template>
                       </v-list-item>
                   </v-list>
               </v-menu>
@@ -81,6 +85,7 @@ import { mdiCogOutline, mdiPencil, mdiTrashCanOutline } from '@mdi/js';
 import { watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FormView from './FormView.vue';
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const { t } = useI18n();
 
@@ -197,6 +202,28 @@ async function doBulkDelete(payload) {
 function closeForm() {
     isShowForm.value = false;
     initUsers();
+}
+
+function checkDeleteAction(uid, items) {
+    var out = true;
+    items.forEach((elem) => {
+        if (elem.uid == uid) {
+            out = elem.is_deleteable;
+        }
+    })
+
+    return out;
+}
+
+function checkEditAction(uid, items) {
+    var out = true;
+    items.forEach((elem) => {
+        if (elem.uid == uid) {
+            out = elem.is_editable;
+        }
+    })
+
+    return out;
 }
 
 watch(isShowForm, (value) => {

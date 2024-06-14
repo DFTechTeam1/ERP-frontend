@@ -24,13 +24,13 @@ export default createVuetify({
       customTheme: {
         dark: false,
         colors: {
-          background: 'rgb(255, 255, 255)',
+          background: 'rgb(248,247,250)',
           surface: '#FFFFFF',
           'surface-bright': '#FFFFFF',
           'surface-light': '#EEEEEE',
           'surface-variant': '#424242',
           'on-surface-variant': '#EEEEEE',
-          primary: '#1867C0',
+          primary: 'rgb(115,103,240)',
           'menu-primary': 'rgb(93,135,255)',
           'primary-darken-1': '#1F5592',
           secondary: '#48A9A6',
