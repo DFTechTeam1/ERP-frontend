@@ -398,7 +398,7 @@ const router = createRouter({
               },
             },
             {
-              path: "p/:uid",
+              path: ":uid",
               name: t('detailInventory'),
               component: InventoryDetail,
               meta: {

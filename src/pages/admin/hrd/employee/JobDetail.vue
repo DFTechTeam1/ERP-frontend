@@ -197,10 +197,11 @@ onMounted(() => {
 
     if (route.params.id) {
         if (props.detailData) {
+            console.log('props', props.detailData);
             setValues({
                 position_id: props.detailData.position.uid,
                 level: props.detailData.level_staff,
-                boss_id: props.detailData.boss_id || '',
+                boss_id: props.detailData.boss_uid || '',
                 status: props.detailData.status,
                 placement: props.detailData.placement,
                 join_date: props.detailData.join_date,

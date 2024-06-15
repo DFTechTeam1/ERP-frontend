@@ -420,6 +420,8 @@ import { watch } from 'vue';
 
 const store = useEmployeesStore();
 
+const { detailOfEmployee } = storeToRefs(store);
+
 const storeRegion = useRegionStore();
 
 const route = useRoute();
@@ -563,6 +565,12 @@ onMounted(() => {
     }
 });
 
+// watch(detailOfEmployee, (values) => {
+//     if (values) {
+//         console.log('detailOfEmployee', values);
+//     }
+// })
+
 watch(province_id, async (values) => {
     city_id.value = null;
     district_id.value = null;
@@ -652,11 +660,11 @@ watch(props, (values) => {
             }
         }
         
-        if (values.detailData.relation_contact) {
+        if (values.detailData.emergency_contact) {
             setValues({
                 relation: {
-                    name: values.detailData.relation_contact.name,
-                    phone: values.detailData.relation_contact.phone,
+                    name: values.detailData.emergency_contact.name,
+                    phone: values.detailData.emergency_contact.phone,
                 },
             });
         }

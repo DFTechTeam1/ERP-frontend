@@ -155,7 +155,9 @@ async function nextStep() {
         documentForm.value.storeFiles();
 
         var uid = route.params.id || '';
+        nextDisabled.value = true;
         const storeData = await store.storeEmployee({uid: uid});
+        nextDisabled.value = false;
 
         if (storeData.status < 300) {
             setTimeout(() => {

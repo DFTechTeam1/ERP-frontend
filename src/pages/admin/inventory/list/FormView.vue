@@ -564,7 +564,7 @@ async function getDetail() {
     detailData.value = await store.detailData({
         uid: route.params.uid
     });
-
+    console.log('detail', detailData.value);
     if (detailData.value.status < 300) {
         console.log('detail', listOfAllEmployees);
         name.value = detailData.value.data.data.name;

@@ -140,6 +140,7 @@ export const useEmployeesStore = defineStore('employees', {
         },
         storeGeneralInformation(payload) {
             this.employeeGeneralInformation = payload;
+            console.log('employeeGeneralInformation', this.employeeGeneralInformation);
         },
         storeJobDetail(payload) {
             this.employeeJobDetail = payload;
