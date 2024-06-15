@@ -15,7 +15,7 @@
         @bulk-delete-event="bulkDelete"
         @add-data-event="showForm"
         @table-event="initRoles">
-        <template v-slot:action="{ value }">
+        <template v-slot:action="{ value, items }">
             <v-menu
                 open-on-click>
                 <template v-slot:activator="{ props }">
@@ -42,6 +42,7 @@
                     </v-list-item>
                     <v-list-item
                         class="pointer"
+                        v-if="checkDeleteAction(value, items)"
                         @click.prevent="deleteRole(value)">
                         <template v-slot:title>
                             <div
@@ -69,18 +70,23 @@
 </template>
   
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n';
 import { useRoleStore } from '@/stores/role'
 import { storeToRefs } from 'pinia';
 import { mdiCogOutline, mdiPencil, mdiTrashCanOutline } from '@mdi/js';
 import { useRouter } from 'vue-router'
+import { useSettingStore } from '@/stores/setting';
 
 const router = useRouter();
 
 const { t } = useI18n();
 
 const store = useRoleStore();
+
+const settingStore = useSettingStore();
+
+const { globalGeneralSetting } = storeToRefs(settingStore);
 
 const loading = ref(false);
 
@@ -157,5 +163,17 @@ async function doBulkDelete(payload) {
 function showForm() {
   router.push({path: '/admin/user-management/roles/create'});
 }
+
+function checkDeleteAction(value, items) {
+    var out = true;
+
+    items.forEach((elem) => {
+        console.log('elem', elem);
+    })
+}
+
+onMounted(async () => {
+    await settingStore.initAllSetting();
+});
 </script>
   

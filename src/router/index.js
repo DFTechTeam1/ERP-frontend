@@ -44,6 +44,9 @@ import { createRouter, createWebHistory } from "vue-router/auto";
 import moment from "moment";
 import { useEncrypt } from "@/compose/encrypt";
 import LayoutDefault from "@/layouts/LayoutDefault.vue";
+import i18n from '@/lang';
+
+const { t } = i18n.global;
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
@@ -170,6 +173,7 @@ const router = createRouter({
             {
               path: 'list',
               component: EmployeeView,
+              name: t('employees'),
               meta: {
                 requiresAuth: true,
               }
@@ -177,6 +181,7 @@ const router = createRouter({
             {
               path: ':id',
               component: DetailEmployee,
+              name: t('detailEmployee'),
               meta: {
                 meta: { requiresAuth: true, permission: 'detail_employee' },
               }
@@ -184,6 +189,7 @@ const router = createRouter({
             {
               path: 'create',
               component: EmployeeForm,
+              name: t('createEmployee'),
               meta: {
                 requiresAuth: true,
               }
@@ -191,6 +197,7 @@ const router = createRouter({
             {
               path: 'edit/:id',
               component: EmployeeForm,
+              name: t('editEmployee'),
               meta: {
                 requiresAuth: true,
               }
@@ -207,7 +214,7 @@ const router = createRouter({
         },
         {
           path: "/admin/production/projects",
-          name: "Project List",
+          name: t('projectList'),
           component: ProjectList,
           meta: {
             requiresAuth: true,
@@ -215,7 +222,7 @@ const router = createRouter({
         },
         {
           path: "/admin/setting",
-          name: "Setting",
+          name: t('setting'),
           component: SettingView,
           meta: {
             requiresAuth: true,
@@ -227,13 +234,13 @@ const router = createRouter({
           children: [
             {
               path: "divisions",
-              name: "Divisions",
+              name: t('divisions'),
               component: DivisionView,
               meta: { parentData: "Master", requiresAuth: true, permission: 'list_division' },
             },
             {
               path: "positions",
-              name: "Positions",
+              name: t('positions'),
               component: PositionView,
               meta: { parentData: "Master", requiresAuth: true, permission: 'list_position' },
             },
@@ -245,18 +252,20 @@ const router = createRouter({
           children: [
             {
               path: 'project/:id',
-              name: "Detail Project",
+              name: t('detailProject'),
               component: DetailProject,
               meta: {
                 parentData: "Production",
+                requiresAuth: true,
               },
             },
             {
               path: 'project/create',
-              name: "Create Project",
+              name: t('createProject'),
               component: ProjectForm,
               meta: {
                 parentData: "Production",
+                requiresAuth: true,
               },
             },
           ],
@@ -267,34 +276,38 @@ const router = createRouter({
           children: [
             {
               path: "users",
-              name: "Users",
+              name: t('users'),
               component: UsersView,
               meta: {
                 parentData: "User Management",
+                requiresAuth: true,
               },
             },
             {
               path: "roles",
-              name: "Roles",
+              name: t('role'),
               component: RolesView,
               meta: {
                 parentData: "User Management",
+                requiresAuth: true,
               },
             },
             {
               path: "roles/create",
-              name: "Role Form",
+              name: t('createRole'),
               component: RoleForm,
               meta: {
                 parentData: "User Management",
+                requiresAuth: true,
               },
             },
             {
               path: "roles/edit/:id",
-              name: "Edit Role Form",
+              name: t('editRole'),
               component: RoleForm,
               meta: {
                 parentData: "User Management",
+                requiresAuth: true,
               },
             },
           ],
@@ -305,7 +318,7 @@ const router = createRouter({
           children: [
             {
               path: "suppliers",
-              name: "Suppliers",
+              name: t('supplier'),
               component: SupplierView,
               meta: {
                 parentData: "Inventories",
@@ -314,7 +327,7 @@ const router = createRouter({
             },
             {
               path: "request-equipment",
-              name: "Request Equipment",
+              name: t('requestEquipment'),
               component: RequestEquipmentView,
               meta: {
                 parentData: "Inventories",
@@ -323,7 +336,7 @@ const router = createRouter({
             },
             {
               path: "request-equipment/:projectId",
-              name: "Detail Request Equipment",
+              name: t('detailRequestEquipment'),
               component: DetailRequestEquipment,
               meta: {
                 parentData: "Inventories",
@@ -332,7 +345,7 @@ const router = createRouter({
             },
             {
               path: "brands",
-              name: "Brands",
+              name: t('brands'),
               component: BrandView,
               meta: {
                 parentData: "Inventories",
@@ -341,7 +354,7 @@ const router = createRouter({
             },
             {
               path: "units",
-              name: "Units",
+              name: t('units'),
               component: UnitView,
               meta: {
                 parentData: "Inventories",
@@ -350,7 +363,7 @@ const router = createRouter({
             },
             {
               path: "inventory-types",
-              name: "Inventory Types",
+              name: t('inventoryTypes'),
               component: InventoryTypeView,
               meta: {
                 parentData: "Inventories",
@@ -359,7 +372,7 @@ const router = createRouter({
             },
             {
               path: "list",
-              name: "Inventories List",
+              name: t('inventoryList'),
               component: InventoriesView,
               meta: {
                 parentData: "Inventories",
@@ -368,7 +381,7 @@ const router = createRouter({
             },
             {
               path: "create",
-              name: "Inventories Create",
+              name: t('createInventory'),
               component: InventoryForm,
               meta: {
                 parentData: "Inventories",
@@ -377,7 +390,7 @@ const router = createRouter({
             },
             {
               path: "edit/:uid",
-              name: "Inventories Edit",
+              name: t('editInventory'),
               component: InventoryForm,
               meta: {
                 parentData: "Inventories",
@@ -385,8 +398,8 @@ const router = createRouter({
               },
             },
             {
-              path: ":uid",
-              name: "Inventories Detail",
+              path: "p/:uid",
+              name: t('detailInventory'),
               component: InventoryDetail,
               meta: {
                 parentData: "Inventories",
@@ -442,10 +455,22 @@ router.beforeEach((to, from) => {
   //   }
   // }
 
+  if (to.name) {
+    window.document.title = to.name;
+  }
+
   if (to.path == "/auth/a/login" && localStorage.getItem("dfauth")) {
     return {
       path: "/admin/dashboard",
     };
+  }
+
+  /**
+   * if user go to redirect page '/redirect/*'
+   * and from.name property is undefined, then throw to dashboard page
+   */
+  if (!from.name && to.path == '/redirect/logout') {
+    return {path: '/admin/dashboard'};
   }
 
   // instead of having to check every route record with

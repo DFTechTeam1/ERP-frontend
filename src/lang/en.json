@@ -47,6 +47,7 @@
     "deleteInventoryType": "Delete Inventory Type",
     "deleteInventoryTypeConfirmation": "Are you sure to delete this inventory type?",
     "inventories": "Inventories",
+    "inventoryList": "Inventory List",
     "inventory": "Inventory",
     "createInventory": "Create Inventory",
     "editInventory": "Edit Inventory",
@@ -358,5 +359,10 @@
     "productionStaffRole": "Production staff role",
     "deleteProject": "Delete Project",
     "deleteProjectConfirmation": "Are you sure to delete this project?",
-    "cannotDeleteCalculatedBoardHint": "This board is a marker for the start of the work time for each task. This board cannot be delete"
+    "cannotDeleteCalculatedBoardHint": "This board is a marker for the start of the work time for each task. This board cannot be delete",
+    "redirectLogoutAfterEditRole": "You're editing your role. You'll be redirecting to login page. Relogin to continue using the app",
+    "redirecting": "Redirecting",
+    "editEmployee": "Edit Employee",
+    "setting": "Setting",
+    "detailRequestEquipment": "Detail Request Equipment"
 }

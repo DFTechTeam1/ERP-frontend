@@ -13,7 +13,8 @@ import VueFilePond from "vue-filepond";
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.esm.js';
 import FilePondPluginTypePreview from 'filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.esm.js'
 import FilePondPluginImageValidateSize from 'filepond-plugin-image-validate-size';
-import VueDatePicker from '@vuepic/vue-datepicker'
+import VueDatePicker from '@vuepic/vue-datepicker';
+import VueCountdown from '@chenfengyuan/vue-countdown';
 import '@vuepic/vue-datepicker/dist/main.css'
 
 import 'filepond/dist/filepond.min.css';
@@ -42,5 +43,6 @@ export function registerComponent(app) {
         .component('VueDatePicker', VueDatePicker)
         .component('ButtonSubmit', ButtonSubmit)
         .component('LoadingView', LoadingView)
+        .component(VueCountdown.name, VueCountdown)
         .component('file-picker', FilePicker);
 }

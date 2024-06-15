@@ -116,14 +116,11 @@ import { useForm } from 'vee-validate';
 import { useRoleStore } from '@/stores/role';
 import { storeToRefs } from 'pinia';
 import { useRouter, useRoute } from 'vue-router';
-import { useAuthenticationStore } from '@/stores/authentication';
 
 const router = useRouter();
 const route = useRoute();
 
 const store = useRoleStore();
-
-const authStore = useAuthenticationStore();
 
 const { t } = useI18n();
 
@@ -181,18 +178,12 @@ const validateData = handleSubmit(async(values) => {
     
     if (storeData.status < 300) {
         if ((storeData.data.data) && (storeData.data.data.has_to_logout)) {
-            console.log('store', storeData);
-            logoutUser();
+            router.push({path: '/redirect/logout'});
         } else {
             router.push({path: '/admin/user-management/roles'});
         }
     }
 })
-
-async function logoutUser() {
-    await authStore.logout();
-    router.push({ path: "/auth/a/login" });
-}
 
 async function initPermission() {
     await store.initPermissions();

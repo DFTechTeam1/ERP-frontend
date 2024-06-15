@@ -37,6 +37,8 @@ export const useSettingStore = defineStore('setting', {
                 this.kanbanSetting = resp.data.data.kanban;
                 this.generalSetting = resp.data.data.general;
                 this.emailSetting = resp.data.data.email;
+
+                return resp;
             } catch (error) {
                 return error;
             }
