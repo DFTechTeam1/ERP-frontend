@@ -177,6 +177,7 @@ async function submitUser() {
     loading.value = false;
 
     if (resp.status < 300) {
+        removedUser.value = [];
         emit('close-event');
     }
 }

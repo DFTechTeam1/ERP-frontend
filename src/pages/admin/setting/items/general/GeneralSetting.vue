@@ -16,11 +16,20 @@
                             :label="t('boardNameStartToCalculated')"
                             class="mt-5"
                             :is-required="false"
-                            v-model="board_start_calcualted"
+                            v-model="board_start_calculated"
                             input-type="select"
                             :select-options="boards"
                             :hint="t('boardNameCalculatedHint')"
-                            :error-message="errors.board_start_calcualted"></field-input>
+                            :error-message="errors.board_start_calculated"></field-input>
+
+                        <field-input
+                            :label="t('boardNameBacklog')"
+                            class="mt-5"
+                            :is-required="false"
+                            v-model="board_as_backlog"
+                            input-type="select"
+                            :select-options="boards"
+                            :error-message="errors.board_as_backlog"></field-input>
 
                         <field-input
                             :label="t('superUserRole')"
@@ -73,14 +82,16 @@ const { t } = useI18n();
 const { defineField, errors, handleSubmit, setFieldValue } = useForm({
     validationSchema: yup.object({
         app_name: yup.string().nullable(),
-        board_start_calcualted: yup.string().nullable(),
+        board_start_calculated: yup.string().nullable(),
+        board_as_backlog: yup.string().nullable(),
         super_user_role: yup.string().nullable(),
         production_staff_role: yup.array().nullable(),
     }),
 });
 
 const [app_name] = defineField('app_name');
-const [board_start_calcualted] = defineField('board_start_calcualted');
+const [board_start_calculated] = defineField('board_start_calculated');
+const [board_as_backlog] = defineField('board_as_backlog');
 const [super_user_role] = defineField('super_user_role');
 const [production_staff_role] = defineField('production_staff_role');
 
@@ -119,8 +130,8 @@ async function initSetting() {
     globalGeneralSetting.value.forEach((elem) => {
         if (elem.key == 'app_name') {
             setFieldValue('app_name', elem.value);
-        } else if (elem.key == 'board_start_calcualted') {
-            setFieldValue('board_start_calcualted', parseInt(elem.value));
+        } else if (elem.key == 'board_start_calculated') {
+            setFieldValue('board_start_calculated', parseInt(elem.value));
         } else if (elem.key == 'super_user_role') {
             setFieldValue('super_user_role', parseInt(elem.value));
         } else if (elem.key == 'production_staff_role') {

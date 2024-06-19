@@ -122,7 +122,7 @@ function initKanban() {
 
     if (globalGeneralSetting.value) {
         globalGeneralSetting.value.map((general) => {
-            if (general.key == 'board_start_calcualted') {
+            if (general.key == 'board_start_calculated') {
                 calculatedBoard.value = parseInt(general.value);
             }
         })
