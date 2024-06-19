@@ -27,7 +27,7 @@ export const useSettingStore = defineStore('setting', {
     },
     actions: {
         setBoardCalculated() {
-            this.boardStartCalculated = useBreakToken('board_start_calcualted');
+            this.boardStartCalculated = useBreakToken('board_start_calculated');
         },
         async initAllSetting() {
             try {

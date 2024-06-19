@@ -179,6 +179,11 @@
                             :is-show="showDeadlineForm"
                             @close-event="showDeadlineForm = false"
                             @save-event="saveDate"></deadline-form>
+
+                        <!-- activity -->
+                        <task-activity
+                            v-if="isShowLog" />
+                        <!-- end activity -->
                     </v-col> <!-- END LEFT CONTENT -->
 
                     <!-- RIGHT CONTENT -->
@@ -224,6 +229,35 @@
                                             size="20"></v-icon>
                                         {{ $t('attachments') }}
                                     </v-btn>
+                                    <v-btn
+                                        variant="flat"
+                                        class="w-100 text-left mb-3"
+                                        color="grey-darken-1"
+                                        v-if="detailOfTask.proof_of_works.length"
+                                        @click.prevent="openAttachmentForm">
+                                        <v-icon
+                                            class="mr-1"
+                                            :icon="mdiAttachment"
+                                            size="20"></v-icon>
+                                        {{ $t('proofOfWork') }}
+                                    </v-btn>
+                                    <v-btn
+                                        variant="flat"
+                                        class="w-100 text-left mb-3"
+                                        color="grey-darken-1"
+                                        v-if="detailOfTask.logs.length"
+                                        @click.prevent="showLogs">
+                                        <v-icon
+                                            class="mr-1"
+                                            :icon="mdiMathLog"
+                                            size="20"></v-icon>
+                                        <template v-if="isShowLog">
+                                            {{ $t('hideLogs') }}
+                                        </template>
+                                        <template v-else>
+                                            {{ $t('showLogs') }}
+                                        </template>
+                                    </v-btn>
                                 </div>
                             </div>
 
@@ -268,6 +302,10 @@
         <attachment-form
             @close-event="closeAttachmentForm"
             :is-show="showAttachmentForm"></attachment-form>
+
+        <detail-proof-of-work
+            :is-show="showDetailProofWork"
+            :detail="detailOfTask.proof_of_works"></detail-proof-of-work>
 
         <confirmation-modal
             :title="t('deleteTask')"
@@ -320,7 +358,8 @@ import {
     mdiArrowRight,
     mdiPencil,
     mdiCheck,
-    mdiCancel
+    mdiCancel,
+    mdiMathLog
  } from '@mdi/js';
 import TaskMember from './TaskMember.vue';
 import TaskDeadline from './TaskDeadline.vue';
@@ -329,6 +368,8 @@ import AddPicForm from './AddPicForm.vue';
 import AttachmentView from './AttachmentView.vue';
 import TaskAttachment from './TaskAttachment.vue';
 import AttachmentForm from './AttachmentForm.vue';
+import DetailProofOfWork from './DetailProofWork.vue';
+import TaskActivity from './TaskActivity.vue';
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
@@ -355,6 +396,10 @@ const [name] = defineField('name');
 const show = ref(false);
 
 const editFormName = ref(false);
+
+const showDetailProofWork = ref(false);
+
+const isShowLog = ref(false);
 
 const loadingEditName = ref(false);
 
@@ -495,4 +540,12 @@ const updateTaskName = handleSubmit(async (values) => {
         editFormName.value = false;
     }   
 })
+
+function showLogs() {
+    if (isShowLog.value) {
+        isShowLog.value = false;
+    } else {
+        isShowLog.value = true;
+    }
+}
 </script>

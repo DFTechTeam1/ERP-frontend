@@ -82,7 +82,7 @@ const router = createRouter({
       children: [
         {
           path: "login",
-          name: "LoginInternal",
+          name: "Login",
           component: LoginVue,
         },
         {
@@ -100,7 +100,7 @@ const router = createRouter({
       children: [
         {
           path: "login",
-          name: "LoginInternalPanel",
+          name: "Login Addon",
           component: LoginVue,
         },
       ],
@@ -414,8 +414,6 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
-  console.log('to', to);
-  console.log('from', from);
   // TODO: DELETED SOON
   if (to.path == '/') {
     return {

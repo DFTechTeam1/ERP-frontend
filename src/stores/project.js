@@ -92,6 +92,7 @@ export const useProjectStore = defineStore('project', {
             return this.teams;
         },
         setDetailTask(payload) {
+            console.log('detail task', payload);
             this.detailTask = payload;
         },
         getEquipments() {
@@ -447,6 +448,26 @@ export const useProjectStore = defineStore('project', {
 
                 this.detail = resp.data.data;
                 this.projectBoards = resp.data.data.boards;
+
+                return resp;
+            } catch (error) {
+                console.log('error', error);
+                if (error.response.data) {
+                    this.detail = error.response.data.data;
+                    this.projectBoards = error.response.data.data.boards;
+                }
+
+                return error;
+            }
+        },
+        async uploadProofOfWork(payload, projectId, taskId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/proofOfWork/${taskId}`, payload)
+                console.log('resp', resp);
+
+                this.detailTask = resp.data.data.task;
+                this.detail = resp.data.data.full_detail;
+                this.projectBoards = resp.data.data.full_detail.boards;
 
                 return resp;
             } catch (error) {

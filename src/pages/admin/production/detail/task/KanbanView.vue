@@ -9,10 +9,21 @@
                 v-for="(board, keyBoard) in listOfPorjectBoards"
                 :key="keyBoard">
                 
+                <!--  
+                * data-bab = data board_as_backlog
+                * data-bsc = data board_start_calculated
+                * data-bcpm = data board_to_check_by_pm
+                * data-bcpt = data board_completed
+                -->
                 <draggable
                     class="list-group"
                     :id="board.name"
                     :data-board="board.id"
+                    :data-bab="board.board_as_backlog"
+                    :data-bsc="board.board_start_calculated"
+                    :data-bcpm="board.board_to_check_by_pm"
+                    :data-bccl="board.board_to_check_by_client"
+                    :data-bcpt="board.board_completed"
                     :list="board.tasks"
                     group="people"
                     @change="log"
@@ -25,6 +36,8 @@
                     <template #item="{ element }">
                         <div 
                             class="list-group-item position-relative" 
+                            :data-id="element.uid"
+                            :id="'d' + element.id + 'o'"
                             style="min-height: 50px;"
                             @click="chooseCard(element, board)">
                             <p style="font-size: 16px;">{{ element.name }}</p>
@@ -66,7 +79,7 @@
                             <p class="text-center">No Task</p>
                         </template>
                         <v-btn
-                            v-if="props.canAddTask"
+                            v-if="props.canAddTask && !board.board_completed && !board.board_to_check_by_pm && !board.board_to_check_by_client"
                             variant="outlined"
                             color="primary"
                             class="w-100 mt-3"
@@ -89,6 +102,13 @@
                 :board="selectedBoard"
                 :is-show="showTaskForm"
                 @close-event="closeTaskForm"></task-form>
+
+            <proof-of-work
+                :is-show="showProofOfWork"
+                :target-board="targetBoard"
+                :source-board="sourceBoard"
+                @event-close="closeProofWork"
+                :task-id="movingTask"></proof-of-work>
         </div>
     </div>
 </template>
@@ -181,6 +201,7 @@ import { storeToRefs } from "pinia";
 import { useProjectStore } from "@/stores/project";
 import TaskForm from './AddTaskForm.vue';
 import TaskMember from "./TaskMember.vue";
+import ProofOfWork from "./ProofOfWork";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -228,6 +249,12 @@ const showTaskForm = ref(false);
 
 const showDetail = ref(false);
 
+const targetBoard = ref(null);
+
+const sourceBoard = ref(null);
+
+const showProofOfWork = ref(false);
+
 const movingTask = ref(null);
 
 function log(event) {
@@ -250,44 +277,108 @@ function closeTaskForm() {
     showTaskForm.value = false;
 }
 
+/**
+ * Every board will have this property:
+ * data-bab = data board_as_backlog
+ * data-bsc = data board_start_calculated
+ * data-bcpm = data board_to_check_by_pm
+ * data-bcpt = data board_completed
+ */
 function moving(evt) {
     var target = evt.to.id;
     var from = evt.from.id;
+    var fromBoardAsBacklog = document.getElementById(from).getAttribute('data-bab');
+    var targetBoardStartCalculated = document.getElementById(target).getAttribute('data-bsc');
+    var targetBoardStartReviewByPm = document.getElementById(target).getAttribute('data-bcpm');
+    var targetBoardStartReviewByClient = document.getElementById(target).getAttribute('data-bccl');
+    var targetBoardCompleted = document.getElementById(target).getAttribute('data-bcpt');
+    var fromBoardReviewByPm = document.getElementById(from).getAttribute('data-bcpm');
+    var fromBoardStartCalculated = document.getElementById(from).getAttribute('data-bsc');
 
+    console.log('targetBoardStartCalculated', targetBoardStartCalculated);
     if (!props.canMoveTask) {
+        console.log('1');
         return false;
-    } else if (target == 'On Progress' && !props.canMoveToProgress) {
+    } else if (targetBoardStartCalculated && !props.canMoveToProgress) {
+        console.log('2');
         return false;
     } else if ((target == 'Review By Client' || from == 'Review By Client') && !props.canMoveToReviewClient) {
+        console.log('3');
         return false;
-    } else if ((target == 'Review By PM' || from == 'Review By PM') && !props.canMoveToReviewPm) {
+    } else if ((targetBoardStartReviewByPm || from == 'Review By PM') && !props.canMoveToReviewPm) {
+        console.log('4');
         return false;
-    } else if ((target == 'Completed' || from == 'Completed') && !props.canMoveToCompleted) {
+    } else if ((targetBoardCompleted || from == 'Completed') && !props.canMoveToCompleted) {
+        console.log('5');
+        return false;
+    } else if (targetBoardStartCalculated == 'true' && fromBoardReviewByPm == 'true') {
+        console.log('6');
+        return false;
+    } else if (fromBoardStartCalculated == 'true' && targetBoardStartReviewByClient == 'true') {
+        return false;
+    } else if (fromBoardStartCalculated == 'true' && targetBoardCompleted == 'true') {
+        return false;
+    } else if (fromBoardAsBacklog == 'true' && targetBoardCompleted == 'true') {
         return false;
     }
 
     movingTask.value = evt.draggedContext.element.id;
 }
 
+/**
+ * Moving task
+ * Every board will have this property:
+ * data-bab = data board_as_backlog
+ * data-bsc = data board_start_calculated
+ * data-bcpm = data board_to_check_by_pm
+ * data-bcpt = data board_completed
+ */
 async function endMoving(evt) {
     isDrag.value = false;
-    console.log('evt end', evt);
+
+    var taskUid = document.getElementById(evt.item.id).getAttribute('data-id');
+    movingTask.value = taskUid;
 
     var target = evt.to.id;
+    var from = evt.from.id;
 
-    // targetBoard
-    var targetBoard = document.getElementById(target).getAttribute('data-board');
-    document.getElementById('loader').style.display = 'flex';
-
-    const resp = await store.changeBoard({
-        board_id: targetBoard,
-        task_id: movingTask.value,
-    }, route.params.id);
-
-    document.getElementById('loader').style.display = 'none';
-
-    if (resp.status > 300) {
-        return false;
+    if (target != from) {
+        // targetBoard
+        var targetBoardId = document.getElementById(target).getAttribute('data-board');
+        var sourceBoardId = document.getElementById(from).getAttribute('data-board');
+        document.getElementById('loader').style.display = 'flex';
+    
+        var fromBoardProgress = document.getElementById(from).getAttribute('data-bsc');
+        var toBoardReviewPm = document.getElementById(target).getAttribute('data-bcpm');
+        
+        if (fromBoardProgress == 'true' && toBoardReviewPm == 'true') {
+            targetBoard.value = targetBoardId;
+            sourceBoard.value = sourceBoardId;
+            showProofOfWork.value = true;
+        } else {
+            targetBoard.value = null;
+            sourceBoard.value = null;
+            const resp = await store.changeBoard({
+                board_id: targetBoardId,
+                task_id: movingTask.value,
+                board_source_id: sourceBoardId,
+            }, route.params.id);
+        
+            document.getElementById('loader').style.display = 'none';
+        
+            if (resp.status > 300) {
+                return false;
+            }
+        }
     }
+
+}
+
+function closeProofWork() {
+    showProofOfWork.value = false;
+    movingTask.value = null;
+    targetBoard.value = null;
+    sourceBoard.value = null;
+    document.getElementById('loader').style.display = 'none';
 }
 </script>

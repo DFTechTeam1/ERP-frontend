@@ -364,5 +364,18 @@
     "redirecting": "Redirecting",
     "editEmployee": "Edit Employee",
     "setting": "Setting",
-    "detailRequestEquipment": "Detail Request Equipment"
+    "detailRequestEquipment": "Detail Request Equipment",
+    "boardNameBacklog": "Board name to collect all assignments before starting work",
+    "boardToStartCheckByPM": "Board name to start checking by the project manager",
+    "boardToStartCheckByClient": "Board name to start checking by the client",
+    "boardToDefineRevise": "Board name for defining tasks to be revised",
+    "boardToDefineCompleted": "Board name to collect completed tasks",
+    "boardAsCompleted": "Board name as completed task",
+    "nasLink": "NAS Link",
+    "nasLinkRequired": "Nas link is required",
+    "proofOfWork": "Proof of Work",
+    "activity": "Activity",
+    "showLogs": "Show Logs",
+    "hideLogs": "Hide Logs",
+    "emptyLogs": "Empty Logs"
 }

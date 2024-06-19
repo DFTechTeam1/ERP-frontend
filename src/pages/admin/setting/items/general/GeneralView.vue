@@ -16,11 +16,47 @@
                             :label="t('boardNameStartToCalculated')"
                             class="mt-5"
                             :is-required="false"
-                            v-model="board_start_calcualted"
+                            v-model="board_start_calculated"
                             input-type="select"
                             :select-options="boards"
                             :hint="t('boardNameCalculatedHint')"
-                            :error-message="errors.board_start_calcualted"></field-input>
+                            :error-message="errors.board_start_calculated"></field-input>
+
+                        <field-input
+                            :label="t('boardNameBacklog')"
+                            class="mt-5"
+                            :is-required="false"
+                            v-model="board_as_backlog"
+                            input-type="select"
+                            :select-options="boards"
+                            :error-message="errors.board_as_backlog"></field-input>
+
+                        <field-input
+                            :label="t('boardToStartCheckByPM')"
+                            class="mt-5"
+                            :is-required="false"
+                            v-model="board_to_check_by_pm"
+                            input-type="select"
+                            :select-options="boards"
+                            :error-message="errors.board_to_check_by_pm"></field-input>
+
+                        <field-input
+                            :label="t('boardToStartCheckByClient')"
+                            class="mt-5"
+                            :is-required="false"
+                            v-model="board_to_check_by_client"
+                            input-type="select"
+                            :select-options="boards"
+                            :error-message="errors.board_to_check_by_client"></field-input>
+
+                        <field-input
+                            :label="t('boardAsCompleted')"
+                            class="mt-5"
+                            :is-required="false"
+                            v-model="board_completed"
+                            input-type="select"
+                            :select-options="boards"
+                            :error-message="errors.board_completed"></field-input>
 
                         <field-input
                             :label="t('superUserRole')"
@@ -70,17 +106,25 @@ const { globalGeneralSetting } = storeToRefs(store);
 
 const { t } = useI18n();
 
-const { defineField, errors, handleSubmit, setFieldValue } = useForm({
+const { defineField, errors, handleSubmit, setFieldValue, setFieldError, validateField } = useForm({
     validationSchema: yup.object({
         app_name: yup.string().nullable(),
-        board_start_calcualted: yup.string().nullable(),
+        board_start_calculated: yup.string().nullable(),
+        board_as_backlog: yup.string().nullable(),
+        board_to_check_by_pm: yup.string().nullable(),
+        board_to_check_by_client: yup.string().nullable(),
+        board_completed: yup.string().nullable(),
         super_user_role: yup.string().nullable(),
         production_staff_role: yup.array().nullable(),
     }),
 });
 
 const [app_name] = defineField('app_name');
-const [board_start_calcualted] = defineField('board_start_calcualted');
+const [board_start_calculated] = defineField('board_start_calculated');
+const [board_as_backlog] = defineField('board_as_backlog');
+const [board_to_check_by_pm] = defineField('board_to_check_by_pm');
+const [board_to_check_by_client] = defineField('board_to_check_by_client');
+const [board_completed] = defineField('board_completed');
 const [super_user_role] = defineField('super_user_role');
 const [production_staff_role] = defineField('production_staff_role');
 
@@ -106,6 +150,88 @@ async function initBoards() {
 }
 
 const validateData = handleSubmit(async (values) => {
+    // validate board category
+    if (
+        board_start_calculated.value == board_as_backlog.value
+    ) {
+        setFieldError('board_start_calculated', 'Board is already selected in another category');
+        setFieldError('board_as_backlog', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        board_start_calculated.value == board_to_check_by_pm.value
+    ) {
+        setFieldError('board_start_calculated', 'Board is already selected in another category');
+        setFieldError('board_to_check_by_pm', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        board_as_backlog.value == board_to_check_by_pm.value
+    ) {
+        setFieldError('board_as_backlog', 'Board is already selected in another category');
+        setFieldError('board_to_check_by_pm', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        board_start_calculated.value == board_completed.value
+    ) {
+        setFieldError('board_start_calculated', 'Board is already selected in another category');
+        setFieldError('board_completed', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        board_as_backlog.value == board_completed.value
+    ) {
+        setFieldError('board_as_backlog', 'Board is already selected in another category');
+        setFieldError('board_completed', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        board_to_check_by_pm.value == board_completed.value
+    ) {
+        setFieldError('board_to_check_by_pm', 'Board is already selected in another category');
+        setFieldError('board_completed', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        board_to_check_by_client.value == board_completed.value
+    ) {
+        setFieldError('board_to_check_by_client', 'Board is already selected in another category');
+        setFieldError('board_completed', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        board_to_check_by_client.value == board_to_check_by_pm.value
+    ) {
+        setFieldError('board_to_check_by_client', 'Board is already selected in another category');
+        setFieldError('board_to_check_by_pm', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        board_to_check_by_client.value == board_as_backlog.value
+    ) {
+        setFieldError('board_to_check_by_client', 'Board is already selected in another category');
+        setFieldError('board_as_backlog', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        board_to_check_by_client.value == board_start_calculated.value
+    ) {
+        setFieldError('board_to_check_by_client', 'Board is already selected in another category');
+        setFieldError('board_start_calculated', 'Board is already selected in another category');
+
+        return;
+    }
+
     loading.value = true;
     const resp = await store.storeSetting(values, 'general');
     loading.value = false;
@@ -119,12 +245,20 @@ async function initSetting() {
     globalGeneralSetting.value.forEach((elem) => {
         if (elem.key == 'app_name') {
             setFieldValue('app_name', elem.value);
-        } else if (elem.key == 'board_start_calcualted') {
-            setFieldValue('board_start_calcualted', parseInt(elem.value));
+        } else if (elem.key == 'board_start_calculated') {
+            setFieldValue('board_start_calculated', parseInt(elem.value));
         } else if (elem.key == 'super_user_role') {
             setFieldValue('super_user_role', parseInt(elem.value));
         } else if (elem.key == 'production_staff_role') {
             setFieldValue('production_staff_role', elem.value);
+        } else if (elem.key == 'board_as_backlog') {
+            setFieldValue('board_as_backlog', parseInt(elem.value));
+        } else if (elem.key == 'board_to_check_by_pm') {
+            setFieldValue('board_to_check_by_pm', parseInt(elem.value));
+        } else if (elem.key == 'board_completed') {
+            setFieldValue('board_completed', parseInt(elem.value));
+        } else if (elem.key == 'board_to_check_by_client') {
+            setFieldValue('board_to_check_by_client', parseInt(elem.value));
         }
     })
 }
