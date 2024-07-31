@@ -262,7 +262,7 @@
     </template>
 
     <div class="header-wrapper">
-      <v-app-bar :elevation="2" class="position-fixed">
+      <v-app-bar :elevation="2" class="position-fixed bg-background main-app-bar">
         <template v-slot:prepend>
           <v-icon
             size="18"
@@ -490,13 +490,13 @@ onMounted(() => {
     (user) && (user.employee)
   ) {
     username.value = user.employee.name;
-    email.value = user.email;
+    email.value = user.email_show;
     position.value = user.employee.position.name;
   } else if (
     (user) && (!user.employee)
   ) {
     username.value = null;
-    email.value = user.email;
+    email.value = user.email_show;
     position.value = null;
   }
 });
@@ -514,6 +514,17 @@ async function logout() {
 
 <style scoped lang="scss">
 @import "../styles/settings.scss";
+
+.main-app-bar {
+  padding: 0 70px;
+}
+
+@media screen and (max-width: 576px) {
+  .main-app-bar {
+    padding: 0 40px !important;
+  }
+}
+
 .v-sheet-main {
   bottom: 30px !important;
 }

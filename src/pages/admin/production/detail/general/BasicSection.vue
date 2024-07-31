@@ -8,7 +8,10 @@
     
             <template v-else>
                 <div class="names">
-                    <p class="name">{{ detailProject.name }}</p>
+                    <p class="name">
+                        {{ detailProject.name }}
+                        <v-chip :color="detailProject.status_color">{{ detailProject.status }}</v-chip>
+                    </p>
                     <p class="date">
                         {{ detailProject.project_date }} (<span class="pm">{{ detailProject.pic }}</span>)
                     </p>
@@ -22,7 +25,7 @@
         
                 <div class="action">
                     <v-icon
-                        v-if="canEditProject"
+                        v-if="canEditProject && !detailProject.project_is_complete"
                         :icon="mdiPencil"
                         @click.prevent="isOpenForm = true"
                         size="22"

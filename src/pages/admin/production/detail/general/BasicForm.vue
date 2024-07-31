@@ -97,6 +97,12 @@ const { errors, defineField, handleSubmit, setValues } = useForm({
         event_type: yup.string().required(t('eventTypeRequired')),
         classification: yup.string().required(),
     }),
+    initialValues: {
+        name: detailProject.value ? detailProject.value.name : '',
+        date: detailProject.value ? detailProject.value.project_date : '',
+        event_type: detailProject.value ? detailProject.value.event_type_raw : '',
+        classification: detailProject.value ? detailProject.value.event_class_raw : '',
+    }
 })
 
 const [name] = defineField('name');
@@ -120,6 +126,7 @@ watch(props, (values) => {
 })
 
 watch(detailProject, (values) => {
+    console.log('val', values);
     setForm(values);
 })
 

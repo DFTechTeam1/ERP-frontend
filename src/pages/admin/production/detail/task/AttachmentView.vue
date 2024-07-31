@@ -58,7 +58,9 @@
                             :icon="mdiCircle"
                             color="black"
                             size="5"></v-icon>
-                        <span class="action-link" @click.prevent="showConfirmDeleteModal(media)">
+                        <span class="action-link" 
+                            @click.prevent="showConfirmDeleteModal(media)"
+                            v-if="detailOfTask.is_active">
                             {{ $t('delete') }}
                         </span>
                     </p>

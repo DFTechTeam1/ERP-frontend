@@ -22,6 +22,8 @@ import BrandView from "@/pages/admin/inventory/brand/ListView.vue";
 import UnitView from "@/pages/admin/inventory/unit/ListView.vue";
 import InventoryTypeView from '@/pages/admin/inventory/inventoryType/ListView.vue';
 import InventoriesView from '@/pages/admin/inventory/list/ListView.vue';
+import CustomInventories from '@/pages/admin/inventory/custom/CustomInventory.vue';
+import BuildInventory from '@/pages/admin/inventory/custom/BuildInventory.vue';
 import RequestEquipmentView from '@/pages/admin/inventory/requestEquipment/RequestList.vue';
 import DetailRequestEquipment from '@/pages/admin/inventory/requestEquipment/DetailRequestEquipment.vue';
 import InventoryForm from '@/pages/admin/inventory/list/FormView.vue';
@@ -36,6 +38,8 @@ import AddonList from '@/pages/panel/AddonList.vue';
 import AddonForm from '@/pages/panel/AddonForm.vue';
 import PanelSetting from '@/pages/panel/SettingView.vue';
 import DetailProject from "@/pages/admin/production/DetailProject.vue";
+import TaskList from "@/pages/admin/production/TaskList.vue";
+import TeamTransfer from '@/pages/admin/production/TeamTransfer.vue'
 import ProjectForm from "@/pages/admin/production/FormView.vue";
 import ActivateAccount from "@/pages/admin/authentication/ActivateAccount.vue";
 import RedirectingView from '@/pages/admin/RedirectingView.vue';
@@ -251,6 +255,24 @@ const router = createRouter({
           name: "Production",
           children: [
             {
+              path: 'tasks',
+              name: t('tasks'),
+              component: TaskList,
+              meta: {
+                parentData: "Production",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: 'team-transfer',
+              name: t('teamTransfer'),
+              component: TeamTransfer,
+              meta: {
+                parentData: "Production",
+                requiresAuth: true,
+              },
+            },
+            {
               path: 'project/:id',
               name: t('detailProject'),
               component: DetailProject,
@@ -374,6 +396,33 @@ const router = createRouter({
               path: "list",
               name: t('inventoryList'),
               component: InventoriesView,
+              meta: {
+                parentData: "Inventories",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: "custom",
+              name: t('customInventories'),
+              component: CustomInventories,
+              meta: {
+                parentData: "Inventories",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: "custom/edit/:uid",
+              name: t('editBuildItem'),
+              component: BuildInventory,
+              meta: {
+                parentData: "Inventories",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: "custom/create",
+              name: t('buildCustomInventory'),
+              component: BuildInventory,
               meta: {
                 parentData: "Inventories",
                 requiresAuth: true,

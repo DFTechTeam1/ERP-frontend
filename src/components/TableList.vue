@@ -1,5 +1,8 @@
 <template>
-  <v-card rounded="10">
+  <v-card rounded="10"
+    :class="{
+      'no-shadow': !props.hasShadow
+    }">
     <template v-slot:title>
       <div class="table-action d-flex align-center justify-space-between mb-4">
         <div 
@@ -68,11 +71,25 @@
             variant="flat"
             color="primary"
             size="small"
-            v-if="props.hasAddButton"
+            v-if="props.hasAddButton && !props.hasAddDropdown"
             @click.prevent="$emit('addDataEvent')"
           >
             <v-icon :icon="mdiPlus" size="20"></v-icon>
             {{ props.btnAddText }}
+          </v-btn>
+
+          <v-btn
+            variant="flat"
+            color="primary"
+            size="small"
+            v-if="props.hasAddButton && props.hasAddDropdown"
+          >
+            <v-icon :icon="mdiPlus" size="20"></v-icon>
+            {{ props.btnAddText }}
+
+            <v-menu activator="parent">
+              <slot name="addDropdown"></slot>
+            </v-menu>
           </v-btn>
         </div>
       </div>
@@ -125,6 +142,10 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const props = defineProps({
+  hasShadow: {
+    type: Boolean,
+    default: true,
+  },
   hasFilter: {
     type: Boolean,
     default: true,
@@ -132,6 +153,10 @@ const props = defineProps({
   hasAddButton: {
     type: Boolean,
     default: true,
+  },
+  hasAddDropdown: {
+    type: Boolean,
+    default: false,
   },
   filterSearch: {
     type: Boolean,
@@ -195,6 +220,8 @@ const itemsTable = ref([]);
 
 onMounted(() => {
   itemTablePerPage.value = props.itemsPerPage;
+
+  itemsTable.value = props.items
 });
 
 const emit = defineEmits([

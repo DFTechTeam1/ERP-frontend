@@ -11,7 +11,6 @@
                     rounded="lg"
                 >
                     <v-progress-linear
-                    :location="false"
                     bg-color="black"
                     color="yellow"
                     height="20"

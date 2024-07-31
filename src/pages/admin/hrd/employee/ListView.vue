@@ -9,6 +9,7 @@
             :items="listOfEmployees"
             :totalItems="totalItems"
             :loading="loading"
+            :hasAddDropdown="true"
             :itemsPerPage="itemsPerPage"
             :filterSearch="false"
             :showClearFilter="showClearFilter"
@@ -21,6 +22,25 @@
             @table-event="initEmployees"
             @filter-action="showFilter"
             @clear-filter-action="clearFilter">
+
+            <template v-slot:addDropdown>
+                <v-list>
+                    <v-list-item class="d-flex align-center ga-3 pointer" @click.prevent="showImportForm = true">
+                        <v-icon
+                            :icon="mdiImport"
+                            size="15"></v-icon>
+
+                        {{ $t('textImport') }}
+                    </v-list-item>
+                    <v-list-item class="d-flex align-center ga-3 pointer" @click.prevent="showForm">
+                        <v-icon
+                            :icon="mdiPaperRoll"
+                            size="15"></v-icon>
+
+                        {{ $t('manualInput') }}
+                    </v-list-item>
+                </v-list>
+            </template>
 
             <template v-slot:bodytable="{ value }">
                 <tr>
@@ -141,6 +161,10 @@
             :show="isShowFilter"
             @filter-event="doFilter"
             @close-event="cancelFilter"></filter-employee>
+
+        <spreadsheet-preview :is-show="showPreviewImport" @close-event="closeSpreadsheetPreview"></spreadsheet-preview>
+
+        <import-excel :is-show="showImportForm" @close-event="closeImportForm"></import-excel>
     </div>
 </template>
 
@@ -161,10 +185,14 @@ import {
     mdiEyeCircle, 
     mdiPencil, 
     mdiTrashCanOutline,
-    mdiAccountPlus
+    mdiAccountPlus,
+    mdiImport,
+    mdiPaperRoll
  } from '@mdi/js';
 import FilterEmployee from './FilterEmployee.vue';
 import AddAsUserView from './AddAsUser.vue';
+import SpreadsheetPreview from './SpreadsheetPreview.vue';
+import ImportExcel from './ImportView.vue'
 
 const { t } = useI18n();
 
@@ -187,6 +215,8 @@ const loading = ref(true);
 const showClearFilter = ref(false);
 const isShowFilter = ref(false);
 const searchParam = ref(null);
+const showPreviewImport = ref(false)
+const showImportForm = ref(false)
 const breadcrumbs = ref([
     {
         title: t('employees'),
@@ -271,6 +301,14 @@ function detailEmployee(employeeUid) {
     router.push({path: '/admin/employees/' + employeeUid});
 }
 
+function closeImportForm(isShowPreview = false) {
+    showImportForm.value = false
+
+    if (isShowPreview) {
+        showPreviewImport.value = true
+    }
+}
+
 async function doAddUser(payload) {
     console.log('payload add user', payload);
 
@@ -318,6 +356,14 @@ function closeFormAddUser(payload) {
 
 function editEmployee(uid) {
     router.push({path: '/admin/employees/edit/' + uid});
+}
+
+function closeSpreadsheetPreview(isRefresh = false) {
+    showPreviewImport.value = false
+
+    if (isRefresh) {
+        initEmployees()
+    }
 }
 
 function bulkDelete(payload) {

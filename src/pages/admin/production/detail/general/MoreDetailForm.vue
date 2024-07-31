@@ -16,70 +16,110 @@
 
                 <v-card-text class="mt-5">
                     <v-form @submit="validateData">
-                        <field-input
-                            :label="t('venue')"
-                            v-model="venue"
-                            :error-message="errors.venue"></field-input>
-                        <field-input
-                            :label="t('eventType')"
-                            v-model="event_type"
-                            input-type="select"
-                            :select-options="eventTypeList"
-                            :error-message="errors.event_type"></field-input>
-                        <field-input
-                            :label="t('collaboration')"
-                            v-model="collaboration"
-                            :error-message="errors.collaboration"
-                            :is-required="false"></field-input>
-                        <field-input
-                            :label="t('status')"
-                            v-model="status"
-                            input-type="select"
-                            :select-options="projectStatus"
-                            :error-message="errors.status"></field-input>
-                        <field-input
-                            :label="t('note')"
-                            v-model="note"
-                            :error-message="errors.note"
-                            :is-required="false"></field-input>
-                        <field-input
-                            :label="t('clientPortal')"
-                            v-model="client_portal"
-                            :error-message="errors.client_portal"></field-input>
+                        <template v-if="loadingPrepareData">
+                            <v-skeleton-loader type="list-item-three-line"></v-skeleton-loader>
+                            <div class="text-center">
+                                <p>{{ $t('preparingData') }}</p>
+                            </div>
+                        </template>
 
-                        <field-input
-                            :label="t('pic')"
-                            :is-multiple="true"
-                            v-if="useGetRole() != 'pm'"
-                            v-model="pic"
-                            :custom-options="true"
-                            :error-message="errors.pic"
-                            inputType="select"
-                            :select-options="projectManagerList">
-                            <template v-slot:selectOption="{props, item}">
-                                <v-list-item
-                                    v-bind="props"
-                                    :prepend-avatar="item.raw.image">
-
-                                    <template v-slot:title>
-                                        {{ item.raw.title }}
-                                    </template>
-                                    <template v-slot:subtitle>
-                                        {{ item.raw.workload_on_date }} Project on this selected date
-                                    </template>
-
-                                </v-list-item>
-                            </template>
-                        </field-input>
-
-                        <v-btn
-                            varian="outlined"
-                            :disabled="loading"
-                            color="primary"
-                            type="submit">
-                            <template v-if="loading">{{ $t('processing') }}</template>
-                            <template v-else>{{ $t('save') }}</template>
-                        </v-btn>
+                        <template v-else>
+                            <field-input
+                                class="mb-3"
+                                :label="t('country')"
+                                v-model="country_id"
+                                :error-message="errors.country_id"
+                                input-type="select"
+                                :select-options="countries"></field-input>
+    
+                            <field-input
+                                class="mb-3"
+                                :label="t('state')"
+                                v-model="state_id"
+                                :error-message="errors.state_id"
+                                input-type="select"
+                                :select-options="states"></field-input>
+    
+                            <field-input
+                                class="mb-3"
+                                :label="t('city')"
+                                v-model="city_id"
+                                :error-message="errors.city_id"
+                                input-type="select"
+                                :select-options="cities"></field-input>
+    
+                            <field-input
+                                class="mb-3"
+                                :label="t('venue')"
+                                v-model="venue"
+                                :error-message="errors.venue"></field-input>
+                            <field-input
+                                class="mb-3"
+                                :label="t('eventType')"
+                                v-model="event_type"
+                                input-type="select"
+                                :select-options="eventTypeList"
+                                :error-message="errors.event_type"></field-input>
+                            <field-input
+                                class="mb-3"
+                                :label="t('collaboration')"
+                                v-model="collaboration"
+                                :error-message="errors.collaboration"
+                                :is-required="false"></field-input>
+                            <field-input
+                                class="mb-3"
+                                :label="t('status')"
+                                v-model="status"
+                                input-type="select"
+                                :select-options="projectStatus"
+                                :error-message="errors.status"></field-input>
+                            <field-input
+                                class="mb-3"
+                                :label="t('note')"
+                                v-model="note"
+                                :error-message="errors.note"
+                                :is-required="false"></field-input>
+                            <field-input
+                                class="mb-3"
+                                :label="t('clientPortal')"
+                                v-model="client_portal"
+                                :error-message="errors.client_portal"></field-input>
+    
+                            <field-input
+                                class="mb-3"
+                                :label="t('pic')"
+                                :is-multiple="true"
+                                v-if="useGetRole() != 'pm'"
+                                v-model="pic"
+                                :custom-options="true"
+                                :error-message="errors.pic"
+                                inputType="select"
+                                :select-options="projectManagerList">
+                                <template v-slot:selectOption="{props, item}">
+                                    <v-list-item
+                                        v-bind="props"
+                                        :prepend-avatar="item.raw.image">
+    
+                                        <template v-slot:title>
+                                            {{ item.raw.title }}
+                                        </template>
+                                        <template v-slot:subtitle>
+                                            {{ item.raw.workload_on_date }} Project on this selected date
+                                        </template>
+    
+                                    </v-list-item>
+                                </template>
+                            </field-input>
+    
+                            <v-btn
+                                varian="outlined"
+                                :disabled="loading"
+                                color="primary"
+                                type="submit">
+                                <template v-if="loading">{{ $t('processing') }}</template>
+                                <template v-else>{{ $t('save') }}</template>
+                            </v-btn>
+                        </template>
                     </v-form>
                 </v-card-text>
             </v-card-item>
@@ -97,29 +137,50 @@ import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { useEmployeesStore } from '@/stores/employees';
 import { useGetRole } from '@/compose/getRole';
+import { useRegionStore } from '@/stores/region';
 
 const store = useProjectStore();
 const { detailProject } = storeToRefs(store);
 
 const employeeStore = useEmployeesStore();
 
+const regionStore = useRegionStore()
+
 const { t } = useI18n();
 
 const emit = defineEmits(['close-form'])
 
-const { handleSubmit, defineField, errors, setValues } = useForm({
+const { handleSubmit, defineField, errors, setValues, setFieldValue } = useForm({
     validationSchema: yup.object({
         venue: yup.string().required(),
+        country_id: yup.string().required(t('countryRequired')),
+        state_id: yup.string().required(t('stateRequired')),
+        city_id: yup.string().required(t('cityRequired')),
         event_type: yup.string().required(),
         collaboration: yup.string().nullable(),
         status: yup.string().required(),
         note: yup.string().nullable(),
         client_portal: yup.string().required(),
         pic: yup.array().required(t('picRequired')),
-    })
+    }),
+    initialValues: {
+        venue: detailProject.value.venue,
+        event_type: detailProject.value.event_type_raw,
+        collaboration: detailProject.value.collaboration,
+        status: detailProject.value.status_raw,
+        note: detailProject.value.note,
+        client_portal: detailProject.value.client_portal,
+        pic: detailProject.value.pic_ids,
+        country_id: detailProject.value.country_id,
+        state_id: detailProject.value.state_id,
+        city_id: detailProject.value.city_id,
+    }
 })
 
 const [venue] = defineField('venue')
+const [country_id] = defineField('country_id')
+const [state_id] = defineField('state_id')
+const [city_id] = defineField('city_id')
 const [event_type] = defineField('event_type')
 const [collaboration] = defineField('collaboration')
 const [status] = defineField('status')
@@ -141,6 +202,14 @@ const loading = ref(false);
 const eventTypeList = ref([]);
 
 const projectStatus = ref([]);
+
+const countries = ref([]);
+
+const states = ref([]);
+
+const cities = ref([]);
+
+const loadingPrepareData = ref(false)
 
 const projectManagerList = ref([]);
 
@@ -178,15 +247,60 @@ async function initProjectManager(payload = null) {
     }
 }
 
+async function initCountries() {
+    const resp = await regionStore.initCountries()
+
+    if (resp.status < 300) {
+        countries.value = resp.data.data
+    } else {
+        countries.value = []
+    }
+}
+
+async function initStates(countryCode) {
+    setFieldValue('state_id', detailProject.value ? detailProject.value.state_id : null)
+    const resp = await regionStore.initStates(countryCode)
+
+    if (resp.status < 300) {
+        states.value = resp.data.data
+    } else {
+        states.value = []
+    }
+}
+
+async function initCities(stateId) {
+    setFieldValue('city_id', detailProject.value ? detailProject.value.city_id : null)
+
+    const resp = await regionStore.initCities(stateId)
+
+    if (resp.status < 300) {
+        cities.value = resp.data.data
+    } else {
+        cities.value = []
+    }
+}
+
+async function prepareData() {
+    loadingPrepareData.value = true
+    await Promise.all([
+        initEventType(),
+        initProjectStatus(),
+        initProjectManager(),
+        initCountries(),
+        initStates(detailProject.value.country_id),
+        initCities(detailProject.value.state_id)
+    ])
+
+    loadingPrepareData.value = false
+}
+
 watch(props, (values) => {
     if (values) {
         dialog.value = values.isOpen
     }
 
     if (values.isOpen) {
-        initEventType();
-        initProjectStatus();
-        initProjectManager();
+        prepareData()
     }
 })
 

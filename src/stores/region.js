@@ -7,12 +7,18 @@ export const useRegionStore = defineStore('region', {
         cities: [],
         districts: [],
         villages: [],
+        worldCountries: [],
+        worldStates: [],
+        worldCities: [],
     }),
     getters: {
         listOfProvinces: (state) => state.provinces,
         listOfCities: (state) => state.cities,
         listOfDistricts: (state) => state.districts,
         listOfVillages: (state) => state.villages,
+        listOfWorldCountries: (state) => state.worldCountries,
+        listOfWorldStates: (state) => state.worldStates,
+        listOfWorldCities: (state) => state.worldCities,
     },
     actions: {
         async getProvinces() {
@@ -37,5 +43,38 @@ export const useRegionStore = defineStore('region', {
             
             return villages.status < 300 ? villages.data.data : [];
         },
+        async initCountries() {
+            try {
+                const resp = await axios.get('/world/countries')
+
+                this.worldCountries = resp.data.data
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async initStates(countryCode) {
+            try {
+                const resp = await axios.get('/world/states?country_id=' + countryCode)
+
+                this.worldStates = resp.data.data
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async initCities(stateId) {
+            try {
+                const resp = await axios.get('/world/cities?state_id=' + stateId)
+
+                this.worldCities = resp.data.data
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        }
     }
 });

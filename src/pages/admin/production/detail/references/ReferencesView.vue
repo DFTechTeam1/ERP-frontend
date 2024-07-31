@@ -1,17 +1,7 @@
 <template>
-    <div class="preview-wrapper">
+    <div class="preview-wrapper pr-3 pl-3">
         <template v-if="(detailProject) && (detailProject.references.length)">
-            <div class="d-flex align-content-end justify-end">
-                <v-btn
-                    variant="flat"
-                    color="primary"
-                    size="small"
-                    class="mb-5"
-                    @click.prevent="showForm = true">
-                    {{ $t('addReferences') }}
-                </v-btn>
-            </div>
-            <div class="file-wrapper d-flex align-items ga-4 flex-wrap">
+            <div class="file-wrapper d-flex align-items ga-4 flex-wrap mt-4">
                 <div 
                     class="file-item border pointer position-relative mb-4 text-center"
                     v-for="(list, i) in detailProject.references"
@@ -48,20 +38,20 @@
         </template>
 
         <template v-else>
-            <div class="empty pt-10">
+            <div class="empty pt-10" v-if="(detailProject) && (!detailProject.project_is_complete)">
                 <h3>{{ $t('emptyReference') }}</h3>
                 <v-btn
                     class="mt-3"
                     variant="flat"
                     color="primary"
-                    @click.prevent="showForm = true">
+                    @click.prevent="$emit('open-form')">
                     {{ $t('addReferences') }}
                 </v-btn>
             </div>
         </template>
 
         <form-view
-            :is-show="showForm"
+            :is-show="props.showForm"
             @close-event="closeFormEvent"></form-view>
 
         <detail-image
@@ -98,6 +88,15 @@ import { useI18n } from 'vue-i18n';
 
 const {t} = useI18n();
 
+const props = defineProps({
+    showForm: {
+        type: Boolean,
+        default: false,
+    },
+})
+
+const emit = defineEmits(['close-form', 'open-form'])
+
 const store = useProjectStore();
 
 const { detailProject } = storeToRefs(store);
@@ -108,7 +107,6 @@ const modalConfirmDelete = ref(false);
 
 const selectedDeleteImg = ref([]);
 
-const showForm = ref(false);
 const showDetailImage = ref(false);
 
 function previewFile(fileData) {
@@ -124,7 +122,7 @@ function closeImageModal() {
 }
 
 function closeFormEvent() {
-    showForm.value = false;
+    emit('close-form')
 }
 
 function deleteImage(image) {

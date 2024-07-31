@@ -13,50 +13,50 @@
                             :error-message="errors.app_name"></field-input>
 
                         <field-input
-                            :label="t('boardNameStartToCalculated')"
-                            class="mt-5"
-                            :is-required="false"
-                            v-model="board_start_calculated"
-                            input-type="select"
-                            :select-options="boards"
-                            :hint="t('boardNameCalculatedHint')"
-                            :error-message="errors.board_start_calculated"></field-input>
-
-                        <field-input
                             :label="t('boardNameBacklog')"
                             class="mt-5"
                             :is-required="false"
                             v-model="board_as_backlog"
                             input-type="select"
                             :select-options="boards"
+                            :hint="t('boardNameCalculatedHint')"
                             :error-message="errors.board_as_backlog"></field-input>
 
                         <field-input
-                            :label="t('boardToStartCheckByPM')"
+                            :label="t('boardAs3D')"
                             class="mt-5"
                             :is-required="false"
-                            v-model="board_to_check_by_pm"
+                            v-model="board_as_3d"
                             input-type="select"
                             :select-options="boards"
-                            :error-message="errors.board_to_check_by_pm"></field-input>
+                            :error-message="errors.board_as_3d"></field-input>
 
                         <field-input
-                            :label="t('boardToStartCheckByClient')"
+                            :label="t('boardAsCompositing')"
                             class="mt-5"
                             :is-required="false"
-                            v-model="board_to_check_by_client"
+                            v-model="board_as_compositing"
                             input-type="select"
                             :select-options="boards"
-                            :error-message="errors.board_to_check_by_client"></field-input>
+                            :error-message="errors.board_as_compositing"></field-input>
 
                         <field-input
-                            :label="t('boardAsCompleted')"
+                            :label="t('boardAsAnimating')"
                             class="mt-5"
                             :is-required="false"
-                            v-model="board_completed"
+                            v-model="board_as_animating"
                             input-type="select"
                             :select-options="boards"
-                            :error-message="errors.board_completed"></field-input>
+                            :error-message="errors.board_as_animating"></field-input>
+
+                        <field-input
+                            :label="t('boardAsFinalize')"
+                            class="mt-5"
+                            :is-required="false"
+                            v-model="board_as_finalize"
+                            input-type="select"
+                            :select-options="boards"
+                            :error-message="errors.board_as_finalize"></field-input>
 
                         <field-input
                             :label="t('superUserRole')"
@@ -67,6 +67,16 @@
                             :select-options="roles"
                             :hint="t('superUserRoleHint')"
                             :error-message="errors.super_user_role"></field-input>
+
+                        <field-input
+                            :label="t('definePositionAsProjectManager')"
+                            class="mt-5"
+                            :is-required="false"
+                            v-model="project_manager_role"
+                            input-type="select"
+                            :select-options="roles"
+                            :hint="t('superUserRoleHint')"
+                            :error-message="errors.project_manager_role"></field-input>
 
                         <field-input
                             :label="t('productionStaffRole')"
@@ -106,26 +116,27 @@ const { globalGeneralSetting } = storeToRefs(store);
 
 const { t } = useI18n();
 
-const { defineField, errors, handleSubmit, setFieldValue, setFieldError, validateField } = useForm({
+const { defineField, errors, handleSubmit, setFieldValue, setFieldError } = useForm({
     validationSchema: yup.object({
         app_name: yup.string().nullable(),
-        board_start_calculated: yup.string().nullable(),
         board_as_backlog: yup.string().nullable(),
-        board_to_check_by_pm: yup.string().nullable(),
-        board_to_check_by_client: yup.string().nullable(),
-        board_completed: yup.string().nullable(),
+        board_as_3d: yup.string().nullable(),
+        board_as_compositing: yup.string().nullable(),
+        board_as_animating: yup.string().nullable(),
+        board_as_finalize: yup.string().nullable(),
         super_user_role: yup.string().nullable(),
         production_staff_role: yup.array().nullable(),
     }),
 });
 
 const [app_name] = defineField('app_name');
-const [board_start_calculated] = defineField('board_start_calculated');
 const [board_as_backlog] = defineField('board_as_backlog');
-const [board_to_check_by_pm] = defineField('board_to_check_by_pm');
-const [board_to_check_by_client] = defineField('board_to_check_by_client');
-const [board_completed] = defineField('board_completed');
+const [board_as_3d] = defineField('board_as_3d');
+const [board_as_compositing] = defineField('board_as_compositing');
+const [board_as_animating] = defineField('board_as_animating');
+const [board_as_finalize] = defineField('board_as_finalize');
 const [super_user_role] = defineField('super_user_role');
+const [project_manager_role] = defineField('project_manager_role');
 const [production_staff_role] = defineField('production_staff_role');
 
 const loading = ref(true);
@@ -152,82 +163,92 @@ async function initBoards() {
 const validateData = handleSubmit(async (values) => {
     // validate board category
     if (
-        board_start_calculated.value == board_as_backlog.value
+        (board_as_3d.value != null && board_as_backlog.value != null) &&
+        (board_as_3d.value == board_as_backlog.value)
     ) {
-        setFieldError('board_start_calculated', 'Board is already selected in another category');
+        setFieldError('board_as_3d', 'Board is already selected in another category');
         setFieldError('board_as_backlog', 'Board is already selected in another category');
 
         return;
     }
     if (
-        board_start_calculated.value == board_to_check_by_pm.value
+        (board_as_3d.value != null && board_as_compositing.value != null) &&
+        (board_as_3d.value == board_as_compositing.value)
     ) {
-        setFieldError('board_start_calculated', 'Board is already selected in another category');
-        setFieldError('board_to_check_by_pm', 'Board is already selected in another category');
+        setFieldError('board_as_3d', 'Board is already selected in another category');
+        setFieldError('board_as_compositing', 'Board is already selected in another category');
 
         return;
     }
     if (
-        board_as_backlog.value == board_to_check_by_pm.value
+        (board_as_3d.value != null && board_as_animating.value != null) &&
+        (board_as_3d.value == board_as_animating.value)
+    ) {
+        setFieldError('board_as_3d', 'Board is already selected in another category');
+        setFieldError('board_as_animating', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        (board_as_3d.value != null && board_as_finalize.value != null) &&
+        (board_as_3d.value == board_as_finalize.value)
+    ) {
+        setFieldError('board_as_3d', 'Board is already selected in another category');
+        setFieldError('board_as_finalize', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        (board_as_backlog.value != null && board_as_compositing.value != null) &&
+        (board_as_backlog.value == board_as_compositing.value)
     ) {
         setFieldError('board_as_backlog', 'Board is already selected in another category');
-        setFieldError('board_to_check_by_pm', 'Board is already selected in another category');
+        setFieldError('board_as_compositing', 'Board is already selected in another category');
 
         return;
     }
     if (
-        board_start_calculated.value == board_completed.value
-    ) {
-        setFieldError('board_start_calculated', 'Board is already selected in another category');
-        setFieldError('board_completed', 'Board is already selected in another category');
-
-        return;
-    }
-    if (
-        board_as_backlog.value == board_completed.value
+        (board_as_backlog.value != null && board_as_animating.value != null) &&
+        (board_as_backlog.value == board_as_animating.value)
     ) {
         setFieldError('board_as_backlog', 'Board is already selected in another category');
-        setFieldError('board_completed', 'Board is already selected in another category');
+        setFieldError('board_as_animating', 'Board is already selected in another category');
 
         return;
     }
     if (
-        board_to_check_by_pm.value == board_completed.value
+        (board_as_backlog.value != null && board_as_finalize.value != null) &&
+        (board_as_backlog.value == board_as_finalize.value)
     ) {
-        setFieldError('board_to_check_by_pm', 'Board is already selected in another category');
-        setFieldError('board_completed', 'Board is already selected in another category');
-
-        return;
-    }
-    if (
-        board_to_check_by_client.value == board_completed.value
-    ) {
-        setFieldError('board_to_check_by_client', 'Board is already selected in another category');
-        setFieldError('board_completed', 'Board is already selected in another category');
-
-        return;
-    }
-    if (
-        board_to_check_by_client.value == board_to_check_by_pm.value
-    ) {
-        setFieldError('board_to_check_by_client', 'Board is already selected in another category');
-        setFieldError('board_to_check_by_pm', 'Board is already selected in another category');
-
-        return;
-    }
-    if (
-        board_to_check_by_client.value == board_as_backlog.value
-    ) {
-        setFieldError('board_to_check_by_client', 'Board is already selected in another category');
         setFieldError('board_as_backlog', 'Board is already selected in another category');
+        setFieldError('board_as_finalize', 'Board is already selected in another category');
 
         return;
     }
     if (
-        board_to_check_by_client.value == board_start_calculated.value
+        (board_as_compositing.value != null && board_as_animating.value != null) &&
+        (board_as_compositing.value == board_as_animating.value)
     ) {
-        setFieldError('board_to_check_by_client', 'Board is already selected in another category');
-        setFieldError('board_start_calculated', 'Board is already selected in another category');
+        setFieldError('board_as_compositing', 'Board is already selected in another category');
+        setFieldError('board_as_animating', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        (board_as_compositing.value != null && board_as_finalize.value != null) &&
+        (board_as_compositing.value == board_as_finalize.value)
+    ) {
+        setFieldError('board_as_compositing', 'Board is already selected in another category');
+        setFieldError('board_as_finalize', 'Board is already selected in another category');
+
+        return;
+    }
+    if (
+        (board_as_animating.value != null && board_as_finalize.value != null) &&
+        (board_as_animating.value == board_as_finalize.value)
+    ) {
+        setFieldError('board_as_animating', 'Board is already selected in another category');
+        setFieldError('board_as_finalize', 'Board is already selected in another category');
 
         return;
     }
@@ -245,20 +266,22 @@ async function initSetting() {
     globalGeneralSetting.value.forEach((elem) => {
         if (elem.key == 'app_name') {
             setFieldValue('app_name', elem.value);
-        } else if (elem.key == 'board_start_calculated') {
-            setFieldValue('board_start_calculated', parseInt(elem.value));
         } else if (elem.key == 'super_user_role') {
             setFieldValue('super_user_role', parseInt(elem.value));
         } else if (elem.key == 'production_staff_role') {
             setFieldValue('production_staff_role', elem.value);
-        } else if (elem.key == 'board_as_backlog') {
+        } else if (elem.key == 'board_as_backlog' && elem.value) {
             setFieldValue('board_as_backlog', parseInt(elem.value));
-        } else if (elem.key == 'board_to_check_by_pm') {
-            setFieldValue('board_to_check_by_pm', parseInt(elem.value));
-        } else if (elem.key == 'board_completed') {
-            setFieldValue('board_completed', parseInt(elem.value));
-        } else if (elem.key == 'board_to_check_by_client') {
-            setFieldValue('board_to_check_by_client', parseInt(elem.value));
+        } else if (elem.key == 'board_as_3d' && elem.value) {
+            setFieldValue('board_as_3d', parseInt(elem.value));
+        } else if (elem.key == 'board_as_compositing' && elem.value) {
+            setFieldValue('board_as_compositing', parseInt(elem.value));
+        } else if (elem.key == 'board_as_animating' && elem.value) {
+            setFieldValue('board_as_animating', parseInt(elem.value));
+        } else if (elem.key == 'board_as_finalize' && elem.value) {
+            setFieldValue('board_as_finalize', parseInt(elem.value));
+        } else if (elem.key == 'project_manager_role' && elem.value) {
+            setFieldValue('project_manager_role', parseInt(elem.value));
         }
     })
 }

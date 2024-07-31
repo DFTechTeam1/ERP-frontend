@@ -37,6 +37,11 @@
                     <td>{{ value.pic }}</td>
                     <td>{{ value.event_type }}</td>
                     <td>
+                        <v-chip :color="value.status_color">
+                            {{ value.status }}
+                        </v-chip>
+                    </td>
+                    <td>
                         <p class="fw-bold">{{ value.led_area }} m<sup>2</sup></p>
                     </td>
                     <td>
@@ -71,8 +76,7 @@
                                     </template>
                                 </v-list-item> -->
                                 <v-list-item
-                                    class="pointer"
-                                    @click.prevent="detailInventory(value.uid)">
+                                    class="pointer">
                                     <template v-slot:title>
                                         <router-link 
                                             :to="'/admin/production/project/' + value.uid"
@@ -117,6 +121,21 @@
                                         </div>
                                     </template>
                                 </v-list-item>
+                                <v-list-item
+                                    class="pointer"
+                                    v-if="useCheckPermission('change_project_status')"
+                                    @click.prevent="changeStatus(value.uid, value.status_raw)">
+                                    <template v-slot:title>
+                                        <div
+                                            class="d-flex align-center"
+                                            style="gap: 8px; font-size: 12px;">
+                                            <v-icon
+                                            :icon="mdiTransfer"
+                                            size="15"></v-icon>
+                                            {{ $t('changeStatus') }}
+                                        </div>
+                                    </template>
+                                </v-list-item>
                             </v-list>
                         </v-menu>
                     </td>
@@ -136,6 +155,12 @@
             :show="isShowFilter"
             @filter-event="doFilter"
             @close-event="cancelFilter"></filter-project>
+
+        <status-form
+            :is-show="isChangeStatusConfirm"
+            :base-status="projectCurrentStatus"
+            :uid="projectToChangeStatus"
+            @close-event="closeChangeStatus"></status-form>
     </div>
 </template>
 
@@ -146,7 +171,7 @@
 </style>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from '@/stores/project'
 import { storeToRefs } from 'pinia';
@@ -155,9 +180,12 @@ import { useRouter } from 'vue-router';
 import { 
     mdiCogOutline, 
     mdiEyeCircle,
+    mdiTransfer,
     mdiTrashCanOutline,
  } from '@mdi/js';
 import FilterProject from './FilterProject.vue';
+import StatusForm from './ChangeStatusForm.vue'
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const { t } = useI18n();
 
@@ -171,6 +199,9 @@ const {
  } = storeToRefs(store);
 
 const showConfirmation = ref(false);
+const isChangeStatusConfirm = ref(false)
+const projectToChangeStatus = ref(null)
+const projectCurrentStatus = ref(null)
 const showConfirmationAddtoUser = ref(false);
 const selectedIds = ref([]);
 const selectedAddUserId = ref(null);
@@ -221,6 +252,12 @@ const headers = ref([
     {
         title: t('eventType'),
         key: 'event_type',
+        align: 'start',
+        sortable: true
+    },
+    {
+        title: t('status'),
+        key: 'status',
         align: 'start',
         sortable: true
     },
@@ -311,4 +348,26 @@ function cancelFilter() {
     isShowFilter.value = false;
     showClearFilter.value = false;
 }
+
+function changeStatus(uid, currentStatus) {
+    isChangeStatusConfirm.value = true
+    projectToChangeStatus.value = uid
+    projectCurrentStatus.value = currentStatus
+
+    console.log('projectCurrentStatus', projectCurrentStatus.value);
+}
+
+function closeChangeStatus(isRefresh) {
+    isChangeStatusConfirm.value = false
+    projectToChangeStatus.value = null
+    projectCurrentStatus.value = null
+
+    if (isRefresh) {
+        initProjects()
+    }
+}
+
+onMounted(() => {
+
+})
 </script>

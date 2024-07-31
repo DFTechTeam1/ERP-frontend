@@ -13,6 +13,10 @@
                 v-if="permissionGeneral"
                 value="tab-email"
                 :text="t('emailSetting')"></v-tab>
+            <v-tab 
+                v-if="permissionGeneral"
+                value="tab-variables"
+                :text="t('variables')"></v-tab>
             <!-- <v-tab 
                 v-if="permissionAddon"
                 value="tab-addon"
@@ -28,6 +32,9 @@
             v-model="tab">
             <v-window-item value="tab-general">
                 <general-view />
+            </v-window-item>
+            <v-window-item value="tab-variables">
+                <variable-view />
             </v-window-item>
             <v-window-item value="tab-email">
                 <email-setting />
@@ -49,6 +56,7 @@ import AddonSetting from './items/AddonSetting.vue';
 import KanbanBoard from './items/KanbanBoard.vue';
 import GeneralView from './items/general/GeneralView.vue';
 import EmailSetting from './items/EmailSetting.vue';
+import VariableView from './items/VariableView.vue'
 import { useCheckPermission } from '@/compose/checkPermission';
 import { useSettingStore } from '@/stores/setting';
 

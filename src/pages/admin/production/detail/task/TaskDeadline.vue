@@ -4,7 +4,7 @@
         <div 
             style="font-size: 13px; padding: 4px 12px; background-color: #f4f4f4;" 
             class="pointer">
-            {{ props.startDate }} - {{ props.endDate }}
+            {{ props.startDateText }} - {{ props.endDateText }}
         </div>
     </div>
 </template>
@@ -14,8 +14,14 @@ const props = defineProps({
     startDate: {
         type: String,
     },
+    startDateText: {
+        type: String,
+    },
     endDate: {
         type: String,
     },
+    endDateText: {
+        type: String,
+    }
 });
 </script>

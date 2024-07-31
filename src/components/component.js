@@ -7,6 +7,7 @@ import DatePicker from './DatePicker.vue'
 import FilePicker from './FilePicker.vue'
 import ButtonSubmit from './ButtonSubmit.vue'
 import LoadingView from './LoadingView.vue'
+import MasterCard from './MasterCard.vue'
 import vSelect from 'vue-select';
 import { QuillEditor } from '@vueup/vue-quill'
 import VueFilePond from "vue-filepond";
@@ -44,5 +45,6 @@ export function registerComponent(app) {
         .component('ButtonSubmit', ButtonSubmit)
         .component('LoadingView', LoadingView)
         .component(VueCountdown.name, VueCountdown)
-        .component('file-picker', FilePicker);
+        .component('file-picker', FilePicker)
+        .component('master-card', MasterCard);
 }

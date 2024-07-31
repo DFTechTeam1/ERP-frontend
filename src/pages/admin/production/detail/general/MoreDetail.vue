@@ -11,15 +11,15 @@
                     <v-row>
                         <v-col
                             cols="12"
-                            lg="4"
-                            md="4">
+                            lg="5"
+                            md="5">
     
                             <div class="field-item">
                                 <p class="key">
                                     {{ $t('venue') }}
                                 </p>
                                 <p class="value">
-                                    {{ detailProject.venue }}
+                                    {{ detailProject.venue }} {{ detailProject.city_name ? ', ' + detailProject.city_name : '' }}
                                 </p>
                             </div>
     
@@ -48,8 +48,8 @@
                         
                         <v-col
                             cols="12"
-                            lg="4"
-                            md="4">
+                            lg="7"
+                            md="7">
 
                             <div class="field-item">
                                 <p class="key">{{ $t('note') }}</p>
@@ -104,7 +104,7 @@
 
                 <div class="action">
                     <v-icon
-                        v-if="canEditProject"
+                        v-if="canEditProject && !detailProject.project_is_complete"
                         :icon="mdiPencil"
                         size="22"
                         @click.prevent="openForm = true"

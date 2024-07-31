@@ -24,7 +24,7 @@
                         label-idle="Drop files here..."
                         allow-multiple="true"
                         v-on:addfile="updateImages"
-                        accepted-file-types="image/png, image/jpg, image/jpeg, image/webp, application/pdf"
+                        accepted-file-types="image/png, image/jpg, image/jpeg, image/webp"
                     ></file-pond-com>
                     <div class="invalid-feedback" v-if="errors.preview">{{ errors.preview }}</div>
 
@@ -60,16 +60,19 @@ import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useProjectStore } from '@/stores/project'
 import { useRoute } from 'vue-router';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 
 const store = useProjectStore();
 
+const { detailProject } = storeToRefs(store)
+
 const route = useRoute();
 
 const loading = ref(false);
 
-const emit = defineEmits(['event-close']);
+const emit = defineEmits(['event-close', 'close-in-task-detail']);
 
 const { handleSubmit, setFieldValue, errors, defineField, resetForm } = useForm({
     validationSchema: yup.object({
@@ -95,6 +98,14 @@ const props = defineProps({
     taskId: {
         default: null,
     },
+    isFromDetail: {
+        type: Boolean,
+        default: false,
+    },
+    isManualApproveTask: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const show = ref(false);
@@ -120,12 +131,13 @@ function updateImages() {
 }
 
 const validateForm = handleSubmit((values) => {
-    values.preview = preview.value;
-    values.board_id = props.targetBoard;
-    values.source_board_id = props.sourceBoard;
-    values.task_id = props.taskId;
+    values.preview = preview.value
+    values.board_id = props.targetBoard
+    values.source_board_id = props.sourceBoard
+    values.task_id = props.taskId
+    values.manual_approve = props.isManualApproveTask
 
-    assignProof(values);
+    assignProof(values)
 })
 
 async function assignProof(values = null) {
@@ -141,8 +153,6 @@ async function assignProof(values = null) {
         }
     }
 
-    console.log('perview', values.preview);
-
     var formData = new FormData();
     formData.append('nas_link', values.nas_link);
     if (values.preview) {
@@ -153,12 +163,18 @@ async function assignProof(values = null) {
     formData.append('task_id', values.task_id);
     formData.append('source_board_id', values.source_board_id);
     formData.append('board_id', values.board_id);
+    formData.append('manual_approve', values.manual_approve)
 
     loading.value = true;
-    await store.uploadProofOfWork(formData, route.params.id, values.task_id)
+    await store.uploadProofOfWork(formData, route.params.id || detailProject.value.uid, values.task_id)
     loading.value = false;
 
     resetForm();
-    emit('event-close');
+
+    if (props.isFromDetail) {
+        emit('close-in-task-detail');
+    } else {
+        emit('event-close');
+    }
 }
 </script>

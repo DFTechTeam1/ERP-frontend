@@ -9,6 +9,15 @@
     src: local("helvetica"), url("/fonts/helvetica/Helvetica.woff") format("woff");
 }
 
+@font-face {
+    font-family: "jakarta-sans";
+    font-weight: 400;
+    font-style: normal;
+    font-display: auto;
+    unicode-range: U+000-5FF;
+    src: local("jakarta-sans"), url("/fonts/jakartaSans/PlusJakartaSans-Regular.ttf") format("truetype");
+}
+
 body,
 html,
 p,
@@ -16,8 +25,10 @@ div,
 input,
 span,
 a,
-button {
-    font-family: 'helvetica';
+button,
+table th,
+table td {
+    font-family: 'jakarta-sans';
 }
 
 .text-h3 {
@@ -93,4 +104,23 @@ button {
 .v-window,
 .v-card {
     box-shadow: 0 2px 8px rgba(47, 43, 61, 0.12), 0 0 transparent, 0 0 transparent;
+}
+
+.no-shadow {
+    box-shadow: none !important;
+}
+
+table thead th {
+    font-weight: bold !important;
+}
+
+.custom-input-field {
+    border: 1px solid #e6e6e6;
+    padding: 6px 12px;
+    border-radius: 8px;
+    width: 100%;
+
+    &:focus {
+        outline: none;
+    }
 }

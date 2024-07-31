@@ -9,10 +9,18 @@ const { notify } = useNotification();
 export const useProjectStore = defineStore('project', {
     state: () => ({
         projects: [],
+        allProjects: [],
+        projectCalendar: [],
+        projectStatusses: [],
+        projectCalendarGrouping: [],
+        projectCalendarDetail: [],
         detailListRequest: [],
         totalProjects: 0,
+        totalTransferTeam: 0,
+        transferTeamList: [],
         detail: null,
         projectBoards: [],
+        allTasks: [],
         detailTask: null,
         teams: [
             {
@@ -60,13 +68,20 @@ export const useProjectStore = defineStore('project', {
         ],
     }),
     getters: {
+        listOfProjectCalendar: (state) => state.projectCalendar,
+        detailOfProjectCalendar: (state) => state.projectCalendarDetail,
         detailProject: (state) => state.detail,
+        listOfAllProjects: (state) => state.allProjects,
         detailOfTask: (state) => state.detailTask,
         listOfDetailRequestEquipment: (state) => state.detailListRequest,
         listOfTeams: (state) => state.teams,
         listOfPorjectBoards: (state) => state.projectBoards,
         listOfProjects: (state) => state.projects,
         totalOfProjects: (state) => state.totalProjects,
+        listOfAllTasks: (state) => state.allTasks,
+        listOfProjectStatusses: (state) => state.projectStatusses,
+        totalOfTransferTeam: (state) => state.totalTransferTeam,
+        listOfTransferTeam: (state) => state.transferTeamList,
     },
     actions: {
         async getDetail(payload) {
@@ -146,10 +161,22 @@ export const useProjectStore = defineStore('project', {
                 });
 
                 this.projects = resp.data.data.paginated;
+                this.totalProjects = resp.data.data.totalData
 
                 return resp;
             } catch (error) {
                 return error;
+            }
+        },
+        async getAllProjects() {
+            try {
+                const resp = await axios.get('/production/project/getAll')
+
+                this.allProjects = resp.data.data
+
+                return resp
+            } catch (error) {
+                return error
             }
         },
         async initEventTypes() {
@@ -258,7 +285,7 @@ export const useProjectStore = defineStore('project', {
         async getPMMembers(payload) {
             try {
                 const resp = await axios.get('/production/project/' + payload.project_id + '/getProjectMembers/' + payload.task_id);
-                console.log('resp pm member', resp);
+                
                 return resp;
             } catch (error) {
                 return error;
@@ -451,7 +478,6 @@ export const useProjectStore = defineStore('project', {
 
                 return resp;
             } catch (error) {
-                console.log('error', error);
                 if (error.response.data) {
                     this.detail = error.response.data.data;
                     this.projectBoards = error.response.data.data.boards;
@@ -463,7 +489,12 @@ export const useProjectStore = defineStore('project', {
         async uploadProofOfWork(payload, projectId, taskId) {
             try {
                 const resp = await axios.post(`/production/project/${projectId}/proofOfWork/${taskId}`, payload)
-                console.log('resp', resp);
+                
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
 
                 this.detailTask = resp.data.data.task;
                 this.detail = resp.data.data.full_detail;
@@ -509,6 +540,360 @@ export const useProjectStore = defineStore('project', {
                 return resp;
             } catch (error) {
                 return error;
+            }
+        },
+        async getMoveToBoards(payload) {
+            try {
+                const resp = await axios.get(`production/project/${payload.projectId}/moveToBoards/${payload.boardId}`);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async manualChangeTaskBoard(payload, projectId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/manualChangeTaskBoard`, payload);
+
+                if (!resp.data.data.show_proof_of_work) {
+                    this.detail = resp.data.data;
+                    this.projectBoards = resp.data.data.boards;
+                }
+                
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async autocompleteVenue(payload) {
+            try {
+                const resp = await axios.get(`/production/project/venues?search=${payload.search}`);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async getAllTasks(params) {
+            try {
+                const resp = await axios.get('/production/tasks', {
+                    params: params
+                });
+
+                this.allTasks = resp.data.data;
+            } catch (error) {
+                return error;
+            }
+        },
+        async detailTaskFromList(taskUid) {
+            try {
+                const resp = await axios.get('/production/tasks/' + taskUid)
+
+                this.detailTask = resp.data.data.task
+                this.detail = resp.data.data.full_detail
+                this.projectBoards = resp.data.data.full_detail.boards
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        resetDetailTask() {
+            this.detailTask = null
+        },
+        async getProjectMarketings() {
+            try {
+                const resp = await axios.get('/production/project/marketings')
+
+                return resp
+            } catch(e) {
+                // statements
+                return e
+            }
+        },
+        async approveTask(projectUid, taskUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/task/${taskUid}/approve`)
+
+                this.detailTask = resp.data.data.task
+                this.detail = resp.data.data.full_detail
+                this.projectBoards = resp.data.data.full_detail.boards
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async markAsCompleted(projectUid,taskUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/task/${taskUid}/completed`)
+
+                this.detailTask = resp.data.data.task
+                this.detail = resp.data.data.full_detail
+                this.projectBoards = resp.data.data.full_detail.boards
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async getProjectBoards(projectId) {
+            try {
+                const resp = await axios.get(`/production/project/${projectId}/getBoards`)
+
+                return resp.data.data
+            } catch (error) {
+                return error
+            }
+        },
+        async getProjectTeams(projectId) {
+            try {
+                const resp = await axios.get(`/production/project/${projectId}/getProjectTeams`)
+
+                return resp.data.data.map((elem) => {
+                    return {
+                        value: elem.uid,
+                        title: elem.name,
+                    }
+                })
+            } catch (error) {
+                return error
+            }
+        },
+        async getProjectStatusses() {
+            try {
+                const resp = await axios.get('/production/project/statusses')
+
+                this.projectStatusses = resp.data.data
+            } catch (error) {
+                return error
+            }
+        },
+        async changeStatus(payload, projectId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/changeStatus`, payload)
+
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+
+                this.detail = resp.data.data.full_detail;
+                this.projectBoards = resp.data.data.full_detail.boards;
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async reviseTask(payload, projectUid, taskUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/task/${taskUid}/revise`, payload)
+
+                this.detailTask = resp.data.data.task;
+                this.detail = resp.data.data.full_detail;
+                this.projectBoards = resp.data.data.full_detail.boards;
+
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async getPicTeams(projectUid, picUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/getPicTeams/${picUid}`)
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async getTargetPicsAndTaskList(projectUid) {
+            try {
+                const resp = await axios.get(`production/project/getTargetPicsAndTaskList/${projectUid}`)
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async loadTeamMember(payload, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/loadTeamMember`, payload)
+
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+
+                return resp
+            } catch (error) {
+                console.log('error', error);
+                notify({
+                    title: 'Failed',
+                    text: error.response.data.message,
+                    type: 'error',
+                });
+                return error
+            }
+        },
+        async getTransferTeams(payload) {
+            try {
+                const resp = await axios.get('/production/team-transfers')
+
+                this.transferTeamList = resp.data.data.paginated
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async bulkDeleteRequestTeam(payload) {
+            try {
+                var deleteResult = await axios.post('/production/project/bulk', {
+                    ids: payload,
+                });
+
+                notify({
+                    title: 'Success',
+                    text: deleteResult.data.message,
+                    type: 'success',
+                });
+
+                return deleteResult;
+            } catch (error) {
+                return error
+            }
+        },
+        async bulkCancelRequestTeam(payload) {
+            try {
+                console.log('pay', payload);
+                var deleteResult = await axios.post(`/production/team-transfers/cancel`, {
+                    ids: payload,
+                });
+
+                notify({
+                    title: 'Success',
+                    text: deleteResult.data.message,
+                    type: 'success',
+                });
+
+                return deleteResult;
+            } catch (error) {
+                return error
+            }
+        },
+        async approveRequestTeam(transferUid) {
+            try {
+                const resp = await axios.get(`/production/team-transfers/approve/${transferUid}/web`)
+
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async completeRequestTeam(transferUid) {
+            try {
+                const resp = await axios.get(`/production/team-transfers/complete/${transferUid}`)
+
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async rejectRequestTeam(payload, transferUid) {
+            try {
+                const resp = await axios.post(`/production/team-transfers/reject/${transferUid}`, payload)
+
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async deleteRequestTeam(transferUid) {
+            try {
+                const resp = await axios.delete(`/production/team-transfers/delete/${transferUid}`)
+
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async uploadShowreels(payload, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/uploadShowreels`, payload)
+
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+
+                this.detail = resp.data.data.full_detail
+                this.projectBoards = resp.data.data.full_detail.boards
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async getTaskTeamForReview(projectUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/getTaskTeamForReview`)
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async completeProject(values, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/completeProject`, values)
+
+                this.detail = resp.data.data.full_detail;
+                this.projectBoards = resp.data.data.full_detail.boards;
+
+                notify({
+                    title: 'Success',
+                    text: resp.data.message,
+                    type: 'success',
+                });
+
+                return resp
+            } catch (error) {
+                return error
             }
         }
     },

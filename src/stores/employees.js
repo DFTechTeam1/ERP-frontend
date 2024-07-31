@@ -8,6 +8,7 @@ export const useEmployeesStore = defineStore('employees', {
     state: () => ({
         employees: [],
         allEmployees: [],
+        previewImport: [],
         allProjectManagers: [],
         employeeGeneralInformation: null,
         employeeJobDetail: null,
@@ -19,6 +20,9 @@ export const useEmployeesStore = defineStore('employees', {
         errorValidation: null,
         storeDataResult: null,
         detailEmployee: null,
+        selectedPreviewImport: null,
+        totalWrongPreviewImport: 0,
+        totalCorrectPreviewImport: 0,
     }),
     getters: {
         listOfEmployees: (state) => state.employees,
@@ -28,6 +32,10 @@ export const useEmployeesStore = defineStore('employees', {
         detailOfEmployee: (state) => state.detailEmployee,
         errorValidationData: (state) => state.errorValidation,
         formEmployee: (state) => state.completeFormEmployee,
+        listOfPreviewImport: (state) => state.previewImport,
+        detailOfSelectedPreviewImport: (state) => state.selectedPreviewImport,
+        totalOfWrongImport: (state) => state.totalWrongPreviewImport,
+        totalOfCorrectImport: (state) => state.totalCorrectPreviewImport
     },
     actions: {
         async initEmployees(payload) {
@@ -240,6 +248,45 @@ export const useEmployeesStore = defineStore('employees', {
                 return resp;
             } catch (error) {
                 return error;
+            }
+        },
+        async uploadImport(payload) {
+            try {
+                const resp = await axios.post('/employees/import', payload)
+
+                this.previewImport = resp.data.data
+
+                var wrongFormat = resp.data.data.filter((elem) => {
+                    return elem.wrong_format
+                }).length
+
+                var correctFormat = resp.data.data.filter((elem) => {
+                    return !elem.wrong_format
+                }).length
+
+                this.totalWrongPreviewImport = wrongFormat
+                this.totalCorrectPreviewImport = correctFormat
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async submitImport() {
+            try {
+                if (this.previewImport.length) {
+                    const resp = await axios.post('/employees/submitImport', this.previewImport)
+                    
+                    notify({
+                        title: 'Success',
+                        text: resp.data.message,
+                        type: 'success',
+                    });
+                    
+                    return resp
+                }
+            } catch (error) {
+                return error
             }
         }
     }

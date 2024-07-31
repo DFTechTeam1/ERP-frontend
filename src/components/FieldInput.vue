@@ -9,6 +9,7 @@
             @blur="$emit('changes-event')"
             :value="model"
             :type="props.fieldType"
+            :density="props.density"
             :class="{
                 'position-relative': fieldTypeValue == 'password'
             }"
@@ -62,8 +63,10 @@
             v-model="model"
             :error-messages="props.errorMessage"
             :clearable="true"
+            :disabled="props.isDisabled"
             variant="outlined"
             :hint="props.hint"
+            :density="props.density"
             :items="props.selectOptions"
             v-if="props.inputType == 'select'">
             <!-- <template v-slot:prepend-item v-if="!inventoryTypesAll.length">
@@ -170,6 +173,10 @@ const props = defineProps({
     hint: {
         type: String,
         default: '',
+    },
+    density: {
+        type: String,
+        default: 'default'
     }
 })
 

@@ -15,6 +15,11 @@ import Notifications from '@kyvg/vue3-notification'
 import i18n from '@/lang';
 import { useEncrypt } from '@/compose/encrypt';
 import moment from 'moment';
+import { useRouter } from 'vue-router';
+import VCalendar from 'v-calendar';
+import 'v-calendar/style.css';
+import VueVideoPlayer from '@videojs-player/vue'
+import 'video.js/dist/video-js.css'
 
 var jwt = localStorage.getItem('dfauth');
 
@@ -56,6 +61,16 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*'
 axios.defaults.headers.common['Access-Control-Allow-Methods'] = '*'
 axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true'
 
+// axios handle error response
+axios.interceptors.response.use(
+  function(response) {
+    return response;
+  },
+  function(error) {
+    return Promise.reject(error);
+  }
+);
+
 export function registerPlugins (app) {
   app.provide('axios', app.config.globalProperties.axios)
 
@@ -67,4 +82,6 @@ export function registerPlugins (app) {
     .use(VueApexCharts)
     .use(VueAxios, axios)
     .use(Notifications)
+    .use(VCalendar, {})
+    .use(VueVideoPlayer)
 }

@@ -15,6 +15,7 @@ export const useSettingStore = defineStore('setting', {
         kanbanSetting: [],
         generalSetting: [],
         emailSetting: [],
+        variableSetting: [],
     }),
     getters: {
         globalAppName: (state) => state.appName,
@@ -23,7 +24,8 @@ export const useSettingStore = defineStore('setting', {
         globalAddonSetting: (state) => state.addonSetting,
         globalKanbanSetting: (state) => state.kanbanSetting,
         globalEmailSetting: (state) => state.emailSetting,
-        globalGeneralSetting: (state) => state.generalSetting
+        globalGeneralSetting: (state) => state.generalSetting,
+        globalVariableSetting: (state) => state.variableSetting,
     },
     actions: {
         setBoardCalculated() {
@@ -37,6 +39,7 @@ export const useSettingStore = defineStore('setting', {
                 this.kanbanSetting = resp.data.data.kanban;
                 this.generalSetting = resp.data.data.general;
                 this.emailSetting = resp.data.data.email;
+                this.variableSetting = resp.data.data.variables || [];
 
                 return resp;
             } catch (error) {
@@ -118,6 +121,7 @@ export const useSettingStore = defineStore('setting', {
                 this.kanbanSetting = resp.data.data.kanban;
                 this.generalSetting = resp.data.data.general;
                 this.emailSetting = resp.data.data.email;
+                this.variableSetting = resp.data.data.variables;
 
                 showNotification(resp.data.message);
 

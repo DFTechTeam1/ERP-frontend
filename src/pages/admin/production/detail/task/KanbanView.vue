@@ -8,7 +8,7 @@
             <template
                 v-for="(board, keyBoard) in listOfPorjectBoards"
                 :key="keyBoard">
-                
+
                 <!--  
                 * data-bab = data board_as_backlog
                 * data-bsc = data board_start_calculated
@@ -19,11 +19,6 @@
                     class="list-group"
                     :id="board.name"
                     :data-board="board.id"
-                    :data-bab="board.board_as_backlog"
-                    :data-bsc="board.board_start_calculated"
-                    :data-bcpm="board.board_to_check_by_pm"
-                    :data-bccl="board.board_to_check_by_client"
-                    :data-bcpt="board.board_completed"
                     :list="board.tasks"
                     group="people"
                     @change="log"
@@ -32,25 +27,15 @@
                     @end="endMoving"
                     itemKey="name"
                 >
-                
                     <template #item="{ element }">
                         <div 
                             class="list-group-item position-relative" 
                             :data-id="element.uid"
                             :id="'d' + element.id + 'o'"
                             style="min-height: 50px;"
-                            @click="chooseCard(element, board)">
-                            <p style="font-size: 16px;">{{ element.name }}</p>
+                            @click.prevent="chooseCard(element, board)">
 
-                            <div class="task-type" v-if="element.task_type != ''">
-                                <v-chip
-                                    :color="element.task_type_color"
-                                    size="15"
-                                    style="font-size: 10px;"
-                                    class="px-2 mt-2">
-                                    {{ element.task_type_text }}
-                                </v-chip>
-                            </div>
+                            <p style="font-size: 16px;">{{ element.name }}</p>
 
                             <div v-if="element.pics.length" class="pic mt-1 mb-1">
                                 <task-member
@@ -58,12 +43,17 @@
                                     :with-title="false"></task-member>
                             </div>
 
-                            <div class="deadline" v-if="element.deadline">
-                                <p class="time text-right mt-3">
+                            <div class="deadline d-flex align-center justify-space-between mt-2">
+                                <v-chip
+                                    density="compact"
+                                    :color="element.task_status_color">
+                                    {{ element.task_status }}
+                                </v-chip>
+                                <p class="time text-right" v-if="element.end_date">
                                     <v-icon
                                         :icon="mdiClockOutline"
                                         size="20"></v-icon>
-                                    {{ element.deadline }}
+                                    {{ element.end_date_text }}
 
                                     <v-tooltip
                                         activator="parent"
@@ -79,7 +69,7 @@
                             <p class="text-center">No Task</p>
                         </template>
                         <v-btn
-                            v-if="props.canAddTask && !board.board_completed && !board.board_to_check_by_pm && !board.board_to_check_by_client"
+                            v-if="props.canAddTask && !board.board_completed && !board.board_to_check_by_pm && !board.board_to_check_by_client && ((detailProject) && (!detailProject.project_is_complete))"
                             variant="outlined"
                             color="primary"
                             class="w-100 mt-3"
@@ -96,6 +86,7 @@
 
             <task-detail
                 :is-show="showDetail"
+                :can-delete-task="props.canDeleteTask"
                 @close-event="showDetail = false"></task-detail>
 
             <task-form
@@ -170,7 +161,6 @@
             .list-group-item {
                 padding: 4px 8px;
                 margin-bottom: 12px;
-                border: 1px solid #fff;
                 background-color: #fff;
                 cursor: grab;
             }
@@ -235,11 +225,15 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    canDeleteTask: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const store = useProjectStore();
 
-const { listOfPorjectBoards } = storeToRefs(store);
+const { listOfPorjectBoards, detailProject } = storeToRefs(store);
 
 const isDrag = ref(false);
 
@@ -257,12 +251,25 @@ const showProofOfWork = ref(false);
 
 const movingTask = ref(null);
 
+const movingTaskDetail = ref(null)
+
 function log(event) {
     console.log('event', event);
 }
 
-function chooseCard(task) {
-    store.setDetailTask(task);
+function chooseCard(task, board) {
+    task.board = board;
+    task.permission = {
+        canMoveToProgress: props.canMoveToProgress,
+        canMoveToReviewPm: props.canMoveToReviewPm,
+        canMoveToReviewClient: props.canMoveToReviewClient,
+        canMoveTask: props.canMoveTask,
+        canMoveToCompleted: props.canMoveToCompleted,
+        canMoveToRevise: props.canMoveToRevise
+    }
+    var payload = task;
+
+    store.setDetailTask(payload);
 
     showDetail.value = true;
 }
@@ -285,44 +292,13 @@ function closeTaskForm() {
  * data-bcpt = data board_completed
  */
 function moving(evt) {
-    var target = evt.to.id;
-    var from = evt.from.id;
-    var fromBoardAsBacklog = document.getElementById(from).getAttribute('data-bab');
-    var targetBoardStartCalculated = document.getElementById(target).getAttribute('data-bsc');
-    var targetBoardStartReviewByPm = document.getElementById(target).getAttribute('data-bcpm');
-    var targetBoardStartReviewByClient = document.getElementById(target).getAttribute('data-bccl');
-    var targetBoardCompleted = document.getElementById(target).getAttribute('data-bcpt');
-    var fromBoardReviewByPm = document.getElementById(from).getAttribute('data-bcpm');
-    var fromBoardStartCalculated = document.getElementById(from).getAttribute('data-bsc');
-
-    console.log('targetBoardStartCalculated', targetBoardStartCalculated);
-    if (!props.canMoveTask) {
-        console.log('1');
-        return false;
-    } else if (targetBoardStartCalculated && !props.canMoveToProgress) {
-        console.log('2');
-        return false;
-    } else if ((target == 'Review By Client' || from == 'Review By Client') && !props.canMoveToReviewClient) {
-        console.log('3');
-        return false;
-    } else if ((targetBoardStartReviewByPm || from == 'Review By PM') && !props.canMoveToReviewPm) {
-        console.log('4');
-        return false;
-    } else if ((targetBoardCompleted || from == 'Completed') && !props.canMoveToCompleted) {
-        console.log('5');
-        return false;
-    } else if (targetBoardStartCalculated == 'true' && fromBoardReviewByPm == 'true') {
-        console.log('6');
-        return false;
-    } else if (fromBoardStartCalculated == 'true' && targetBoardStartReviewByClient == 'true') {
-        return false;
-    } else if (fromBoardStartCalculated == 'true' && targetBoardCompleted == 'true') {
-        return false;
-    } else if (fromBoardAsBacklog == 'true' && targetBoardCompleted == 'true') {
-        return false;
+    // user cannot move task that is not belongs to him
+    if (!evt.draggedContext.element.has_task_access || (detailProject.value && detailProject.value.project_is_complete)) {
+        return false
     }
 
-    movingTask.value = evt.draggedContext.element.id;
+    movingTask.value = evt.draggedContext.element.id
+    movingTaskDetail.value = evt.draggedContext.element
 }
 
 /**
@@ -346,15 +322,12 @@ async function endMoving(evt) {
         // targetBoard
         var targetBoardId = document.getElementById(target).getAttribute('data-board');
         var sourceBoardId = document.getElementById(from).getAttribute('data-board');
-        document.getElementById('loader').style.display = 'flex';
-    
-        var fromBoardProgress = document.getElementById(from).getAttribute('data-bsc');
-        var toBoardReviewPm = document.getElementById(target).getAttribute('data-bcpm');
-        
-        if (fromBoardProgress == 'true' && toBoardReviewPm == 'true') {
-            targetBoard.value = targetBoardId;
-            sourceBoard.value = sourceBoardId;
-            showProofOfWork.value = true;
+
+        targetBoard.value = targetBoardId;
+        sourceBoard.value = sourceBoardId;
+
+        if (!movingTaskDetail.value.is_project_pic) {
+            showProofOfWork.value = true
         } else {
             targetBoard.value = null;
             sourceBoard.value = null;
@@ -370,6 +343,7 @@ async function endMoving(evt) {
                 return false;
             }
         }
+        
     }
 
 }

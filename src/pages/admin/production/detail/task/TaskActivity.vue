@@ -1,5 +1,6 @@
 <template>
-    <div class="activity mt-5">
+    <div class="activity mt-5"
+        transition="scroll-x-transition">
         <div class="title-desc d-flex align-center justify-space-between">
             <div class="d-flex align-center ga-5">
                 <v-icon

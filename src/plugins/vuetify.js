@@ -24,7 +24,8 @@ export default createVuetify({
       customTheme: {
         dark: false,
         colors: {
-          background: 'rgb(248,247,250)',
+          sidebarColor: 'rgb(47,51,73)',
+          background: 'rgba(249,246,250,255)',
           surface: '#FFFFFF',
           'surface-bright': '#FFFFFF',
           'surface-light': '#EEEEEE',

@@ -7,7 +7,7 @@
                 md="8">
                 <v-card
                     width="100%"
-                    class="card-primary card-greeting card-h-200">
+                    class="card-primary card-greeting card-h-200 card-dashboard">
                     <template v-slot:title>
                         <v-row
                             align-content="center">
@@ -18,8 +18,7 @@
                                         style="gap: 10px;">
                                         <v-avatar
                                             class="header-account"
-                                            size="46"
-                                            v-bind="props">
+                                            size="46">
                                             <v-img
                                             src="/user.png"
                                             alt="user"></v-img>
@@ -34,7 +33,7 @@
                                             <p class="value">15</p>
                                             <p class="text">Total Projects</p>
                                         </div>
-                                        <v-divider vertical="true"></v-divider>
+                                        <v-divider :vertical="true"></v-divider>
                                         <div class="wrapper-info">
                                             <p class="value">3</p>
                                             <p class="text">Ongoing Projects</p>
@@ -58,9 +57,10 @@
                 md="2"
                 cols="12">
                 <v-card
-                    density="comfortable"
+                    density="default"
                     width="100%"
-                    class="card-project-chart card-h-200">
+                    variant="elevated"
+                    class="card-project-chart card-h-200 card-dashboard">
                     <template v-slot:title>
                         <p class="value">5</p>
                         <p class="text">Ongoing Projects</p>
@@ -76,9 +76,10 @@
                 md="2"
                 cols="12">
                 <v-card
-                    density="comfortable"
+                    density="default"
                     width="100%"
-                    class="card-project-chart card-h-200">
+                    variant="elevated"
+                    class="card-project-chart card-h-200 card-dashboard">
                     <template v-slot:title>
                         <p class="value">100</p>
                         <p class="text">Total Projects</p>
@@ -90,14 +91,29 @@
                 </v-card>
             </v-col>
         </v-row>
+
+        <v-row>
+            <!-- Calendar -->
+            <v-col
+                cols="12"
+                md="8">
+                <calendar-event />
+            </v-col>
+            <!-- End Calendar -->
+
+            <v-col
+                cols="12"
+                md="4">
+                <project-deadline />
+            </v-col>
+        </v-row>
     </div>
 </template>
   
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-
-const route = useRoute();
+import { ref } from 'vue'
+import CalendarEvent from './CalendarEvent.vue'
+import ProjectDeadline from './ProjectDeadline.vue'
 
 const options = ref({
     dataLabels: {
@@ -125,16 +141,17 @@ const options = ref({
 
 const series = ref([44, 55, 41, 17, 15]);
 
-onMounted(() => {
-    console.log('route', route);
-})
-
 </script>
 
 <style lang="scss" scoped>
+.card-dashboard {
+    border-radius: 10px;
+}
+
 .card-project-chart {
     .value {
-        font-size: 32px;
+        font-size: 28px;
+        line-height: 1;
         font-weight: bold;
     }
 
@@ -143,7 +160,7 @@ onMounted(() => {
     }
 }
 .card-h-200 {
-    height: 250px;
+    height: 200px;
     box-shadow: #919eab4d 0 0 2px,#919eab1f 0 12px 24px -4px!important;;
 }
 @media screen and (max-width: 600px) {

@@ -22,6 +22,13 @@
                     density="compact">
                     {{ props.detailData.brand.name }}
                 </v-chip>
+                <v-chip
+                    v-if="props.detailData.warehouse_text != ''"
+                    :color="props.detailData.warehouse_color"
+                    class="mt-2 ms-2"
+                    density="compact">
+                    {{ props.detailData.warehouse_text }}
+                </v-chip>
             </div>
         </div>  
 

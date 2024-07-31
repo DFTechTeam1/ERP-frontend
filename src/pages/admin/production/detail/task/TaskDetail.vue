@@ -30,7 +30,7 @@
                             <v-icon
                                 :icon="mdiPencil"
                                 class="pointer"
-                                v-if="!editFormName"
+                                v-if="!editFormName && detailOfTask.is_active && !detailProject.project_is_complete"
                                 @click.prevent="editFormName = true"
                                 size="20"></v-icon>
 
@@ -65,7 +65,7 @@
                         :icon="mdiClose"
                         size="25"
                         class="pointer"
-                        @click.prevent="$emit('close-event')"></v-icon>
+                        @click.prevent="closeDetailTask"></v-icon>
                 </v-card-title>
             </v-card-item>
 
@@ -83,9 +83,11 @@
                                     :members="detailOfTask.pics"></task-member>
 
                                 <task-deadline
-                                    v-if="(detailOfTask.start_date && detailOfTask.end_date) && (detailOfTask.start_date.length && detailOfTask.end_date.length)"
-                                    :start-date="detailOfTask.start_date_text"
-                                    :end-date="detailOfTask.end_date_text"></task-deadline>
+                                    v-if="(detailOfTask.end_date) && (detailOfTask.end_date.length)"
+                                    :start-date-text="detailOfTask.start_date_text"
+                                    :start-date="detailOfTask.start_date"
+                                    :end-date="detailOfTask.end_date"
+                                    :end-date-text="detailOfTask.end_date_text"></task-deadline>
                             </div>
                         </template>
                         <!-- end members, deadline -->
@@ -126,10 +128,17 @@
 
                             <div class="value-desc">
                                 <template v-if="!detailOfTask.description && !isAddDescription">
-                                    <div class="desc-empty"
-                                        @click.prevent="isAddDescription = true">
-                                        {{ $t('addMoreDetail') }}
-                                    </div>
+                                    <template v-if="!detailOfTask.is_active || detailProject.project_is_complete">
+                                        <div class="desc-empty">
+                                            {{ $t('addMoreDetail') }}
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <div class="desc-empty"
+                                            @click.prevent="isAddDescription = true">
+                                            {{ $t('addMoreDetail') }}
+                                        </div>
+                                    </template>
                                 </template>
 
                                 <template v-if="detailOfTask.description && !isAddDescription">
@@ -170,6 +179,10 @@
                             v-if="detailOfTask.medias.length"
                             :detail="detailOfTask"></attachment-view>
 
+                        <time-tracker
+                            :times="detailOfTask.time_tracker"
+                            v-if="isShowTimeTracker"></time-tracker>
+
                         <task-attachment
                             v-if="detailOfTask.task_link.length"
                             :detail="detailOfTask"></task-attachment>
@@ -182,6 +195,7 @@
 
                         <!-- activity -->
                         <task-activity
+                            transition="scroll-x-transition"
                             v-if="isShowLog" />
                         <!-- end activity -->
                     </v-col> <!-- END LEFT CONTENT -->
@@ -193,13 +207,16 @@
                         md="4">
                         <div class="action-wrapper">
                             <div class="action-box mb-4">
-                                <p class="title-action">{{ $t('addToCard') }}</p>
+                                <p class="title-action"
+                                    v-if="showTextCard">{{ $t('addToCard') }}</p>
 
                                 <div class="action-list">
                                     <v-btn
                                         variant="flat"
                                         class="w-100 text-left mb-3"
                                         color="grey-darken-1"
+                                        v-if="useCheckPermission('add_task_deadline')"
+                                        :disabled="!detailOfTask.is_active || !detailOfTask.has_task_access || detailProject.project_is_complete"
                                         @click.prevent="showDeadlineForm = true">
                                         <v-icon
                                             class="mr-1"
@@ -210,7 +227,21 @@
                                     <v-btn
                                         variant="flat"
                                         class="w-100 text-left mb-3"
+                                        color="success"
+                                        v-if="detailOfTask.action_to_complete_task"
+                                        @click.prevent="manualCompleteTask">
+                                        <v-icon
+                                            class="mr-1"
+                                            :icon="mdiCheck"
+                                            size="20"></v-icon>
+                                        {{ $t('completeTheTask') }}
+                                    </v-btn>
+                                    <v-btn
+                                        variant="flat"
+                                        class="w-100 text-left mb-3"
                                         color="grey-darken-1"
+                                        v-if="useCheckPermission('add_team_member')"
+                                        :disabled="!detailOfTask.is_active || !detailOfTask.has_task_access || detailProject.project_is_complete"
                                         @click.prevent="choosePic">
                                         <v-icon
                                             class="mr-1"
@@ -222,6 +253,21 @@
                                         variant="flat"
                                         class="w-100 text-left mb-3"
                                         color="grey-darken-1"
+                                        v-if="detailOfTask.revises.length"
+                                        :disabled="!detailOfTask.is_active || !detailOfTask.has_task_access || detailProject.project_is_complete"
+                                        @click.prevent="showRevise(detailOfTask)">
+                                        <v-icon
+                                            class="mr-1"
+                                            :icon="mdiRefresh"
+                                            size="20"></v-icon>
+                                        {{ $t('reviseDetail') }}
+                                    </v-btn>
+                                    <v-btn
+                                        variant="flat"
+                                        class="w-100 text-left mb-3"
+                                        color="grey-darken-1"
+                                        v-if="useCheckPermission('add_task_attachment')"
+                                        :disabled="!detailOfTask.is_active || !detailOfTask.has_task_access || detailProject.project_is_complete"
                                         @click.prevent="openAttachmentForm">
                                         <v-icon
                                             class="mr-1"
@@ -233,8 +279,9 @@
                                         variant="flat"
                                         class="w-100 text-left mb-3"
                                         color="grey-darken-1"
-                                        v-if="detailOfTask.proof_of_works.length"
-                                        @click.prevent="openAttachmentForm">
+                                        :disabled="!detailOfTask.is_active || !detailOfTask.has_task_access"
+                                        v-if="detailOfTask.proof_of_works.length && useCheckPermission('proof_of_work_list')"
+                                        @click.prevent="openProofOfWork">
                                         <v-icon
                                             class="mr-1"
                                             :icon="mdiAttachment"
@@ -245,7 +292,8 @@
                                         variant="flat"
                                         class="w-100 text-left mb-3"
                                         color="grey-darken-1"
-                                        v-if="detailOfTask.logs.length"
+                                        :disabled="!detailOfTask.is_active || !detailOfTask.has_task_access"
+                                        v-if="detailOfTask.logs.length && useCheckPermission('task_log_access')"
                                         @click.prevent="showLogs">
                                         <v-icon
                                             class="mr-1"
@@ -258,6 +306,23 @@
                                             {{ $t('showLogs') }}
                                         </template>
                                     </v-btn>
+                                    <v-btn
+                                        variant="flat"
+                                        class="w-100 text-left mb-3"
+                                        color="grey-darken-1"
+                                        v-if="detailOfTask.time_tracker.length && (detailProject.is_project_pic || detailProject.is_super_user || detailProject.is_director)"
+                                        @click.prevent="showTimeTracker">
+                                        <v-icon
+                                            class="mr-1"
+                                            :icon="mdiTimeline"
+                                            size="20"></v-icon>
+                                        <template v-if="isShowTimeTracker">
+                                            {{ $t('hideTimeTracker') }}
+                                        </template>
+                                        <template v-else>
+                                            {{ $t('showTimeTracker') }}
+                                        </template>
+                                    </v-btn>
                                 </div>
                             </div>
 
@@ -265,7 +330,7 @@
                                 <p class="title-action">{{ $t('action') }}</p>
 
                                 <div class="action-list">
-                                    <v-btn
+                                    <!-- <v-btn
                                         variant="flat"
                                         class="w-100 text-left mb-3"
                                         color="grey-darken-1">
@@ -274,11 +339,110 @@
                                             :icon="mdiArrowRight"
                                             size="20"></v-icon>
                                         {{ $t('move') }}
+                                    </v-btn> -->
+                                    <v-menu
+                                        persistent
+                                        :close-on-content-click="false">
+                                        <template v-slot:activator="{ props }">
+                                            <v-btn
+                                                variant="flat"
+                                                class="w-100 text-left mb-3"
+                                                color="grey-darken-1"
+                                                :disabled="!detailOfTask.is_active || !detailOfTask.has_task_access || detailProject.project_is_complete"
+                                                v-bind="props">
+                                                <v-icon
+                                                    class="mr-1"
+                                                    :icon="mdiArrowRight"
+                                                    size="20"></v-icon>
+                                                {{ $t('move') }}
+                                            </v-btn>
+                                        </template>
+
+                                        <v-list>
+                                            <v-list-item>
+                                                <v-list-item-title>
+                                                    <field-input
+                                                        class="mt-2"
+                                                        :label="t('moveTo')"
+                                                        input-type="select"
+                                                        :select-options="moveToBoards"
+                                                        v-model="moveToBoardVal"></field-input>
+                                                    <div 
+                                                        class="invalid-feedback text-red" 
+                                                        :class="{
+                                                            'd-none': !errorManualMovingTask,
+                                                            'd-block': errorManualMovingTask
+                                                        }"
+                                                        id="error-manual-moving-task">{{ errorManualMovingTask }}</div>
+                                                    <v-btn
+                                                        class="w-100 mt-4"
+                                                        color="primary"
+                                                        variant="flat"
+                                                        :disabled="loadingMoveTo"
+                                                        @click.prevent="manualMoveTask">
+                                                        {{ $t('save') }}
+                                                    </v-btn>
+                                                </v-list-item-title>
+                                            </v-list-item>
+                                        </v-list>
+                                    </v-menu>
+
+                                    <v-btn
+                                        variant="flat"
+                                        class="w-100 text-left mb-3"
+                                        color="success"
+                                        :disabled="loadingApprove || detailProject.project_is_complete"
+                                        v-if="!detailOfTask.is_active && detailOfTask.has_task_access && !detailOfTask.stop_action"
+                                        @click.prevent="approveTask(detailOfTask.uid)">
+                                        <v-icon
+                                            class="mr-1"
+                                            :icon="mdiCheckCircle"
+                                            size="20"></v-icon>
+                                        <template v-if="loadingApprove">{{ $t('processing') }}</template>
+                                        <template v-else>{{ $t('approveTask') }}</template>
+                                    </v-btn>
+                                    <v-btn
+                                        variant="flat"
+                                        class="w-100 text-left mb-3"
+                                        color="success"
+                                        :disabled="markAsCompleteLoading || detailProject.project_is_complete"
+                                        v-if="detailOfTask.is_project_pic && detailOfTask.need_approval_pm"
+                                        @click.prevent="markAsCompleteTask(detailOfTask.uid)">
+                                        <v-icon
+                                            class="mr-1"
+                                            :icon="mdiCheck"
+                                            size="20"></v-icon>
+                                        <template v-if="markAsCompleteLoading">
+                                            {{ $t('processing') }}
+                                        </template>
+                                        <template v-else>
+                                            {{ $t('markAsComplete') }}
+                                        </template>
                                     </v-btn>
                                     <v-btn
                                         variant="flat"
                                         class="w-100 text-left mb-3"
                                         color="red"
+                                        :disabled="reviseLoading || detailProject.project_is_complete"
+                                        v-if="detailOfTask.is_project_pic && detailOfTask.need_approval_pm"
+                                        @click.prevent="reviseTask(detailOfTask)">
+                                        <v-icon
+                                            class="mr-1"
+                                            :icon="mdiBook"
+                                            size="20"></v-icon>
+                                        <template v-if="reviseLoading">
+                                            {{ $t('processing') }}
+                                        </template>
+                                        <template v-else>
+                                            {{ $t('revise') }}
+                                        </template>
+                                    </v-btn>
+                                    <v-btn
+                                        variant="flat"
+                                        class="w-100 text-left mb-3"
+                                        color="red"
+                                        v-if="props.canDeleteTask"
+                                        :disabled="!detailOfTask.is_active || !detailOfTask.has_task_access || detailProject.project_is_complete"
                                         @click.prevent="deleteTask(detailOfTask.uid)">
                                         <v-icon
                                             class="mr-1"
@@ -294,6 +458,15 @@
             </v-card-text>
         </v-card>
 
+        <revise-form
+            @close-event="closeReviseForm"
+            :is-show="showReviseForm"
+            :detail="detailTaskForRevise"></revise-form>
+
+        <revise-detail
+            :is-show="showDetailRevise"
+            :detail="selectedRevises"
+            @close-event="closeRevise"></revise-detail>
 
         <add-pic-form
             @close-event="closePicForm"
@@ -304,8 +477,10 @@
             :is-show="showAttachmentForm"></attachment-form>
 
         <detail-proof-of-work
+            transition="scroll-x-transition"
             :is-show="showDetailProofWork"
-            :detail="detailOfTask.proof_of_works"></detail-proof-of-work>
+            @close-event="showDetailProofWork = false"
+            :detail="detailOfTask.proof_of_works_detail"></detail-proof-of-work>
 
         <confirmation-modal
             :title="t('deleteTask')"
@@ -313,6 +488,16 @@
             :show-confirm="showDeleteForm"
             :delete-ids="deletedTaskIds"
             @actionBulkSubmit="doDeleteTask"></confirmation-modal>
+
+        <proof-of-work
+            :is-manual-approve-task="manualApproveTask"
+            :is-show="showProofOfWork"
+            :target-board="targetBoard"
+            :is-from-detail="true"
+            :source-board="sourceBoard"
+            @close-in-task-detail="closeProofWork"
+            @event-close="closeProofWork"
+            :task-id="detailOfTask.uid"></proof-of-work>
 
     </v-dialog>
 </template>
@@ -359,7 +544,11 @@ import {
     mdiPencil,
     mdiCheck,
     mdiCancel,
-    mdiMathLog
+    mdiMathLog,
+    mdiCheckCircle,
+    mdiTimeline,
+    mdiRefresh,
+    mdiBook,
  } from '@mdi/js';
 import TaskMember from './TaskMember.vue';
 import TaskDeadline from './TaskDeadline.vue';
@@ -370,20 +559,22 @@ import TaskAttachment from './TaskAttachment.vue';
 import AttachmentForm from './AttachmentForm.vue';
 import DetailProofOfWork from './DetailProofWork.vue';
 import TaskActivity from './TaskActivity.vue';
+import ProofOfWork from "./ProofOfWork.vue";
+import TimeTracker from './TimeTracker.vue'
+import ReviseDetail from './ReviseDetail.vue'
+import ReviseForm from './ReviseForm.vue'
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
-import { useRoute } from 'vue-router';
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const { t } = useI18n();
 
 const store = useProjectStore();
 
-const route = useRoute();
-
-const { detailOfTask } = storeToRefs(store);
+const { detailOfTask, detailProject } = storeToRefs(store);
 
 const { defineField, errors, setFieldValue, handleSubmit } = useForm({
     validationSchema: yup.object({
@@ -395,7 +586,31 @@ const [name] = defineField('name');
 
 const show = ref(false);
 
+const showDetailRevise = ref(false)
+
+const showReviseForm = ref(false)
+
+const detailTaskForRevise = ref(null)
+
+const selectedRevises = ref([])
+
+const isShowTimeTracker = ref(false)
+
+const errorManualMovingTask = ref(false);
+
+const showProofOfWork = ref(false);
+
+const targetBoard = ref(null);
+
+const sourceBoard = ref(null);
+
+const moveToBoardVal = ref(null);
+
 const editFormName = ref(false);
+
+const markAsCompleteLoading = ref(false)
+
+const reviseLoading = ref(false)
 
 const showDetailProofWork = ref(false);
 
@@ -404,6 +619,8 @@ const isShowLog = ref(false);
 const loadingEditName = ref(false);
 
 const showPicForm = ref(false);
+
+const loadingMoveTo = ref(false);
 
 const isAddDescription = ref(false);
 
@@ -419,12 +636,28 @@ const deletedTaskIds = ref([]);
 
 const description = ref(null);
 
+const moveToBoards = ref([]);
+
 const loading = ref(false);
+
+const loadingApprove = ref(false)
+
+const showTextCard = ref(true)
+
+const manualApproveTask = ref(false)
 
 const emit = defineEmits(['close-event']);
 
 const props = defineProps({
     isShow: {
+        type: Boolean,
+        default: false,
+    },
+    canDeleteTask: {
+        type: Boolean,
+        default: false,
+    },
+    isFromTaskList: {
         type: Boolean,
         default: false,
     },
@@ -447,7 +680,21 @@ const detail = ref({
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow
+
+        if (values.isShow) {
+            getBoardsMoveTo()
+        }
+
+        if (detailOfTask.value) {
+            showTextCard.value = (detailOfTask.value.time_tracker.length && (detailProject.value.is_project_pic || detailProject.value.is_super_user)) ||
+                (detailOfTask.value.logs.length && useCheckPermission('task_log_access')) ||
+                (detailOfTask.value.proof_of_works.length && useCheckPermission('proof_of_work_list')) ||
+                (useCheckPermission('add_task_attachment')) ||
+                (useCheckPermission('add_team_member')) ||
+                (useCheckPermission('add_task_deadline'))
+        }
     }
+
 })
 
 watch(editFormName, (values) => {
@@ -455,6 +702,19 @@ watch(editFormName, (values) => {
         setFieldValue('name', detailOfTask.value.name);
     }
 })
+
+async function getBoardsMoveTo() {
+    var projectId = detailProject.value.uid
+
+    const resp = await store.getMoveToBoards({
+        projectId: projectId,
+        boardId: detailOfTask.value.project_board_id,
+    });
+
+    if (resp.status < 300) {
+        moveToBoards.value = resp.data.data;
+    }
+}
 
 function saveDate(payload) {
     detail.value.start_date = payload.start_date;
@@ -507,6 +767,21 @@ async function saveDescription() {
 
 }
 
+function manualCompleteTask() {
+    showProofOfWork.value = true
+    manualApproveTask.value = true
+}
+
+function showRevise(detail) {
+    showDetailRevise.value = true
+    selectedRevises.value = detail.revises
+}
+
+function closeRevise() {
+    showDetailRevise.value = false
+    selectedRevises.value = []
+}
+
 function editDescription() {
     isAddDescription.value = true;
     
@@ -533,7 +808,7 @@ function closeAttachmentForm() {
 
 const updateTaskName = handleSubmit(async (values) => {
     loadingEditName.value = true;
-    const resp = await store.updateTaskName(values, route.params.id, detailOfTask.value.uid);
+    const resp = await store.updateTaskName(values, detailProject.value.uid, detailOfTask.value.uid);
     loadingEditName.value = false;
 
     if (resp.status < 300) {
@@ -541,11 +816,113 @@ const updateTaskName = handleSubmit(async (values) => {
     }   
 })
 
+function openProofOfWork() {
+    showDetailProofWork.value = true;
+}
+
+function showTimeTracker() {
+    if (isShowTimeTracker.value) {
+        isShowTimeTracker.value = false
+    } else {
+        isShowTimeTracker.value = true
+    }
+}
+
 function showLogs() {
     if (isShowLog.value) {
         isShowLog.value = false;
     } else {
         isShowLog.value = true;
     }
+}
+
+function closeDetailTask() {
+    // reset all state
+    editFormName.value = false;
+    showDetailProofWork.value = false;
+    isShowLog.value = false;
+    loadingEditName.value = false;
+    showPicForm.value = false;
+    isAddDescription.value = false;
+    showAttachmentForm.value = false;
+    showDeleteForm.value = false;
+    showDeadlineForm.value = false;
+    description_quill.value = false;
+    deletedTaskIds.value = [];
+    description.value = null;
+    isShowTimeTracker.value = false;
+    showReviseForm.value = false
+
+    emit('close-event');
+}
+
+async function manualMoveTask() {
+    if (!detailOfTask.value.is_project_id) {
+        showProofOfWork.value = true
+        targetBoard.value = moveToBoardVal.value;
+        sourceBoard.value = detailOfTask.value.board.id;
+    } else {
+        loadingMoveTo.value = true;
+        errorManualMovingTask.value = null;
+        const resp = await store.manualChangeTaskBoard({
+            board_id: moveToBoardVal.value,
+            task_id: detailOfTask.value.uid,
+            board_source_id: detailOfTask.value.board.id,
+        }, detailProject.value.uid);
+        
+        if (resp.status < 300) {
+            if (resp.data.data.show_proof_of_work) { // show proof of work form
+                targetBoard.value = moveToBoardVal.value;
+                sourceBoard.value = detailOfTask.value.board.id;
+                showProofOfWork.value = true;
+            }
+        }
+    
+        if (!resp.status) {
+            if (resp.response.status == 422) {
+                errorManualMovingTask.value = resp.response.data.errors.board_id[0]
+            } else {
+                errorManualMovingTask.value = null;
+            }
+        }
+    
+        loadingMoveTo.value = false;
+    }
+}
+
+function closeProofWork() {
+    showProofOfWork.value = false;
+    targetBoard.value = null;
+    sourceBoard.value = null;
+
+    if (document.getElementById('loader')) {
+        document.getElementById('loader').style.display = 'none';
+    }
+
+    emit('close-event', true)
+}
+
+async function approveTask(taskUid) {
+    loadingApprove.value = true
+    await store.approveTask(detailProject.value.uid, taskUid)
+    loadingApprove.value = false
+}
+
+async function markAsCompleteTask(taskUid) {
+    markAsCompleteLoading.value = true
+    await store.markAsCompleted(detailProject.value.uid, taskUid)
+    markAsCompleteLoading.value = false
+
+    emit('close-event', true)
+}
+
+function reviseTask(detail) {
+    showReviseForm.value = true
+    detailTaskForRevise.value = detail
+}
+
+function closeReviseForm() {
+    showReviseForm.value = false
+    detailTaskForRevise.value = null
 }
 </script>
