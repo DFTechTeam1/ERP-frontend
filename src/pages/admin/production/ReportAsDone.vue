@@ -19,7 +19,9 @@
                 <v-form @submit="validateData">
                     <template v-if="loadingPrepare">
                         <v-skeleton-loader type="list-item-three-line"></v-skeleton-loader>
-                        <p class="text-center">{{ $t('preparingData') }}</p>
+                        <p class="text-center">
+                            <i>{{ $t('preparingData') }}</i>
+                        </p>
                     </template>
                     <template v-else>
                         <field-input
@@ -29,6 +31,7 @@
                             :error-message="errors.feedback"></field-input>
     
                         <v-label>{{ $t('recapPoint') }}</v-label>
+                        <p class="helper">{{ $t('projectMaximalPoint', {point: maximalPoint}) }}</p>
                         <v-table>
                             <thead>
                                 <tr>
@@ -121,6 +124,13 @@
     border-top: 1px solid #e6e6e6;
     border-bottom: 1px solid #e6e6e6;
 }
+
+.helper {
+    font-size: 12px;
+    margin: 5px 0;
+    color: #FBC02D;
+    font-weight: bold;
+}
 </style>
 
 <script setup>
@@ -152,6 +162,8 @@ const loadingPrepare = ref(false)
 
 const loading = ref(false)
 
+const maximalPoint = ref(0)
+
 const teams = ref([])
 
 const emit = defineEmits(['close-event'])
@@ -165,14 +177,18 @@ const props = defineProps({
 
 function addPoint(team) {
     var newArr = teams.value.map((elem) => {
-        if (elem.uid == team.uid && elem.additional_point < 3) {
-            elem.additional_point += 1
-            elem.point += 1
-            elem.can_decrease_point = true
-        }
-
-        if (elem.additional_point == 3) {
-            elem.can_increase_point = false
+        if (maximalPoint.value > 0) {
+            if (elem.uid == team.uid && elem.additional_point < parseInt(detailProject.value.project_maximal_point)) {
+                elem.additional_point += 1
+                elem.point += 1
+                elem.can_decrease_point = true
+    
+                maximalPoint.value -= 1
+            }
+    
+            if (elem.additional_point == parseInt(detailProject.value.project_maximal_point)) {
+                elem.can_increase_point = false
+            }
         }
 
         return elem
@@ -187,6 +203,8 @@ function reducePoint(team) {
             elem.additional_point -= 1
             elem.point -= 1
             elem.can_increase_point = true
+
+            maximalPoint.value += 1
         }
 
         if (elem.additional_point == 0) {
@@ -233,6 +251,10 @@ watch(props, (values) => {
 
         if (values.isShow) {
             initTaskTeam()
+
+            if (detailProject.value) {
+                maximalPoint.value = detailProject.value.project_maximal_point
+            }
         }
     }
 })

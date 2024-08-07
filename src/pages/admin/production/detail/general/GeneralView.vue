@@ -10,7 +10,7 @@
             :closable="true"
         ></v-alert>
         <v-alert
-            v-if="(detailProject) && (detailProject.show_alert_event_is_done)"
+            v-if="(detailProject) && (detailProject.show_alert_event_is_done && !detailProject.feedback_given)"
             class="w-100 mb-3"
             :text="t('projectIsNeedFeedback')"
             :title="t('projectIsDone')"

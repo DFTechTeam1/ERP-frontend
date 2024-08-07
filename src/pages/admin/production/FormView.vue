@@ -175,6 +175,7 @@ import { usePositionStore } from '@/stores/position';
 import { useRegionStore } from '@/stores/region'
 import { useRouter } from 'vue-router';
 import { watch } from 'vue';
+import { useProjectClassStore } from '@/stores/projectClass';
 
 const router = useRouter();
 
@@ -183,6 +184,8 @@ const positionStore = usePositionStore();
 const employeeStore = useEmployeesStore();
 
 const store = useProjectStore();
+
+const storeProjectClass = useProjectClassStore()
 
 const regionStore = useRegionStore()
 
@@ -366,10 +369,15 @@ async function initEventType() {
 }
 
 async function initClassList() {
-    const resp = await store.initClassList();
+    const resp = await storeProjectClass.getAll();
 
     if (resp.status < 300) {
-        classList.value = resp.data.data;
+        classList.value = resp.data.data.map((elem) => {
+            return {
+                title: elem.name,
+                value: elem.id,
+            }
+        });
     }
 }
 

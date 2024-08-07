@@ -262,7 +262,10 @@
     </template>
 
     <div class="header-wrapper">
-      <v-app-bar :elevation="2" class="position-fixed bg-background main-app-bar">
+      <v-app-bar :elevation="2" class="position-fixed bg-background main-app-bar"
+        :class="{
+          'on-rail': rail
+        }">
         <template v-slot:prepend>
           <v-icon
             size="18"
@@ -283,24 +286,52 @@
         <v-app-bar-title>
           {{ globalAppName }}
         </v-app-bar-title>
+
+        <!-- <v-menu open-on-click>
+          <template v-slot:activator="{props}">
+            <v-avatar class="me-5">
+              <v-img
+                v-bind="props"
+                src="/lang/britain.png"
+                width="40"
+                height="40"></v-img>
+            </v-avatar>
+          </template>
+
+          <v-list>
+            <v-list-item class="d-flex align-center justify-center"
+              @click.prevent="changeLocal('id')">
+              <v-avatar class="me-5">
+                <v-img
+                  src="/lang/indo.png"
+                  width="40"
+                  height="40"></v-img>
+              </v-avatar>
+            </v-list-item>
+            <v-list-item class="d-flex align-center justify-center"
+              @click.prevent="changeLocal('en')">
+              <v-avatar class="me-5">
+                <v-img
+                  src="/lang/britain.png"
+                  width="40"
+                  height="40"></v-img>
+              </v-avatar>
+            </v-list-item>
+          </v-list>
+        </v-menu> -->
   
-        <v-menu open-on-click>
+        <v-menu open-on-click
+          :close-on-content-click="false">
           <template v-slot:activator="{ props }">
             <v-icon
               v-bind="props"
-              :icon="mdiBellBadgeOutline"
+              :icon="listOfNotification.length ? mdiBellBadgeOutline : mdiBellOutline"
               color="blue"
               class="header-bell"
             ></v-icon>
           </template>
   
-          <v-list>
-            <v-list-item>
-              <template v-slot:title>
-                <p class="text-center">No Notification</p>
-              </template>
-            </v-list-item>
-          </v-list>
+          <BellNotification />
         </v-menu>
   
         <v-menu open-on-click>
@@ -386,7 +417,10 @@
     </div>
 
     <v-main style="min-height: 300px; background-color: transparent;">
-      <div class="main-content-drawer maxWidth">
+      <div class="main-content-drawer"
+        :class="{
+          'maxWidth': !rail
+        }">
         <RouterView />
         <AppFooter></AppFooter>
       </div>
@@ -396,7 +430,8 @@
 
 <script setup>
 import AppFooter from "@/components/AppFooter.vue";
-import { mdiCircleOutline, mdiMenu, mdiPower } from "@mdi/js";
+import BellNotification from './BellNotification.vue'
+import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower } from "@mdi/js";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 import { ref, onMounted } from "vue";
 import { useMenusStore } from "@/stores/menus";
@@ -407,8 +442,17 @@ import { mdiBellBadgeOutline, mdiAccount, mdiTable } from "@mdi/js";
 import { useEncrypt } from '@/compose/encrypt';
 import { useBreakToken } from '@/compose/breakToken';
 import { useSettingStore } from "@/stores/setting";
+import pusher from "@/plugins/pusher";
+import { useNotificationStore } from "@/stores/notification";
+import { useI18n } from "vue-i18n";
+
+const i18n = useI18n()
 
 const storeSetting = useSettingStore();
+
+const storeNotification = useNotificationStore()
+
+const { listOfNotification } = storeToRefs(storeNotification)
 
 const { globalAppName } = storeToRefs(storeSetting);
 
@@ -457,8 +501,39 @@ const accountLists = ref([
   { title: "Click Me 2" },
 ]);
 
+function retrieveNotification() {
+  var userId = useBreakToken("user");
+  var channel = pusher.subscribe("my-channel-" + userId.id);
+  
+  channel.bind("notification-event", (notif) => {
+    console.log("notif", notif);
+
+    storeNotification.setNotif(notif)
+  });
+}
+
+function initNotification() {
+  storeNotification.setNotif(useBreakToken('notifications'))
+}
+
+function changeLocal(lang) {
+  i18n.locale.value = lang
+
+  localStorage.setItem('lang', lang)
+
+  location.reload()
+}
+
 onMounted(() => {
   menus.value = store.getMenus();
+
+  if (localStorage.getItem('lang')) {
+    i18n.locale.value = localStorage.getItem('lang')
+  }
+
+  initNotification()
+
+  retrieveNotification()
 
   var check = store.getMenus();
 
@@ -514,16 +589,6 @@ async function logout() {
 
 <style scoped lang="scss">
 @import "../styles/settings.scss";
-
-.main-app-bar {
-  padding: 0 70px;
-}
-
-@media screen and (max-width: 576px) {
-  .main-app-bar {
-    padding: 0 40px !important;
-  }
-}
 
 .v-sheet-main {
   bottom: 30px !important;
@@ -596,13 +661,7 @@ async function logout() {
     }
   }
 }
-.maxWidth {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-.main-content-drawer {
-  padding: 15px 40px;
-}
+
 .main-sidebar {
   color: $text-secondary;
   box-shadow: 0 2px 8px rgba(47, 43, 61, 0.12), 0 0 transparent, 0 0 transparent;
@@ -615,7 +674,7 @@ header {
   margin-right: 12px;
 }
 .header-bell {
-  margin-right: 15px;
+  margin-right: 20px;
   cursor: pointer;
 }
 .pointer {

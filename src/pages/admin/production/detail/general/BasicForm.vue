@@ -42,7 +42,7 @@
                         class="mt-4"
                         :label="t('eventClass')"
                         inputType="select"
-                        :select-options="classes"
+                        :select-options="listOfAllClasses"
                         v-model="classification"
                         :is-required="false"
                         :error-message="errors.event_class"></field-input>
@@ -69,8 +69,14 @@ import * as yup from 'yup'
 import { mdiClose } from '@mdi/js'
 import { useProjectStore } from '@/stores/project'
 import { storeToRefs } from 'pinia';
+import { useProjectClassStore } from '@/stores/projectClass'
 
 const store = useProjectStore();
+
+const storeProjectClass = useProjectClassStore()
+
+const { listOfAllClasses } = storeToRefs(storeProjectClass)
+
 const { detailProject } = storeToRefs(store);
 
 const emit = defineEmits(['close-form']);
