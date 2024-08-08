@@ -12,7 +12,6 @@ import VueApexCharts from "vue3-apexcharts";
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import Notifications from '@kyvg/vue3-notification'
-import i18n from '@/lang';
 import { useEncrypt } from '@/compose/encrypt';
 import moment from 'moment';
 import { useRouter } from 'vue-router';
@@ -20,6 +19,18 @@ import VCalendar from 'v-calendar';
 import 'v-calendar/style.css';
 import VueVideoPlayer from '@videojs-player/vue'
 import 'video.js/dist/video-js.css'
+import { createI18n } from 'vue-i18n';
+import enLang from '@/lang/en.json';
+import idLang from '@/lang/id.json';
+
+const i18n = createI18n({
+  legacy: false,
+  locale: 'en',
+  messages: {
+      en: enLang,
+      id: idLang,
+  },
+});
 
 var jwt = localStorage.getItem('dfauth');
 

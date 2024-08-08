@@ -2,65 +2,83 @@
     <v-card flat border>
         <v-card-text class="mt-3">
             <v-form @submit="submitForm">
-                <v-row>
-                    <v-col
-                        cols="12"
-                        md="6">
-                        <field-input
-                            class="mb-3"
-                            :label="t('definePositionAsDirector')"
-                            v-model="position_as_directors"
-                            :error-message="errors.position_as_directors"
-                            :is-required="false"
-                            input-type="select"
-                            :select-options="positionList"
-                            :is-multiple="true"></field-input>
-
-                        <field-input
-                            class="mb-3"
-                            :label="t('definePositionAsMarketing')"
-                            v-model="position_as_marketing"
-                            :error-message="errors.position_as_marketing"
-                            :is-required="false"
-                            input-type="select"
-                            :select-options="positionList"></field-input>
-
-                        <field-input
-                            class="mb-3"
-                            :label="t('definePositionAsProjectManager')"
-                            v-model="position_as_project_manager"
-                            :error-message="errors.position_as_project_manager"
-                            :is-required="false"
-                            input-type="select"
-                            :select-options="positionList"
-                            :is-multiple="true"></field-input>
-
-                        <field-input
-                            class="mb-3"
-                            :label="t('defineSpecialPositionInProduction')"
-                            v-model="special_production_position"
-                            :error-message="errors.special_production_position"
-                            :is-required="false"
-                            input-type="select"
-                            :select-options="positionList"></field-input>
-
-                        <field-input
-                            class="mb-3"
-                            :label="t('howManyDaysRaiseDeadlineAlert')"
-                            v-model="days_to_raise_deadline_alert"
-                            :error-message="errors.days_to_raise_deadline_alert"
-                            :is-required="false"
-                            input-type="select"
-                            :select-options="daysRaiseAlert"></field-input>
-
-                        <v-btn
-                            variant="flat"
-                            color="primary"
-                            type="submit">
-                            {{ $t('save') }}
-                        </v-btn>
-                    </v-col>
-                </v-row>
+                <template v-if="loadingPrepare">
+                    <v-skeleton-loader type="list-item-three-line"></v-skeleton-loader>
+                    <p class="text-center">
+                        {{ $t('preparingData') }}
+                    </p>
+                </template>
+                <template v-else>
+                    <v-row>
+                        <v-col
+                            cols="12"
+                            md="6">
+                            <field-input
+                                class="mb-3"
+                                :label="t('definePositionAsDirector')"
+                                v-model="position_as_directors"
+                                :error-message="errors.position_as_directors"
+                                :is-required="false"
+                                input-type="select"
+                                :select-options="positionList"
+                                :is-multiple="true"></field-input>
+    
+                            <field-input
+                                class="mb-3"
+                                :label="t('definePositionAsMarketing')"
+                                v-model="position_as_marketing"
+                                :error-message="errors.position_as_marketing"
+                                :is-required="false"
+                                input-type="select"
+                                :select-options="positionList"></field-input>
+    
+                            <field-input
+                                class="mb-3"
+                                :label="t('definePositionAsProduction')"
+                                v-model="position_as_production"
+                                :error-message="errors.position_as_production"
+                                :is-required="false"
+                                input-type="select"
+                                :is-multiple="true"
+                                :select-options="positionList"></field-input>
+    
+                            <field-input
+                                class="mb-3"
+                                :label="t('definePositionAsProjectManager')"
+                                v-model="position_as_project_manager"
+                                :error-message="errors.position_as_project_manager"
+                                :is-required="false"
+                                input-type="select"
+                                :select-options="positionList"
+                                :is-multiple="true"></field-input>
+    
+                            <field-input
+                                class="mb-3"
+                                :label="t('defineSpecialPositionInProduction')"
+                                v-model="special_production_position"
+                                :error-message="errors.special_production_position"
+                                :is-required="false"
+                                input-type="select"
+                                :select-options="positionList"></field-input>
+    
+                            <field-input
+                                class="mb-3"
+                                :label="t('howManyDaysRaiseDeadlineAlert')"
+                                v-model="days_to_raise_deadline_alert"
+                                :error-message="errors.days_to_raise_deadline_alert"
+                                :is-required="false"
+                                input-type="select"
+                                :select-options="daysRaiseAlert"></field-input>
+    
+                            <v-btn
+                                variant="flat"
+                                color="primary"
+                                type="submit">
+                                {{ $t('save') }}
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </template>
             </v-form>
         </v-card-text>
     </v-card>
@@ -79,6 +97,8 @@ const { t } = useI18n()
 
 const store = useSettingStore()
 
+const loadingPrepare = ref(false)
+
 const positionStore = usePositionStore()
 
 const { globalVariableSetting } = storeToRefs(store)
@@ -87,6 +107,7 @@ const { defineField, errors, handleSubmit, setFieldValue } = useForm({
     validationSchema: yup.object({
         position_as_directors: yup.array().nullable(),
         position_as_project_manager: yup.array().nullable(),
+        position_as_production: yup.array().nullable(),
         position_as_marketing: yup.string().nullable(),
         special_production_position: yup.string().nullable(),
         days_to_raise_deadline_alert: yup.string().nullable(),
@@ -98,6 +119,7 @@ const [position_as_project_manager] = defineField('position_as_project_manager')
 const [position_as_marketing] = defineField('position_as_marketing')
 const [days_to_raise_deadline_alert] = defineField('days_to_raise_deadline_alert')
 const [special_production_position] = defineField('special_production_position')
+const [position_as_production] = defineField('position_as_production')
 
 const loading = ref(false)
 
@@ -148,6 +170,8 @@ async function initSetting() {
             setFieldValue('days_to_raise_deadline_alert', elem.value)
         } else if (elem.key == 'special_production_position') {
             setFieldValue('special_production_position', elem.value)
+        } else if (elem.key == 'position_as_production') {
+            setFieldValue('position_as_production', elem.value)
         }
     })
 }
@@ -160,10 +184,19 @@ async function initPosition() {
     }
 }
 
+async function prepareData() {
+    loadingPrepare.value = true
+    await Promise.all([
+        initPosition(),
+        initSetting()
+    ])
+
+    loadingPrepare.value = false
+}
+
 onMounted(() => {
     console.log('globalVariableSetting', globalVariableSetting.value);
 
-    initPosition()
-    initSetting()
+    prepareData()
 })
 </script>

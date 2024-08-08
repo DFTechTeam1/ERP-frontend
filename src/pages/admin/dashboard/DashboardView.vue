@@ -5,6 +5,9 @@
             <v-col
                 cols="12"
                 md="8">
+                <!-- <select v-model="$i18n.locale">
+                    <option v-for="locale in $i18n.availableLocales" :key="`locale-${locale}`" :value="locale">{{ locale }}</option>
+                  </select> -->
                 <v-card
                     width="100%"
                     class="card-primary card-greeting card-h-200 card-dashboard">
@@ -24,20 +27,34 @@
                                             alt="user"></v-img>
                                         </v-avatar>
                                         <span class="greeting-text">
-                                            Welcome Back Ilham Meru Gumilang!
+                                            Welcome Back {{ username }}!
                                         </span>
                                     </div>
 
                                     <div class="d-flex align-items-center greeting-project">
-                                        <div class="wrapper-info">
-                                            <p class="value">15</p>
-                                            <p class="text">Total Projects</p>
-                                        </div>
-                                        <v-divider :vertical="true"></v-divider>
-                                        <div class="wrapper-info">
-                                            <p class="value">3</p>
-                                            <p class="text">Ongoing Projects</p>
-                                        </div>
+                                        <template v-if="loading">
+                                            <div class="wrapper-info w-50 bg-transparent">
+                                                <v-skeleton-loader type="list-item-two-line" class="bg-transparent"></v-skeleton-loader>
+                                            </div>
+                                            <div class="wrapper-info w-50 bg-transparent">
+                                                <v-skeleton-loader type="list-item-two-line" class="bg-transparent"></v-skeleton-loader>
+                                            </div>
+                                        </template>
+                                        <template v-else>
+                                            <template
+                                                v-for="(report, r) in listOfReports.left"
+                                                :key="r">
+                                                <div class="wrapper-info">
+                                                    <p class="value">
+                                                        {{ report.value }}
+                                                    </p>
+                                                    <p class="text">
+                                                        {{ report.text }}
+                                                    </p>
+                                                </div>
+                                                <v-divider v-if="r == 0" :vertical="true" inset></v-divider>
+                                            </template>
+                                        </template>
                                     </div>
                             </v-col>
 
@@ -53,43 +70,69 @@
                 </v-card>
             </v-col>
 
-            <v-col
-                md="2"
-                cols="12">
-                <v-card
-                    density="default"
-                    width="100%"
-                    variant="elevated"
-                    class="card-project-chart card-h-200 card-dashboard">
-                    <template v-slot:title>
-                        <p class="value">5</p>
-                        <p class="text">Ongoing Projects</p>
-                    </template>
-
-                    <template v-slot:text>
-                        <apexchart height="150" type="donut" :options="options" :series="series"></apexchart>
-                    </template>
-                </v-card>
-            </v-col>
-
-            <v-col
-                md="2"
-                cols="12">
-                <v-card
-                    density="default"
-                    width="100%"
-                    variant="elevated"
-                    class="card-project-chart card-h-200 card-dashboard">
-                    <template v-slot:title>
-                        <p class="value">100</p>
-                        <p class="text">Total Projects</p>
-                    </template>
-
-                    <template v-slot:text>
-                        <apexchart height="150" type="donut" :options="options" :series="series"></apexchart>
-                    </template>
-                </v-card>
-            </v-col>
+            <template v-if="loading">
+                <v-col
+                    md="2"
+                    cols="12">
+                    <v-skeleton-loader type="card"></v-skeleton-loader>
+                </v-col>
+                <v-col
+                    md="2"
+                    cols="12">
+                    <v-skeleton-loader type="card"></v-skeleton-loader>
+                </v-col>
+            </template>
+            <template v-else>
+                <template v-if="listOfReports.right">
+                    <v-col
+                        md="2"
+                        cols="12"
+                        v-for="(right, rt) in listOfReports.right"
+                        :key="rt">
+                        <v-card
+                            density="default"
+                            width="100%"
+                            variant="elevated"
+                            class="card-project-chart card-h-200 card-dashboard">
+                            <template v-if="right.value == 0">
+                                <v-card-text class="d-flex align-center justify-center h-100">
+                                    <div class="text-center">
+                                        <p class="value">
+                                            {{ right.value }}
+                                        </p>
+                                        <p class="text">
+                                            {{ right.text }}
+                                        </p>
+                                    </div>
+                                </v-card-text>
+                            </template>
+                            <template v-else>
+                                <v-card-item>
+                                    <v-card-title>
+                                        <p class="value">
+                                            {{ right.value }}
+                                        </p>
+                                        <p class="text">
+                                            {{ right.text }}
+                                        </p>
+                                    </v-card-title>
+                                </v-card-item>
+    
+                                <v-card-text>
+                                    <apexchart height="150" type="donut" :options="right.options" :series="right.series"></apexchart>
+                                </v-card-text>
+                            </template>
+                        </v-card>
+                    </v-col>
+                </template>
+                <template v-else>
+                    <v-col
+                        cols="12"
+                        md="4">
+                        <project-deadline />
+                    </v-col>
+                </template>
+            </template>
         </v-row>
 
         <v-row>
@@ -103,7 +146,8 @@
 
             <v-col
                 cols="12"
-                md="4">
+                md="4"
+                v-if="listOfReports.right">
                 <project-deadline />
             </v-col>
         </v-row>
@@ -111,36 +155,33 @@
 </template>
   
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import CalendarEvent from './CalendarEvent.vue'
 import ProjectDeadline from './ProjectDeadline.vue'
+import { useBreakToken } from '@/compose/breakToken';
+import { useDashboardStore } from '@/stores/dashboard';
+import { storeToRefs } from 'pinia';
 
-const options = ref({
-    dataLabels: {
-        enabled: false,
-    },
-    legend: {
-        show: false,
-    },
-    responsive: [{
-        breakpoint: 600,
-        options: {},
-    }],
-    plotOptions: {
-        pie: {
-            expandOnClick: true,
-            donut: {
-                labels: {
-                    show: true,
-                }
-            },
-        },
-    },
-    labels: ['January', 'Febuary', 'March', 'April', 'May'],
-});
+const store = useDashboardStore()
 
-const series = ref([44, 55, 41, 17, 15]);
+const { listOfReports } = storeToRefs(store)
 
+const username = ref('')
+
+const loading = ref(false)
+
+async function getReport() {
+    loading.value = true
+    await store.getReport()
+    loading.value = false
+}
+
+onMounted(() => {
+    var user = useBreakToken('user')
+    username.value = user.employee ? user.employee.name : 'admin'
+
+    getReport()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -181,8 +222,9 @@ const series = ref([44, 55, 41, 17, 15]);
     gap: 25px;
 
     .wrapper-info {
+
         .value {
-            font-size: 26px;
+            font-size: 22px;
             font-weight: bold !important;
         }
 

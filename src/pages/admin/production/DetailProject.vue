@@ -243,8 +243,11 @@ import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { useCheckPermission } from '@/compose/checkPermission';
 import { mdiDotsVertical, mdiHandBackLeftOutline } from '@mdi/js';
 import { storeToRefs } from 'pinia';
+import { useProjectClassStore } from '@/stores/projectClass';
 
 const store = useProjectStore();
+
+const storeProjectClass = useProjectClassStore()
 
 const { detailProject } = storeToRefs(store)
 
@@ -338,6 +341,10 @@ function closeFormReferences() {
     showFormReferences.value = false
 }
 
+function initProjectClass() {
+    storeProjectClass.getAll()
+}
+
 onMounted(() => {
     initProjectDetail();
     if (mobile.value) {
@@ -345,6 +352,8 @@ onMounted(() => {
     } else {
         tabDirection.value = 'vertical';
     }
+
+    initProjectClass()
 
     canMoveToProgress.value = useCheckPermission('move_task_to_progress');
     canMoveToReviewClient.value = useCheckPermission('move_task_to_review_client');

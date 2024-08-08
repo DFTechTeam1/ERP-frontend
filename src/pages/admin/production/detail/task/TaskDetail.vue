@@ -392,7 +392,7 @@
                                         class="w-100 text-left mb-3"
                                         color="success"
                                         :disabled="loadingApprove || detailProject.project_is_complete"
-                                        v-if="!detailOfTask.is_active && detailOfTask.has_task_access && !detailOfTask.stop_action"
+                                        v-if="detailOfTask.need_user_approval && !detailOfTask.stop_action"
                                         @click.prevent="approveTask(detailOfTask.uid)">
                                         <v-icon
                                             class="mr-1"

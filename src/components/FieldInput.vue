@@ -4,6 +4,7 @@
             variant="outlined"
             v-model="model"
             :clearable="true"
+            @click:clear="$emit('clear-event')"
             :disabled="isDisabled"
             :readonly="isReadonly"
             @blur="$emit('changes-event')"
@@ -95,6 +96,15 @@
             view-mode="year"
             v-if="props.inputType == 'year-picker'"></v-date-picker>
 
+        <v-number-input
+            v-model="model"
+            :reverse="false"
+            variant="outlined"
+            control-variant="default"
+            :label="props.label"
+            :error-messages="props.errorMessage"
+            v-if="props.inputType == 'number'"></v-number-input>
+
         <v-textarea
             v-if="props.inputType == 'textarea'"
             :label="props.label"
@@ -117,7 +127,7 @@ import { ref } from 'vue';
 
 const model = defineModel()
 
-defineEmits(['changes-event']);
+defineEmits(['changes-event', 'clear-event']);
 
 const fieldTypeValue = ref('password');
 

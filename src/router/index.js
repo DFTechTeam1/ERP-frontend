@@ -16,6 +16,7 @@ import UsersView from "@/pages/admin/hrd/user_management/users/UsersView.vue";
 import RolesView from "@/pages/admin/hrd/user_management/roles/RolesView.vue";
 import RoleForm from "@/pages/admin/hrd/user_management/roles/CreateRole.vue";
 import DivisionView from "@/pages/admin/master/divisions/ListView.vue";
+import ProjectClass from '@/pages/admin/master/projectClass/ListView.vue'
 import PositionView from "@/pages/admin/master/positions/ListView.vue";
 import SupplierView from "@/pages/admin/inventory/supplier/ListView.vue";
 import BrandView from "@/pages/admin/inventory/brand/ListView.vue";
@@ -29,6 +30,7 @@ import DetailRequestEquipment from '@/pages/admin/inventory/requestEquipment/Det
 import InventoryForm from '@/pages/admin/inventory/list/FormView.vue';
 import InventoryDetail from '@/pages/admin/inventory/list/DetailView.vue';
 import EmployeeView from '@/pages/admin/hrd/employee/ListView.vue';
+import PerformanceReport from "@/pages/admin/hrd/performanceReport/PerformanceReport.vue";
 import DetailEmployee from '@/pages/admin/hrd/employee/DetailEmployee.vue';
 import EmployeeForm from '@/pages/admin/hrd/employee/FormView.vue';
 import AddonsList from '@/pages/admin/addons/AddonsList.vue';
@@ -48,7 +50,7 @@ import { createRouter, createWebHistory } from "vue-router/auto";
 import moment from "moment";
 import { useEncrypt } from "@/compose/encrypt";
 import LayoutDefault from "@/layouts/LayoutDefault.vue";
-import i18n from '@/lang';
+import { i18n } from '@/lang';
 
 const { t } = i18n.global;
 
@@ -183,6 +185,14 @@ const router = createRouter({
               }
             },
             {
+              path: 'performanceReport',
+              component: PerformanceReport,
+              name: t('performanceReport'),
+              meta: {
+                requiresAuth: true,
+              }
+            },
+            {
               path: ':id',
               component: DetailEmployee,
               name: t('detailEmployee'),
@@ -240,6 +250,12 @@ const router = createRouter({
               path: "divisions",
               name: t('divisions'),
               component: DivisionView,
+              meta: { parentData: "Master", requiresAuth: true, permission: 'list_division' },
+            },
+            {
+              path: "projectClass",
+              name: t('projectClass'),
+              component: ProjectClass,
               meta: { parentData: "Master", requiresAuth: true, permission: 'list_division' },
             },
             {

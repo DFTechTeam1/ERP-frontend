@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import i18n from '@/lang'
+import { i18n } from '@/lang'
 import { onMounted } from 'vue';
 import { useLocale } from 'vuetify';
 

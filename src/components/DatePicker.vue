@@ -5,6 +5,7 @@
             v-model="model"
             variant="outlined"
             :clearable="true"
+            :density="props.density"
             :error-messages="props.errorMessage"
             @click:control="showDatePicker">
 
@@ -60,6 +61,10 @@
         isRequired: {
             type: Boolean,
             default: true,
+        },
+        density: {
+            type: String,
+            default: 'default',
         },
         errorMessage: {
             type: String,
