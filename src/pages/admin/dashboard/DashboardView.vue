@@ -83,50 +83,56 @@
                 </v-col>
             </template>
             <template v-else>
-                <v-col
-                    md="2"
-                    cols="12"
-                    v-for="(right, rt) in listOfReports.right"
-                    :key="rt">
-                    <v-card
-                        density="default"
-                        width="100%"
-                        variant="elevated"
-                        class="card-project-chart card-h-200 card-dashboard">
-                        <template v-slot:title>
-                            <p class="value">
-                                {{ right.value }}
-                            </p>
-                            <p class="text">
-                                {{ right.text }}
-                            </p>
-                        </template>
+                <template v-if="listOfReports.right">
+                    <v-col
+                        md="2"
+                        cols="12"
+                        v-for="(right, rt) in listOfReports.right"
+                        :key="rt">
+                        <v-card
+                            density="default"
+                            width="100%"
+                            variant="elevated"
+                            class="card-project-chart card-h-200 card-dashboard">
+                            <template v-if="right.value == 0">
+                                <v-card-text class="d-flex align-center justify-center h-100">
+                                    <div class="text-center">
+                                        <p class="value">
+                                            {{ right.value }}
+                                        </p>
+                                        <p class="text">
+                                            {{ right.text }}
+                                        </p>
+                                    </div>
+                                </v-card-text>
+                            </template>
+                            <template v-else>
+                                <v-card-item>
+                                    <v-card-title>
+                                        <p class="value">
+                                            {{ right.value }}
+                                        </p>
+                                        <p class="text">
+                                            {{ right.text }}
+                                        </p>
+                                    </v-card-title>
+                                </v-card-item>
     
-                        <template v-slot:text>
-                            <apexchart height="150" type="donut" :options="right.options" :series="right.series"></apexchart>
-                        </template>
-                    </v-card>
-                </v-col>
+                                <v-card-text>
+                                    <apexchart height="150" type="donut" :options="right.options" :series="right.series"></apexchart>
+                                </v-card-text>
+                            </template>
+                        </v-card>
+                    </v-col>
+                </template>
+                <template v-else>
+                    <v-col
+                        cols="12"
+                        md="4">
+                        <project-deadline />
+                    </v-col>
+                </template>
             </template>
-
-            <!-- <v-col
-                md="2"
-                cols="12">
-                <v-card
-                    density="default"
-                    width="100%"
-                    variant="elevated"
-                    class="card-project-chart card-h-200 card-dashboard">
-                    <template v-slot:title>
-                        <p class="value">100</p>
-                        <p class="text">Total Projects</p>
-                    </template>
-
-                    <template v-slot:text>
-                        <apexchart height="150" type="donut" :options="options" :series="series"></apexchart>
-                    </template>
-                </v-card>
-            </v-col> -->
         </v-row>
 
         <v-row>
@@ -140,7 +146,8 @@
 
             <v-col
                 cols="12"
-                md="4">
+                md="4"
+                v-if="listOfReports.right">
                 <project-deadline />
             </v-col>
         </v-row>
@@ -170,7 +177,8 @@ async function getReport() {
 }
 
 onMounted(() => {
-    username.value = useBreakToken('user').employee.name
+    var user = useBreakToken('user')
+    username.value = user.employee ? user.employee.name : 'admin'
 
     getReport()
 })

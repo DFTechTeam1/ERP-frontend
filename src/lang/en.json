@@ -518,5 +518,6 @@
     "doNotHaveGraphic": "Do not have graphic to show",
     "getReport": "Get Report",
     "pleaseChooseEmployee": "Please select an employee to continue",
-    "assignedAt": "Assigned at"
+    "assignedAt": "Assigned at",
+    "definePositionAsProduction": "Define Position as Production"
 }

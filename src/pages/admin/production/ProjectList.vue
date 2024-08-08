@@ -109,6 +109,7 @@
                                 </v-list-item> -->
                                 <v-list-item
                                     class="pointer"
+                                    v-if="useCheckPermission('delete_project')"
                                     @click.prevent="deleteProject(value.uid)">
                                     <template v-slot:title>
                                         <div
