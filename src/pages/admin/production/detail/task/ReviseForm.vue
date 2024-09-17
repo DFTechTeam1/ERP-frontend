@@ -11,7 +11,7 @@
                         <v-icon
                             :icon="mdiClose"
                             size="20"
-                            @click.prevent="emit('close-event')"
+                            @click.prevent="closeForm"
                             color="red"></v-icon>
                     </div>
                 </v-card-title>
@@ -32,7 +32,7 @@
                         label-idle="Drop files here..."
                         allow-multiple="true"
                         v-on:addfile="updateImages"
-                        accepted-file-types="image/png, image/jpg, image/jpeg, image/webp"
+                        accepted-file-types="image/png, image/jpg, image/jpeg"
                     ></file-pond-com>
                     <div class="invalid-feedback" v-if="errors.file">{{ errors.file }}</div>
 
@@ -63,10 +63,10 @@ const { t } = useI18n()
 
 const emit = defineEmits(['close-event'])
 
-const { defineField, errors, setFieldValue, handleSubmit } = useForm({
+const { defineField, errors, setFieldValue, handleSubmit, resetForm } = useForm({
     validationSchema: yup.object({
         reason: yup.string().required(t('reasonRequired')),
-        file: yup.object().nullable(),
+        file: yup.string().nullable(),
     }),
 })
 
@@ -100,15 +100,25 @@ function updateImages() {
         for (let a = 0; a < pond.value.getFiles().length; a++) {
             images.push(pond.value.getFiles()[a].file)
         }
-        setFieldValue('preview', images);
+        setFieldValue('file', images[0]);
     } else {
-        setFieldValue('preview', null);
+        setFieldValue('file', null);
     }
+}
+
+function closeForm() {
+    resetForm()
+    emit('close-event')
 }
 
 const validateData = handleSubmit(async (values) => {
     loading.value = true
-    const resp = await store.reviseTask(values, props.detail.project.uid, props.detail.uid)
+    var formData = new FormData()
+    formData.append('reason', values.reason)
+    if (values.file) {
+        formData.append('file', values.file)
+    }
+    const resp = await store.reviseTask(formData, props.detail.project.uid, props.detail.uid)
     loading.value = false
 
     if (resp.status < 300) {

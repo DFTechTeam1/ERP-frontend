@@ -17,6 +17,11 @@ import App from './App.vue'
 // Composables
 import { createApp } from 'vue'
 
+// remove console in production
+if (import.meta.env.VITE_NODE_ENV == 'production') {
+    console.log = function() {}
+}
+
 const app = createApp(App)
 
 registerPlugins(app)

@@ -13,8 +13,17 @@
             :filterSearch="true"
             :btnAddText="$t('createBrand')"
             :has-checkbox="false"
+            :custom-status="true"
             :has-add-button="false"
             @table-event="initRequestEquipment">
+            <template v-slot:status="{ value }">
+                <v-chip
+                    density="compact"
+                    :color="value.status_color">
+                    {{ value.status }}
+                </v-chip>
+            </template>
+
             <template v-slot:action="{ value }">
                 <v-menu
                     open-on-click>
@@ -100,6 +109,13 @@ const headers = ref([
     {
         title: t('totalEquipment'),
         key: 'equipment_total',
+        align: 'start',
+        width: 30,
+        sortable: true
+    },
+    {
+        title: t('status'),
+        key: 'status',
         align: 'start',
         width: 30,
         sortable: true

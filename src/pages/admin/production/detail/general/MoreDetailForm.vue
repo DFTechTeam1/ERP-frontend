@@ -317,4 +317,12 @@ watch(detailProject, (values) => {
         })
     }
 })
+
+watch(country_id, (values) => {
+    initStates(values || 0)
+})
+
+watch(state_id, (values) => {
+    initCities(values || 0)
+})
 </script>

@@ -495,7 +495,7 @@ const [warranty] = defineField('warranty');
 const [description] = defineField('description');
 const [purchase_price] = defineField('purchase_price');
 const nameMirror = ref('');
-const { remove, push, fields } = useFieldArray('item_locations');
+const { remove, push, fields, replace } = useFieldArray('item_locations');
 
 const isShowDatePicker = ref(false);
 
@@ -642,9 +642,8 @@ async function getDetail() {
                     }
                 );
             }
-            setValues({
-                item_locations: items,
-            });
+
+            replace(items)
         }
     }
 }

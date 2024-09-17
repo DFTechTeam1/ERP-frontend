@@ -108,6 +108,10 @@ table td {
 
 .no-shadow {
     box-shadow: none !important;
+    
+    .v-window {
+        box-shadow: none !important;
+    }
 }
 
 table thead th {
@@ -150,4 +154,86 @@ table thead th {
     .main-app-bar {
         padding: 0 40px !important;
     }
+}
+
+.detail-employee-active-menu.router-link-exact-active .v-list-item {
+    background-color: rgb(179, 229, 252, .3);
+    border-radius: 4px !important;
+}
+
+.detail-employee-title {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.disable-link {
+    color: #000 !important;
+    text-decoration: none !important;
+
+    &:hover {
+        text-decoration: underline !important;
+    }
+}
+
+.detail-employee-text-title {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.detail-employee-text-value {
+    font-size: 13px;
+}
+
+.employee-information-title {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.employee-information-sub {
+    font-size: 13px;
+    color: darkgray;
+}
+
+.employee-detail-title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.employee-detail-value {
+    font-size: 13px;
+}
+
+.new-border-form-control .v-field {
+    border: 1px solid rgba(0,0,0,.38) !important;
+    border-radius: 4px;
+    box-shadow: none !important;
+}
+
+.no-decoration {
+    text-decoration: none !important;
+}
+
+.v-list-item--active {
+    .v-list-item__overlay {
+        opacity: 0 !important;
+    }
+}
+
+.expansion-text-no-padding {
+    .v-expansion-panel-text__wrapper {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e6e6e6 !important;
+}
+
+.input-no-detail > .v-input__details {
+    display: none !important;
+}
+
+.filter-result  .v-chip__content p {
+    font-size: 12px !important;
 }

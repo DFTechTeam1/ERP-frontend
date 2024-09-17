@@ -1,0 +1,24 @@
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Latest
+        uses: actions/checkout@v4
+
+      - name: Install
+        run: npm install
+
+      - name: Build assets
+        run: npm run build-prod
+
+      - name: Deploy to Cpanel
+        run: |
+          scp -r dist/* orcy4561@203.175.9.166:/home/orcy4561/public_html/domains/erp.dfactory.pro/public_html/
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}

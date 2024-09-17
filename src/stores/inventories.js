@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import axios from 'axios'
 import { useNotification } from "@kyvg/vue3-notification";
+import { showNotification } from "@/compose/notification";
 
 const { notify } = useNotification();
 
@@ -143,6 +144,18 @@ export const useInventoriesStore = defineStore('inventories', {
             }
 
             return [];
-        }
+        },
+        async importFile(payload) {
+            try {
+                const resp = await axios.post('/inventories/import', payload)
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                return error
+            }
+        },
     }
 })

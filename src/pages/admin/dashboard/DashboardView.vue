@@ -27,7 +27,7 @@
                                             alt="user"></v-img>
                                         </v-avatar>
                                         <span class="greeting-text">
-                                            Welcome Back {{ username }}!
+                                            {{ $t('welcomeBack') }} {{ username }}!
                                         </span>
                                     </div>
 

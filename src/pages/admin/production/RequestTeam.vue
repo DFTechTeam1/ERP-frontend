@@ -11,7 +11,7 @@
                         :icon="mdiClose"
                         size="20"
                         class="pointer"
-                        @click.prevent="$emit('close-event')"></v-icon>
+                        @click.prevent="closeForm"></v-icon>
                 </v-card-title>
             </v-card-item>
 
@@ -209,4 +209,9 @@ watch(pic_id, (values) => {
         setFieldValue('teams', [])
     }
 })
+
+function closeForm() {
+    resetForm()
+    emit('close-event')
+}
 </script>

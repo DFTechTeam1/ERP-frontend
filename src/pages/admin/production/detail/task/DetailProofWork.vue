@@ -24,7 +24,15 @@
                             <br>
                             <a :href="props.detail[x][0].nas_link" target="_blank">{{ props.detail[x][0].nas_link }}</a>
                             <br><br>
-                            <v-label>{{ $t('images') }}</v-label>
+                            <v-label class="d-flex align-center ga-2">
+                                {{ $t('images') }}
+
+                                <v-icon
+                                    :icon="mdiDownload"
+                                    class="pointer"
+                                    size="20"
+                                    @click.prevent="downloadMedia(props.detail[x][0])"></v-icon>
+                            </v-label>
                             <div class="image-wrap d-flex align-center w-100 ga-4">
                                 <div class="image-item"
                                     v-for="(image, i) in props.detail[x][0].images"
@@ -57,12 +65,15 @@
 </style>
 
 <script setup>
-import { mdiClose } from '@mdi/js';
+import { mdiClose, mdiDownload } from '@mdi/js';
 import { ref, watch } from 'vue'
+import { useProjectStore } from '@/stores/project'
 
 const show = ref(false)
 
 const emit = defineEmits(['close-event'])
+
+const store = useProjectStore()
 
 const props = defineProps({
     isShow: {
@@ -72,6 +83,9 @@ const props = defineProps({
     detail: {
         default: null,
     },
+    detailTask: {
+        default: null,
+    }
 })
 
 watch(props, (values) => {
@@ -83,5 +97,10 @@ watch(props, (values) => {
 
 function closeModal() {
     emit('close-event')
+}
+
+function downloadMedia(item) {
+    console.log('item', item)
+    store.downloadProofOfWork(props.detailTask.project.uid, item.id)
 }
 </script>

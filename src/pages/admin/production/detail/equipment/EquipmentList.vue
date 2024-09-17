@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="d-flex align-end justify-end"
-            v-if="canRequestEquipment">
+            v-if="canRequestEquipment && !detailProject.project_is_complete">
             <v-btn
                 variant="flat"
                 color="primary"
@@ -46,7 +46,7 @@
                         </td>
                         <td>
                             <div class="d-flex align-items ga-4"
-                                v-if="!item.is_cancel"
+                                v-if="item.can_take_action"
                                 @click.prevent="cancelItem(item)">
                                 <span
                                     v-if="canRejectItem">

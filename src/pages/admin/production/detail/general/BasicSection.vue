@@ -18,7 +18,7 @@
                     <v-chip
                         color="primary"
                         >{{ detailProject.event_type }}</v-chip>
-                    <v-chip :color="detailProject.event_class_color">
+                    <v-chip :color="detailProject.event_class_color" class="ms-2">
                         {{ detailProject.event_class }}
                     </v-chip>
                 </div>

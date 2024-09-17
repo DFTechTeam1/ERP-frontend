@@ -3,9 +3,14 @@
         <v-text-field
             readonly
             v-model="model"
-            variant="outlined"
             :clearable="true"
             :density="props.density"
+            :class="{
+            'new-border-form-control': props.isSolo
+            }"
+            :variant=" props.isSolo ? 'solo' : 'outlined'"
+            :hide-details="props.isSolo"
+            :single-line="props.isSolo"
             :error-messages="props.errorMessage"
             @click:control="showDatePicker">
 
@@ -62,6 +67,10 @@
             type: Boolean,
             default: true,
         },
+        isSolo: {
+            type: Boolean,
+            default: false,
+        },
         density: {
             type: String,
             default: 'default',
@@ -83,7 +92,7 @@
         isShowDatePicker.value = true;
     }
 
-    function handleDate() {
+    function handleDate(val) {
         model.value = _date.format(date.value, 'year') + ', ' + _date.format(date.value, 'monthAndDate');
         isShowDatePicker.value = false;
     }

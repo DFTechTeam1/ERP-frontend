@@ -85,27 +85,45 @@
                     class="mb-2"
                     max-height="400"
                     height="100%">
-                    <v-toolbar color="surface">
+                    <v-toolbar color="surface" class="pe-4">
                         <v-toolbar-title>
                             {{ $t('references') }}
                         </v-toolbar-title>
 
                         <v-spacer></v-spacer>
 
-                        <v-btn
-                            v-if="(detailProject) && (detailProject.references.length) && (!detailProject.project_is_complete)"
-                            variant="outlined"
-                            color="primary"
-                            size="small"
-                            class="mb-5 mt-3"
-                            @click.prevent="showFormReferences = true">
-                            {{ $t('addReferences') }}
-                        </v-btn>
+                        <div class="d-flex align-center ga-2">
+                            <v-btn
+                                v-if="(detailProject) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
+                                variant="outlined"
+                                color="primary"
+                                size="small"
+                                @click.prevent="showFormReferences = true">
+                                {{ $t('addReferences') }}
+                            </v-btn>
+                            
+                            <v-btn
+                                v-if="(detailProject) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
+                                variant="outlined"
+                                color="primary"
+                                size="small"
+                                @click.prevent="downloadReferences()">
+                                <v-icon
+                                    :icon="mdiDownloadMultiple"
+                                    size="20"
+                                    class="pointer"></v-icon>
+
+                                <v-tooltip
+                                    activator="parent"
+                                    location="start"
+                                  >{{ $t('download') }}</v-tooltip>
+                            </v-btn>
+                        </div>
                     </v-toolbar>
         
                     <v-card-text
                         class="m-0"
-                        style="height: 100%; overflow: scroll; padding: 0; padding-bottom: 20px;">
+                        style="height: 100%; overflow: hidden; padding: 0; padding-bottom: 20px;">
                         <references-view :media="references" :show-form="showFormReferences" @close-form="closeFormReferences"
                             @open-form="showFormReferences = true"></references-view>
                     </v-card-text>
@@ -125,7 +143,7 @@
                     class="me-5"
                     variant="flat"
                     color="primary"
-                    v-if="(detailProject) && (detailProject.showreels)"
+                    v-if="(detailProject) && (detailProject.showreels) && useCheckPermission('add_showreels')"
                     @click.prevent="openShowreelsForm">
                     {{ $t('uploadShowreels') }}
                 </v-btn>
@@ -241,9 +259,10 @@ import { useRoute } from 'vue-router';
 import { useProjectStore } from '@/stores/project';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { useCheckPermission } from '@/compose/checkPermission';
-import { mdiDotsVertical, mdiHandBackLeftOutline } from '@mdi/js';
+import { mdiDotsVertical, mdiHandBackLeftOutline, mdiDownloadMultiple } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { useProjectClassStore } from '@/stores/projectClass';
+import { showNotification } from '@/compose/notification'
 
 const store = useProjectStore();
 
@@ -343,6 +362,15 @@ function closeFormReferences() {
 
 function initProjectClass() {
     storeProjectClass.getAll()
+}
+
+function downloadReferences() {
+    if (detailProject.value.references.files == undefined && detailProject.value.references.pdf == undefined) {
+        showNotification(t('projectHasNoReferences'), 'error')
+        return
+    }
+
+    store.downloadReferences(detailProject.value)
 }
 
 onMounted(() => {

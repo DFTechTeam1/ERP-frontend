@@ -480,7 +480,8 @@
             transition="scroll-x-transition"
             :is-show="showDetailProofWork"
             @close-event="showDetailProofWork = false"
-            :detail="detailOfTask.proof_of_works_detail"></detail-proof-of-work>
+            :detail="detailOfTask.proof_of_works_detail"
+            :detail-task="detailOfTask"></detail-proof-of-work>
 
         <confirmation-modal
             :title="t('deleteTask')"

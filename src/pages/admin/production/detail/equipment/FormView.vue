@@ -129,7 +129,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close-event']);
 
-const { handleSubmit, errors } = useForm({
+const { handleSubmit, errors, resetForm } = useForm({
     validationSchema: yup.object({
         equipments: yup.array().of(
             yup.object().shape({
@@ -143,7 +143,7 @@ const { handleSubmit, errors } = useForm({
     })
 })
 
-const { push, fields } = useFieldArray('equipments');
+const { push, fields, replace } = useFieldArray('equipments');
 
 const show = ref(false);
 
@@ -168,11 +168,11 @@ async function initInventories() {
 }
 
 const validateData = handleSubmit(async (values) => {
-    console.log('values', values);
-    console.log('route', route.params);
     const resp = await store.requestEquipment(values, route.params.id);
 
     if (resp.status < 300) {
+        resetForm()
+        replace([])
         emit('close-event');
     }
 })
