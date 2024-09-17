@@ -3,132 +3,141 @@
     :class="{
       'no-shadow': !props.hasShadow
     }">
-    <template v-slot:title>
-      <div class="table-action d-flex align-center justify-space-between mb-4">
-        <div 
-          class="d-flex align-center ga-2"
-          v-if="props.hasFilter && !filterSearch">
-          <v-btn
-            variant="flat"
-            color="primary"
-            size="small"
-            @click.prevent="filterAction"
-          >
-            <v-icon :icon="mdiFilterCog" size="20"></v-icon>
-            <v-tooltip
-              activator="parent"
-              location="end"
-            >
-              {{ filterButtonTooltip }}
-            </v-tooltip>
-          </v-btn>
-
+    <v-card-item>
+      <v-card-title>
+        <div class="table-action d-flex align-center justify-space-between mb-4">
           <div 
-            class="cursor-pointer"
-            v-if="showClearFilter"
-            @click.prevent="clearFilter">
-            <v-icon
-              :icon="mdiClose"
-              color="red"
-              size="20">
-            </v-icon>
-            <v-tooltip
-              activator="parent"
-              location="end"
+            class="d-flex align-center ga-2"
+            v-if="props.hasFilter && !filterSearch">
+            <v-btn
+              variant="flat"
+              color="primary"
+              size="small"
+              @click.prevent="filterAction"
             >
-            {{ $t('clearFilter') }}
-            </v-tooltip>
+              <v-icon :icon="mdiFilterCog" size="20"></v-icon>
+              <v-tooltip
+                activator="parent"
+                location="end"
+              >
+                {{ filterButtonTooltip }}
+              </v-tooltip>
+            </v-btn>
+    
+            <div 
+              class="cursor-pointer"
+              v-if="showClearFilter"
+              @click.prevent="clearFilter">
+              <v-icon
+                :icon="mdiClose"
+                color="red"
+                size="20">
+              </v-icon>
+              <v-tooltip
+                activator="parent"
+                location="end"
+              >
+              {{ $t('clearFilter') }}
+              </v-tooltip>
+            </div>
+          </div>
+    
+    
+          <div class="w-25">
+            <div class="table-search-input"
+              v-if="filterSearch">
+              <input
+                type="text"
+                class="search"
+                v-model="search"
+                placeholder="Search by name"
+              />
+              <v-icon :icon="mdiMagnify" class="icon-search"></v-icon>
+            </div>
+          </div>
+    
+          <div class="d-flex align-center" style="gap: 10px">
+            <v-btn
+              variant="flat"
+              color="warning"
+              size="small"
+              :disabled="!selected.length"
+              @click.prevent="bulkDelete"
+              v-if="props.hasCheckbox"
+            >
+              <v-icon :icon="mdiTrashCanOutline" size="20"></v-icon>
+            </v-btn>
+    
+            <v-btn
+              variant="flat"
+              color="primary"
+              size="small"
+              v-if="props.hasAddButton && !props.hasAddDropdown && props.allowedCreateButton"
+              @click.prevent="$emit('addDataEvent')"
+            >
+              <v-icon :icon="mdiPlus" size="20"></v-icon>
+              {{ props.btnAddText }}
+            </v-btn>
+    
+            <v-btn
+              variant="flat"
+              color="primary"
+              size="small"
+              v-if="props.hasAddButton && props.hasAddDropdown"
+            >
+              <v-icon :icon="mdiPlus" size="20"></v-icon>
+              {{ props.btnAddText }}
+    
+              <v-menu activator="parent">
+                <slot name="addDropdown"></slot>
+              </v-menu>
+            </v-btn>
           </div>
         </div>
+      </v-card-title>
+    </v-card-item>
 
+    <v-card-text>
+      <v-data-table-server
+        :showSelect="props.hasCheckbox"
+        v-model="selected"
+        v-model:items-per-page="itemTablePerPage"
+        :headers="props.headers"
+        :items="itemsTable"
+        :items-length="props.totalItems"
+        :loading="props.loading"
+        :search="search"
+        :multi-sort="props.multiSort"
+        class="table-componenent"
+        item-value="name"
+        @update:options="updateEventTable"
+        return-object
+        :show-select="props.hasCheckbox"
+        :show-expand="props.isExpand"
+      >
+        <template v-slot:item.status="{ item }" v-if="props.customStatus">
+          <slot name="status" :value="item"></slot>
+        </template>
+  
+        <template v-slot:item="{ item }" v-if="props.fullCustomBody">
+          <slot name="bodytable" :value="item" :selecteddata="selected"></slot>
+        </template>
+  
+        <template v-slot:item.uid="{ value }" v-if="!props.fullCustomBody">
+          <slot name="action" :value="value" :items="itemsTable"></slot>
+  
+        </template>
+  
+        <template v-slot:expanded-row="{ columns, item }" v-if="props.isExpand">
+          <tr>
+            <td :colspan="columns.length">
+              More info about {{ item.name }}
+            </td>
+          </tr>
+        </template>
+      </v-data-table-server>
+    </v-card-text>
 
-        <div class="w-25">
-          <div class="table-search-input"
-            v-if="filterSearch">
-            <input
-              type="text"
-              class="search"
-              v-model="search"
-              placeholder="Search by name"
-            />
-            <v-icon :icon="mdiMagnify" class="icon-search"></v-icon>
-          </div>
-        </div>
-
-        <div class="d-flex align-center" style="gap: 10px">
-          <v-btn
-            variant="flat"
-            color="warning"
-            size="small"
-            :disabled="!selected.length"
-            @click.prevent="bulkDelete"
-            v-if="props.hasCheckbox"
-          >
-            <v-icon :icon="mdiTrashCanOutline" size="20"></v-icon>
-          </v-btn>
-
-          <v-btn
-            variant="flat"
-            color="primary"
-            size="small"
-            v-if="props.hasAddButton && !props.hasAddDropdown"
-            @click.prevent="$emit('addDataEvent')"
-          >
-            <v-icon :icon="mdiPlus" size="20"></v-icon>
-            {{ props.btnAddText }}
-          </v-btn>
-
-          <v-btn
-            variant="flat"
-            color="primary"
-            size="small"
-            v-if="props.hasAddButton && props.hasAddDropdown"
-          >
-            <v-icon :icon="mdiPlus" size="20"></v-icon>
-            {{ props.btnAddText }}
-
-            <v-menu activator="parent">
-              <slot name="addDropdown"></slot>
-            </v-menu>
-          </v-btn>
-        </div>
-      </div>
-    </template>
-
-    <v-data-table-server
-      :showSelect="props.hasCheckbox"
-      v-model="selected"
-      v-model:items-per-page="itemTablePerPage"
-      :headers="props.headers"
-      :items="itemsTable"
-      :items-length="props.totalItems"
-      :loading="props.loading"
-      :search="search"
-      :multi-sort="props.multiSort"
-      class="table-componenent"
-      item-value="name"
-      @update:options="updateEventTable"
-      return-object
-      :show-select="props.hasCheckbox"
-      :show-expand="props.isExpand"
-    >
-      <template v-slot:item="{ item }" v-if="props.fullCustomBody">
-        <slot name="bodytable" :value="item" :selecteddata="selected"></slot>
-      </template>
-
-      <template v-slot:item.uid="{ value }" v-if="!props.fullCustomBody">
-        <slot name="action" :value="value" :items="itemsTable"></slot>
-
-      </template>
-
-      <template v-slot:expanded-row="{ columns, item }" v-if="props.isExpand">
-        <tr>
-          <td :colspan="columns.length">
-            More info about {{ item.name }}
-          </td>
-        </tr>
-      </template>
-    </v-data-table-server>
   </v-card>
 </template>
 
@@ -142,6 +151,14 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const props = defineProps({
+  allowedCreateButton: {
+    type: Boolean,
+    default: true,
+  },
+  customStatus: {
+    type: Boolean,
+    default: false,
+  },
   hasShadow: {
     type: Boolean,
     default: true,
@@ -272,9 +289,7 @@ watch(selected, (value) => {
 </script>
 
 <style scoped lang="scss">
-.table-componenent {
-  max-height: 600px !important;
-}
+
 
 .table-search-input {
   position: relative;

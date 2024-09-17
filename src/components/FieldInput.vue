@@ -1,7 +1,8 @@
 <template>
     <div>
         <v-text-field 
-            variant="outlined"
+            :variant=" props.isSolo ? 'solo' : 'outlined'"
+            :single-line="props.isSolo"
             v-model="model"
             :clearable="true"
             @click:clear="$emit('clear-event')"
@@ -12,7 +13,8 @@
             :type="props.fieldType"
             :density="props.density"
             :class="{
-                'position-relative': fieldTypeValue == 'password'
+                'position-relative': fieldTypeValue == 'password',
+                'new-border-form-control': props.isSolo
             }"
             :hint="props.hint"
             :error-messages="props.errorMessage"
@@ -66,6 +68,7 @@
             :clearable="true"
             :disabled="props.isDisabled"
             variant="outlined"
+            :single-line="props.isSolo"
             :hint="props.hint"
             :density="props.density"
             :items="props.selectOptions"
@@ -116,7 +119,7 @@
             v-model="model"
             :label="props.label"
             color="primary"
-            :value="1"></v-switch>
+            value="1"></v-switch>
     </div>
 </template>
 
@@ -187,6 +190,10 @@ const props = defineProps({
     density: {
         type: String,
         default: 'default'
+    },
+    isSolo: {
+        type: Boolean,
+        default: false,
     }
 })
 

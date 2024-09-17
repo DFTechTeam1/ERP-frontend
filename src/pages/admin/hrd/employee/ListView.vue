@@ -50,7 +50,9 @@
                                 :image="'/user.png'"
                                 size="40"></v-avatar>
                             <div>
-                                <p class="fw-bold">{{ value.name }}</p>
+                                <router-link :to="`/admin/employees/${value.uid}/general`" class="disable-link">
+                                    <p class="fw-bold">{{ value.name }}</p>
+                                </router-link>
                                 <p class="email">{{ value.email }}</p>
                             </div>
                         </div>
@@ -298,7 +300,7 @@ function deleteEmployee(uid) {
 }
 
 function detailEmployee(employeeUid) {
-    router.push({path: '/admin/employees/' + employeeUid});
+    router.push({path: '/admin/employees/' + employeeUid + '/general'});
 }
 
 function closeImportForm(isShowPreview = false) {

@@ -47,14 +47,11 @@
 </template>
 
 <script setup>
-import { mdiClose } from '@mdi/js';
-import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n'
+import { mdiClose } from '@mdi/js'
+import { ref, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
-import { useEmployeesStore } from '@/stores/employees';
-
-const { t } = useI18n()
+import { useEmployeesStore } from '@/stores/employees'
 
 const show = ref(false)
 

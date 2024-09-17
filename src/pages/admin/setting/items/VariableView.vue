@@ -15,6 +15,16 @@
                             md="6">
                             <field-input
                                 class="mb-3"
+                                :label="t('definePositionAsVJ')"
+                                v-model="position_as_visual_jokey"
+                                :error-message="errors.position_as_visual_jokey"
+                                :is-required="false"
+                                input-type="select"
+                                :select-options="positionList"
+                                :is-multiple="true"></field-input>
+
+                            <field-input
+                                class="mb-3"
                                 :label="t('definePositionAsDirector')"
                                 v-model="position_as_directors"
                                 :error-message="errors.position_as_directors"
@@ -106,6 +116,7 @@ const { globalVariableSetting } = storeToRefs(store)
 const { defineField, errors, handleSubmit, setFieldValue } = useForm({
     validationSchema: yup.object({
         position_as_directors: yup.array().nullable(),
+        position_as_visual_jokey: yup.array().nullable(),
         position_as_project_manager: yup.array().nullable(),
         position_as_production: yup.array().nullable(),
         position_as_marketing: yup.string().nullable(),
@@ -115,6 +126,7 @@ const { defineField, errors, handleSubmit, setFieldValue } = useForm({
 })
 
 const [position_as_directors] = defineField('position_as_directors')
+const [position_as_visual_jokey] = defineField('position_as_visual_jokey')
 const [position_as_project_manager] = defineField('position_as_project_manager')
 const [position_as_marketing] = defineField('position_as_marketing')
 const [days_to_raise_deadline_alert] = defineField('days_to_raise_deadline_alert')
@@ -172,6 +184,8 @@ async function initSetting() {
             setFieldValue('special_production_position', elem.value)
         } else if (elem.key == 'position_as_production') {
             setFieldValue('position_as_production', elem.value)
+        } else if (elem.key == 'position_as_visual_jokey') {
+            setFieldValue('position_as_visual_jokey', elem.value)
         }
     })
 }

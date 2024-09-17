@@ -33,17 +33,17 @@
             <template
               v-for="(menu) in menus"
               :key="menu.id">
-
+              
               <template v-if="!menu.children.length">
                 <v-list-item
                   class="sub-menu pointer"
                   color="blue"
                   :class="{
-                    'menu-active': activeMenuGetters == menu.link,
+                    'menu-active': menu.active_menu,
                     'menu-collapsed': rail,
                   }"
                   base-color="#000"
-                  @click="navigate(menu.link)">
+                  @click="navigate(menu)">
                   <template v-slot:prepend>
                     <v-img size="18" 
                       :src="menu.icon" 
@@ -59,53 +59,57 @@
 
               <template v-else>
 
-                <v-list-group
-                  :value="menu.name"
-                  color="blue"
-                  :class="{
-                    'menu-group-collapsed': rail
-                  }">
-                  
-                  <template v-slot:activator="{ props }">
-                    <v-list-item
-                      v-bind="props"
-                      class="sub-menu pointer">
+                <v-list>
 
+                  <v-list-group
+                    :value="menu.name"
+                    color="blue"
+                    :class="{
+                      'menu-group-collapsed': rail
+                    }">
+                    
+                    <template v-slot:activator="{ props }">
+                      <v-list-item
+                        v-bind="props"
+                        class="sub-menu pointer">
+  
+                        <template v-slot:prepend>
+                          <v-img size="18" 
+                            :src="menu.icon"
+                            width="15"
+                            height="15"
+                            class="mr-2"></v-img>
+                        </template>
+                        <template v-slot:title>
+                          {{ menu.name }}
+                        </template>
+  
+                      </v-list-item>
+                    </template>
+  
+                    <v-list-item
+                      v-for="(children, c) in menu.children"
+                      :key="c"
+                      class="sub-menu pointer"
+                      :class="{
+                        'menu-active': children.link == activeMenuGetters,
+                        'menu-collapsed': rail,
+                      }"
+                      @click="navigate(children)"
+                    >
                       <template v-slot:prepend>
-                        <v-img size="18" 
-                          :src="menu.icon"
-                          width="15"
-                          height="15"
-                          class="mr-2"></v-img>
+                        <v-icon 
+                          :icon="mdiCircleOutline"
+                          size="15"></v-icon>
                       </template>
                       <template v-slot:title>
-                        {{ menu.name }}
+                        {{ children.name }}
                       </template>
-
                     </v-list-item>
-                  </template>
+  
+                  </v-list-group>
 
-                  <v-list-item
-                    v-for="(children, c) in menu.children"
-                    :key="c"
-                    class="sub-menu pointer"
-                    :class="{
-                      'menu-active': children.link == activeMenuGetters,
-                      'menu-collapsed': rail,
-                    }"
-                    @click="navigate(children.link)"
-                  >
-                    <template v-slot:prepend>
-                      <v-icon 
-                        :icon="mdiCircleOutline"
-                        size="15"></v-icon>
-                    </template>
-                    <template v-slot:title>
-                      {{ children.name }}
-                    </template>
-                  </v-list-item>
-
-                </v-list-group>
+                </v-list>
 
               </template>
 
@@ -182,11 +186,11 @@
                   class="sub-menu pointer"
                   color="blue"
                   :class="{
-                    'menu-active': activeMenuGetters == menu.link,
+                    'menu-active': menu.active_menu,
                     'menu-collapsed': rail,
                   }"
                   base-color="#000"
-                  @click="navigate(menu.link)">
+                  @click="navigate(menu)">
                   <template v-slot:prepend>
                     <v-img size="18" 
                       :src="menu.icon" 
@@ -202,53 +206,58 @@
 
               <template v-else>
 
-                <v-list-group
-                  :value="menu.name"
-                  color="blue"
-                  :class="{
-                    'menu-group-collapsed': rail
-                  }">
-                  
-                  <template v-slot:activator="{ props }">
-                    <v-list-item
-                      v-bind="props"
-                      class="sub-menu pointer">
+                <v-list>
 
+                  <v-list-group
+                    :value="menu.name"
+                    color="blue"
+                    :class="{
+                      'menu-group-collapsed': rail
+                    }">
+                    
+                    <template v-slot:activator="{ props }">
+                      <v-list-item
+                        v-bind="props"
+                        class="sub-menu pointer">
+  
+                        <template v-slot:prepend>
+                          <v-img size="18" 
+                            :src="menu.icon"
+                            width="15"
+                            height="15"
+                            class="mr-2"></v-img>
+                        </template>
+                        <template v-slot:title>
+                          {{ menu.name }}
+                        </template>
+  
+                      </v-list-item>
+                    </template>
+  
+                    <v-list-item
+                      v-for="(children, c) in menu.children"
+                      :key="c"
+                      class="sub-menu pointer"
+                      :class="{
+                        'menu-active': children.link == activeMenuGetters,
+                        'menu-collapsed': rail,
+                      }"
+                      @click="navigate(children)"
+                    >
                       <template v-slot:prepend>
-                        <v-img size="18" 
-                          :src="menu.icon"
-                          width="15"
-                          height="15"
-                          class="mr-2"></v-img>
+                        <v-icon 
+                          :icon="mdiCircleOutline"
+                          size="15"></v-icon>
                       </template>
                       <template v-slot:title>
-                        {{ menu.name }}
+                        {{ children.name }}
                       </template>
-
                     </v-list-item>
-                  </template>
+  
+                  </v-list-group>
 
-                  <v-list-item
-                    v-for="(children, c) in menu.children"
-                    :key="c"
-                    class="sub-menu pointer"
-                    :class="{
-                      'menu-active': children.link == activeMenuGetters,
-                      'menu-collapsed': rail,
-                    }"
-                    @click="navigate(children.link)"
-                  >
-                    <template v-slot:prepend>
-                      <v-icon 
-                        :icon="mdiCircleOutline"
-                        size="15"></v-icon>
-                    </template>
-                    <template v-slot:title>
-                      {{ children.name }}
-                    </template>
-                  </v-list-item>
+                </v-list>
 
-                </v-list-group>
 
               </template>
 
@@ -287,12 +296,19 @@
           {{ globalAppName }}
         </v-app-bar-title>
 
-        <!-- <v-menu open-on-click>
+        <v-menu open-on-click>
           <template v-slot:activator="{props}">
             <v-avatar class="me-5">
               <v-img
+                v-if="currentLang == 'en'"
                 v-bind="props"
                 src="/lang/britain.png"
+                width="40"
+                height="40"></v-img>
+              <v-img
+                v-if="currentLang == 'id'"
+                v-bind="props"
+                src="/lang/indo.png"
                 width="40"
                 height="40"></v-img>
             </v-avatar>
@@ -318,7 +334,7 @@
               </v-avatar>
             </v-list-item>
           </v-list>
-        </v-menu> -->
+        </v-menu>
   
         <v-menu open-on-click
           :close-on-content-click="false">
@@ -376,26 +392,28 @@
   
               <template v-slot:title>
                 <div class="dropdown-profile-wrapper">
-                  <p class="title">Profile</p>
-                  <p class="subtitle">Account Setting</p>
+                  <p class="title no-decoration">Profile</p>
+                  <p class="subtitle no-decoration">Account Setting</p>
                 </div>
               </template>
             </v-list-item>
   
-            <v-list-item>
-              <template v-slot:prepend>
-                <div class="icon-profile">
-                  <v-icon :icon="mdiTable"></v-icon>
-                </div>
-              </template>
-  
-              <template v-slot:title>
-                <div class="dropdown-profile-wrapper">
-                  <p class="title">My task</p>
-                  <p class="subtitle">To do and Daily task</p>
-                </div>
-              </template>
-            </v-list-item>
+            <router-link to="/admin/production/tasks">
+              <v-list-item>
+                <template v-slot:prepend>
+                  <div class="icon-profile">
+                    <v-icon :icon="mdiTable"></v-icon>
+                  </div>
+                </template>
+    
+                <template v-slot:title>
+                  <div class="dropdown-profile-wrapper no-decoration">
+                    <p class="title no-decoration">My task</p>
+                    <p class="subtitle no-decoration">To do and Daily task</p>
+                  </div>
+                </template>
+              </v-list-item>
+            </router-link>
   
             <v-list-item>
               <template v-slot:title>
@@ -433,7 +451,7 @@ import AppFooter from "@/components/AppFooter.vue";
 import BellNotification from './BellNotification.vue'
 import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower } from "@mdi/js";
 import { useDisplay } from "vuetify/lib/framework.mjs";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useMenusStore } from "@/stores/menus";
 import { useAuthenticationStore } from "@/stores/authentication";
 import { useRouter, useRoute } from "vue-router";
@@ -480,7 +498,9 @@ const store = useMenusStore();
 
 const authStore = useAuthenticationStore();
 
-const menus = ref([]);
+const menusData = ref([]);
+
+const openMenu = ref([])
 
 const { activeMenuGetters, pathNameGetters } = storeToRefs(store);
 
@@ -491,6 +511,8 @@ const username = ref(null);
 const email = ref(null);
 
 const position = ref(null);
+
+const currentLang = ref('en')
 
 const layoutItems = ref(useBreakToken('menus'));
 
@@ -525,11 +547,48 @@ function changeLocal(lang) {
 }
 
 onMounted(() => {
-  menus.value = store.getMenus();
+  openMenu.value = []
 
   if (localStorage.getItem('lang')) {
     i18n.locale.value = localStorage.getItem('lang')
+    currentLang.value = localStorage.getItem('lang')
   }
+
+  var newLayout = useBreakToken('menus')
+  for (let a in newLayout) {
+    if (newLayout[a].length) {
+      newLayout[a].map((elem) => {
+        elem.active_menu = false
+
+        if (currentLang.value == 'en') {
+          elem.name = elem.lang_en
+        } else if (currentLang.value == 'id') {
+          elem.name = elem.lang_id
+        }
+
+        // set active menu
+        if (route.meta.parentLink) {
+          if (route.meta.parentLink == elem.link) {
+            elem.active_menu = true
+          }
+        }
+        
+        if (elem.children.length) {
+          elem.children.map((elemChild) => {
+            if (currentLang.value == 'en') {
+              elemChild.name = elemChild.lang_en
+            } else if (currentLang.value == 'id') {
+              elemChild.name = elemChild.lang_id
+            }
+          })
+        }
+  
+        return elem
+      })
+    }
+  }
+
+  layoutItems.value = newLayout
 
   initNotification()
 
@@ -577,14 +636,57 @@ onMounted(() => {
 });
 
 function navigate(path) {
-  store.navigateMenu(path);
-  router.push(path);
+  store.navigateMenu(path.link);
+  router.push(path.link);
+
+  openMenu.value = [path.name]
 }
 
 async function logout() {
   await authStore.logout();
   router.push({ path: "/auth/a/login" });
 }
+
+watch(route, (values) => {
+  openMenu.value = []
+
+  var newLayout = useBreakToken('menus')
+  for (let a in newLayout) {
+    if (newLayout[a].length) {
+      newLayout[a].map((elem) => {
+        elem.active_menu = false
+
+        if (currentLang.value == 'en') {
+          elem.name = elem.lang_en
+        } else if (currentLang.value == 'id') {
+          elem.name = elem.lang_id
+        }
+
+        // set active menu
+        if (values.meta.parentLink) {
+          if (values.meta.parentLink == elem.link) {
+            elem.active_menu = true
+          }
+        }
+        
+        if (elem.children.length) {
+          elem.children.map((elemChild) => {
+            if (currentLang.value == 'en') {
+              elemChild.name = elemChild.lang_en
+            } else if (currentLang.value == 'id') {
+              elemChild.name = elemChild.lang_id
+            }
+            return elemChild
+          })
+        }
+  
+        return elem
+      })
+    }
+  }
+
+  layoutItems.value = newLayout
+})
 </script>
 
 <style scoped lang="scss">

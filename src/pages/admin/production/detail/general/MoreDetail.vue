@@ -53,9 +53,7 @@
 
                             <div class="field-item">
                                 <p class="key">{{ $t('note') }}</p>
-                                <p class="value">
-                                    {{ detailProject.note }}
-                                </p>
+                                <p class="value" v-html="detailProject.note"></p>
                             </div>
 
                             <div class="field-item">

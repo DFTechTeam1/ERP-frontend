@@ -8,12 +8,33 @@
             :headers="headers"
             :items="listOfSuppliers"
             :totalItems="totalItems"
+            :hasAddDropdown="true"
             :loading="loading"
             :itemsPerPage="itemsPerPage"
             :filterSearch="true"
             @bulk-delete-event="bulkDelete"
             @add-data-event="showForm"
             @table-event="initSuppliers">
+
+            <template v-slot:addDropdown>
+                <v-list>
+                    <v-list-item class="d-flex align-center ga-3 pointer" @click.prevent="showImportForm = true">
+                        <v-icon
+                            :icon="mdiImport"
+                            size="15"></v-icon>
+
+                        {{ $t('textImport') }}
+                    </v-list-item>
+                    <v-list-item class="d-flex align-center ga-3 pointer" @click.prevent="showForm">
+                        <v-icon
+                            :icon="mdiPaperRoll"
+                            size="15"></v-icon>
+
+                        {{ $t('manualInput') }}
+                    </v-list-item>
+                </v-list>
+            </template>
+
             <template v-slot:action="{ value }">
                 <v-menu
                     open-on-click>
@@ -126,6 +147,13 @@
             :showConfirm="showConfirmation"
             :deleteIds="selectedIds"
             @action-bulk-submit="doBulkDelete"></confirmation-modal>
+
+        <import-excel :is-show="showImportForm" 
+            @close-event="closeImportForm"
+            @submit-event="importFile"
+            download-template-url="/download/template/supplier"
+            :error-list="errorImport"
+            :loading="loadingImport"></import-excel>
     </div>
 </template>
 
@@ -133,7 +161,7 @@
 import { useSupplierStore } from '@/stores/supplier'
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { mdiCogOutline, mdiPencil, mdiTrashCanOutline } from '@mdi/js';
+import { mdiCogOutline, mdiImport, mdiPaperRoll, mdiPencil, mdiTrashCanOutline } from '@mdi/js';
 import { watch } from 'vue';
 import * as yup from 'yup'
 import { useForm } from 'vee-validate';
@@ -148,6 +176,8 @@ const itemsPerPage = ref(10);
 
 const totalItems = ref(0);
 
+const showImportForm = ref(false)
+
 const showConfirmation = ref(false);
 
 const isShowForm = ref(false);
@@ -155,6 +185,10 @@ const isShowForm = ref(false);
 const loading = ref(true);
 
 const detailData = ref(null);
+
+const errorImport = ref([])
+
+const loadingImport = ref(false)
 
 const formTitle = ref(t('addSupplier'));
 
@@ -258,6 +292,26 @@ async function doBulkDelete(payload) {
         selectedIds.value = [];
         initSuppliers();
     }
+}
+
+async function importFile(payload) {
+    loadingImport.value = true
+    const resp = await store.importFile(payload)
+    loadingImport.value = false
+
+    if (resp.status < 300) {
+        if (resp.data.data.error.length) {
+            errorImport.value = resp.data.data.error
+        } else {
+            closeImportForm()
+        }
+        initSuppliers()
+    }
+}
+
+function closeImportForm() {
+    showImportForm.value = false
+    errorImport.value = []
 }
 
 watch(isShowForm, (value) => {

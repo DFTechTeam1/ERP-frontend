@@ -1,12 +1,15 @@
 import { defineStore } from "pinia"
 import axios from 'axios'
 import { useNotification } from "@kyvg/vue3-notification";
+import { showNotification } from "@/compose/notification";
 
 const { notify } = useNotification();
 
 export const useEmployeesStore = defineStore('employees', {
     state: () => ({
         employees: [],
+        employeeFamilies: [],
+        employeeEmergencyContact: [],
         allEmployees: [],
         previewImport: [],
         allProjectManagers: [],
@@ -26,6 +29,8 @@ export const useEmployeesStore = defineStore('employees', {
     }),
     getters: {
         listOfEmployees: (state) => state.employees,
+        listOfFamilies: (state) => state.employeeFamilies,
+        listOfEmergencyContact: (state) => state.employeeEmergencyContact,
         listOfAllProjectManagers: (state) => state.allProjectManagers,
         listOfAllEmployees: (state) => state.allEmployees,
         totalOfEmployees: (state) => state.totalEmployees,
@@ -286,6 +291,150 @@ export const useEmployeesStore = defineStore('employees', {
                     return resp
                 }
             } catch (error) {
+                return error
+            }
+        },
+        async getVJ(projectUid) {
+            try {
+                const resp = await axios.get(`/employees/getVJ/${projectUid}`)
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async updateBasicInfo(payload, employeeUid) {
+            try {
+                const resp = await axios.put(`employees/${employeeUid}/basicInfo`, payload)
+
+                showNotification(resp.data.message)
+
+                this.detailEmployee = resp
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                return error
+            }
+        },
+        async updateIdentity(payload, employeeUid) {
+            try {
+                const resp = await axios.put(`employees/${employeeUid}/identity`, payload)
+
+                showNotification(resp.data.message)
+
+                this.detailEmployee = resp
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                return error
+            }
+        },
+        async storeFamily(payload, employeeUid) {
+            try {
+                const resp = await axios.post(`employees/${employeeUid}/storeFamily`, payload)
+    
+                showNotification(resp.data.message)
+    
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                return error
+            }
+        },
+        async updateFamily(payload, familyUid) {
+            try {
+                const resp = await axios.put(`employees/${familyUid}/updateFamily`, payload)
+    
+                showNotification(resp.data.message)
+    
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                return error
+            }
+        },
+        async initFamily(employeeUid) {
+            try {
+                const resp = await axios.get(`employees/${employeeUid}/initFamily`)
+
+                this.employeeFamilies = resp.data.data
+    
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async deleteFamily(familyUid) {
+            try {
+                const resp = await axios.delete(`employees/${familyUid}/deleteFamily`)
+
+                showNotification(resp.data.message)
+    
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                return error
+            }
+        },
+        async initEmergency(employeeUid) {
+            try {
+                const resp = await axios.get(`employees/${employeeUid}/initEmergency`)
+
+                this.employeeEmergencyContact = resp.data.data
+    
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        async storeEmergency(payload, employeeUid) {
+            try {
+                const resp = await axios.post(`employees/${employeeUid}/storeEmergency`, payload)
+    
+                showNotification(resp.data.message)
+    
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                return error
+            }
+        },
+        async updateEmergency(payload, familyUid) {
+            try {
+                const resp = await axios.put(`employees/${familyUid}/updateEmergency`, payload)
+    
+                showNotification(resp.data.message)
+    
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                return error
+            }
+        },
+        async deleteEmergency(emergencyUid) {
+            try {
+                const resp = await axios.delete(`employees/${emergencyUid}/deleteEmergency`)
+
+                showNotification(resp.data.message)
+    
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                return error
+            }
+        },
+        async updateEmployment(values, employeeUid) {
+            try {
+                const resp = await axios.put(`employees/${employeeUid}/updateEmployment`, values)
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+
                 return error
             }
         }

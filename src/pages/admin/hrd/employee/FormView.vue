@@ -11,6 +11,7 @@
             <v-divider></v-divider>
             <v-card-text class="no-padding">
                 <v-stepper
+                    class="no-shadow"
                     @update:modelValue="updateStepper"
                     alt-labels
                     :items="items"

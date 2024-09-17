@@ -1,39 +1,89 @@
+<style lang="scss" scoped>
+    .custom-navigation {
+        display: flex;
+        border-radius: 6px;
+        align-items: center;
+        width: 100%;
+        gap: 6px;
+        padding: 6px;
+        background: #f6f6f6;
+
+        .nav {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            background-color: #fff;
+        }
+
+        .nav.active {
+            background-color: rgba(115, 103, 240, .5);
+            font-weight: bold;
+        }
+    }
+
+    .preview-wrapper {
+        overflow: hidden;
+    }
+
+    .reference-value {
+        overflow-y: scroll;
+        height: 400px;
+        padding-bottom: 140px;
+        margin-top: 10px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #e6e6e6;
+        border-radius: 4px;
+    }
+</style>
+
 <template>
     <div class="preview-wrapper pr-3 pl-3">
-        <template v-if="(detailProject) && (detailProject.references.length)">
-            <div class="file-wrapper d-flex align-items ga-4 flex-wrap mt-4">
-                <div 
-                    class="file-item border pointer position-relative mb-4 text-center"
-                    v-for="(list, i) in detailProject.references"
-                    :key="i">
+        <template v-if="(detailProject) && (detailProject.references.link != undefined || detailProject.references.files != undefined || detailProject.references.pdf != undefined)">
+            <!-- custom navigation -->
+            <div class="custom-navigation">
+                <button class="nav"
+                    :class="{'active': tab == 'link'}"
+                    @click.prevent="tab = 'link'">
+                    {{ $t('link') }}
+                </button>
+                <button class="nav"
+                    :class="{'active': tab == 'images'}"
+                    @click.prevent="tab = 'images'">
+                    {{ $t('images') }}
+                </button>
+                <button class="nav"
+                    :class="{'active': tab == 'pdf'}"
+                    @click.prevent="tab = 'pdf'">
+                    {{ $t('pdf') }}
+                </button>
+            </div>
 
-                    <v-icon
-                        :icon="mdiCloseCircle"
-                        color="red"
-                        size="20"
-                        class="position-absolute pointer"
-                        @click.prevent="deleteImage(list)"
-                        style="top: -10px; right: -10px; z-index: 1000;"></v-icon>
+            <div class="reference-value">
+                <!-- Link Item -->
+                <div class="link-wrapper" v-if="tab == 'link'">
+                    <LinkTab @delete-event="deleteImage" />
+                </div> <!-- end Link Item -->
 
-                    <template v-if="list.type == 'png' || list.type == 'jpg' || list.type == 'jpeg' || list.type == 'webp'" >
-                        <div class="d-flex align-center justify-center"
-                            @click.prevent="previewFile(list)">
-                            <v-img
-                                :src="list.media_path"
-                                width="100"
-                                height="100"></v-img>
-                        </div>
-                        <p class="position-relative mx-auto" 
-                            style="text-wrap: wrap; width: 150px;"
-                            @click.prevent="previewFile(list)">{{ list.name }}</p>
-                    </template>
-                    <template v-else-if="list.type == 'pdf'">
-                        <v-icon
-                            :icon="mdiFilePdfBox"
-                            size="100"></v-icon>
-                        <p class="position-relative mx-auto" style="text-wrap: wrap; width: 150px;">{{ list.name }}</p>
-                    </template>
-                </div>
+                <!-- Image Item -->
+                <div class="file-wrapper mt-4" v-if="tab == 'images'">
+                    <FilesTab @delete-event="deleteImage" />
+                </div> <!-- end Image Item -->
+
+                <!-- Pdf Item -->
+                <div class="file-wrapper mt-4" v-if="tab == 'pdf'">
+                    <DocumentTab @delete-event="deleteImage" />
+                </div> <!-- end Pdf Item -->
             </div>
         </template>
 
@@ -44,6 +94,7 @@
                     class="mt-3"
                     variant="flat"
                     color="primary"
+                    v-if="useCheckPermission('add_references')"
                     @click.prevent="$emit('open-form')">
                     {{ $t('addReferences') }}
                 </v-btn>
@@ -78,13 +129,17 @@
 </style>
 
 <script setup>
-import { ref } from 'vue';
-import { mdiCloseCircle, mdiFilePdfBox } from '@mdi/js';
-import FormView from './FormView';
-import DetailImage from './DetailImage';
+import { ref } from 'vue'
+import { mdiAttachment, mdiClose, mdiCloseCircle, mdiFilePdfBox, mdiFolder, mdiFileWordBox } from '@mdi/js'
+import FormView from './FormView'
+import DetailImage from './DetailImage'
+import FilesTab from './FilesTab'
+import LinkTab from './LinkTab'
+import DocumentTab from './DocumentTab'
 import { storeToRefs } from 'pinia';
 import { useProjectStore } from '@/stores/project';
 import { useI18n } from 'vue-i18n';
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const {t} = useI18n();
 
@@ -105,9 +160,15 @@ const detailImageData = ref(null);
 
 const modalConfirmDelete = ref(false);
 
+const tab = ref('link')
+
 const selectedDeleteImg = ref([]);
 
 const showDetailImage = ref(false);
+
+function showPdf(file) {
+    window.open(file, '_blank').focus();
+}
 
 function previewFile(fileData) {
     if (fileData.type == 'png' || fileData.type == 'jpg' || fileData.type == 'jpeg' || fileData.type == 'webp') {
