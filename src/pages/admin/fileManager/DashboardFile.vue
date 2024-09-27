@@ -28,9 +28,6 @@
 									</p>
 								</div>
 							</div>
-							<div class="file-sidebar__item pointer">
-								<p class="menu-title">My Files</p>
-							</div>
 						</div>
 					</v-col>
 					<v-col cols="12" md="10">

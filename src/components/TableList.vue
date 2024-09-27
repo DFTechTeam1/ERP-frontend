@@ -95,6 +95,9 @@
           </div>
         </div>
       </v-card-title>
+      <v-card-subtitle v-if="props.showFilterResult">
+        <slot name="filter-result"></slot>
+      </v-card-subtitle>
     </v-card-item>
 
     <v-card-text>
@@ -151,6 +154,10 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const props = defineProps({
+  showFilterResult: {
+    type: Boolean,
+    default: false,
+  },
   allowedCreateButton: {
     type: Boolean,
     default: true,
@@ -254,6 +261,7 @@ function bulkDelete() {
 }
 
 function updateEventTable({ page, itemsPerPage, sortBy }) {
+  console.log('stort', sortBy)
   emit("tableEvent", { page, itemsPerPage, sortBy, search });
 }
 

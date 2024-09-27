@@ -18,7 +18,7 @@ export const useAuthenticationStore = defineStore('authentication', {
     actions: {
         async login(payload) {
             try {
-                const resp = await apiClient.post('/auth/login', payload);    
+                const resp = await axios.post('/auth/login', payload);    
 
                 localStorage.setItem('dfauth', resp.data.data.token);
 

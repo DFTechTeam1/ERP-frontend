@@ -66,7 +66,7 @@ const emit = defineEmits(['close-event'])
 const { defineField, errors, setFieldValue, handleSubmit, resetForm } = useForm({
     validationSchema: yup.object({
         reason: yup.string().required(t('reasonRequired')),
-        file: yup.string().nullable(),
+        file: yup.array().nullable(),
     }),
 })
 
@@ -100,7 +100,7 @@ function updateImages() {
         for (let a = 0; a < pond.value.getFiles().length; a++) {
             images.push(pond.value.getFiles()[a].file)
         }
-        setFieldValue('file', images[0]);
+        setFieldValue('file', images);
     } else {
         setFieldValue('file', null);
     }
@@ -116,7 +116,9 @@ const validateData = handleSubmit(async (values) => {
     var formData = new FormData()
     formData.append('reason', values.reason)
     if (values.file) {
-        formData.append('file', values.file)
+        for (let a = 0; a < values.file.length; a++) {
+            formData.append(`file[${a}]`, values.file[a]);
+        }
     }
     const resp = await store.reviseTask(formData, props.detail.project.uid, props.detail.uid)
     loading.value = false

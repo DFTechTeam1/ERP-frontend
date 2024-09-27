@@ -19,6 +19,6 @@ jobs:
 
       - name: Deploy to Cpanel
         run: |
-          scp -r dist/* orcy4561@203.175.9.166:/home/orcy4561/public_html/domains/erp.dfactory.pro/public_html/
+          scp -r dist/* orcy4561@203.175.9.166:/home/orcy4561/public_html/erp.dfactory.pro/
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}

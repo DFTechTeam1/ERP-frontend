@@ -42,10 +42,12 @@ import PerformanceReport from "@/pages/admin/hrd/performanceReport/PerformanceRe
 import DetailEmployee from '@/pages/admin/hrd/employee/DetailEmployee.vue';
 import DetailEmployeeGeneralView from '@/pages/admin/hrd/employee/detail/general/GeneralView.vue';
 import DetailEmployeeEmployment from '@/pages/admin/hrd/employee/detail/general/employment/EmploymentView.vue'
+import DetailEmployeeAccountInformation from '@/pages/admin/hrd/employee/detail/general/account/AccountInformation.vue'
 import DetailEmployeeEducation from '@/pages/admin/hrd/employee/detail/general/education/EducationView.vue'
 import EmployeeForm from '@/pages/admin/hrd/employee/FormView.vue';
 import AddonsList from '@/pages/admin/addons/AddonsList.vue';
 import SettingView from '@/pages/admin/setting/SettingView.vue';
+import GeneralSetting from '@/pages/admin/setting/types/GeneralView.vue';
 import ProjectList from '@/pages/admin/production/ProjectList.vue';
 import AddonList from '@/pages/panel/AddonList.vue';
 import AddonForm from '@/pages/panel/AddonForm.vue';
@@ -269,6 +271,17 @@ const router = createRouter({
                   }
                 },
                 {
+                  path: 'account',
+                  component: DetailEmployeeAccountInformation,
+                  name: 'Account Information',
+                  meta: {
+                    permissions: [
+                      "detail_employee"
+                    ],
+                    parentLink: '/admin/employees/list'
+                  }
+                },
+                {
                   path: 'education',
                   component: UnderDevelopment,
                   name: 'Education',
@@ -463,6 +476,18 @@ const router = createRouter({
           path: "/admin/setting",
           name: t('setting'),
           component: SettingView,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/setting',
+            permissions: [
+              "list_setting"
+            ],
+          },
+        },
+        {
+          path: "/admin/setting/company",
+          name: t('generalSetting'),
+          component: GeneralSetting,
           meta: {
             requiresAuth: true,
             parentLink: '/admin/setting',

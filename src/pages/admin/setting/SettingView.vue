@@ -1,89 +1,83 @@
 <template>
-    <div>
-        <v-tabs
-            v-model="tab"
-            center-active
-            :disabled="loading"
-            bg-color="primary">
-            <v-tab 
-                v-if="permissionGeneral"
-                value="tab-general"
-                :text="t('general')"></v-tab>
-            <v-tab 
-                v-if="permissionGeneral"
-                value="tab-email"
-                :text="t('emailSetting')"></v-tab>
-            <v-tab 
-                v-if="permissionGeneral"
-                value="tab-variables"
-                :text="t('variables')"></v-tab>
-            <!-- <v-tab 
-                v-if="permissionAddon"
-                value="tab-addon"
-                :text="t('addons')"></v-tab> -->
-            <v-tab 
-                v-if="permissionKanban"
-                value="tab-kanban-board"
-                :text="t('kanbanBoard')"></v-tab>
-        </v-tabs>
-
-        <v-window
-            class="w-100 bg-white"
-            v-model="tab">
-            <v-window-item value="tab-general">
-                <general-view />
-            </v-window-item>
-            <v-window-item value="tab-variables">
-                <variable-view />
-            </v-window-item>
-            <v-window-item value="tab-email">
-                <email-setting />
-            </v-window-item>
-            <v-window-item value="tab-addon">
-                <addon-setting />
-            </v-window-item>
-            <v-window-item value="tab-kanban-board">
-                <kanban-board />
-            </v-window-item>
-        </v-window>
+    <div class="box-wrapper d-flex align-center ga-5 flex-wrap">
+        <div class="box-item pointer"
+            v-for="(item, i) in items"
+            :key="i"
+            @click.prevent="$router.push({path: item.link})">
+            <div class="box-content text-center">
+                <v-img
+                    :src="item.icon"
+                    width="150"
+                    height="100"></v-img>
+                <p class="title">{{ item.name }}</p>
+            </div>
+        </div>
     </div>
 </template>
 
+<style lang="scss" scoped>
+    .box-wrapper {
+        width: 100%;
+        padding: 20px 100px;
+    }
+
+    .box-item {
+        transition: .5s all;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        width: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #fff;
+        height: 200px;
+
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        &:hover {
+            transform: scale(1.1);
+        }
+    }
+</style>
+
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import AddonSetting from './items/AddonSetting.vue';
-import KanbanBoard from './items/KanbanBoard.vue';
-import GeneralView from './items/general/GeneralView.vue';
-import EmailSetting from './items/EmailSetting.vue';
-import VariableView from './items/VariableView.vue'
-import { useCheckPermission } from '@/compose/checkPermission';
-import { useSettingStore } from '@/stores/setting';
+import { ref } from 'vue'
+import { mdiEmailFastOutline } from '@mdi/js'
 
-const { t } = useI18n();
-
-const store = useSettingStore();
-
-const tab = ref('tab-general');
-
-const permissionGeneral = ref(false);
-
-const permissionAddon = ref(false);
-
-const permissionKanban = ref(false);
-
-const loading = ref(false);
-
-const initAllSetting = async() => {
-    loading.value = true;
-    await store.initAllSetting();
-    loading.value = false;
-}
-
-onMounted(() => {
-    permissionGeneral.value = useCheckPermission('setting_general');
-    permissionAddon.value = useCheckPermission('setting_addon');
-    permissionKanban.value = useCheckPermission('setting_kanban');
-    initAllSetting();
-});
+const items = ref([
+    {
+        icon: '/setting/company.svg',
+        name: 'General',
+        id: 1,
+        link: '/admin/setting/company',
+    },
+    {
+        icon: '/setting/notification.svg',
+        name: 'Notification',
+        id: 2,
+        link: '/admin/setting/notification',
+    },
+    {
+        icon: '/setting/finance_backup_database.svg',
+        name: 'Production Variables',
+        id: 3,
+        link: '/admin/setting/variables',
+    },
+    {
+        icon: '/setting/account_mappings.svg',
+        name: 'Account',
+        id: 3,
+        link: '/admin/setting/account-mappings',
+    },
+    {
+        icon: '/setting/email_template.svg',
+        name: 'Email Configuration',
+        id: 3,
+        link: '/admin/setting/email-template',
+    },
+])
 </script>

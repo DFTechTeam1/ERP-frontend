@@ -17,11 +17,19 @@
             :btnAddText="$t('createProject')"
             :allowed-create-button="useCheckPermission('create_project')"
             :filter-tooltip="t('filterProject')"
+            :show-filter-result="false"
             @bulk-delete-event="bulkDelete"
             @add-data-event="showForm"
             @table-event="initProjects"
             @filter-action="showFilter"
             @clear-filter-action="clearFilter">
+
+            <template v-slot:filter-result>
+                <v-chip density="compact" color="purple-darken-3"
+                    :append-icon="mdiClose">
+                    filter result
+                </v-chip>
+            </template>
 
             <template v-slot:bodytable="{ value }">
                 <tr>
@@ -136,7 +144,7 @@
                                 <v-list-item
                                     class="pointer"
                                     v-if="useCheckPermission('change_project_status') && !value.project_is_complete"
-                                    @click.prevent="changeStatus(value.uid, value.status_raw)">
+                                    @click.prevent="changeStatus(value, value.status_raw)">
                                     <template v-slot:title>
                                         <div
                                             class="d-flex align-center"
@@ -165,7 +173,7 @@
                                 </v-list-item>
                                 <v-list-item
                                     class="pointer"
-                                    v-if="useCheckPermission('assign_vj') && !value.project_is_complete && !value.have_vj"
+                                    v-if="useCheckPermission('assign_vj') && !value.project_is_complete && !value.have_vj && !value.no_pic"
                                     @click.prevent="assignVJ(value.uid)">
                                     <template v-slot:title>
                                         <div
@@ -180,7 +188,7 @@
                                 </v-list-item>
                                 <v-list-item
                                     class="pointer"
-                                    v-if="useCheckPermission('assign_vj') && !value.project_is_complete && value.have_vj"
+                                    v-if="useCheckPermission('assign_vj') && !value.project_is_complete && value.have_vj && !value.no_pic"
                                     @click.prevent="removeAllVJ(value.uid)">
                                     <template v-slot:title>
                                         <div
@@ -195,7 +203,7 @@
                                 </v-list-item>
                                 <v-list-item
                                     class="pointer"
-                                    v-if="!value.is_final_check"
+                                    v-if="!value.is_final_check && !value.no_pic"
                                     @click.prevent="showFinalCheck(value.uid)">
                                     <template v-slot:title>
                                         <div
@@ -277,6 +285,7 @@
             :is-show="isChangeStatusConfirm"
             :base-status="projectCurrentStatus"
             :uid="projectToChangeStatus"
+            :project="projectDetail"
             @close-event="closeChangeStatus"></status-form>
 
         <AssignVJ :project-uid="selectedProjectForVJ" :is-show="showVJForm" @close-event="closeVjForm"></AssignVJ>
@@ -313,6 +322,7 @@ import FinderManager from './FinderManager.vue'
 import SubtitutePic from './SubtitutePic.vue'
 
 import { 
+    mdiClose,
     mdiCheckOutline,
     mdiCogOutline, 
     mdiDisc, 
@@ -336,6 +346,8 @@ const router = useRouter();
 
 const store = useProjectStore();
 
+const filterProjectItem = ref(null) 
+
 const showFinderManager = ref(false)
 
 const showSubtitutePic = ref(false)
@@ -355,6 +367,7 @@ const showConfirmation = ref(false);
 const confirmFunction = ref('delete')
 const isChangeStatusConfirm = ref(false)
 const projectToChangeStatus = ref(null)
+const projectDetail = ref(null)
 const projectCurrentStatus = ref(null)
 const showConfirmationAddtoUser = ref(false);
 const selectedIds = ref([]);
@@ -513,7 +526,7 @@ async function initProjects(payload = '') {
     }
 
     loading.value = true;
-    await store.initProjects(payload);
+    const resp = await store.initProjects(payload);
     loading.value = false;
     totalItems.value = totalOfProjects.value;
 }
@@ -565,15 +578,14 @@ function cancelFilter() {
     showClearFilter.value = false;
 }
 
-function changeStatus(uid, currentStatus) {
+function changeStatus(project, currentStatus) {
     isChangeStatusConfirm.value = true
-    projectToChangeStatus.value = uid
+    projectToChangeStatus.value = project.uid
     projectCurrentStatus.value = currentStatus
-
-    console.log('projectCurrentStatus', projectCurrentStatus.value);
+    projectDetail.value = project
 }
 
-function closeChangeStatus(isRefresh) {
+function closeChangeStatus(isRefresh = false) {
     isChangeStatusConfirm.value = false
     projectToChangeStatus.value = null
     projectCurrentStatus.value = null

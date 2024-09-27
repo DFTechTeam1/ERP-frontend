@@ -23,6 +23,13 @@
                         class="mb-2"
                         :error-message="errors.reason"></field-input>
 
+                    <field-input
+                        :label="t('youCanChooseOtherToLend')"
+                        :is-required="false"
+                        input-type="select"
+                        v-model="alternative"
+                        :select-options="lendOptions"></field-input>
+
                     <v-btn
                         type="submit"
                         variant="flat"
@@ -52,12 +59,14 @@ const store = useProjectStore()
 const { defineField, errors, handleSubmit } = useForm({
     validationSchema: yup.object({
         reason: yup.string().required(t('reasonRequired')),
+        alternative: yup.string().nullable()
     }),
 })
 
 const emit = defineEmits(['close-event'])
 
 const [reason] = defineField('reason')
+const [alternative] = defineField('alternative')
 
 const props = defineProps({
     isShow: {
@@ -68,11 +77,17 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    currentEmployeeUid: {
+        type: String,
+        default: '',
+    }
 })
 
 const show = ref(false)
 
 const loading = ref(false)
+
+const lendOptions = ref([])
 
 const validateData = handleSubmit(async (values) => {
     loading.value = true
@@ -84,9 +99,23 @@ const validateData = handleSubmit(async (values) => {
     }
 })
 
+async function getMembersToLend() {
+    const resp = await store.getMembersToLend(props.currentEmployeeUid, props.transferUid)
+
+    if (resp.status < 300) {
+        lendOptions.value = resp.data.data.map((elem) => {
+            return {title: elem.name, value: elem.uid}
+        })
+    }
+}
+
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow
+
+        if (values.isShow) {
+            getMembersToLend()
+        }
     }
 })
 </script>

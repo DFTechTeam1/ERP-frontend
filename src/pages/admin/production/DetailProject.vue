@@ -22,7 +22,7 @@
                             variant="flat"
                             color="success"
                             density="compact"
-                            v-if="(detailProject) && (detailProject.is_time_to_complete_project)"
+                            v-if="(detailProject) && (detailProject.is_time_to_complete_project || (detailProject.show_alert_event_is_done && !detailProject.feedback_given))"
                             @click.prevent="showFeedbackForm">
                             {{ $t('reportAsDone') }}
                         </v-btn>
@@ -35,6 +35,7 @@
             </v-col>
 
             <v-col
+                v-if="useCheckPermission('list_member') && useCheckPermission('list_entertainment_member')"
                 cols="12"
                 md="5">
                 <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
@@ -44,12 +45,23 @@
                     height="100%">
                     <v-toolbar color="surface">
                         <v-toolbar-title class="d-flex align-center justify-space-between">
-                            {{ $t('teams') }}
+                            <v-btn-toggle
+                                color="primary"
+                                base-color="grey-lighten-4"
+                                group
+                                rounded="1"
+                                density="compact"
+                                v-model="teamSelection">
+                                <v-btn value="teams" v-if="useCheckPermission('list_member')">
+                                    {{ $t('teams') }}
+                                </v-btn>
+                                <v-btn value="entertainment" v-if="useCheckPermission('list_entertainment_member')">
+                                    {{ $t('entertainment') }}
+                                </v-btn>
+                            </v-btn-toggle>
                         </v-toolbar-title>
     
-                        <v-spacer></v-spacer>
-    
-                        <v-btn icon>
+                        <v-btn icon v-if="useCheckPermission('add_team_member')">
                             <v-icon
                                 :icon="mdiDotsVertical"></v-icon>
     
@@ -71,14 +83,15 @@
                     <v-card-text
                         class="m-0"
                         style="height: 100%; overflow: scroll; padding: 0; padding-bottom: 60px;">
-                        <team-view :detail="detailProject"></team-view>
+                        <team-view :detail="detailProject" v-if="teamSelection == 'teams'"></team-view>
+                        <entertainment-list :detail="detailProject" v-if="teamSelection == 'entertainment'"></entertainment-list>
                     </v-card-text>
                 </master-card>
             </v-col>
 
             <v-col
                 cols="12"
-                md="7">
+                :md="useCheckPermission('list_member') && useCheckPermission('list_entertainment_member') ? '7' : '12'">
                 <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
                 <master-card
                     v-else
@@ -94,7 +107,7 @@
 
                         <div class="d-flex align-center ga-2">
                             <v-btn
-                                v-if="(detailProject) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
+                                v-if="(detailProject) && (detailProject.references) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
                                 variant="outlined"
                                 color="primary"
                                 size="small"
@@ -103,7 +116,7 @@
                             </v-btn>
                             
                             <v-btn
-                                v-if="(detailProject) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
+                                v-if="(detailProject) && (detailProject.references) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
                                 variant="outlined"
                                 color="primary"
                                 size="small"
@@ -216,6 +229,11 @@
             :project-uid="teamRequestProjectUid"
             @close-event="closeRequestTeam"></request-team-form>
 
+        <request-entertainment-team
+            :is-show="showRequestEntertainment"
+            :project-uid="requestEntertainmentProjectUid"
+            @close-event="closeRequestEntertainment"></request-entertainment-team>
+
         <feedback-form
             :is-show="isShowFeedbackForm"
             @close-event="closeFeedbackForm"></feedback-form>
@@ -247,12 +265,14 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import GeneralInformation from './detail/general//GeneralView.vue';
 import TeamView from './detail/teams/TeamList.vue';
+import EntertainmentList from './detail/teams/EntertainmentList.vue';
 import KanbanView from './detail/task/KanbanView.vue';
 import ReferencesView from './detail/references/ReferencesView.vue';
 import EquipmentList from './detail/equipment/EquipmentList.vue';
 import ShowreelsView from './detail/showreels/ShowreelsView.vue'
 import ProgressView from './detail/progress/ProgressView.vue';
 import RequestTeamForm from './RequestTeam.vue'
+import RequestEntertainmentTeam from './RequestEntertainmentTeam.vue'
 import FeedbackForm from './ReportAsDone.vue'
 import ProjectReport from './ProjectReport.vue';
 import { useRoute } from 'vue-router';
@@ -276,9 +296,15 @@ const route = useRoute();
 
 const showFormTeamRequest = ref(false)
 
+const showRequestEntertainment = ref(false)
+
+const requestEntertainmentProjectUid = ref(null)
+
 const showFormReferences = ref(false)
 
 const teamRequestProjectUid = ref(null)
+
+const teamSelection = ref('teams')
 
 const { t } = useI18n();
 
@@ -346,9 +372,19 @@ function closeFeedbackForm() {
     isShowFeedbackForm.value = false
 }
 
+function closeRequestEntertainment() {
+    showRequestEntertainment.value = false
+    requestEntertainmentProjectUid.value = null
+}
+
 function showRequestTeam() {
-    showFormTeamRequest.value = true
-    teamRequestProjectUid.value = route.params.id
+    if (teamSelection.value == 'entertainment') {
+        showRequestEntertainment.value = true
+        requestEntertainmentProjectUid.value = route.params.id
+    } else {
+        showFormTeamRequest.value = true
+        teamRequestProjectUid.value = route.params.id
+    }
 }
 
 function closeRequestTeam() {

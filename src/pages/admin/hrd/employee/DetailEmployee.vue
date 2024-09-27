@@ -52,6 +52,11 @@
                                             :title="t('employment')"
                                             value="employment"></v-list-item>
                                     </router-link>
+                                    <router-link class="disable-link" activeClass="detail-employee-active-menu" :to="`/admin/employees/${route.params.id}/account`">
+                                        <v-list-item
+                                            :title="t('account')"
+                                            value="account"></v-list-item>
+                                    </router-link>
                                     <router-link class="disable-link" activeClass="detail-employee-active-menu" :to="`/admin/employees/${route.params.id}/education`">
                                         <v-list-item
                                             :title="t('education') + ' & ' + t('experience')"

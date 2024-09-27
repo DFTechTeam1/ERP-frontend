@@ -240,7 +240,7 @@
                                         variant="flat"
                                         class="w-100 text-left mb-3"
                                         color="grey-darken-1"
-                                        v-if="useCheckPermission('add_team_member')"
+                                        v-if="useCheckPermission('assign_task_pic')"
                                         :disabled="!detailOfTask.is_active || !detailOfTask.has_task_access || detailProject.project_is_complete"
                                         @click.prevent="choosePic">
                                         <v-icon
@@ -466,7 +466,8 @@
         <revise-detail
             :is-show="showDetailRevise"
             :detail="selectedRevises"
-            @close-event="closeRevise"></revise-detail>
+            @close-event="closeRevise"
+            :detail-task="detailOfTask"></revise-detail>
 
         <add-pic-form
             @close-event="closePicForm"

@@ -437,6 +437,19 @@ export const useEmployeesStore = defineStore('employees', {
 
                 return error
             }
+        },
+        async resign(values, employeeUid) {
+            try {
+                const resp = await axios.post(`employees/${employeeUid}/resign`, values)
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch(error) {
+                showNotification(error.response.data.message, 'error')
+
+                return error
+            }
         }
     }
 })

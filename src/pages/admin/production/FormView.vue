@@ -211,7 +211,7 @@ const regionStore = useRegionStore()
 
 const { t } = useI18n();
 
-const { defineField, errors, setFieldValue, handleSubmit } = useForm({
+const { defineField, errors, setFieldValue, setFieldError, handleSubmit } = useForm({
     validationSchema: yup.object({
         name: yup.string().required(),
         client_portal: yup.string().required(t('clientPortalRequired')),
@@ -242,6 +242,8 @@ const [country_id] = defineField('country_id');
 const [state_id] = defineField('state_id');
 const [city_id] = defineField('city_id');
 const { push, fields, remove } = useFieldArray('led');
+
+const marketingCount = ref('')
 
 const panel = ref([0])
 
@@ -427,6 +429,10 @@ function updateLedArea() {
 }
 
 const validateData = handleSubmit(async (values) => {
+    if (marketingCount.value == 0 || marketingCount.value == '') {
+        setFieldError('marketing_id', t('marketingRequired'))
+        return
+    }
     loading.value = true;
 
     values.led_detail = ledSetting.value
@@ -451,6 +457,10 @@ function updateDescription() {
         setFieldValue('note', null)
     }
 }
+
+watch(marketing_id, (values) => {
+    marketingCount.value = values.length
+})
 
 watch(name, (values) => {
     if (values.length) {

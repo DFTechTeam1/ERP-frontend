@@ -21,12 +21,28 @@
             @clear-filter-action="clearFilter">
 
             <template v-slot:bodytable="{ value }">
-                <tr>
-                    <td>
-                        <div>
-                            <p class="m-0 p-0">{{ value.employee.name }}</p>
-                            <p class="m-0 p-0" style="font-weight: normal; font-size: 12px;">{{ value.employee.email }}</p>
-                        </div>
+                <tr :class="{'bg-red-lighten-5': !value.employee}">
+                    <td class="text-center">
+                        <template v-if="!value.employee">
+                            <v-chip
+                                color="warning"
+                                density="compact"
+                                >
+                                {{ $t('needToChooseMember') }}
+                            </v-chip>
+                        </template>
+                        <template v-else>
+                            <div v-if="!value.alternative" class="text-center">
+                                <p class="m-0 p-0">{{ value.employee.name }}</p>
+                                <p class="m-0 p-0" style="font-weight: normal; font-size: 12px;">{{ value.employee.email }}</p>
+                            </div>
+                            <div v-else class="text-center">
+                                <p class="m-0 p-0 text-red">{{ value.employee.name }}</p>
+                                <v-icon
+                                    :icon="mdiSwapVertical"></v-icon>
+                                <p class="m-0 p-0">{{ value.alternative.name }}</p>
+                            </div>
+                        </template>
                     </td>
                     <td>
                         <p>{{ value.requestTo.name }}</p>
@@ -115,7 +131,7 @@
                                 <v-list-item
                                     v-if="value.have_approve_action && !value.have_action && !value.is_approved"
                                     class="pointer"
-                                    @click.prevent="rejectProject(value.uid)">
+                                    @click.prevent="rejectProject(value)">
                                     <template v-slot:title>
                                         <div
                                             class="d-flex align-center"
@@ -124,6 +140,21 @@
                                             :icon="mdiCloseOutline"
                                             size="15"></v-icon>
                                             {{ $t('reject') }}
+                                        </div>
+                                    </template>
+                                </v-list-item>
+                                <v-list-item
+                                    v-if="value.have_approve_action && !value.have_action && !value.is_approved && !value.employee"
+                                    class="pointer"
+                                    @click.prevent="chooseTeam(value)">
+                                    <template v-slot:title>
+                                        <div
+                                            class="d-flex align-center"
+                                            style="gap: 8px; font-size: 12px;">
+                                            <v-icon
+                                            :icon="mdiAccount"
+                                            size="15"></v-icon>
+                                            {{ $t('chooseTeam') }}
                                         </div>
                                     </template>
                                 </v-list-item>
@@ -185,23 +216,29 @@
         <reject-form
             :is-show="showRejectForm"
             :transfer-uid="selectedRejectUid"
+            :current-employee-uid="selectedRejectEmployeeUid"
             @close-event="closeRejectForm"></reject-form>
 
         <filter-form
             :is-show="showFilterForm"
             @close-event="closeFilter"></filter-form>
+
+        <choose-team-form
+            :is-show="showChooseTeamForm"
+            @close-event="closeChooseTeam"></choose-team-form>
     </div>
 </template>
 
 <script setup>
 import { useProjectStore } from '@/stores/project'
-import { mdiCheckOutline, mdiCloseOutline, mdiCogOutline, mdiEyeCircle, mdiTrashCanOutline } from '@mdi/js'
+import { mdiCheckOutline, mdiCloseOutline, mdiCogOutline, mdiEyeCircle, mdiTrashCanOutline, mdiSwapVertical, mdiAccount } from '@mdi/js'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import RequestTeamForm from './RequestTeam.vue'
 import RejectForm from './RejectTeamTransfer.vue'
 import FilterForm from './FilterTeamTransfer.vue'
+import ChooseTeamForm from './teamTransfer/ChooseTeam.vue'
 
 const { t } = useI18n()
 
@@ -219,11 +256,15 @@ const breadcrumbs = ref([
 
 const loading = ref(false)
 
+const showChooseTeamForm = ref(false)
+
 const showRejectForm = ref(false)
 
 const showFilterForm = ref(false)
 
 const selectedRejectUid = ref(null)
+
+const selectedRejectEmployeeUid = ref(null)
 
 const showFormRequest = ref(false)
 
@@ -369,8 +410,9 @@ function completeRequest(uid) {
     selectedIds.value = [uid]
 }
 
-function rejectProject(uid) {
-    selectedRejectUid.value = uid
+function rejectProject(list) {
+    selectedRejectUid.value = list.uid
+    selectedRejectEmployeeUid.value = list.employee.uid
     showRejectForm.value = true
 }
 
@@ -391,5 +433,13 @@ async function doCompleteRequest(payload) {
         selectedIds.value = []
         initTeamTransfers()
     }
+}
+
+function chooseTeam(detailRequest) {
+    showChooseTeamForm.value = true
+}
+
+function closeChooseTeam() {
+    showChooseTeamForm.value = false
 }
 </script>

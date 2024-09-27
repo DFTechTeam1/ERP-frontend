@@ -89,7 +89,6 @@ const props = defineProps({
 })
 
 watch(props, (values) => {
-    console.log('values', values);
     if (values) {
         show.value = values.isShow
     }
@@ -100,7 +99,6 @@ function closeModal() {
 }
 
 function downloadMedia(item) {
-    console.log('item', item)
     store.downloadProofOfWork(props.detailTask.project.uid, item.id)
 }
 </script>

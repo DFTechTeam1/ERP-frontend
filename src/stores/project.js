@@ -664,10 +664,10 @@ export const useProjectStore = defineStore('project', {
                 return error
             }
         },
-        async getProjectStatusses() {
+        async getProjectStatusses(projectUid) {
             try {
-                const resp = await axios.get('/production/project/statusses')
-
+                const resp = await axios.get('/production/project/'+ projectUid +'/statusses')
+ 
                 this.projectStatusses = resp.data.data
             } catch (error) {
                 return error
@@ -683,8 +683,10 @@ export const useProjectStore = defineStore('project', {
                     type: 'success',
                 });
 
-                this.detail = resp.data.data.full_detail;
-                this.projectBoards = resp.data.data.full_detail.boards;
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                    this.projectBoards = resp.data.data.full_detail.boards;
+                }
 
                 return resp
             } catch (error) {
@@ -1023,7 +1025,9 @@ export const useProjectStore = defineStore('project', {
 
                 showNotification(resp.data.message)
 
-                this.detail = resp.data.data.full_detail;
+                if (resp.data.data.full_detail.length) {
+                    this.detail = resp.data.data.full_detail;
+                }
 
                 return resp
             } catch(e) {
@@ -1044,6 +1048,12 @@ export const useProjectStore = defineStore('project', {
         downloadProofOfWork(projectUid, proofOfWorkId) {
             window.open(
                 import.meta.env.VITE_API_URL + `/production/project/${projectUid}/downloadProofOfWork/${proofOfWorkId}`,
+                '_blank'
+            );
+        },
+        downloadReviseMedia(projectUid, proofOfWorkId) {
+            window.open(
+                import.meta.env.VITE_API_URL + `/production/project/${projectUid}/downloadReviseMedia/${proofOfWorkId}`,
                 '_blank'
             );
         },
@@ -1079,6 +1089,52 @@ export const useProjectStore = defineStore('project', {
                 return resp
             } catch(e) {
                 return e
+            }
+        },
+        async cancelProject(payload, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/cancelProject`, payload)
+
+                showNotification(resp.data.message)
+
+                this.detail = resp.data.data.full_detail;      
+
+                return resp
+            } catch(error) {
+                showNotification(error.response.data.message, 'error')
+
+                return error
+            }
+        },
+        async getMembersToLend(employeeUid, transferUid) {
+            try {
+                const resp = await axios.get(`/production/team-transfers/${transferUid}/getMembersToLend/${employeeUid}`)
+
+                return resp
+            } catch(e) {
+                return e
+            }
+        },
+        async initEntertainment() {
+            try {
+                const resp = await axios.get(`/production/project/initEntertainmentTeam`)
+
+                return resp
+            } catch(e) {
+                return e
+            }
+        },
+        async requestEntertainment(payload, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/requestEntertainment`, payload)
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch(error) {
+                showNotification(error.response.data.message, 'error')
+
+                return error
             }
         }
     },

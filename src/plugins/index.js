@@ -84,6 +84,11 @@ axios.interceptors.response.use(
       window.location.href = '/auth/a/login'
     }
 
+    if ((error.response.data) && (error.response.data.data) && (error.response.data.data.redirect)) {
+      console.log('global error', error.response.data.data.redirect)
+      window.location.href = error.response.data.data.redirect
+    }
+
     return Promise.reject(error);
   }
 );
