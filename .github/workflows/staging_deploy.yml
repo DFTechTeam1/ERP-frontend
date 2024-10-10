@@ -20,7 +20,7 @@ jobs:
           node-version: '21'
 
       - name: Install packages
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build for production
         run: npm run build-prod
