@@ -18,7 +18,7 @@
                     v-if="!items.length"
                     type="list-item-avatar-three-line"></v-skeleton-loader>
                 <div class="item-wrapper" v-if="items.length">
-                    <div 
+                    <div
                         class="item-list"
                         v-for="(item, x) in items"
                         :key="x">
@@ -28,11 +28,20 @@
                                 :width="80"
                                 height="auto"></v-img>
                         </div>
-    
+
                         <div class="info">
                             <p class="title">{{ item.inventory_code }}</p>
                             <p class="subtitle">
                                 {{ $t('location') }} : <span>{{ item.location }} {{ item.user ? ' (' + item.user + ')' : '' }}</span>
+                            </p>
+                            <p class="subtitle">
+                              {{ $t('purchasePrice') }} : <span>{{ item.purchase_price }}</span>
+                            </p>
+                            <p class="subtitle">
+                              {{ $t('warranty') }} : <span>{{ item.warranty }}</span>
+                            </p>
+                            <p class="subtitle">
+                              {{ $t('yearOfPurchase') }} : <span>{{ item.year_of_purchase }}</span>
                             </p>
                             <p class="subtitle">
                                 {{ $t('status') }} : <span>

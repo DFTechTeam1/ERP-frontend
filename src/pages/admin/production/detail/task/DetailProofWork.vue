@@ -20,9 +20,12 @@
                         :key="x">
                         <v-expansion-panel-title>{{ x }}</v-expansion-panel-title>
                         <v-expansion-panel-text>
-                            <v-label>{{ $t('nasLink') }}</v-label>
+                            <v-label>{{ $t('nasLink') }} <span class="helper-label">
+                                <i>({{ $t('hoverToCopy') }})</i>
+                            </span></v-label>
                             <br>
-                            <a :href="props.detail[x][0].nas_link" target="_blank">{{ props.detail[x][0].nas_link }}</a>
+                            <a @click.prevent="goToLink(props.detail[x][0].nas_link)"
+                                class="pointer">{{ props.detail[x][0].nas_link }}</a>
                             <br><br>
                             <v-label class="d-flex align-center ga-2">
                                 {{ $t('images') }}
@@ -62,12 +65,20 @@
         }
     }
 }
+
+.helper-label {
+    font-size: 12px;
+}
 </style>
 
 <script setup>
 import { mdiClose, mdiDownload } from '@mdi/js';
 import { ref, watch } from 'vue'
 import { useProjectStore } from '@/stores/project'
+import { useI18n } from 'vue-i18n'
+import { showNotification } from "@/compose/notification";
+
+const { t } = useI18n()
 
 const show = ref(false)
 
@@ -100,5 +111,15 @@ function closeModal() {
 
 function downloadMedia(item) {
     store.downloadProofOfWork(props.detailTask.project.uid, item.id)
+}
+
+async function goToLink(link) {
+    const regex = /^\\\\192\.168/;
+
+    if (regex.test(link)) {
+        await navigator.clipboard.writeText(link)
+
+        showNotification(t('nasLinkIsCopied'))
+    }
 }
 </script>

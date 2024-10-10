@@ -6,7 +6,8 @@
     		<div 
                 class="file-item border pointer position-relative mb-4 text-center"
                 v-for="(pdf, ip) in detailProject.references.pdf"
-                :key="ip">
+                :key="ip"
+                @click.prevent="openPdf(pdf.media_path)">
 
                 <v-icon
                     :icon="mdiCloseCircle"
@@ -25,7 +26,7 @@
                         :icon="mdiFileWordBox"
                         v-if="pdf.type == 'doc' || pdf.type == 'docx'"
                         size="100"></v-icon>
-                    <p class="position-relative mx-auto" style="text-wrap: wrap; width: 150px;">{{ pdf.media_path }}</p>
+                    <p class="position-relative mx-auto" style="text-wrap: wrap; width: 150px;">{{ pdf.name + ' ' + (parseInt(ip) + 1) }}</p>
                 </div>
             </div>
         </template>
@@ -57,5 +58,9 @@ const { t } = useI18n()
 
 function deleteDocument(link) {
     emit('delete-event', link)
+}
+
+function openPdf(link) {
+    window.open(link, '_blank');
 }
 </script>

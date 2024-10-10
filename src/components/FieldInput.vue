@@ -1,10 +1,11 @@
 <template>
     <div>
-        <v-text-field 
+        <v-text-field
             :variant=" props.isSolo ? 'solo' : 'outlined'"
             :single-line="props.isSolo"
             v-model="model"
-            :clearable="true"
+            :clearable="props.isClearable"
+            autocomplete="off"
             @click:clear="$emit('clear-event')"
             :disabled="isDisabled"
             :readonly="isReadonly"
@@ -41,20 +42,20 @@
 
             <template v-slot:label>
                 {{ props.label }}
-                <v-icon 
-                    :icon="mdiAsterisk" 
-                    size="8" 
+                <v-icon
+                    :icon="mdiAsterisk"
+                    size="8"
                     v-if="props.isRequired"
                     color="red"></v-icon>
             </template>
 
-            <!-- <template 
+            <!-- <template
                 v-if="props.suffixText != ''"
                 v-slot:append-inner>
                 <span v-html="props.suffixText"></span>
             </template> -->
 
-            <template 
+            <template
                 v-if="props.prefixText != ''"
                 v-slot:prepend-inner>
                 {{ props.prefixText }}
@@ -62,28 +63,30 @@
         </v-text-field>
 
         <v-autocomplete
+            autocomplete="off"
             :multiple="props.isMultiple"
             v-model="model"
             :error-messages="props.errorMessage"
-            :clearable="true"
+            :clearable="props.isClearable"
             :disabled="props.isDisabled"
             variant="outlined"
             :single-line="props.isSolo"
             :hint="props.hint"
             :density="props.density"
             :items="props.selectOptions"
+            @update:model-value="getChanges"
             v-if="props.inputType == 'select'">
             <!-- <template v-slot:prepend-item v-if="!inventoryTypesAll.length">
                 <p class="px-4 cursor-pointer">Add More Data</p>
-        
+
                 <v-divider class="mt-2"></v-divider>
             </template> -->
 
             <template v-slot:label>
                 {{ props.label }}
-                <v-icon 
-                    :icon="mdiAsterisk" 
-                    size="8" 
+                <v-icon
+                    :icon="mdiAsterisk"
+                    size="8"
                     color="red"
                     v-if="props.isRequired"></v-icon>
             </template>
@@ -130,13 +133,20 @@ import { ref } from 'vue';
 
 const model = defineModel()
 
-defineEmits(['changes-event', 'clear-event']);
+const emit = defineEmits(['changes-event', 'clear-event']);
 
 const fieldTypeValue = ref('password');
 
 const showTogglePassword = ref(false);
 
 const props = defineProps({
+    isClearable: {
+      type: Boolean,
+      default: true,
+    },
+    keyIndex: {
+      default: ''
+    },
     label: {
         type: String,
     },
@@ -199,11 +209,15 @@ const props = defineProps({
 
 watch(props, (values) => {
     fieldTypeValue.value = values.fieldType;
-    
+
     if (values.fieldType == 'password') {
         showTogglePassword.value = true;
     }
 })
+
+function getChanges(payload) {
+  emit('changes-event', {payload: payload, index: props.keyIndex});
+}
 
 function togglePassword() {
     if (fieldTypeValue.value == 'password') {

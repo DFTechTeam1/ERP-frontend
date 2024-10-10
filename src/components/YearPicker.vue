@@ -10,9 +10,9 @@
 
             <template v-slot:label>
                 {{ props.label }}
-                <v-icon 
-                    :icon="mdiAsterisk" 
-                    size="8" 
+                <v-icon
+                    :icon="mdiAsterisk"
+                    size="8"
                     color="red"
                     v-if="props.isRequired"></v-icon>
             </template>
@@ -25,11 +25,12 @@
                 <v-card
                     height="400">
                     <v-card-text>
-                        <VueDatePicker 
+                        <VueDatePicker
                             :model-value="date"
                             ref="datepicker"
                             @update:model-value="handleDate"
                             class="vue-date-picker"
+                            @closed="pickerIsClose"
                             year-picker></VueDatePicker>
                     </v-card-text>
                 </v-card>
@@ -40,13 +41,13 @@
 <script setup>
     import { mdiAsterisk } from '@mdi/js';
     import { ref } from 'vue';
-    
+
     import { useDate } from 'vuetify/lib/framework.mjs';
 
     const _date = useDate();
 
     const model = defineModel()
-    
+
     const date = ref(_date.format(new Date(), 'year'));
 
     const datepicker = ref(null)
@@ -77,5 +78,9 @@
     function handleDate(modelData) {
         model.value = modelData;
         isShowDatePicker.value = false;
+    }
+
+    function pickerIsClose() {
+      isShowDatePicker.value = false;
     }
 </script>

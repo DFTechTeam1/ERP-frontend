@@ -649,5 +649,18 @@
     "companyPhone": "Company Phone",
     "companyAddress": "Company Address",
     "companyLogo": "Company Logo",
-    "chooseYourLogo": "Choose your logo and drop or click in this section"
+    "chooseYourLogo": "Choose your logo and drop or click in this section",
+    "nasLinkIsCopied": "Nas link has beed copied",
+    "hoverToCopy": "Click the link to copy as text",
+    "thisMonth": "This month",
+    "today": "Today",
+    "all": "All",
+    "buildItem": "Build Item",
+    "series": "Series",
+    "totalItem": "Total Item",
+    "item": "item",
+    "detailItem": "Detail Item",
+    "detailCustomInventory": "Detail Custom Inventory",
+    "itemType": "Item Type",
+    "listItemOnBundle": "List item on bundle"
 }

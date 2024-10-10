@@ -23,7 +23,7 @@
                         <file-pond-com
                             ref="pond"
                             class-name="my-pond"
-                            label-idle="Drop files here..."
+                            label-idle="Drop files here. Only .mp4 is allowed"
                             allow-multiple="false"
                             v-on:updatefiles="updateImages"
                             accepted-file-types="video/mp4"
@@ -38,7 +38,8 @@
                             type="submit"
                             variant="flat"
                             color="primary"
-                            class="mt-2 w-100">
+                            class="mt-2 w-100"
+                            :disabled="loading">
                             <template v-if="loading">{{ $t('processing') }}</template>
                             <template v-else>{{ $t('save') }}</template>
                         </v-btn>
@@ -108,7 +109,11 @@ const validateData = handleSubmit(async (values) => {
 
     formData.append('file', values.file[0].file)
 
+    loading.value = true
+
     const resp = await store.uploadShowreels(formData, detailProject.value.uid)
+
+    loading.value = false
 
     if (resp.status < 300) {
         resetForm()

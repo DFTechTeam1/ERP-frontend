@@ -397,6 +397,22 @@
                 </div>
               </template>
             </v-list-item>
+
+            <v-list-item
+              @click.prevent="resetPasswordForm">
+              <template v-slot:prepend>
+                <div class="icon-profile">
+                  <v-icon :icon="mdiKeyOutline"></v-icon>
+                </div>
+              </template>
+  
+              <template v-slot:title>
+                <div class="dropdown-profile-wrapper">
+                  <p class="title no-decoration">Reset Password</p>
+                  <p class="subtitle no-decoration">Reset your app password</p>
+                </div>
+              </template>
+            </v-list-item>
   
             <router-link to="/admin/production/tasks">
               <v-list-item>
@@ -434,6 +450,9 @@
       </v-app-bar>
     </div>
 
+    <ResetPassword :is-show="showResetPasswordForm"
+      @close-event="closeFormResetPassword"></ResetPassword>
+
     <v-main style="min-height: 300px; background-color: transparent;">
       <div class="main-content-drawer"
         :class="{
@@ -449,7 +468,7 @@
 <script setup>
 import AppFooter from "@/components/AppFooter.vue";
 import BellNotification from './BellNotification.vue'
-import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower } from "@mdi/js";
+import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower, mdiKeyOutline } from "@mdi/js";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 import { ref, onMounted, watch } from "vue";
 import { useMenusStore } from "@/stores/menus";
@@ -463,6 +482,7 @@ import { useSettingStore } from "@/stores/setting";
 import pusher from "@/plugins/pusher";
 import { useNotificationStore } from "@/stores/notification";
 import { useI18n } from "vue-i18n";
+import ResetPassword from '@/components/ResetPassword.vue'
 
 const i18n = useI18n()
 
@@ -489,6 +509,8 @@ const router = useRouter();
 const route = useRoute();
 
 const rail = ref(false);
+
+const showResetPasswordForm = ref(false)
 
 const drawer = ref(null);
 
@@ -645,6 +667,14 @@ function navigate(path) {
 async function logout() {
   await authStore.logout();
   router.push({ path: "/auth/a/login" });
+}
+
+function resetPasswordForm() {
+  showResetPasswordForm.value = true
+}
+
+function closeFormResetPassword() {
+  showResetPasswordForm.value = false
 }
 
 watch(route, (values) => {

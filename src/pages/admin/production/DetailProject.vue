@@ -156,7 +156,8 @@
                     class="me-5"
                     variant="flat"
                     color="primary"
-                    v-if="(detailProject) && (detailProject.showreels) && useCheckPermission('add_showreels')"
+                    v-if="(detailProject) && (detailProject.showreels) && useCheckPermission('add_showreels') &&
+                    tab == 'tab-showreels'"
                     @click.prevent="openShowreelsForm">
                     {{ $t('uploadShowreels') }}
                 </v-btn>

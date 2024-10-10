@@ -8,18 +8,18 @@
                     <div class="d-flex align-center justify-space-between">
                         {{ $t('allTask') }}
 
-                        <v-menu>
+                        <v-menu v-if="useCheckPermission('add_task') && useCheckPermission('create_project')">
                             <template v-slot:activator="{ props }">
-                                <v-btn variant="outlined" 
-                                    color="primary" 
+                                <v-btn variant="outlined"
+                                    color="primary"
                                     density="compact"
                                     v-bind="props">
                                     {{ $t('chooseAction') }}
-        
+
                                     <v-icon :icon="mdiChevronDown"></v-icon>
                                 </v-btn>
                             </template>
-                            
+
                             <v-list>
                                 <v-list-item class="pointer btn-action-item"
                                     @click.prevent="openProjectForm">
@@ -45,7 +45,7 @@
                 </v-overlay>
 
                 <v-row>
-                    <v-col cols="3">
+                    <v-col cols="12" md="3">
                         <!-- filter -->
                         <h3 class="mb-5">{{ $t('filter') }}</h3>
 
@@ -60,7 +60,7 @@
                         </v-btn>
                     </v-col>
 
-                    <v-col cols="9" style="border-left: 1px solid #e6e6e6;">
+                    <v-col cols="12" md="9" style="border-left: 1px solid #e6e6e6;">
                         <!-- table -->
                         <template v-if="loading">
                             <v-skeleton-loader type="table" class="w-100"></v-skeleton-loader>
@@ -73,7 +73,7 @@
                                 ></v-empty-state>
                             </template>
                             <template v-else>
-                                <v-table class="table-task" 
+                                <v-table class="table-task"
                                     width="100%">
                                     <thead>
                                         <tr>
@@ -199,6 +199,7 @@ import TaskForm from './detail/task/AddTaskForm.vue'
 import * as yup from 'yup'
 import { useForm } from 'vee-validate';
 import { useRouter } from 'vue-router';
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const { t } = useI18n()
 
@@ -210,7 +211,7 @@ const { listOfAllTasks, listOfAllProjects } = storeToRefs(store)
 
 const { defineField } = useForm({
     validationSchema: yup.object({
-        project_id: yup.array().nullable(), 
+        project_id: yup.array().nullable(),
         task_name: yup.string().nullable(),
     }),
 })

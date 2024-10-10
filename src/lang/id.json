@@ -649,5 +649,18 @@
     "companyPhone": "No. Telepon Perusahaan",
     "companyAddress": "Alamat Perusahaan",
     "companyLogo": "Logo Perusahaan",
-    "chooseYourLogo": "Pilih logo kamu dan geser atau klik di area ini"
+    "chooseYourLogo": "Pilih logo kamu dan geser atau klik di area ini",
+    "nasLinkIsCopied": "Tautan berhasil di salin",
+    "hoverToCopy": "Klik tautan untuk menyalin sebagai text",
+    "thisMonth": "Bulan ini",
+    "today": "Hari ini",
+    "all": "Semua",
+    "buildItem": "Buat Item",
+    "series": "Series",
+    "totalItem": "Total Item",
+    "item": "item",
+    "detailItem": "Detil Item",
+    "detailCustomInventory": "Detil kustom item",
+    "itemType": "Tipe Item",
+    "listItemOnBundle": "Daftar item di dalam bundle"
 }

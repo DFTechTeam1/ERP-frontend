@@ -120,6 +120,7 @@ watch(default_select, (values) => {
 
 function closeForm() {
 	resetForm()
+  default_select.value = true
 	emit('close-event')
 }
 

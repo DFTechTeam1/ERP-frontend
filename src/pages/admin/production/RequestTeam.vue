@@ -153,6 +153,8 @@ async function getPicTeams(picUid) {
 
     if (resp.status < 300) {
         teamList.value = resp.data.data
+    } else {
+      teamList.value = []
     }
 }
 

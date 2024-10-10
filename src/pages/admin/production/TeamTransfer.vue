@@ -64,12 +64,12 @@
                                 :icon="mdiCogOutline"
                                 color="blue"></v-icon>
                             </template>
-                    
+
                             <v-list>
                                 <!-- <v-list-item
                                     class="pointer">
                                     <template v-slot:title>
-                                        <router-link 
+                                        <router-link
                                             :to="'/admin/production/project/' + value.uid"
                                             style="color: #000; font-weight: bold;">
                                             <div
@@ -115,7 +115,7 @@
                                 </v-list-item>
                                 <v-list-item
                                     class="pointer"
-                                    v-if="value.have_approve_action && !value.have_action && !value.is_approved"
+                                    v-if="value.have_approve_action && !value.have_action && !value.is_approved && value.employee"
                                     @click.prevent="approveRequest(value.uid)">
                                     <template v-slot:title>
                                         <div
@@ -129,7 +129,7 @@
                                     </template>
                                 </v-list-item>
                                 <v-list-item
-                                    v-if="value.have_approve_action && !value.have_action && !value.is_approved"
+                                    v-if="value.have_approve_action && !value.have_action && !value.is_approved && value.employee"
                                     class="pointer"
                                     @click.prevent="rejectProject(value)">
                                     <template v-slot:title>
@@ -178,7 +178,7 @@
                     </td>
                 </tr>
             </template>
-            
+
         </table-list>
 
         <request-team-form
@@ -224,6 +224,7 @@
             @close-event="closeFilter"></filter-form>
 
         <choose-team-form
+            :transfer-uid="chooseTeamTransferUid"
             :is-show="showChooseTeamForm"
             @close-event="closeChooseTeam"></choose-team-form>
     </div>
@@ -257,6 +258,8 @@ const breadcrumbs = ref([
 const loading = ref(false)
 
 const showChooseTeamForm = ref(false)
+
+const chooseTeamTransferUid = ref('')
 
 const showRejectForm = ref(false)
 
@@ -312,7 +315,7 @@ const headers = ref([
         sortable: true
     },
     {
-        title: t('action'), 
+        title: t('action'),
         key: 'uid',
         align: 'start',
         sortable: true
@@ -336,12 +339,12 @@ function deleteTransfer(payload) {
 
 function cancelRequest(uid) {
     showConfirmationCancel.value = true
-    selectedIds.value = [uid] 
+    selectedIds.value = [uid]
 }
 
 function approveRequest(uid) {
     showApproveConfirm.value = true
-    selectedIds.value = [uid] 
+    selectedIds.value = [uid]
 }
 
 function showForm() {
@@ -372,6 +375,8 @@ async function initTeamTransfers(payload = '') {
     loading.value = true;
     await store.getTransferTeams(payload);
     loading.value = false;
+
+    console.log('totalOfTransferTeam', totalOfTransferTeam.value)
     totalItems.value = totalOfTransferTeam.value;
 }
 
@@ -437,9 +442,14 @@ async function doCompleteRequest(payload) {
 
 function chooseTeam(detailRequest) {
     showChooseTeamForm.value = true
+    chooseTeamTransferUid.value = detailRequest.uid
 }
 
-function closeChooseTeam() {
+function closeChooseTeam(isRefresh) {
     showChooseTeamForm.value = false
+
+    if (isRefresh) {
+      initTeamTransfers()
+    }
 }
 </script>

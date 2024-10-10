@@ -12,12 +12,13 @@
 						color="red"
 						size="15"
 						class="pointer"
-						@click.prevent="closeForm"></v-icon>
+						@click.prevent="closeForm(false)"></v-icon>
 				</v-card-title>
 			</v-card-item>
 
 			<v-card-text>
 				<v-form @submit="validateData">
+
 					<field-input input-type="select"
 						:select-options="teams"
 						:disabled="loadingPrepare"
@@ -27,13 +28,19 @@
 						:class="{'mb-3': errors.team}"
 						:label="t('chooseTeam')"></field-input>
 
-					<v-btn
-						flat
-						color="primary"
-						class="w-100"
-						type="submit">
-						{{ $t('save') }}	
-					</v-btn>
+          <v-btn
+            flat
+            color="primary"
+            class="w-100"
+            type="submit"
+            :disabled="loading">
+            <template v-if="loading">
+              {{ $t('processing') }}
+            </template>
+            <template v-else>
+              {{ $t('save') }}
+            </template>
+          </v-btn>
 				</v-form>
 			</v-card-text>
 		</master-card>
@@ -52,7 +59,7 @@ const store = useProjectStore()
 
 const { t } = useI18n()
 
-const { defineField, errors, handleSubmit } = useForm({
+const { defineField, errors, handleSubmit, resetForm } = useForm({
 	validationSchema: yup.object({
 		team: yup.array().required(t('teamRequired'))
 	})
@@ -69,6 +76,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+  transferUid: {
+    type: String,
+    default: '',
+  },
 })
 
 const loadingPrepare = ref(false)
@@ -99,11 +110,19 @@ watch(props, (values) => {
 	}
 })
 
-function closeForm() {
-	emit('close-event')
+function closeForm(refresh) {
+  resetForm()
+	emit('close-event', refresh)
 }
 
 const validateData = handleSubmit(async (values) => {
 	console.log('values', values)
+  loading.value = true
+  const resp = await store.approveWithManualSelection(props.transferUid, {ids: values.team});
+  loading.value = false
+
+  if (resp.status < 300) {
+    closeForm(true)
+  }
 })
 </script>

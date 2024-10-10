@@ -1,8 +1,8 @@
 <template>
 	<div>
-		<v-skeleton-loader type="table" v-if="detailProject == null"></v-skeleton-loader>
+		<v-skeleton-loader type="table" v-if="(detailProject == null) && (!detailProject.entertain_teams.length)"></v-skeleton-loader>
 		<div v-else class="px-3">
-			<list-item :list="[]"></list-item>
+			<list-item :list="detailProject.entertain_teams"></list-item>
 		</div>
 	</div>
 </template>

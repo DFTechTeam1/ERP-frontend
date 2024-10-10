@@ -291,6 +291,7 @@ export const useEmployeesStore = defineStore('employees', {
                     return resp
                 }
             } catch (error) {
+                showNotification(error.response.data.message, 'error')
                 return error
             }
         },

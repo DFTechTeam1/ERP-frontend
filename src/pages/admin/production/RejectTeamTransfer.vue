@@ -11,7 +11,7 @@
                         :icon="mdiClose"
                         size="15"
                         class="pointer"
-                        @click.prevent="$emit('close-event')"></v-icon>
+                        @click.prevent="closeForm"></v-icon>
                 </v-card-title>
             </v-card-item>
 
@@ -56,7 +56,7 @@ const { t } = useI18n()
 
 const store = useProjectStore()
 
-const { defineField, errors, handleSubmit } = useForm({
+const { defineField, errors, handleSubmit, resetForm } = useForm({
     validationSchema: yup.object({
         reason: yup.string().required(t('reasonRequired')),
         alternative: yup.string().nullable()
@@ -95,6 +95,7 @@ const validateData = handleSubmit(async (values) => {
     loading.value = false
 
     if (resp.status < 300) {
+        resetForm()
         emit('close-event', true)
     }
 })
@@ -107,6 +108,11 @@ async function getMembersToLend() {
             return {title: elem.name, value: elem.uid}
         })
     }
+}
+
+function closeForm() {
+    resetForm()
+    emit('close-event')
 }
 
 watch(props, (values) => {

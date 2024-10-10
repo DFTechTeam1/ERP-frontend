@@ -13,6 +13,7 @@
             :filterSearch="false"
             :showClearFilter="showClearFilter"
             :fullCustomBody="true"
+            :custom-filter-button="true"
             :hasCheckbox="false"
             :btnAddText="$t('createProject')"
             :allowed-create-button="useCheckPermission('create_project')"
@@ -24,6 +25,50 @@
             @filter-action="showFilter"
             @clear-filter-action="clearFilter">
 
+            <template v-slot:custom-filter-button>
+              <v-btn
+                variant="outlined"
+                :color="thisMonthFilterColor"
+                density="compact"
+                @click.prevent="filterButton('month')">
+                <v-icon
+                  v-if="thisMonthFilterActive"
+                  :icon="mdiCheckCircle"
+                  size="15"
+                  class="me-2"
+                  color="success"></v-icon>
+                {{ $t('thisMonth') }}
+              </v-btn>
+
+              <v-btn
+                variant="outlined"
+                :color="todayFilterColor"
+                density="compact"
+                @click.prevent="filterButton('today')">
+                <v-icon
+                  v-if="todayFilterActive"
+                  :icon="mdiCheckCircle"
+                  size="15"
+                  class="me-2"
+                  color="success"></v-icon>
+                {{ $t('today') }}
+              </v-btn>
+
+              <v-btn
+                variant="outlined"
+                :color="allFilterColor"
+                density="compact"
+                @click.prevent="filterButton('all')">
+                <v-icon
+                  v-if="allFilterActive"
+                  :icon="mdiCheckCircle"
+                  size="15"
+                  class="me-2"
+                  color="success"></v-icon>
+                {{ $t('all') }}
+              </v-btn>
+            </template>
+
             <template v-slot:filter-result>
                 <v-chip density="compact" color="purple-darken-3"
                     :append-icon="mdiClose">
@@ -34,7 +79,7 @@
             <template v-slot:bodytable="{ value }">
                 <tr>
                     <td>
-                        <router-link 
+                        <router-link
                             :to="'/admin/production/project/' + value.uid"
                             style="color: #000; font-weight: bold;">{{ value.name }}</router-link>
                     </td>
@@ -78,7 +123,7 @@
                                 :icon="mdiCogOutline"
                                 color="blue"></v-icon>
                             </template>
-                    
+
                             <v-list>
                                 <!-- <v-list-item
                                     class="pointer"
@@ -97,7 +142,7 @@
                                 <v-list-item
                                     class="pointer">
                                     <template v-slot:title>
-                                        <router-link 
+                                        <router-link
                                             :to="'/admin/production/project/' + value.uid"
                                             style="color: #000; font-weight: bold;">
                                             <div
@@ -203,7 +248,7 @@
                                 </v-list-item>
                                 <v-list-item
                                     class="pointer"
-                                    v-if="!value.is_final_check && !value.no_pic"
+                                    v-if="!value.is_final_check && !value.no_pic && useCheckPermission('final_check')"
                                     @click.prevent="showFinalCheck(value.uid)">
                                     <template v-slot:title>
                                         <div
@@ -233,7 +278,7 @@
                                 </v-list-item>
                                 <v-list-item
                                     class="pointer"
-                                    v-if="!value.no_pic"
+                                    v-if="!value.no_pic && useCheckPermission('assign_pic')"
                                     @click.prevent="showSubtitute(value.uid)">
                                     <template v-slot:title>
                                         <div
@@ -266,7 +311,7 @@
                     </td>
                 </tr>
             </template>
-            
+
         </table-list>
 
         <confirmation-modal
@@ -276,7 +321,7 @@
             :deleteIds="selectedIds"
             @action-bulk-submit="doBulkDelete"></confirmation-modal>
 
-        <filter-project 
+        <filter-project
             :show="isShowFilter"
             @filter-event="doFilter"
             @close-event="cancelFilter"></filter-project>
@@ -292,11 +337,11 @@
 
         <final-check :is-show="showFinalCheckForm" @close-event="closeFinalCheck" :project-uid="projectUidFinalCheck"></final-check>
 
-        <return-equipment-form :is-show="showReturnEquipmentForm" 
-            :project-uid="projectUidReturnEquipment" 
+        <return-equipment-form :is-show="showReturnEquipmentForm"
+            :project-uid="projectUidReturnEquipment"
             @close-event="closeReturnEquipment"></return-equipment-form>
 
-        <FinderManager :is-show="showFinderManager" 
+        <FinderManager :is-show="showFinderManager"
             @close-event="closeFinderManager"
             :project-uid="projectUidFinderManager" />
 
@@ -321,24 +366,25 @@ import { useRouter } from 'vue-router';
 import FinderManager from './FinderManager.vue'
 import SubtitutePic from './SubtitutePic.vue'
 
-import { 
-    mdiClose,
-    mdiCheckOutline,
-    mdiCogOutline, 
-    mdiDisc, 
-    mdiEyeCircle,
-    mdiTransfer,
-    mdiTrashCan,
-    mdiTrashCanOutline,
-    mdiPencilCircleOutline,
-    mdiSwapHorizontal
- } from '@mdi/js';
+import {
+  mdiClose,
+  mdiCheckOutline,
+  mdiCogOutline,
+  mdiDisc,
+  mdiEyeCircle,
+  mdiTransfer,
+  mdiTrashCan,
+  mdiTrashCanOutline,
+  mdiPencilCircleOutline,
+  mdiSwapHorizontal, mdiCheckCircle
+} from '@mdi/js';
 import FilterProject from './FilterProject.vue';
 import StatusForm from './ChangeStatusForm.vue'
 import AssignVJ from './AssignVJ.vue';
 import { useCheckPermission } from '@/compose/checkPermission'
 import FinalCheck from './FinalCheck.vue'
 import ReturnEquipmentForm from './ReturnEquipment.vue'
+import TableList from "@/components/TableList.vue";
 
 const { t } = useI18n();
 
@@ -346,7 +392,7 @@ const router = useRouter();
 
 const store = useProjectStore();
 
-const filterProjectItem = ref(null) 
+const filterProjectItem = ref(null)
 
 const showFinderManager = ref(false)
 
@@ -356,7 +402,7 @@ const projectUidFinderManager = ref(null)
 
 const projectUidSubtitutePic = ref(null)
 
-const { 
+const {
     listOfProjects,
     totalOfProjects,
  } = storeToRefs(store);
@@ -369,12 +415,16 @@ const isChangeStatusConfirm = ref(false)
 const projectToChangeStatus = ref(null)
 const projectDetail = ref(null)
 const projectCurrentStatus = ref(null)
-const showConfirmationAddtoUser = ref(false);
 const selectedIds = ref([]);
-const selectedAddUserId = ref(null);
 const totalItems = ref(0);
 const itemsPerPage = ref(10);
 const loading = ref(true);
+const thisMonthFilterActive = ref(true)
+const todayFilterColor = ref('grey-lighten-2')
+const thisMonthFilterColor = ref('blue-lighten-2')
+const allFilterColor = ref('grey-lighten-2')
+const todayFilterActive = ref(false)
+const allFilterActive = ref(false)
 const showClearFilter = ref(false);
 const showReturnEquipmentForm = ref(false)
 const projectUidReturnEquipment = ref(null)
@@ -441,12 +491,44 @@ const headers = ref([
         sortable: true
     },
     {
-        title: t('action'), 
+        title: t('action'),
         key: 'uid',
         align: 'start',
         sortable: true
     },
 ]);
+
+function filterButton(type) {
+  if (type === 'month') {
+    thisMonthFilterActive.value = !thisMonthFilterActive.value
+
+    thisMonthFilterColor.value = 'blue-lighten-2'
+    todayFilterColor.value = 'grey-lighten-2'
+    allFilterColor.value = 'grey-lighten-2'
+
+    todayFilterActive.value = false
+    allFilterActive.value = false
+  } else if (type === 'today') {
+    todayFilterActive.value = !todayFilterActive.value
+
+    thisMonthFilterColor.value = 'grey-lighten-2'
+    todayFilterColor.value = 'blue-lighten-2'
+    allFilterColor.value = 'grey-lighten-2'
+
+    thisMonthFilterActive.value = false
+    allFilterActive.value = false
+  } else {
+    todayFilterActive.value = false
+    thisMonthFilterActive.value = false
+    allFilterActive.value = !allFilterActive.value
+
+    thisMonthFilterColor.value = 'grey-lighten-2'
+    todayFilterColor.value = 'grey-lighten-2'
+    allFilterColor.value = 'blue-lighten-2'
+  }
+
+  initProjects()
+}
 
 function showScheduler(projectUid) {
     projectUidFinderManager.value = projectUid
@@ -503,7 +585,6 @@ function deleteProject(uid) {
 }
 
 async function doBulkDelete(payload) {
-    console.log('pay', payload);
     let deleteData
     if (confirmFunction.value == 'delete') {
         deleteData = await store.bulkDelete(payload.value);
@@ -519,25 +600,23 @@ async function doBulkDelete(payload) {
 }
 
 async function initProjects(payload = '') {
-    if (payload == '' && searchParam.value != '') {
-        payload = {filter: searchParam.value}
-    } else if (payload != '' && searchParam.value != '') {
-        payload.filter = searchParam.value;
+    if (payload === '') {
+      payload = {page: 1, itemsPerPage: 10}
     }
 
+    if (payload === '' && searchParam.value !== '') {
+        payload = {filter: searchParam.value}
+    } else if (payload !== '' && searchParam.value !== '') {
+      payload.filter = searchParam.value;
+    }
+
+    payload.filter_month = thisMonthFilterActive.value
+    payload.filter_today = todayFilterActive.value
+
     loading.value = true;
-    const resp = await store.initProjects(payload);
+    await store.initProjects(payload);
     loading.value = false;
     totalItems.value = totalOfProjects.value;
-}
-
-function addAsUser(id) {
-    showConfirmationAddtoUser.value = true;
-    selectedAddUserId.value = {user_id: id};
-}
-
-function editEmployee(uid) {
-    router.push({path: '/admin/employees/edit/' + uid});
 }
 
 function bulkDelete(payload) {
@@ -561,12 +640,28 @@ function showFilter() {
 
 function clearFilter() {
     searchParam.value = '';
+    thisMonthFilterActive.value = true
+    todayFilterActive.value = false
+    allFilterActive.value = false
+
+    thisMonthFilterColor.value = 'blue-lighten-2'
+    todayFilterColor.value = 'grey-lighten-2'
+    allFilterColor.value = 'grey-lighten-2'
+
     initProjects();
     showClearFilter.value = false;
 }
 
 function doFilter(payload) {
     searchParam.value = payload;
+    thisMonthFilterActive.value = false
+    todayFilterActive.value = false
+    allFilterActive.value = false
+
+    thisMonthFilterColor.value = 'grey-lighten-2'
+    todayFilterColor.value = 'grey-lighten-2'
+    allFilterColor.value = 'grey-lighten-2'
+
     initProjects();
     isShowFilter.value = false;
     showClearFilter.value = true;

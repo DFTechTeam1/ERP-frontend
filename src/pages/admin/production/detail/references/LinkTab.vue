@@ -6,8 +6,10 @@
                     border="bottom"
                     v-for="(link, l) in detailProject.references.link"
                     :key="l"
-                    :prepend-icon="mdiAttachment"
-                    :title="link.media_path">
+                    :prepend-icon="mdiAttachment">
+                    <template v-slot:title>
+                        <a :href="link.link" target="_blank">{{ link.media_path + ' ' + (parseInt(l) + 1) }}</a>
+                    </template>
                     <template v-slot:append>
                         <v-icon
                             :icon="mdiClose"
@@ -46,5 +48,10 @@ const { t } = useI18n()
 
 function deleteLink(link) {
 	emit('delete-event', link)
+}
+
+function linkRedirect(link) {
+    link = 'file://192.168.100.101/Queue Job 9/09_SEPTEMBER/28 SEPT - JOVAN RIKA/+FINAL RENDERZ/BUMP MID';
+    window.open(link, '_blank');
 }
 </script>

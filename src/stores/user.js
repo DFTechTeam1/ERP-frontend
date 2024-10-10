@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import axios from 'axios'
 import { useNotification } from "@kyvg/vue3-notification";
-
+import { showNotification } from "@/compose/notification";
 const { notify } = useNotification();
 
 export const useUserStore = defineStore('user', {
@@ -96,5 +96,16 @@ export const useUserStore = defineStore('user', {
                 return error;
             }
         },
+        async resetPassword(values) {
+            try {
+                const resp = await axios.post('/auth/changePassword', values)
+
+                return resp
+            } catch(e) {
+                showNotification(e.response.data.message, 'error')
+
+                return e
+            }
+        }
     }
 })

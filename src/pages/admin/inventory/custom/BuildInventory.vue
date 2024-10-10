@@ -20,7 +20,7 @@
                                 class="mb-2"
                                 v-model="name"
                                 :error-message="errors.name"></field-input>
-    
+
                             <field-input
                                 :label="t('type')"
                                 input-type="select"
@@ -48,15 +48,15 @@
                             <template v-else>
                                 <v-label>{{ $t('inventoryList') }}</v-label>
                                 <div class="invalid-feedback mt-0" v-if="!listOfTargetInventories.length">{{ $t('inventoryRequired') }}</div>
-    
+
                                 <div class="box-item">
                                     <input type="text" class="custom-input-field mb-5 mt-3" :placeholder="t('searchItem')" v-model="search">
-    
+
                                     <v-list class="pb-0 available-item">
-                                        <v-list-item 
+                                        <v-list-item
                                             v-for="(list, x) in listOfAvailableInventories"
                                             :key="x"
-                                            class="border rounded-lg pointer mb-2" 
+                                            class="border rounded-lg pointer mb-2"
                                             @click.prevent="chooseInventory(list, 'available')"
                                             :class="{
                                                 'bg-grey-lighten-2': list.active
@@ -81,7 +81,7 @@
                                     <v-icon
                                         :icon="mdiArrowTopRightBottomLeft"
                                         size="20"></v-icon>
-    
+
                                     <v-tooltip
                                         activator="parent">
                                         Move
@@ -89,7 +89,7 @@
                                 </v-btn>
                             </div>
                         </v-col>
-    
+
                         <v-col
                             cols="12"
                             md="5"
@@ -102,29 +102,31 @@
                                 <div class="empty-target mt-10" v-if="!listOfTargetInventories.length">
                                     There is no item
                                 </div>
-                                <div v-else class="mt-10">
-                                    <v-label></v-label>
-                                    <v-list class="pb-0">
-                                        <v-list-item 
-                                            v-for="(listTarget, y) in listOfTargetInventories"
-                                            :key="y"
-                                            class="border rounded-lg pointer mb-2" 
-                                            @click.prevent="chooseInventory(listTarget, 'target')"
-                                            :class="{
+                                <div v-else class="box-item"
+                                  :style="{
+                                    maxHeight: '400px'
+                                  }">
+                                  <v-list class="pb-0 available-item">
+                                    <v-list-item
+                                      v-for="(listTarget, y) in listOfTargetInventories"
+                                      :key="y"
+                                      class="border rounded-lg pointer mb-2"
+                                      @click.prevent="chooseInventory(listTarget, 'target')"
+                                      :class="{
                                                 'bg-grey-lighten-2': listTarget.active
                                             }">
-                                            <p>{{ listTarget.name }}</p>
-                                            <v-chip density="compact" color="green">
-                                                {{ listTarget.stock }} Item
-                                            </v-chip>
-                                        </v-list-item>
-                                    </v-list>
+                                      <p>{{ listTarget.name }}</p>
+                                      <v-chip density="compact" color="green">
+                                        {{ listTarget.stock }} Item
+                                      </v-chip>
+                                    </v-list-item>
+                                  </v-list>
                                 </div>
                             </template>
                         </v-col>
 
                     </v-row>
-    
+
                     <v-row class="mt-10 pt-5">
                         <v-col
                             cols="12"
@@ -149,7 +151,7 @@
     height: 100%;
     padding-bottom: 20px;
     position: relative;
-    
+
     .available-item {
         height: 100%;
         overflow: auto;
@@ -262,7 +264,7 @@ const breadcrumbs = ref([
 ])
 
 function chooseInventory(inventory, type) {
-    store.chooseInventory(inventory, type)   
+    store.chooseInventory(inventory, type)
 }
 
 function moveItem() {

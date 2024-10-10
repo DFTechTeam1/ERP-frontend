@@ -35,7 +35,7 @@ export const useCustomInventoriesStore = defineStore('customInventories', {
                 if (inventory.current_id) {
                     this.selectedInventory.current_id = inventory.current_id
                 }
-    
+
                 if (type == 'available') {
                     var newArr = this.availableInventories.map((elem) => {
                         if (elem.uid == this.selectedInventory.uid) {
@@ -43,10 +43,10 @@ export const useCustomInventoriesStore = defineStore('customInventories', {
                         } else {
                             elem.active = false
                         }
-    
+
                         return elem
                     })
-    
+
                     this.availableInventories = newArr
                 } else {
                     var newArrTarget = this.targetInventories.map((elem) => {
@@ -55,7 +55,7 @@ export const useCustomInventoriesStore = defineStore('customInventories', {
                         } else {
                             elem.active = false
                         }
-    
+
                         return elem
                     })
 
@@ -92,7 +92,7 @@ export const useCustomInventoriesStore = defineStore('customInventories', {
                     }
 
                     this.targetInventories.push(this.selectedInventory)
-    
+
                     const sum = this.targetInventories.reduce((acc, cur)=> {
                         const found = acc.find(val => val.uid === cur.uid)
                         if(found){
@@ -106,17 +106,17 @@ export const useCustomInventoriesStore = defineStore('customInventories', {
                     this.targetInventories = sum
                     this.targetInventories.map((target) => {
                         target.active = false
-    
+
                         return target
                     })
-    
+
                     this.availableInventories.map((elem) => {
                         elem.active = false
-    
+
                         if (elem.uid == this.selectedInventory.uid) {
                             elem.stock = parseInt(elem.stock) - 1
                         }
-    
+
                         return elem
                     })
                 } else {
@@ -143,7 +143,7 @@ export const useCustomInventoriesStore = defineStore('customInventories', {
                     }
 
                     console.log('removed', this.removedInventories);
-    
+
                     const sum = this.availableInventories.reduce((acc, cur)=> {
                         const found = acc.find(val => val.uid === cur.uid)
                         if(found){
@@ -157,17 +157,17 @@ export const useCustomInventoriesStore = defineStore('customInventories', {
                     this.availableInventories = sum
                     this.availableInventories.map((target) => {
                         target.active = false
-    
+
                         return target
                     })
-    
+
                     this.targetInventories.map((elem) => {
                         elem.active = false
-    
+
                         if (elem.uid == this.selectedInventory.uid) {
                             elem.stock = parseInt(elem.stock) - 1
                         }
-    
+
                         return elem
                     })
                     this.targetInventories = this.targetInventories.filter((filter) => {
@@ -200,9 +200,17 @@ export const useCustomInventoriesStore = defineStore('customInventories', {
                 return error
             }
         },
-        async getList() {
+        async getList(payload) {
             try {
-                const resp = await axios.get('/custom-inventories')
+                var params = {};
+
+                if (payload) {
+                  params.search = payload;
+                }
+
+                const resp = await axios.get('/custom-inventories', {
+                  params: params
+                });
 
                 this.inventoryList = resp.data.data.paginated
 
