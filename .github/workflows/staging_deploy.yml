@@ -3,22 +3,31 @@ on:
     branches:
       - staging
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+name: 🚀 Deploy website on push
 
+jobs:
+  web-deploy:
+    name: 🎉 Deploy website
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout Latest
+      # Checkout the repository
+      - name: 🚚 Get latest code
         uses: actions/checkout@v4
 
-      - name: Install
-        run: npm install --legacy-peer-deps
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '21'
 
-      - name: Build assets
+      - name: Install packages
         run: npm run build-prod
 
-      - name: Deploy to Cpanel
-        run: |
-          scp -r dist/* orcy4561@203.175.9.166:/home/orcy4561/public_html/erp.dfactory.pro/
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+      # sync files via FTP
+      - name: 📂 Sync files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: /
