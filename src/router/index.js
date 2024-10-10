@@ -31,6 +31,7 @@ import UnitView from "@/pages/admin/inventory/unit/ListView.vue";
 import InventoryTypeView from '@/pages/admin/inventory/inventoryType/ListView.vue';
 import InventoriesView from '@/pages/admin/inventory/list/ListView.vue';
 import CustomInventories from '@/pages/admin/inventory/custom/CustomInventory.vue';
+import DetailCustomInventory from '@/pages/admin/inventory/custom/DetailCustomInventory.vue'
 import BuildInventory from '@/pages/admin/inventory/custom/BuildInventory.vue';
 import RequestEquipmentView from '@/pages/admin/inventory/requestEquipment/RequestList.vue';
 import DetailRequestEquipment from '@/pages/admin/inventory/requestEquipment/DetailRequestEquipment.vue';
@@ -42,10 +43,12 @@ import PerformanceReport from "@/pages/admin/hrd/performanceReport/PerformanceRe
 import DetailEmployee from '@/pages/admin/hrd/employee/DetailEmployee.vue';
 import DetailEmployeeGeneralView from '@/pages/admin/hrd/employee/detail/general/GeneralView.vue';
 import DetailEmployeeEmployment from '@/pages/admin/hrd/employee/detail/general/employment/EmploymentView.vue'
+import DetailEmployeeAccountInformation from '@/pages/admin/hrd/employee/detail/general/account/AccountInformation.vue'
 import DetailEmployeeEducation from '@/pages/admin/hrd/employee/detail/general/education/EducationView.vue'
 import EmployeeForm from '@/pages/admin/hrd/employee/FormView.vue';
 import AddonsList from '@/pages/admin/addons/AddonsList.vue';
 import SettingView from '@/pages/admin/setting/SettingView.vue';
+import GeneralSetting from '@/pages/admin/setting/types/GeneralView.vue';
 import ProjectList from '@/pages/admin/production/ProjectList.vue';
 import AddonList from '@/pages/panel/AddonList.vue';
 import AddonForm from '@/pages/panel/AddonForm.vue';
@@ -235,8 +238,8 @@ const router = createRouter({
               component: DetailEmployee,
               name: t('detailEmployee'),
               meta: {
-                meta: { 
-                  requiresAuth: true, 
+                meta: {
+                  requiresAuth: true,
                   permission: 'detail_employee',
                   parentLink: '/admin/employees/list',
                   permissions: [
@@ -261,6 +264,17 @@ const router = createRouter({
                   path: 'employment',
                   component: DetailEmployeeEmployment,
                   name: 'Employment',
+                  meta: {
+                    permissions: [
+                      "detail_employee"
+                    ],
+                    parentLink: '/admin/employees/list'
+                  }
+                },
+                {
+                  path: 'account',
+                  component: DetailEmployeeAccountInformation,
+                  name: 'Account Information',
                   meta: {
                     permissions: [
                       "detail_employee"
@@ -472,6 +486,18 @@ const router = createRouter({
           },
         },
         {
+          path: "/admin/setting/company",
+          name: t('generalSetting'),
+          component: GeneralSetting,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/setting',
+            permissions: [
+              "list_setting"
+            ],
+          },
+        },
+        {
           path: "/admin/master",
           name: "Master",
           children: [
@@ -479,9 +505,9 @@ const router = createRouter({
               path: "divisions",
               name: t('divisions'),
               component: DivisionView,
-              meta: { 
-                parentData: "Master", 
-                requiresAuth: true, 
+              meta: {
+                parentData: "Master",
+                requiresAuth: true,
                 permission: 'list_division',
                 permissions: [
                   "list_division"
@@ -492,22 +518,22 @@ const router = createRouter({
               path: "projectClass",
               name: t('projectClass'),
               component: ProjectClass,
-              meta: { 
-                parentData: "Master", 
-                requiresAuth: true, 
+              meta: {
+                parentData: "Master",
+                requiresAuth: true,
                 permission: 'list_division',
                 permissions: [
                   "list_division"
-                ], 
+                ],
               },
             },
             {
               path: "positions",
               name: t('positions'),
               component: PositionView,
-              meta: { 
-                parentData: "Master", 
-                requiresAuth: true, 
+              meta: {
+                parentData: "Master",
+                requiresAuth: true,
                 permission: 'list_position',
                 permissions: [
                   "list_position"
@@ -744,6 +770,19 @@ const router = createRouter({
               path: "custom",
               name: t('customInventories'),
               component: CustomInventories,
+              meta: {
+                parentData: "Inventories",
+                requiresAuth: true,
+                parentLink: '/admin/inventories/custom',
+                permissions: [
+                  "list_custom_inventory"
+                ],
+              },
+            },
+            {
+              path: "custom/:uid",
+              name: t('detailCustomInventory'),
+              component: DetailCustomInventory,
               meta: {
                 parentData: "Inventories",
                 requiresAuth: true,

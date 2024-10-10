@@ -1,16 +1,10 @@
 <template>
     <div>
-        <v-row
-            align-content="center">
-            <v-col
-                cols="12"
-                md="8">
-                <!-- <select v-model="$i18n.locale">
-                    <option v-for="locale in $i18n.availableLocales" :key="`locale-${locale}`" :value="locale">{{ locale }}</option>
-                  </select> -->
+        <v-row>
+            <v-col cols="12" md="8">
                 <v-card
                     width="100%"
-                    class="card-primary card-greeting card-h-200 card-dashboard">
+                    class="card-primary card-greeting card-h-200 card-dashboard mb-5">
                     <template v-slot:title>
                         <v-row
                             align-content="center">
@@ -68,87 +62,69 @@
                         </v-row>
                     </template>
                 </v-card>
-            </v-col>
 
-            <template v-if="loading">
-                <v-col
-                    md="2"
-                    cols="12">
-                    <v-skeleton-loader type="card"></v-skeleton-loader>
-                </v-col>
-                <v-col
-                    md="2"
-                    cols="12">
-                    <v-skeleton-loader type="card"></v-skeleton-loader>
-                </v-col>
-            </template>
-            <template v-else>
-                <template v-if="listOfReports.right">
-                    <v-col
-                        md="2"
-                        cols="12"
-                        v-for="(right, rt) in listOfReports.right"
-                        :key="rt">
-                        <v-card
-                            density="default"
-                            width="100%"
-                            variant="elevated"
-                            class="card-project-chart card-h-200 card-dashboard">
-                            <template v-if="right.value == 0">
-                                <v-card-text class="d-flex align-center justify-center h-100">
-                                    <div class="text-center">
-                                        <p class="value">
-                                            {{ right.value }}
-                                        </p>
-                                        <p class="text">
-                                            {{ right.text }}
-                                        </p>
-                                    </div>
-                                </v-card-text>
-                            </template>
-                            <template v-else>
-                                <v-card-item>
-                                    <v-card-title>
-                                        <p class="value">
-                                            {{ right.value }}
-                                        </p>
-                                        <p class="text">
-                                            {{ right.text }}
-                                        </p>
-                                    </v-card-title>
-                                </v-card-item>
-    
-                                <v-card-text>
-                                    <apexchart height="150" type="donut" :options="right.options" :series="right.series"></apexchart>
-                                </v-card-text>
-                            </template>
-                        </v-card>
-                    </v-col>
-                </template>
-                <template v-else>
-                    <v-col
-                        cols="12"
-                        md="4">
-                        <project-deadline />
-                    </v-col>
-                </template>
-            </template>
-        </v-row>
 
-        <v-row>
-            <!-- Calendar -->
-            <v-col
-                cols="12"
-                md="8">
                 <calendar-event />
             </v-col>
-            <!-- End Calendar -->
+            <v-col cols="12" md="4">
+                <template v-if="listOfReports.right">
+                    <v-row>
+                        <v-col
+                            md="6"
+                            cols="12"
+                            v-for="(right, rt) in listOfReports.right"
+                            :key="rt">
+                            <v-card
+                                density="default"
+                                width="100%"
+                                variant="elevated"
+                                class="card-project-chart card-h-200 card-dashboard">
+                                <template v-if="right.value == 0">
+                                    <v-card-text class="d-flex align-center justify-center h-100">
+                                        <div class="text-center">
+                                            <p class="value">
+                                                {{ right.value }}
+                                            </p>
+                                            <p class="text">
+                                                {{ right.text }}
+                                            </p>
+                                        </div>
+                                    </v-card-text>
+                                </template>
+                                <template v-else>
+                                    <v-card-item>
+                                        <v-card-title>
+                                            <p class="value">
+                                                {{ right.value }}
+                                            </p>
+                                            <p class="text">
+                                                {{ right.text }}
+                                            </p>
+                                        </v-card-title>
+                                    </v-card-item>
+        
+                                    <v-card-text>
+                                        <apexchart height="150" type="donut" :options="right.options" :series="right.series"></apexchart>
+                                    </v-card-text>
+                                </template>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </template>
+                <template v-else>
+                    <v-row>
+                        <v-col
+                            cols="12"
+                            md="12">
+                            <project-deadline />
+                        </v-col>
+                    </v-row>
+                </template>
 
-            <v-col
-                cols="12"
-                md="4"
-                v-if="listOfReports.right">
-                <project-deadline />
+                <div v-if="listOfReports.right"
+                    class="mt-5">
+                    <project-deadline />
+                </div>
             </v-col>
         </v-row>
     </div>

@@ -1,7 +1,26 @@
 <template>
 	<div>
-		<div class="folder-title" v-if="folders.length">
-			{{ $route.params.year }}
+		<div class="folder-title">
+			<div class="d-flex align-center ga-3">
+				{{ $route.params.year }}
+				
+				<!-- <v-chip 
+					v-if="!isMyFiles"
+					color="grey-lighten-1"
+					density="compact"
+					class="pointer"
+					@click.prevent="myFiles">
+					{{ $t('myFiles') }}
+				</v-chip>
+				<v-chip 
+					v-if="isMyFiles"
+					color="primary"
+					density="compact"
+					class="pointer"
+					@click.prevent="myFiles">
+					{{ $t('myFiles') }}
+				</v-chip> -->
+			</div>
 
 			<div class="filter-name w-50">
 				<field-input
@@ -60,12 +79,13 @@
 		</div>
 
 		<!-- pagination -->
-		<div class="d-flex align-center justify-end mt-5" v-if="folders.length">
+		<div class="d-flex align-center justify-end mt-5" v-if="folders.length && totalData > 0">
 			<v-pagination
 				color="primary"
 				density="compact"
 				v-model="page"
 				:length="totalData"
+				@update:modelValue="updatePage"
 				:total-visible="7"></v-pagination>
 		</div>
 	</div>
@@ -160,6 +180,8 @@ const searchProject = ref(null)
 
 const totalData = ref(0)
 
+const isMyFiles = ref(false)
+
 const folders = ref([])
 
 const loading = ref(false)
@@ -172,8 +194,9 @@ async function getProjectsFolder() {
 	loading.value = true
 	const resp = await store.getProjectsFolder({
 		year: route.params.year, 
-		page: 1,
-		name: searchProject.value || ''
+		page: page.value || 1,
+		name: searchProject.value || '',
+		is_my_file: isMyFiles.value ? 1 : 0
 	})
 	loading.value = false
 
@@ -181,10 +204,12 @@ async function getProjectsFolder() {
 		folders.value = resp.data.data.folders
 		page.value = resp.data.data.pagination.page
 		totalData.value = resp.data.data.pagination.total
+		isMyFiles.value = resp.data.data.is_my_files == 0 ? false : true
 	} else {
 		folders.value = []
 		totalData.value = 0
 		page.value = 1
+		isMyFiles.value = false
 	}
 }
 
@@ -201,4 +226,13 @@ watchDebounced(
 	() =>  getProjectsFolder(),
 	{ debounce: 500, maxWait: 1000 }
 )
+
+function updatePage(page) {
+	getProjectsFolder()
+}
+
+function myFiles() {
+	isMyFiles.value = true
+	getProjectsFolder()
+}
 </script>

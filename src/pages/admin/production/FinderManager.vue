@@ -10,7 +10,7 @@
 						<v-icon
 							:icon="mdiClose"
 							size="15"
-							@click.prevent="closeFinderManager"
+							@click.prevent="closeFinderManager(false)"
 							class="cursor"></v-icon>
 					</v-card-title>
 				</v-card-item>
@@ -158,12 +158,12 @@
 										</v-form>
 							      </v-menu>
 								</div>
-								<div class="d-flex ga-2 pointer align-center filter-item" style="font-size: 12px;">
+								<!-- <div class="d-flex ga-2 pointer align-center filter-item" style="font-size: 12px;">
 									<v-icon
 										:icon="mdiSort"
 										size="15"></v-icon>
 									{{ $t('sort') }}
-								</div>
+								</div> -->
 							</div>
 
 							<!-- result filter -->
@@ -189,7 +189,7 @@
 									<v-icon :icon="mdiClose" 
 										size="20" 
 										class="pointer" 
-										@click.prevent="clearFilterVenue"
+										@click.prevent="clearFilterVenue(true)"
 										start></v-icon>
 									<p class="filter-group-value">
 										{{ $t('byVenue') }}
@@ -274,7 +274,10 @@
 														<p v-html="event.led_area"></p>
 													</td>
 									            </tr>
-									            <tr v-else-if="groupModel == 'class' && (index === 0 || events[index].class !== events[index - 1].class)">
+									            <tr v-else-if="groupModel == 'class' && (index === 0 || events[index].class !== events[index - 1].class)"
+									            	:class="{
+														'bg-primary': event.selected_project
+													}">
 													<td class="column-name" 
 														:rowspan="getRowSpan(events, 'name', index)"
 														v-if="groupModel == 'name'">
@@ -429,7 +432,7 @@ const { t } = useI18n()
 
 const showPicDialog = ref(false)
 
-const { defineField, errors, handleSubmit, setFieldValue } = useForm({
+const { defineField, errors, handleSubmit, setFieldValue, resetForm } = useForm({
 	validationSchema: yup.object({
 		start_date: yup.string().nullable(),
 		end_date: yup.string().nullable(),
@@ -472,10 +475,10 @@ const filter_month = ref({
 const show = ref(false)
 
 const filterButtonDates = ref([
-	{
-		href: 'month',
-		text: 'Month',
-	},
+	// {
+	// 	href: 'month',
+	// 	text: 'Month',
+	// },
 	{
 		href: 'custom',
 		text: 'Custom',
@@ -628,8 +631,6 @@ async function getScheduler(isDefault = false) {
 			start_date.value = resp.data.data.filter.date.start_date
 			end_date.value = resp.data.data.filter.date.end_date
 		}
-
-		console.log('check', filterByVenue.value)
 	}
 }
 
@@ -805,6 +806,14 @@ const validateFilterDate = handleSubmit((values) => {
 		masterFilter.value.filter_venue = 0		
 	}
 
+	if (dateGroupModel.value == 'month') {
+		masterFilter.value.filter_month = filter_month.value.month
+		masterFilter.value.filter_year = filter_month.value.year
+	} else {
+		masterFilter.value.filter_month = null
+		masterFilter.value.filter_year = null
+	}
+
 	getScheduler()
 
 	closeFilterMenu()
@@ -827,15 +836,23 @@ function closePicDialog(isCloseForm = false) {
 	}
 }
 
-function clearFilterVenue() {
+function clearFilterVenue(isRefresh = false) {
 	filterByVenue.value = ''
 	masterFilter.value.filter_venue = 0
 
-	getScheduler()
+	if (isRefresh) {
+		getScheduler()
+	}
 }
 
 function closeFinderManager(isRefresh = false) {
 	showPicDialog.value = false
+	clearGroupFilter()
+	closeFilterMenu()
+	clearFilterVenue(false)
+	resetForm()
+	masterFilter.value.start_date = null
+	masterFilter.value.end_date = null
 	emit('close-event', isRefresh)
 }
 </script>

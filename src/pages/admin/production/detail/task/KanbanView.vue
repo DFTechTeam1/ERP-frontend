@@ -293,8 +293,9 @@ function closeTaskForm() {
  * data-bcpt = data board_completed
  */
 function moving(evt) {
+    console.log('evt', evt.draggedContext.element)
     // user cannot move task that is not belongs to him
-    if (!evt.draggedContext.element.has_task_access || (detailProject.value && detailProject.value.project_is_complete)) {
+    if (!evt.draggedContext.element.have_permission_to_move_board || (detailProject.value && detailProject.value.project_is_complete)) {
         return false
     }
 
@@ -332,7 +333,7 @@ async function endMoving(evt) {
         } else {
             targetBoard.value = null;
             sourceBoard.value = null;
-            const resp = await store.changeBoard({
+            const resp = await store.manualMoveBoard({
                 board_id: targetBoardId,
                 task_id: movingTask.value,
                 board_source_id: sourceBoardId,

@@ -77,7 +77,7 @@
                                         label-idle="Drop files here..."
                                         allow-multiple="true"
                                         v-on:updatefiles="updateImages"
-                                        accepted-file-types="image/png, image/jpg, image/jpeg, application/pdf, application/*"
+                                        accepted-file-types="image/png, image/jpg, image/jpeg, application/pdf"
                                     ></file-pond-com>
                                     <div class="invalid-feedback" 
                                         style="padding-inline: 16px;"
@@ -133,8 +133,8 @@ const { errors, handleSubmit, resetForm } = useForm({
         link: yup.array().of(
                 yup.object().shape({
                     href: yup.string()
-                        .matches(/^(http|https)?:\/\//, {
-                            message: 'String must start with http or https',
+                        .matches(/^(?=.*(http:\/\/|\\\\192*|https:\/\/|file:\/\/)).+$/, {
+                        message: 'String must start with http:// or \\\\192..... or https:// or file://',
                             excludeEmptyString: true,
                         })
                 })

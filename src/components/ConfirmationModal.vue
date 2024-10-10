@@ -14,10 +14,19 @@
                 <v-spacer></v-spacer>
 
                 <v-btn
+                    v-if="!props.closeEmit"
                     height="auto"
                     size="small"
                     class="btn-secondary pt-3 pb-3 mt-3"
                     @click.prevent="isShowConfirm = false">
+                    {{ $t('close') }}
+                </v-btn>
+                <v-btn
+                    v-else
+                    height="auto"
+                    size="small"
+                    class="btn-secondary pt-3 pb-3 mt-3"
+                    @click.prevent="$emit('cancelConfirm')">
                     {{ $t('close') }}
                 </v-btn>
 
@@ -38,6 +47,8 @@
 import { watch } from "vue";
 import { ref } from "vue";
 
+defineEmits(['actionBulkSubmit', 'cancelConfirm'])
+
 const props = defineProps({
   title: {
     type: String,
@@ -53,6 +64,10 @@ const props = defineProps({
   },
   deleteIds: {
     type: Object,
+  },
+  closeEmit: {
+    type: Boolean,
+    default: false,
   },
 });
 

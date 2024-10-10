@@ -6,7 +6,7 @@
     <v-card-item>
       <v-card-title>
         <div class="table-action d-flex align-center justify-space-between mb-4">
-          <div 
+          <div
             class="d-flex align-center ga-2"
             v-if="props.hasFilter && !filterSearch">
             <v-btn
@@ -23,8 +23,8 @@
                 {{ filterButtonTooltip }}
               </v-tooltip>
             </v-btn>
-    
-            <div 
+
+            <div
               class="cursor-pointer"
               v-if="showClearFilter"
               @click.prevent="clearFilter">
@@ -40,9 +40,11 @@
               {{ $t('clearFilter') }}
               </v-tooltip>
             </div>
+
+            <slot name="custom-filter-button" v-if="props.customFilterButton"></slot>
           </div>
-    
-    
+
+
           <div class="w-25">
             <div class="table-search-input"
               v-if="filterSearch">
@@ -55,7 +57,7 @@
               <v-icon :icon="mdiMagnify" class="icon-search"></v-icon>
             </div>
           </div>
-    
+
           <div class="d-flex align-center" style="gap: 10px">
             <v-btn
               variant="flat"
@@ -67,7 +69,7 @@
             >
               <v-icon :icon="mdiTrashCanOutline" size="20"></v-icon>
             </v-btn>
-    
+
             <v-btn
               variant="flat"
               color="primary"
@@ -78,7 +80,7 @@
               <v-icon :icon="mdiPlus" size="20"></v-icon>
               {{ props.btnAddText }}
             </v-btn>
-    
+
             <v-btn
               variant="flat"
               color="primary"
@@ -87,7 +89,7 @@
             >
               <v-icon :icon="mdiPlus" size="20"></v-icon>
               {{ props.btnAddText }}
-    
+
               <v-menu activator="parent">
                 <slot name="addDropdown"></slot>
               </v-menu>
@@ -95,6 +97,9 @@
           </div>
         </div>
       </v-card-title>
+      <v-card-subtitle v-if="props.showFilterResult">
+        <slot name="filter-result"></slot>
+      </v-card-subtitle>
     </v-card-item>
 
     <v-card-text>
@@ -106,6 +111,7 @@
         :items="itemsTable"
         :items-length="props.totalItems"
         :loading="props.loading"
+        :loading-text="t('processing')"
         :search="search"
         :multi-sort="props.multiSort"
         class="table-componenent"
@@ -118,16 +124,16 @@
         <template v-slot:item.status="{ item }" v-if="props.customStatus">
           <slot name="status" :value="item"></slot>
         </template>
-  
+
         <template v-slot:item="{ item }" v-if="props.fullCustomBody">
           <slot name="bodytable" :value="item" :selecteddata="selected"></slot>
         </template>
-  
+
         <template v-slot:item.uid="{ value }" v-if="!props.fullCustomBody">
           <slot name="action" :value="value" :items="itemsTable"></slot>
-  
+
         </template>
-  
+
         <template v-slot:expanded-row="{ columns, item }" v-if="props.isExpand">
           <tr>
             <td :colspan="columns.length">
@@ -151,6 +157,14 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const props = defineProps({
+  customFilterButton: {
+    type: Boolean,
+    default: false,
+  },
+  showFilterResult: {
+    type: Boolean,
+    default: false,
+  },
   allowedCreateButton: {
     type: Boolean,
     default: true,
@@ -275,7 +289,7 @@ watch(props, (valueItems) => {
 
 watch(selected, (value) => {
   var uids = value.map(itemSelected => itemSelected.uid);
-  
+
   var newArr = props.items.map((item) => {
     item.selected = uids.includes(item.uid);
 
