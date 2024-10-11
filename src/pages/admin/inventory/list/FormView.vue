@@ -633,7 +633,7 @@ function removeBoxStock(index) {
 }
 
 function addMoreStock() {
-    push({location: '', user_id: '', id: '', purchase_price: '', warranty: '', year_of_purchase: ''})
+    push({location: '', user_id: '', id: '', purchase_price: '', warranty: '', year_of_purchase: '', is_on_edit: ''})
 
     stock.value = fields.value.length
 }
