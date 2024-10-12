@@ -614,9 +614,15 @@ async function initProjects(payload = '') {
     payload.filter_today = todayFilterActive.value
 
     loading.value = true;
-    await store.initProjects(payload);
+    const resp = await store.initProjects(payload);
     loading.value = false;
     totalItems.value = totalOfProjects.value;
+
+    if (
+      (resp.status < 300) &&
+      (!resp.data.data.isAllItems)
+    ) {
+    }
 }
 
 function bulkDelete(payload) {

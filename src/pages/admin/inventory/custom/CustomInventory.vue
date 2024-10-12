@@ -7,7 +7,7 @@
       <table-list
         :headers="headers"
         :items="listOfInventories"
-        :totalItems="totalItems"
+        :totalItems="totalOfInventoryList"
         :loading="loading"
         :itemsPerPage="itemsPerPage"
         :filterSearch="false"
@@ -124,15 +124,13 @@ const router = useRouter()
 
 const store = useCustomInventoriesStore()
 
-const { listOfInventories, totalOfPagination } = storeToRefs(store)
+const { listOfInventories, totalOfInventoryList } = storeToRefs(store)
 
 const page = ref(1)
 
 const showFilterDialog = ref(false);
 
 const showClearFilter = ref(false);
-
-const totalItems = ref(0);
 
 const itemsPerPage = ref(10)
 
@@ -214,16 +212,25 @@ function closeFilter(payloadFilter) {
   }
 }
 
-async function getList() {
+async function getList(payload = null) {
+    if (filterData.value && !payload) {
+      payload = {
+        page: 1,
+        itemsPerPage: 10,
+        name: filterData.value.name
+      }
+    } else if (!filterData.value && !payload) {
+      payload = {
+        page: 1,
+        itemsPerPage: 10
+      };
+    }
+
     loading.value = true;
-    await store.getList(filterData.value);
+    await store.getList(payload);
     loading.value = false;
 }
 
 function bulkDelete(payload) {
 }
-
-onMounted(() => {
-    getList()
-})
 </script>
