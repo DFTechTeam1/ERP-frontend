@@ -7,7 +7,7 @@
         <table-list
             :headers="headers"
             :items="listOfRequestEquipments"
-            :totalItems="totalItems"
+            :totalItems="totalOfRequestEquipment"
             :loading="loading"
             :itemsPerPage="itemsPerPage"
             :filterSearch="true"
@@ -33,7 +33,7 @@
                         :icon="mdiCogOutline"
                         color="blue"></v-icon>
                     </template>
-            
+
                     <v-list>
                         <v-list-item
                             class="pointer"
@@ -68,7 +68,7 @@ const router = useRouter();
 
 const store = useInventoriesStore();
 
-const { listOfRequestEquipments } = storeToRefs(store);
+const { listOfRequestEquipments, totalOfRequestEquipment } = storeToRefs(store);
 
 const { t } = useI18n();
 
@@ -85,11 +85,11 @@ const breadcrumbs = ref([
     },
 ]);
 
-const totalItems = ref(100);
+const totalItems = ref(0);
 
 const loading = ref(false);
 
-const itemsPerPage = ref(100);
+const itemsPerPage = ref(10);
 
 const headers = ref([
     {

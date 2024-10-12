@@ -24,17 +24,25 @@ export const useInventoriesStore = defineStore('inventories', {
     },
     actions: {
         async requestEquipmentList(payload) {
+          console.log('pay req', payload);
+          try {
             let params = {
-                search: payload ? payload.filter : ''
+              search: payload ? payload.filter : '',
+              page: payload.page || 1,
+              itemsPerPage: payload.itemsPerPage || 10,
             };
 
-            await axios.get('/request-equipments', {
-                params: params
-            })
-                .then((res) => {
-                    this.requestEquipments = res.data.data;
-                })
-                .catch()
+            const resp = await axios.get('/request-equipments', {
+              params: params
+            });
+
+            this.requestEquipments = resp.data.data.paginated;
+            this.totalRequestEquipment = resp.data.data.totalData
+
+            return resp;
+          } catch(error) {
+            return error;
+          }
         },
         async initInventories(payload) {
             let params = {

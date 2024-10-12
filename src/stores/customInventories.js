@@ -202,11 +202,19 @@ export const useCustomInventoriesStore = defineStore('customInventories', {
         },
         async getList(payload) {
             try {
-                var params = {};
+                console.log('payload script', payload);
+                var params = {
+                  page: payload.page || 1,
+                  itemsPerPage: payload.itemsPerPage || 10,
+                };
 
-                if (payload) {
-                  params.search = payload;
+                if (payload.name) {
+                  params.search = {
+                    name: payload.name
+                  };
                 }
+
+                console.log('params', params);
 
                 const resp = await axios.get('/custom-inventories', {
                   params: params
