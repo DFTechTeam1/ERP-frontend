@@ -49,8 +49,8 @@
 
                     <div class="rich-text">
                         <v-label>{{ $t('aboutUpgrade') }}</v-label>
-                        <QuillEditor 
-                            theme="snow" 
+                        <QuillEditor
+                            theme="snow"
                             style="height: 200px;"
                             ref="description_quill"
                             @update:content="updateDescription" />
@@ -76,7 +76,7 @@
                     </v-btn>
                 </v-form>
             </v-card-text>
-        </v-card>        
+        </v-card>
     </v-dialog>
 </template>
 
@@ -143,7 +143,7 @@ const validateForm = handleSubmit(async (values) => {
     var previewImage = !pondPreview.value ? '' : (pondPreview.value.getFiles().length ? pondPreview.value.getFiles()[0].file : '');
     formData.append('tutorial_video', tutorialVideo);
     formData.append('preview_image', previewImage);
-    
+
     formData.append('improvements', description.value);
 
     const resp = await store.upgradeAddon(formData, props.detail);
@@ -166,7 +166,7 @@ const addingFile = (context) => {
 function updateDescription() {
     if (description_quill.value.getText().length > 1) {
         description.value = description_quill.value.getHTML();
-    } else {                                                                                                                                                                                                                                                                                                                                                                              
+    } else {
         description.value = null;
     }
 }

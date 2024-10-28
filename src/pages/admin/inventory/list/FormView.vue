@@ -464,9 +464,11 @@ const validateData = handleSubmit(async values => {
 
     if (pond.value) {
         for (let a = 0; a < pond.value.getFiles().length; a++) {
+          console.log('check', pond.value.getFiles()[a].file);
             formData.append('images[]', pond.value.getFiles()[a].file);
         }
     }
+    return false;
 
     for (let b = 0; b < values.item_locations.length; b++) {
         formData.append(`item_locations[${b}][location]`, values.item_locations[b].location);

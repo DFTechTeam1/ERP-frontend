@@ -872,6 +872,55 @@ router.beforeEach((to, from) => {
     }
   }
 
+  // redirected
+  var officeMenu = [
+    {
+      path: '/inventories',
+      slug: 'inventories',
+      currentPath: '/admin/inventories/list'
+    },
+    {
+      path: '/brands',
+      slug: 'brands',
+      currentPath: '/admin/inventories/brands'
+    },
+    {
+      path: '/suppliers',
+      slug: 'suppliers',
+      currentPath: '/admin/inventories/suppliers'
+    },
+    {
+      path: '/units',
+      slug: 'units',
+      currentPath: '/admin/inventories/units'
+    },
+    {
+      path: '/inventory-types',
+      slug: 'inventoryTypes',
+      currentPath: '/admin/inventories/inventory-types'
+    },
+    {
+      path: '/custom-inventories',
+      slug: 'customInventories',
+      currentPath: '/admin/inventories/custom'
+    },
+    {
+      path: '/request-inventories',
+      slug: 'requestInventories',
+      currentPath: '/admin/inventories/request-inventories'
+    }
+  ];
+
+  for (let xx = 0; xx < officeMenu.length; xx++) {
+    if (officeMenu[xx].currentPath === to.path) {
+      return window.location.href = import.meta.env.VITE_OFFICE_URL + '/init/' + useBreakToken('encrypted_user_id') + `?path=${officeMenu[xx].slug}`;
+    }
+  }
+
+  if (to.path == '/admin/inventories/list') {
+    window.location.href = import.meta.env.VITE_OFFICE_URL + '/init/' + useBreakToken('encrypted_user_id') + `?path=inventories`;
+  }
+
   // validate token
   const saltKey = import.meta.env.VITE_SALT_KEY;
   var encodedText = localStorage.getItem("dfauth");

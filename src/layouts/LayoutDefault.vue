@@ -27,13 +27,13 @@
           <template
             v-for="(menus, menuKey) in layoutItems"
             :key="menuKey">
-          
+
             <v-list-subheader v-if="!rail">{{ menuKey }}</v-list-subheader>
 
             <template
               v-for="(menu) in menus"
               :key="menu.id">
-              
+
               <template v-if="!menu.children.length">
                 <v-list-item
                   class="sub-menu pointer"
@@ -45,9 +45,9 @@
                   base-color="#000"
                   @click="navigate(menu)">
                   <template v-slot:prepend>
-                    <v-img size="18" 
-                      :src="menu.icon" 
-                      width="15" 
+                    <v-img size="18"
+                      :src="menu.icon"
+                      width="15"
                       height="15"
                       class="mr-2"></v-img>
                   </template>
@@ -67,14 +67,14 @@
                     :class="{
                       'menu-group-collapsed': rail
                     }">
-                    
+
                     <template v-slot:activator="{ props }">
                       <v-list-item
                         v-bind="props"
                         class="sub-menu pointer">
-  
+
                         <template v-slot:prepend>
-                          <v-img size="18" 
+                          <v-img size="18"
                             :src="menu.icon"
                             width="15"
                             height="15"
@@ -83,10 +83,10 @@
                         <template v-slot:title>
                           {{ menu.name }}
                         </template>
-  
+
                       </v-list-item>
                     </template>
-  
+
                     <v-list-item
                       v-for="(children, c) in menu.children"
                       :key="c"
@@ -98,7 +98,7 @@
                       @click="navigate(children)"
                     >
                       <template v-slot:prepend>
-                        <v-icon 
+                        <v-icon
                           :icon="mdiCircleOutline"
                           size="15"></v-icon>
                       </template>
@@ -106,7 +106,7 @@
                         {{ children.name }}
                       </template>
                     </v-list-item>
-  
+
                   </v-list-group>
 
                 </v-list>
@@ -151,8 +151,8 @@
       </v-navigation-drawer>
     </template>
     <template v-else>
-      <v-navigation-drawer 
-        v-model="drawer" 
+      <v-navigation-drawer
+        v-model="drawer"
         :temporary="true"
         class="main-sidebar position-fixed">
         <!-- logo -->
@@ -174,7 +174,7 @@
           <template
             v-for="(menus, menuKey) in layoutItems"
             :key="menuKey">
-          
+
             <v-list-subheader v-if="!rail">{{ menuKey }}</v-list-subheader>
 
             <template
@@ -192,9 +192,9 @@
                   base-color="#000"
                   @click="navigate(menu)">
                   <template v-slot:prepend>
-                    <v-img size="18" 
-                      :src="menu.icon" 
-                      width="15" 
+                    <v-img size="18"
+                      :src="menu.icon"
+                      width="15"
                       height="15"
                       class="mr-2"></v-img>
                   </template>
@@ -214,14 +214,14 @@
                     :class="{
                       'menu-group-collapsed': rail
                     }">
-                    
+
                     <template v-slot:activator="{ props }">
                       <v-list-item
                         v-bind="props"
                         class="sub-menu pointer">
-  
+
                         <template v-slot:prepend>
-                          <v-img size="18" 
+                          <v-img size="18"
                             :src="menu.icon"
                             width="15"
                             height="15"
@@ -230,10 +230,10 @@
                         <template v-slot:title>
                           {{ menu.name }}
                         </template>
-  
+
                       </v-list-item>
                     </template>
-  
+
                     <v-list-item
                       v-for="(children, c) in menu.children"
                       :key="c"
@@ -245,7 +245,7 @@
                       @click="navigate(children)"
                     >
                       <template v-slot:prepend>
-                        <v-icon 
+                        <v-icon
                           :icon="mdiCircleOutline"
                           size="15"></v-icon>
                       </template>
@@ -253,7 +253,7 @@
                         {{ children.name }}
                       </template>
                     </v-list-item>
-  
+
                   </v-list-group>
 
                 </v-list>
@@ -291,7 +291,7 @@
             v-if="!mobile"
           ></v-icon>
         </template>
-  
+
         <v-app-bar-title>
           {{ globalAppName }}
         </v-app-bar-title>
@@ -335,7 +335,7 @@
             </v-list-item>
           </v-list>
         </v-menu>
-  
+
         <v-menu open-on-click
           :close-on-content-click="false">
           <template v-slot:activator="{ props }">
@@ -346,10 +346,10 @@
               class="header-bell"
             ></v-icon>
           </template>
-  
+
           <BellNotification />
         </v-menu>
-  
+
         <v-menu open-on-click>
           <template v-slot:activator="{ props }">
             <v-avatar
@@ -360,7 +360,7 @@
             >
             </v-avatar>
           </template>
-  
+
           <v-list>
             <v-list-item>
               <template v-slot:title>
@@ -369,7 +369,7 @@
                     <p class="title">User Profile</p>
                     <div class="d-flex align-center" style="gap: 10px">
                       <v-avatar image="/userprofile.jpg" size="90"></v-avatar>
-  
+
                       <div class="profile-detail">
                         <p class="name" v-if="username">{{ username }}</p>
                         <p class="position" v-if="position">{{ position }}</p>
@@ -377,19 +377,19 @@
                       </div>
                     </div>
                   </div>
-  
+
                   <v-divider style="margin: 10px 0"></v-divider>
                 </div>
               </template>
             </v-list-item>
-  
+
             <v-list-item>
               <template v-slot:prepend>
                 <div class="icon-profile">
                   <v-icon :icon="mdiAccount"></v-icon>
                 </div>
               </template>
-  
+
               <template v-slot:title>
                 <div class="dropdown-profile-wrapper">
                   <p class="title no-decoration">Profile</p>
@@ -405,7 +405,7 @@
                   <v-icon :icon="mdiKeyOutline"></v-icon>
                 </div>
               </template>
-  
+
               <template v-slot:title>
                 <div class="dropdown-profile-wrapper">
                   <p class="title no-decoration">Reset Password</p>
@@ -413,7 +413,7 @@
                 </div>
               </template>
             </v-list-item>
-  
+
             <router-link to="/admin/production/tasks">
               <v-list-item>
                 <template v-slot:prepend>
@@ -421,7 +421,7 @@
                     <v-icon :icon="mdiTable"></v-icon>
                   </div>
                 </template>
-    
+
                 <template v-slot:title>
                   <div class="dropdown-profile-wrapper no-decoration">
                     <p class="title no-decoration">My task</p>
@@ -430,7 +430,7 @@
                 </template>
               </v-list-item>
             </router-link>
-  
+
             <v-list-item>
               <template v-slot:title>
                 <v-btn
@@ -500,7 +500,7 @@ const permissions = ref([]);
 
 if (encodedText) {
   var { decodedString } = useEncrypt(encodedText, saltKey);
-  
+
   permissions.value = decodedString.permissions;
 }
 
@@ -548,7 +548,7 @@ const accountLists = ref([
 function retrieveNotification() {
   var userId = useBreakToken("user");
   var channel = pusher.subscribe("my-channel-" + userId.id);
-  
+
   channel.bind("notification-event", (notif) => {
     console.log("notif", notif);
 
@@ -594,7 +594,7 @@ onMounted(() => {
             elem.active_menu = true
           }
         }
-        
+
         if (elem.children.length) {
           elem.children.map((elemChild) => {
             if (currentLang.value == 'en') {
@@ -604,7 +604,7 @@ onMounted(() => {
             }
           })
         }
-  
+
         return elem
       })
     }
@@ -641,7 +641,7 @@ onMounted(() => {
 
   // set user name on header and sidebar
   var user = useBreakToken('user');
-  
+
   if (
     (user) && (user.employee)
   ) {
@@ -698,7 +698,7 @@ watch(route, (values) => {
             elem.active_menu = true
           }
         }
-        
+
         if (elem.children.length) {
           elem.children.map((elemChild) => {
             if (currentLang.value == 'en') {
@@ -709,7 +709,7 @@ watch(route, (values) => {
             return elemChild
           })
         }
-  
+
         return elem
       })
     }
@@ -861,7 +861,7 @@ header {
   background-color: $base-light-primary !important;
   background: linear-gradient(270deg, rgba(115,103,240, .7), rgb(115,103,240)) !important;
   border-radius: 8px !important;
-  
+
   .v-list-item-title {
     color: #fff !important;
   }
