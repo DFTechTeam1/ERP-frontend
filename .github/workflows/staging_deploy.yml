@@ -34,6 +34,7 @@ jobs:
           echo "VITE_PUSHER_SCHEME=${{ secrets.VITE_PUSHER_SCHEME }}" >> .env.staging
           echo "VITE_PUSHER_APP_CLUSTER=${{ secrets.VITE_PUSHER_APP_CLUSTER }}" >> .env.staging
           echo "VITE_API_URL=${{ secrets.VITE_API_URL_STAGING }}" >> .env.staging
+          echo "VITE_OFFICE_URL=${{ secrets.VITE_OFFICE_URL_STAGING }}" >> .env.staging
 
       - name: Build for staging
         run: npm run build-staging
