@@ -31,7 +31,7 @@
                                 :error-message="errors.country_id"
                                 input-type="select"
                                 :select-options="countries"></field-input>
-    
+
                             <field-input
                                 class="mb-3"
                                 :label="t('state')"
@@ -39,7 +39,7 @@
                                 :error-message="errors.state_id"
                                 input-type="select"
                                 :select-options="states"></field-input>
-    
+
                             <field-input
                                 class="mb-3"
                                 :label="t('city')"
@@ -47,7 +47,7 @@
                                 :error-message="errors.city_id"
                                 input-type="select"
                                 :select-options="cities"></field-input>
-    
+
                             <field-input
                                 class="mb-3"
                                 :label="t('venue')"
@@ -71,6 +71,7 @@
                                 :label="t('status')"
                                 v-model="status"
                                 input-type="select"
+                                :is-required="false"
                                 :select-options="projectStatus"
                                 :error-message="errors.status"></field-input>
                             <field-input
@@ -84,13 +85,14 @@
                                 :label="t('clientPortal')"
                                 v-model="client_portal"
                                 :error-message="errors.client_portal"></field-input>
-    
+
                             <field-input
                                 class="mb-3"
                                 :label="t('pic')"
                                 :is-multiple="true"
                                 v-if="useGetRole() != 'pm'"
                                 v-model="pic"
+                                :is-required="false"
                                 :custom-options="true"
                                 :error-message="errors.pic"
                                 inputType="select"
@@ -99,22 +101,38 @@
                                     <v-list-item
                                         v-bind="props"
                                         :prepend-avatar="item.raw.image">
-    
+
                                         <template v-slot:title>
                                             {{ item.raw.title }}
                                         </template>
                                         <template v-slot:subtitle>
                                             {{ item.raw.workload_on_date }} Project on this selected date
                                         </template>
-    
+
                                     </v-list-item>
                                 </template>
                             </field-input>
-    
+
+                            <field-input
+                              :is-readonly="true"
+                              :is-required="false"
+                              :suffix-text="'m<sup>2</sup>'"
+                              :label="t('totalLedArea')"
+                              :error-message="errors.led_area"
+                              class="mb-3"
+                              v-model="led_area"></field-input>
+
+                            <LedDetailForm
+                              @update-led-event="updateLedArea"
+                              class="mb=3"
+                              ref="ledFormComponent"
+                              :data="detailProject.led_detail"></LedDetailForm>
+
                             <v-btn
                                 varian="outlined"
                                 :disabled="loading"
                                 color="primary"
+                                class="mt-3"
                                 type="submit">
                                 <template v-if="loading">{{ $t('processing') }}</template>
                                 <template v-else>{{ $t('save') }}</template>
@@ -138,6 +156,7 @@ import { storeToRefs } from 'pinia';
 import { useEmployeesStore } from '@/stores/employees';
 import { useGetRole } from '@/compose/getRole';
 import { useRegionStore } from '@/stores/region';
+import LedDetailForm from '@/pages/admin/production/components/LedDetailForm.vue'
 
 const store = useProjectStore();
 const { detailProject } = storeToRefs(store);
@@ -150,6 +169,8 @@ const { t } = useI18n();
 
 const emit = defineEmits(['close-form'])
 
+const ledFormComponent = ref(null);
+
 const { handleSubmit, defineField, errors, setValues, setFieldValue } = useForm({
     validationSchema: yup.object({
         venue: yup.string().required(),
@@ -158,10 +179,11 @@ const { handleSubmit, defineField, errors, setValues, setFieldValue } = useForm(
         city_id: yup.string().required(t('cityRequired')),
         event_type: yup.string().required(),
         collaboration: yup.string().nullable(),
-        status: yup.string().required(),
+        status: yup.string().nullable(),
         note: yup.string().nullable(),
         client_portal: yup.string().required(),
-        pic: yup.array().required(t('picRequired')),
+        pic: yup.array().nullable(),
+        led_area: yup.string().nullable(),
     }),
     initialValues: {
         venue: detailProject.value.venue,
@@ -174,10 +196,12 @@ const { handleSubmit, defineField, errors, setValues, setFieldValue } = useForm(
         country_id: detailProject.value.country_id,
         state_id: detailProject.value.state_id,
         city_id: detailProject.value.city_id,
+        led_area: detailProject.value.led_area
     }
 })
 
 const [venue] = defineField('venue')
+const [led_area] = defineField('led_area');
 const [country_id] = defineField('country_id')
 const [state_id] = defineField('state_id')
 const [city_id] = defineField('city_id')
@@ -214,6 +238,9 @@ const loadingPrepareData = ref(false)
 const projectManagerList = ref([]);
 
 const validateData = handleSubmit(async (values) => {
+    // call the child function to get updated led setting
+    values.led_detail = ledFormComponent.value.getValue();
+
     loading.value = true;
     const resp = await store.editMoreDetail(values, detailProject.value.uid);
     loading.value = false;
@@ -222,6 +249,10 @@ const validateData = handleSubmit(async (values) => {
         emit('close-form');
     }
 })
+
+function updateLedArea(total) {
+  setFieldValue('led_area', total);
+}
 
 async function initEventType() {
     const resp = await store.initEventTypes();
@@ -241,7 +272,7 @@ async function initProjectStatus() {
 
 async function initProjectManager(payload = null) {
     const resp = await employeeStore.getProjectManager(payload);
-    
+
     if (resp.status < 300) {
         projectManagerList.value = resp.data.data;
     }

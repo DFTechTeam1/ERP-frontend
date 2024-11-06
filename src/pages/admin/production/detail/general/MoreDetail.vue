@@ -13,7 +13,7 @@
                             cols="12"
                             lg="5"
                             md="5">
-    
+
                             <div class="field-item">
                                 <p class="key">
                                     {{ $t('venue') }}
@@ -22,7 +22,7 @@
                                     {{ detailProject.venue }} {{ detailProject.city_name ? ', ' + detailProject.city_name : '' }}
                                 </p>
                             </div>
-    
+
                             <div class="field-item">
                                 <p class="key">{{ $t('eventType') }}</p>
                                 <p class="value">
@@ -43,9 +43,9 @@
                                     {{ detailProject.status }}
                                 </p>
                             </div>
-    
+
                         </v-col>
-                        
+
                         <v-col
                             cols="12"
                             lg="7"
@@ -79,18 +79,37 @@
                                     <table style="width: 300px; border-collapse: collapse;">
                                         <thead>
                                             <tr>
+                                                <th class="text-left" style="padding: 4px 8px; border: 1px solid #e4e4e4; background-color: #f6f6f6;">Name</th>
                                                 <th class="text-left" style="padding: 4px 8px; border: 1px solid #e4e4e4; background-color: #f6f6f6;">Width</th>
                                                 <th class="text-left" style="padding: 4px 8px; border: 1px solid #e4e4e4; background-color: #f6f6f6;">Height</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr
-                                                
-                                                v-for="(led, x) in detailProject.led_detail"
-                                                :key="x">
-                                                <td style="padding: 4px 8px; border: 1px solid #e4e4e4;">{{ led.width }} m</td>
-                                                <td style="padding: 4px 8px; border: 1px solid #e4e4e4;">{{ led.height }} m</td>
-                                            </tr>
+                                            <template v-if="detailProject.led_detail.length">
+                                              <template
+                                                v-for="(detail, index) in detailProject.led_detail"
+                                                :key="index">
+                                                <tr>
+                                                  <!-- Merge cells vertically for the 'Name' column -->
+                                                  <td style="padding: 4px 8px; border: 1px solid #e4e4e4;" :rowspan="detail.led.length">{{ detail.name }}</td>
+                                                  <td style="padding: 4px 8px; border: 1px solid #e4e4e4;">{{ detail.led[0].width }} m</td>
+                                                  <td style="padding: 4px 8px; border: 1px solid #e4e4e4;">{{ detail.led[0].height }} m</td>
+                                                </tr>
+                                                <!-- Render the rest of 'led' items for this 'detail' (if any) -->
+                                                <tr v-for="(led, ledIndex) in detail.led.slice(1)" :key="ledIndex">
+                                                  <td style="padding: 4px 8px; border: 1px solid #e4e4e4;">{{ led.width }} m</td>
+                                                  <td style="padding: 4px 8px; border: 1px solid #e4e4e4;">{{ led.height }} m</td>
+                                                </tr>
+                                              </template>
+                                            </template>
+                                            <template v-else>
+                                              <tr>
+                                                <td
+                                                  style="padding: 4px 8px; border: 1px solid #e4e4e4;"
+                                                  colspan="3"
+                                                  class="text-center">Led not found</td>
+                                              </tr>
+                                            </template>
                                         </tbody>
                                     </table>
                                 </div>
