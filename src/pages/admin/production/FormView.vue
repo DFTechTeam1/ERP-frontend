@@ -11,12 +11,12 @@
                 <v-form @submit="validateData">
                     <v-row>
                         <v-col cols="12" md="6" class="pb-0 pt-0 mb-2">
-                            <field-input :label="t('name')" 
-                                :error-message="errors.name" 
+                            <field-input :label="t('name')"
+                                :error-message="errors.name"
                                 v-model="name"></field-input>
                         </v-col>
                         <v-col cols="12" md="6" class="pb-0 pt-0 mb-2">
-                            <field-input :label="t('clientPortal')" 
+                            <field-input :label="t('clientPortal')"
                                 v-model="client_portal"
                                 :error-message="errors.client_portal"></field-input>
                         </v-col>
@@ -58,8 +58,8 @@
                                     <template v-if="venueList.length">
                                         <v-list-item v-for="(list, index) in venueList" :key="index" :value="index"
                                             @keyup.enter="chooseVenue(list)">
-                                            <v-list-item-title 
-                                                class="cursor" 
+                                            <v-list-item-title
+                                                class="cursor"
                                                 @click.prevent="chooseVenue(list)"
                                                 @keyup.enter="chooseVenue(list)">{{ list.title }}</v-list-item-title>
                                         </v-list-item>
@@ -85,7 +85,7 @@
                     </v-row>
                     <v-row>
                         <v-col cols="12" md="6" class="pb-0 pt-0 mb-2">
-                            <field-input :is-readonly="true" :suffix-text="'m<sup>2</sup>'" :label="t('totalLedArea')"
+                            <field-input :is-readonly="true" :is-required="false" :suffix-text="'m<sup>2</sup>'" :label="t('totalLedArea')"
                                 :error-message="errors.led_area" v-model="led_area"></field-input>
                         </v-col>
                         <v-col cols="12" md="6" class="pb-0 pt-0 mb-2">
@@ -97,57 +97,60 @@
                     </v-row>
                     <v-row>
                         <v-col cols="12" md="6" class="pb-0 pt-0 mb-2">
-                            <v-label>{{ $t('ledArea') }}</v-label>
-                            <v-list v-if="ledSetting.length">
-                                <v-list-item
-                                    style="transition: all .3s"
-                                    lines="three"
-                                    class="mb-1 border-bottom pb-2 led-item"
-                                    v-for="(led, l) in ledSetting"
-                                    :key="l">
-                                    <template v-slot:title>
-                                        <p class="mb-1 title">{{ led.name }}</p>
-                                    </template>
-                                    <template v-slot:subtitle>
-                                        <p class="fw-bold subtitle">
-                                            {{ $t('total') }} <span v-html="led.total" style="font-weight: normal !important;"></span>
-                                        </p> 
-                                        <p class="fw-bold subtitle">
-                                            {{ $t('detail') }} <span v-html="led.textDetail" style="font-weight: normal !important;"></span>
-                                        </p> 
-                                    </template>
-                                    <template v-slot:prepend>
-                                        <v-icon
-                                            :icon="mdiMonitorScreenshot"></v-icon>
-                                    </template>
-                                    <template v-slot:append>
-                                        <v-icon
-                                            :icon="mdiClose"
-                                            @click.prevent="removeLed(l)"></v-icon>
-                                    </template>
-                                </v-list-item>
-                            </v-list>
-                            <v-list v-else>
-                                <v-list-item class="text-center">
-                                    <v-empty-state
-                                        title="No LED for this project"
-                                        text="LED area will be appear on this section"></v-empty-state>
-                                </v-list-item>
-                            </v-list>
+                          <LedDetailForm
+                            @update-led-event="updateLedArea"
+                            ref="ledFormComponent"></LedDetailForm>
+<!--                            <v-label>{{ $t('ledArea') }}</v-label>-->
+<!--                            <v-list v-if="ledSetting.length">-->
+<!--                                <v-list-item-->
+<!--                                    style="transition: all .3s"-->
+<!--                                    lines="three"-->
+<!--                                    class="mb-1 border-bottom pb-2 led-item"-->
+<!--                                    v-for="(led, l) in ledSetting"-->
+<!--                                    :key="l">-->
+<!--                                    <template v-slot:title>-->
+<!--                                        <p class="mb-1 title">{{ led.name }}</p>-->
+<!--                                    </template>-->
+<!--                                    <template v-slot:subtitle>-->
+<!--                                        <p class="fw-bold subtitle">-->
+<!--                                            {{ $t('total') }} <span v-html="led.total" style="font-weight: normal !important;"></span>-->
+<!--                                        </p>-->
+<!--                                        <p class="fw-bold subtitle">-->
+<!--                                            {{ $t('detail') }} <span v-html="led.textDetail" style="font-weight: normal !important;"></span>-->
+<!--                                        </p>-->
+<!--                                    </template>-->
+<!--                                    <template v-slot:prepend>-->
+<!--                                        <v-icon-->
+<!--                                            :icon="mdiMonitorScreenshot"></v-icon>-->
+<!--                                    </template>-->
+<!--                                    <template v-slot:append>-->
+<!--                                        <v-icon-->
+<!--                                            :icon="mdiClose"-->
+<!--                                            @click.prevent="removeLed(l)"></v-icon>-->
+<!--                                    </template>-->
+<!--                                </v-list-item>-->
+<!--                            </v-list>-->
+<!--                            <v-list v-else>-->
+<!--                                <v-list-item class="text-center">-->
+<!--                                    <v-empty-state-->
+<!--                                        title="No LED for this project"-->
+<!--                                        text="LED area will be appear on this section"></v-empty-state>-->
+<!--                                </v-list-item>-->
+<!--                            </v-list>-->
 
-                            <v-btn
-                                class="w-100"
-                                variant="flat"
-                                color="grey-lighten-3"
-                                @click.prevent="showLedForm">
-                                {{ $t('addMore') }}
-                            </v-btn>
+<!--                            <v-btn-->
+<!--                                class="w-100"-->
+<!--                                variant="flat"-->
+<!--                                color="grey-lighten-3"-->
+<!--                                @click.prevent="showLedForm">-->
+<!--                                {{ $t('addMore') }}-->
+<!--                            </v-btn>-->
                         </v-col>
                         <v-col cols="12" md="6" class="pb-0 pt-0 mb-2">
                             <v-label :text="t('note')" class="mb-3"></v-label>
-                            <QuillEditor 
+                            <QuillEditor
                                 class="quill-note"
-                                theme="snow" 
+                                theme="snow"
                                 ref="description_quill"
                                 @update:content="updateDescription" />
                             <div v-if="errors.note" class="invalid-feedback">{{ errors.note }}</div>
@@ -198,6 +201,7 @@ import { useRouter } from 'vue-router';
 import { watch } from 'vue';
 import { useProjectClassStore } from '@/stores/projectClass';
 import LedForm from './LedForm.vue';
+import LedDetailForm from './components/LedDetailForm.vue';
 
 const router = useRouter();
 
@@ -222,7 +226,7 @@ const { defineField, errors, setFieldValue, setFieldError, handleSubmit } = useF
         collaboration: yup.string().nullable(),
         note: yup.string().nullable(),
         classification: yup.string().required(t('eventClassRequired')),
-        led_area: yup.string().required(),
+        led_area: yup.string().nullable(),
         country_id: yup.string().required(t('countryRequired')),
         state_id: yup.string().required(t('stateRequired'))
     }),
@@ -244,6 +248,8 @@ const [city_id] = defineField('city_id');
 const { push, fields, remove } = useFieldArray('led');
 
 const marketingCount = ref('')
+
+const ledFormComponent = ref(null);
 
 const panel = ref([0])
 
@@ -314,9 +320,11 @@ function closeLedForm(payload = null) {
 
     if (payload) {
         ledSetting.value.push(payload)
-        
+
         updateTotalLed()
     }
+
+    console.log('ledSetting', ledSetting.value);
 }
 
 function updateTotalLed() {
@@ -424,8 +432,12 @@ function calculateArea() {
     setFieldValue('led_area', sum.toString());
 }
 
-function updateLedArea() {
-    calculateArea();
+// function updateLedArea() {
+//     calculateArea();
+// }
+
+function updateLedArea(total) {
+  setFieldValue('led_area', total);
 }
 
 const validateData = handleSubmit(async (values) => {
@@ -435,7 +447,8 @@ const validateData = handleSubmit(async (values) => {
     }
     loading.value = true;
 
-    values.led_detail = ledSetting.value
+    // call the child function to get updated led setting
+    values.led_detail = ledFormComponent.value.getValue();
 
     const resp = await store.storeProject(values);
 
