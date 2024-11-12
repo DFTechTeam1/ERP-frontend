@@ -6,6 +6,7 @@ import YearPicker from './YearPicker.vue'
 import DatePicker from './DatePicker.vue'
 import FilePicker from './FilePicker.vue'
 import ButtonSubmit from './ButtonSubmit.vue'
+import ImagePreview from './ImagePreview.vue'
 import LoadingView from './LoadingView.vue'
 import ColorPicker from './ColorPicker.vue'
 import ImportExcel from './ImportExcel.vue'
@@ -54,6 +55,7 @@ export function registerComponent(app) {
 
     app.component('breadcrumbData', BreadcrumbData)
         .component('tableList', TableList)
+        .component('image-preview', ImagePreview)
         .component('color-picker', ColorPicker)
         .component('rounded-input', RoundedInput)
         .component('button-group-nav', ButtonGroupNavigation)

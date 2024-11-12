@@ -743,6 +743,13 @@ watch(route, (values) => {
   max-height: calc(100% - 200px) !important;
   overflow: scroll !important;
 }
+@media screen and (max-width: 576px) {
+  .v-list-scroll {
+    max-height: calc(100% - 20px) !important;
+    padding-bottom: 50px;
+    overflow: scroll !important;
+  }
+}
 .icon-profile {
   background: rgb(236, 242, 255);
   padding: 10px;

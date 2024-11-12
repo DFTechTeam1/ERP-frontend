@@ -39,8 +39,29 @@
                                                 v-for="(report, r) in listOfReports.left"
                                                 :key="r">
                                                 <div class="wrapper-info">
-                                                    <p class="value">
-                                                        {{ report.value }}
+                                                    <p class="value position-relative">
+                                                        <template v-if="report.is_hide_nominal && hideNominal">
+                                                          ***********
+                                                        </template>
+                                                        <template v-else>
+                                                          {{ report.value }}
+                                                        </template>
+
+                                                        <template v-if="report.is_hide_nominal != undefined">
+                                                          <v-icon
+                                                            v-if="report.is_hide_nominal"
+                                                            :icon="mdiEyeOffOutline"
+                                                            class="icon-eye"
+                                                            @click.prevent="changeAvailability(report, false)"
+                                                            size="15"></v-icon>
+
+                                                          <v-icon
+                                                            v-if="!report.is_hide_nominal"
+                                                            :icon="mdiEyeOutline"
+                                                            class="icon-eye"
+                                                            @click.prevent="changeAvailability(report, true)"
+                                                            size="15"></v-icon>
+                                                        </template>
                                                     </p>
                                                     <p class="text">
                                                         {{ report.text }}
@@ -102,7 +123,7 @@
                                             </p>
                                         </v-card-title>
                                     </v-card-item>
-        
+
                                     <v-card-text>
                                         <apexchart height="150" type="donut" :options="right.options" :series="right.series"></apexchart>
                                     </v-card-text>
@@ -129,7 +150,7 @@
         </v-row>
     </div>
 </template>
-  
+
 <script setup>
 import { onMounted, ref } from 'vue'
 import CalendarEvent from './CalendarEvent.vue'
@@ -137,6 +158,7 @@ import ProjectDeadline from './ProjectDeadline.vue'
 import { useBreakToken } from '@/compose/breakToken';
 import { useDashboardStore } from '@/stores/dashboard';
 import { storeToRefs } from 'pinia';
+import { mdiEyeOffOutline, mdiEyeOutline } from "@mdi/js";
 
 const store = useDashboardStore()
 
@@ -152,12 +174,26 @@ async function getReport() {
     loading.value = false
 }
 
+function changeAvailability(data, target) {
+  console.log("data", data);
+
+  listOfReports.value.left.map((item) => {
+    if (item.text === data.text) {
+      item.is_hide_nominal = target;
+    }
+
+    return item;
+  });
+}
+
 onMounted(() => {
     var user = useBreakToken('user')
     username.value = user.employee ? user.employee.name : 'admin'
 
     getReport()
 })
+
+const hideNominal = ref(true);
 </script>
 
 <style lang="scss" scoped>
@@ -200,7 +236,7 @@ onMounted(() => {
     .wrapper-info {
 
         .value {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: bold !important;
         }
 
@@ -217,5 +253,11 @@ onMounted(() => {
     padding-bottom: 0 !important;
     padding-top: 2rem !important;
 }
+
+.icon-eye {
+  position: absolute;
+  top: -8px;
+  right: -15px;
+  cursor: pointer;
+}
 </style>
-  
