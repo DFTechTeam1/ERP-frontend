@@ -66,6 +66,7 @@
                             label-idle="Drop files here..."
                             allow-multiple="true"
                             v-on:addfile="updateImages"
+                            maxFileSize="35MB"
                             accepted-file-types="image/png, image/jpg, image/jpeg, image/webp, application/pdf"
                         ></file-pond-com>
 
@@ -215,7 +216,7 @@ const validateData = handleSubmit(async(values) => {
     if (values.due_date) {
         formData.append('end_date', values.due_date)
     }
-    
+
     if (values.pic) {
         for (let a = 0; a < values.pic.length; a++) {
             formData.append(`pic[${a}]`, values.pic[a])
