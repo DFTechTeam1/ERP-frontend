@@ -19,6 +19,7 @@ import VueFilePond from "vue-filepond";
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.esm.js';
 import FilePondPluginTypePreview from 'filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.esm.js'
 import FilePondPluginImageValidateSize from 'filepond-plugin-image-validate-size';
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation'
 import FilePondPluginImageCrop from 'filepond-plugin-image-crop'
 import FilePondPluginImageResize from 'filepond-plugin-image-resize'
@@ -39,7 +40,8 @@ import 'vue-select/dist/vue-select.css';
 const FilePond = VueFilePond(
     FilePondPluginImagePreview,
     FilePondPluginTypePreview,
-    FilePondPluginImageValidateSize
+    FilePondPluginImageValidateSize,
+    FilePondPluginFileValidateSize
 );
 
 const FilePondAvatar = VueFilePond(

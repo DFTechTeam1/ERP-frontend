@@ -23,6 +23,7 @@
                         class-name="my-pond"
                         label-idle="Drop files here..."
                         allow-multiple="true"
+                        maxFileSize="35MB"
                         v-on:addfile="updateImages"
                         accepted-file-types="image/png, image/jpg, image/jpeg, image/webp"
                     ></file-pond-com>
