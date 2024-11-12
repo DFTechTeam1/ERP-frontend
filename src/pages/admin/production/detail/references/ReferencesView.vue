@@ -105,18 +105,13 @@
             :is-show="props.showForm"
             @close-event="closeFormEvent"></form-view>
 
-        <detail-image
-            @close-detail-image="closeImageModal"
-            :image="detailImageData"
-            :is-show="showDetailImage"></detail-image>
-
         <confirmation-modal
             :title="t('deleteReference')"
             :text="t('deleteReferenceConfirmation')"
             :show-confirm="modalConfirmDelete"
             :delete-ids="selectedDeleteImg"
             @actionBulkSubmit="doDeleteImage"></confirmation-modal>
-        
+
     </div>
 </template>
 
@@ -168,18 +163,6 @@ const showDetailImage = ref(false);
 
 function showPdf(file) {
     window.open(file, '_blank').focus();
-}
-
-function previewFile(fileData) {
-    if (fileData.type == 'png' || fileData.type == 'jpg' || fileData.type == 'jpeg' || fileData.type == 'webp') {
-        detailImageData.value = fileData.media_path
-        showDetailImage.value = true;
-    }
-}
-
-function closeImageModal() {
-    detailImageData.value = null;
-    showDetailImage.value = false;
 }
 
 function closeFormEvent() {
