@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import axios from 'axios'
 import { useNotification } from "@kyvg/vue3-notification";
+import { showNotification } from "@/compose/notification";
 
 const { notify } = useNotification();
 
@@ -23,17 +24,25 @@ export const useInventoriesStore = defineStore('inventories', {
     },
     actions: {
         async requestEquipmentList(payload) {
+          console.log('pay req', payload);
+          try {
             let params = {
-                search: payload ? payload.filter : ''
+              search: payload ? payload.filter : '',
+              page: payload.page || 1,
+              itemsPerPage: payload.itemsPerPage || 10,
             };
 
-            await axios.get('/request-equipments', {
-                params: params
-            })
-                .then((res) => {
-                    this.requestEquipments = res.data.data;
-                })
-                .catch()
+            const resp = await axios.get('/request-equipments', {
+              params: params
+            });
+
+            this.requestEquipments = resp.data.data.paginated;
+            this.totalRequestEquipment = resp.data.data.totalData
+
+            return resp;
+          } catch(error) {
+            return error;
+          }
         },
         async initInventories(payload) {
             let params = {
@@ -75,9 +84,15 @@ export const useInventoriesStore = defineStore('inventories', {
                 return error;
             }
         },
-        async getAll() {
+        async getAll(payload) {
             try {
-                const resp = await axios.get('/inventories/getAll');
+                var params = {};
+                if (payload) {
+                  params = payload;
+                }
+                const resp = await axios.get('/inventories/getAll', {
+                  params: params
+                });
 
                 return resp;
             } catch (error) {
@@ -143,6 +158,18 @@ export const useInventoriesStore = defineStore('inventories', {
             }
 
             return [];
-        }
+        },
+        async importFile(payload) {
+            try {
+                const resp = await axios.post('/inventories/import', payload)
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                return error
+            }
+        },
     }
 })

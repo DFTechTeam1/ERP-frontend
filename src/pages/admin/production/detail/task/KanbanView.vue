@@ -36,7 +36,7 @@
                             @click.prevent="chooseCard(element, board)">
 
                             <p style="font-size: 16px;">{{ element.name }}</p>
-
+                            
                             <div v-if="element.pics.length" class="pic mt-1 mb-1">
                                 <task-member
                                     :members="element.pics"
@@ -45,6 +45,7 @@
 
                             <div class="deadline d-flex align-center justify-space-between mt-2">
                                 <v-chip
+                                    v-if="element.pics.length"
                                     density="compact"
                                     :color="element.task_status_color">
                                     {{ element.task_status }}
@@ -69,7 +70,7 @@
                             <p class="text-center">No Task</p>
                         </template>
                         <v-btn
-                            v-if="props.canAddTask && !board.board_completed && !board.board_to_check_by_pm && !board.board_to_check_by_client && ((detailProject) && (!detailProject.project_is_complete))"
+                            v-if="props.canAddTask && ((detailProject) && (!detailProject.project_is_complete) && (detailProject.status_raw))"
                             variant="outlined"
                             color="primary"
                             class="w-100 mt-3"
@@ -292,8 +293,9 @@ function closeTaskForm() {
  * data-bcpt = data board_completed
  */
 function moving(evt) {
+    console.log('evt', evt.draggedContext.element)
     // user cannot move task that is not belongs to him
-    if (!evt.draggedContext.element.has_task_access || (detailProject.value && detailProject.value.project_is_complete)) {
+    if (!evt.draggedContext.element.have_permission_to_move_board || (detailProject.value && detailProject.value.project_is_complete)) {
         return false
     }
 
@@ -331,7 +333,7 @@ async function endMoving(evt) {
         } else {
             targetBoard.value = null;
             sourceBoard.value = null;
-            const resp = await store.changeBoard({
+            const resp = await store.manualMoveBoard({
                 board_id: targetBoardId,
                 task_id: movingTask.value,
                 board_source_id: sourceBoardId,

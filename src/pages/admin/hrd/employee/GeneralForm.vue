@@ -102,8 +102,6 @@
                     md="6">
                     <date-picker
                         v-model="date_of_birth"
-                        min-date="1945-01-01"
-                        max-date="2010-01-01"
                         :label="t('dateOfBirth')"></date-picker>
                 </v-col>
                 <v-col
@@ -362,8 +360,8 @@
             <v-row class="mt-3">
                 <v-col
                     cols="12"
-                    lg="6"
-                    md="6">
+                    lg="4"
+                    md="4">
                     <field-input
                         :label="t('name')"
                         v-model="relation_name"
@@ -372,12 +370,22 @@
                 </v-col>
                 <v-col
                     cols="12"
-                    lg="6"
-                    md="6">
+                    lg="4"
+                    md="4">
                     <field-input
                         :label="t('phone')"
                         v-model="relation_phone"
                         :error-message="errors['relation.phone']"
+                        :isRequired="false"></field-input>
+                </v-col>
+                <v-col
+                    cols="12"
+                    lg="4"
+                    md="4">
+                    <field-input
+                        :label="t('relation')"
+                        v-model="relation_relation"
+                        :error-message="errors['relation.relation']"
                         :isRequired="false"></field-input>
                 </v-col>
             </v-row>
@@ -419,8 +427,6 @@ import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 
 const store = useEmployeesStore();
-
-const { detailOfEmployee } = storeToRefs(store);
 
 const storeRegion = useRegionStore();
 
@@ -493,6 +499,9 @@ const { defineField, errors, values, setFieldValue, setFieldError, setValues } =
                 .transform((currentValue) => currentValue == "" ? undefined : currentValue)
                 .required(t('phoneRequired'))
                 .typeError(t('mustBeNumber')),
+            relation: yup.string()
+                .transform((currentValue) => currentValue == "" ? undefined : currentValue)
+                .required(t('relationRequired'))
         }),
         employee_id: yup.string().required(t('employeeIdRequired')),
     }),
@@ -500,6 +509,7 @@ const { defineField, errors, values, setFieldValue, setFieldError, setValues } =
 
 const [relation_name] = defineField('relation.name');
 const [relation_phone] = defineField('relation.phone');
+const [relation_relation] = defineField('relation.relation');
 const [name] = defineField('name');
 const [nickname] = defineField('nickname');
 const [email] = defineField('email');
@@ -665,6 +675,7 @@ watch(props, (values) => {
                 relation: {
                     name: values.detailData.emergency_contact.name,
                     phone: values.detailData.emergency_contact.phone,
+                    relation: values.detailData.emergency_contact.relation,
                 },
             });
         }

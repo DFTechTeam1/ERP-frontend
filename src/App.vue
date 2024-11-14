@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="forbid">
     <v-main>
       <!-- Snackbar -->
       <notifications position="top right" />

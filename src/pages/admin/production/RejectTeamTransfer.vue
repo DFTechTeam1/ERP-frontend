@@ -11,7 +11,7 @@
                         :icon="mdiClose"
                         size="15"
                         class="pointer"
-                        @click.prevent="$emit('close-event')"></v-icon>
+                        @click.prevent="closeForm"></v-icon>
                 </v-card-title>
             </v-card-item>
 
@@ -22,6 +22,13 @@
                         v-model="reason"
                         class="mb-2"
                         :error-message="errors.reason"></field-input>
+
+                    <field-input
+                        :label="t('youCanChooseOtherToLend')"
+                        :is-required="false"
+                        input-type="select"
+                        v-model="alternative"
+                        :select-options="lendOptions"></field-input>
 
                     <v-btn
                         type="submit"
@@ -49,15 +56,17 @@ const { t } = useI18n()
 
 const store = useProjectStore()
 
-const { defineField, errors, handleSubmit } = useForm({
+const { defineField, errors, handleSubmit, resetForm } = useForm({
     validationSchema: yup.object({
         reason: yup.string().required(t('reasonRequired')),
+        alternative: yup.string().nullable()
     }),
 })
 
 const emit = defineEmits(['close-event'])
 
 const [reason] = defineField('reason')
+const [alternative] = defineField('alternative')
 
 const props = defineProps({
     isShow: {
@@ -68,11 +77,17 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    currentEmployeeUid: {
+        type: String,
+        default: '',
+    }
 })
 
 const show = ref(false)
 
 const loading = ref(false)
+
+const lendOptions = ref([])
 
 const validateData = handleSubmit(async (values) => {
     loading.value = true
@@ -80,13 +95,33 @@ const validateData = handleSubmit(async (values) => {
     loading.value = false
 
     if (resp.status < 300) {
+        resetForm()
         emit('close-event', true)
     }
 })
 
+async function getMembersToLend() {
+    const resp = await store.getMembersToLend(props.currentEmployeeUid, props.transferUid)
+
+    if (resp.status < 300) {
+        lendOptions.value = resp.data.data.map((elem) => {
+            return {title: elem.name, value: elem.uid}
+        })
+    }
+}
+
+function closeForm() {
+    resetForm()
+    emit('close-event')
+}
+
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow
+
+        if (values.isShow) {
+            getMembersToLend()
+        }
     }
 })
 </script>

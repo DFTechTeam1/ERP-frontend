@@ -26,6 +26,7 @@
                         class="mt-3"
                         variant="flat"
                         color="primary"
+                        v-if="useCheckPermission('add_showreels')"
                         @click.prevent="showShowreels = true">
                         {{ $t('uploadShowreels') }}
                     </v-btn>
@@ -60,6 +61,7 @@ import { useProjectStore } from '@/stores/project'
 import { storeToRefs } from 'pinia'
 import ShowreelsForm from './FormView.vue'
 import { ref, watch } from 'vue';
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const props = defineProps({
     openForm: {

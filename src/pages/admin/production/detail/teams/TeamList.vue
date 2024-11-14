@@ -1,28 +1,31 @@
 <template>
     <v-skeleton-loader type="table" v-if="detailProject == null"></v-skeleton-loader>
-    <div v-else>
-        <table-list
-            :has-shadow="false"
-            :headers="headers"
-            :items="detailProject.teams"
-            :totalItems="detailProject.teams.length"
-            :loading="loading"
-            :itemsPerPage="itemsPerPage"
-            :filterSearch="false"
-            :has-add-button="false"
-            :has-checkbox="false"
-            :has-filter="false"
-        ></table-list>
+    <div v-else class="px-3">
+        <v-list>
+            <list-item :list="detailProject.teams" :haveTaskInformation="true"></list-item>
+        </v-list>
     </div>
 </template>
+
+<style lang="scss" scoped>
+    .team-position,
+    .task {
+        font-size: 12px;
+    }
+
+</style>
 
 <script setup>
 import { ref, watch } from 'vue'
 import { useProjectStore } from '@/stores/project'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia';
+import { useRouter } from 'vue-router'
+import ListItem from './components/ListItem.vue'
 
 const { t } = useI18n()
+
+const router = useRouter()
 
 const store = useProjectStore()
 
@@ -33,6 +36,20 @@ const props = defineProps({
         default: null,
     },
 })
+
+const teams = ref([
+    {
+        title: 'Ilham Meru Gumilang',
+        subtitle: '3D Generalis',
+        props: {
+            appendIcon: 'mdi-close',
+        }
+    },
+    {
+        type: 'divider',
+        inset: false,
+    },
+])
 
 const listTeams = ref([])
 const totalItems = ref(0)
@@ -71,4 +88,8 @@ watch(props, (values) => {
         listTeams.value = detailProject.value.teams
     }
 })
+
+function detailEmployee(employee) {
+    router.push({path: '/admin/employees/' + employee.uid + '/general'})
+}
 </script>

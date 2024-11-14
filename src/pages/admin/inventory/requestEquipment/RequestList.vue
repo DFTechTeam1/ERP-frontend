@@ -7,14 +7,23 @@
         <table-list
             :headers="headers"
             :items="listOfRequestEquipments"
-            :totalItems="totalItems"
+            :totalItems="totalOfRequestEquipment"
             :loading="loading"
             :itemsPerPage="itemsPerPage"
             :filterSearch="true"
             :btnAddText="$t('createBrand')"
             :has-checkbox="false"
+            :custom-status="true"
             :has-add-button="false"
             @table-event="initRequestEquipment">
+            <template v-slot:status="{ value }">
+                <v-chip
+                    density="compact"
+                    :color="value.status_color">
+                    {{ value.status }}
+                </v-chip>
+            </template>
+
             <template v-slot:action="{ value }">
                 <v-menu
                     open-on-click>
@@ -24,7 +33,7 @@
                         :icon="mdiCogOutline"
                         color="blue"></v-icon>
                     </template>
-            
+
                     <v-list>
                         <v-list-item
                             class="pointer"
@@ -59,7 +68,7 @@ const router = useRouter();
 
 const store = useInventoriesStore();
 
-const { listOfRequestEquipments } = storeToRefs(store);
+const { listOfRequestEquipments, totalOfRequestEquipment } = storeToRefs(store);
 
 const { t } = useI18n();
 
@@ -76,11 +85,11 @@ const breadcrumbs = ref([
     },
 ]);
 
-const totalItems = ref(100);
+const totalItems = ref(0);
 
 const loading = ref(false);
 
-const itemsPerPage = ref(100);
+const itemsPerPage = ref(10);
 
 const headers = ref([
     {
@@ -100,6 +109,13 @@ const headers = ref([
     {
         title: t('totalEquipment'),
         key: 'equipment_total',
+        align: 'start',
+        width: 30,
+        sortable: true
+    },
+    {
+        title: t('status'),
+        key: 'status',
         align: 'start',
         width: 30,
         sortable: true

@@ -23,6 +23,7 @@
                         class-name="my-pond"
                         label-idle="Drop files here..."
                         allow-multiple="true"
+                        maxFileSize="35MB"
                         v-on:addfile="updateImages"
                         accepted-file-types="image/png, image/jpg, image/jpeg, image/webp"
                     ></file-pond-com>
@@ -76,7 +77,12 @@ const emit = defineEmits(['event-close', 'close-in-task-detail']);
 
 const { handleSubmit, setFieldValue, errors, defineField, resetForm } = useForm({
     validationSchema: yup.object({
-        nas_link: yup.string().required(t('nasLinkRequired')),
+        nas_link: yup.string()
+            .matches(/^(?!.*(https:\/\/))(?=.*(http:\/\/|\\\\192*|file:\/\/)).+$/, {
+            message: 'String must start with http:// or \\\\192..... or file://',
+                excludeEmptyString: true,
+            })
+            .required(t('nasLinkRequired')),
         preview: yup.array().required(t('previewImageRequired'))
     })
 })

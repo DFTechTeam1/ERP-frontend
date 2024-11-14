@@ -1,8 +1,15 @@
+<script setup>
+import {useDisplay} from "vuetify";
+
+const { mobile } = useDisplay();
+</script>
+
 <template>
     <v-app
         style="overflow: hidden;">
         <v-row>
             <v-col
+                v-if="!mobile"
                 class="auth-wrapper-left position-relative d-flex align-center justify-center"
                 md="7"
                 cols="12">

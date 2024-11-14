@@ -70,7 +70,7 @@ import.meta.env.PROD = true;
 axios.defaults.baseURL = import.meta.env.VITE_API_URL
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*'
 axios.defaults.headers.common['Access-Control-Allow-Methods'] = '*'
-axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true'
+axios.defaults.headers.common['app-language'] = localStorage.getItem('lang')
 
 // axios handle error response
 axios.interceptors.response.use(
@@ -78,6 +78,17 @@ axios.interceptors.response.use(
     return response;
   },
   function(error) {
+    if (error.response.status == 401) {
+      localStorage.removeItem('dfauth')
+
+      window.location.href = '/auth/a/login'
+    }
+
+    if ((error.response.data) && (error.response.data.data) && (error.response.data.data.redirect)) {
+      console.log('global error', error.response.data.data.redirect)
+      window.location.href = error.response.data.data.redirect
+    }
+
     return Promise.reject(error);
   }
 );

@@ -14,12 +14,32 @@
             :showClearFilter="showClearFilter"
             :fullCustomBody="true"
             :hasCheckbox="false"
+            :hasAddDropdown="true"
             :btnAddText="$t('createInventory')"
             @bulk-delete-event="bulkDelete"
             @add-data-event="showForm"
             @table-event="initInventories"
             @filter-action="showFilter"
             @clear-filter-action="clearFilter">
+
+            <template v-slot:addDropdown>
+                <v-list>
+                    <v-list-item class="d-flex align-center ga-3 pointer" @click.prevent="showImportForm = true">
+                        <v-icon
+                            :icon="mdiImport"
+                            size="15"></v-icon>
+
+                        {{ $t('textImport') }}
+                    </v-list-item>
+                    <v-list-item class="d-flex align-center ga-3 pointer" @click.prevent="showForm">
+                        <v-icon
+                            :icon="mdiPaperRoll"
+                            size="15"></v-icon>
+
+                        {{ $t('manualInput') }}
+                    </v-list-item>
+                </v-list>
+            </template>
 
             <template v-slot:bodytable="{ value }">
                 <tr>
@@ -151,6 +171,14 @@
             :deleteIds="selectedIds"
             @action-bulk-submit="doBulkDelete"></confirmation-modal>
 
+
+        <import-excel :is-show="showImportForm" 
+            @close-event="closeImportForm"
+            @submit-event="importFile"
+            download-template-url="/download/template/inventory"
+            :error-list="errorImport"
+            :loading="loadingImport"></import-excel>
+
         <!-- filter modal -->
         <filter-inventory
             :show="isShowFilter"
@@ -171,7 +199,7 @@
 import { useInventoriesStore } from '@/stores/inventories'
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { mdiCogOutline, mdiEyeCircle, mdiFileMultiple, mdiPencil, mdiTrashCanOutline } from '@mdi/js';
+import { mdiCogOutline, mdiEyeCircle, mdiFileMultiple, mdiImport, mdiPaperRoll, mdiPencil, mdiTrashCanOutline } from '@mdi/js';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import FilterInventory from './FilterView.vue'
@@ -182,6 +210,10 @@ const router = useRouter();
 const { t } = useI18n();
 
 const store = useInventoriesStore();
+
+const showImportForm = ref(false)
+
+const errorImport = ref([])
 
 const itemsPerPage = ref(10);
 
@@ -194,6 +226,8 @@ const isShowFilter = ref(false);
 const isShowDetailItem = ref(false);
 
 const parentUid = ref(null);
+
+const loadingImport = ref(false)
 
 const loading = ref(true);
 
@@ -324,6 +358,26 @@ function closeDetailItem () {
 function showListItem(uid) {
     isShowDetailItem.value = true;
     parentUid.value = uid;
+}
+
+function closeImportForm() {
+    showImportForm.value = false
+    errorImport.value = []
+}
+
+async function importFile(payload) {
+    loadingImport.value = true
+    const resp = await store.importFile(payload)
+    loadingImport.value = false
+
+    if (resp.status < 300) {
+        if (resp.data.data.error.length) {
+            errorImport.value = resp.data.data.error
+        } else {
+            closeImportForm()
+        }
+        initInventories()
+    }
 }
 
 async function editInventory(uid) {

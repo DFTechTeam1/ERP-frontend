@@ -15,6 +15,7 @@ export const useProjectStore = defineStore('project', {
         projectCalendarGrouping: [],
         projectCalendarDetail: [],
         detailListRequest: [],
+        projectsFolder: [],
         totalProjects: 0,
         totalTransferTeam: 0,
         transferTeamList: [],
@@ -68,6 +69,7 @@ export const useProjectStore = defineStore('project', {
         ],
     }),
     getters: {
+        listOfProjectsFolder: (state) => state.projectsFolder,
         listOfProjectCalendar: (state) => state.projectCalendar,
         detailOfProjectCalendar: (state) => state.projectCalendarDetail,
         detailProject: (state) => state.detail,
@@ -116,7 +118,7 @@ export const useProjectStore = defineStore('project', {
         async editBasicInformation(payload, uid) {
             try {
                 const resp = await axios.put('/production/project/basic/' + uid, payload);
-                
+
                 this.detail = resp.data.data;
 
                 notify({
@@ -124,7 +126,7 @@ export const useProjectStore = defineStore('project', {
                     text: resp.data.message,
                     type: 'success',
                 });
-    
+
                 return resp;
             } catch (error) {
                 return error;
@@ -141,7 +143,7 @@ export const useProjectStore = defineStore('project', {
                 });
 
                 this.detail = resp.data.data;
-    
+
                 return resp;
             } catch (error) {
                 return error;
@@ -153,9 +155,13 @@ export const useProjectStore = defineStore('project', {
                     page: payload ? payload.page : 1,
                     itemsPerPage: payload ? payload.itemsPerPage : 10,
                     sortBy: payload ? payload.sortBy : [],
-                    search: payload ? payload.filter : ''
+                    search: payload ? payload.filter : '',
+                    filter_month: payload.filter_month,
+                    filter_today: payload.filter_today,
                 };
 
+                this.projects = []
+                this.totalProjects = 0
                 const resp = await axios.get('/production/project', {
                     params: params
                 });
@@ -211,7 +217,8 @@ export const useProjectStore = defineStore('project', {
                 const resp = await axios.post(`production/project/${id}/references`, payload);
 
                 if (this.detail) {
-                    this.detail.references = resp.data.data;
+                    this.detail.references = resp.data.data.references;
+                    this.detail = resp.data.data.full_detail;
                 }
 
                 showNotification(resp.data.message);
@@ -226,7 +233,8 @@ export const useProjectStore = defineStore('project', {
                 const resp = await axios.post(`/production/project/${projectId}/references/delete`, payload);
 
                 if (this.detail) {
-                    this.detail.references = resp.data.data;
+                    this.detail.references = resp.data.data.references;
+                    this.detail = resp.data.data.full_detail;
                 }
 
                 showNotification(resp.data.message);
@@ -285,7 +293,7 @@ export const useProjectStore = defineStore('project', {
         async getPMMembers(payload) {
             try {
                 const resp = await axios.get('/production/project/' + payload.project_id + '/getProjectMembers/' + payload.task_id);
-                
+
                 return resp;
             } catch (error) {
                 return error;
@@ -348,16 +356,16 @@ export const useProjectStore = defineStore('project', {
                 var updatedData = resp.data.data.map((elem) => {
                     elem.approved = false;
                     elem.reject = false;
-    
+
                     return elem;
                 });
 
                 this.detailListRequest = updatedData;
-                
+
                 return resp;
             } catch (error) {
                 return error;
-            }  
+            }
         },
         async updateRequestEquipment(projectId, payload) {
             try {
@@ -365,22 +373,22 @@ export const useProjectStore = defineStore('project', {
                 var updatedData = resp.data.data.map((elem) => {
                     elem.approved = false;
                     elem.reject = false;
-    
+
                     return elem;
                 });
 
                 this.detailListRequest = updatedData;
 
                 showNotification(resp.data.message);
-                
+
                 return resp;
             } catch (error) {
                 return error;
-            }  
+            }
         },
         modifyRequestEquipment(item, type) {
             var updatedData = this.detailListRequest.map((elem) => {
-                
+
 
                 if (elem.uid == item.uid) {
                     if (type == 'reject') {
@@ -469,6 +477,23 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
+        async manualMoveBoard(payload, projectId) {
+            try {
+                const resp = await axios.post(`/production/project/${projectId}/manualMoveBoard`, payload);
+
+                this.detail = resp.data.data;
+                this.projectBoards = resp.data.data.boards;
+
+                return resp;
+            } catch (error) {
+                if (error.response.data) {
+                    this.detail = error.response.data.data;
+                    this.projectBoards = error.response.data.data.boards;
+                }
+
+                return error;
+            }
+        },
         async changeBoard(payload, projectId) {
             try {
                 const resp = await axios.post(`/production/project/${projectId}/changeTaskBoard`, payload);
@@ -489,7 +514,7 @@ export const useProjectStore = defineStore('project', {
         async uploadProofOfWork(payload, projectId, taskId) {
             try {
                 const resp = await axios.post(`/production/project/${projectId}/proofOfWork/${taskId}`, payload)
-                
+
                 notify({
                     title: 'Success',
                     text: resp.data.message,
@@ -559,7 +584,7 @@ export const useProjectStore = defineStore('project', {
                     this.detail = resp.data.data;
                     this.projectBoards = resp.data.data.boards;
                 }
-                
+
                 return resp;
             } catch (error) {
                 return error;
@@ -660,9 +685,9 @@ export const useProjectStore = defineStore('project', {
                 return error
             }
         },
-        async getProjectStatusses() {
+        async getProjectStatusses(projectUid) {
             try {
-                const resp = await axios.get('/production/project/statusses')
+                const resp = await axios.get('/production/project/'+ projectUid +'/statusses')
 
                 this.projectStatusses = resp.data.data
             } catch (error) {
@@ -679,8 +704,10 @@ export const useProjectStore = defineStore('project', {
                     type: 'success',
                 });
 
-                this.detail = resp.data.data.full_detail;
-                this.projectBoards = resp.data.data.full_detail.boards;
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                    this.projectBoards = resp.data.data.full_detail.boards;
+                }
 
                 return resp
             } catch (error) {
@@ -712,6 +739,8 @@ export const useProjectStore = defineStore('project', {
 
                 return resp
             } catch (error) {
+                showNotification(error.response.data.message, 'error')
+
                 return error
             }
         },
@@ -747,9 +776,17 @@ export const useProjectStore = defineStore('project', {
         },
         async getTransferTeams(payload) {
             try {
-                const resp = await axios.get('/production/team-transfers')
+                let params = {
+                  page: payload ? payload.page : 1,
+                  itemsPerPage: payload ? payload.itemsPerPage : 10,
+                };
+
+                const resp = await axios.get('/production/team-transfers', {
+                  params: params
+                })
 
                 this.transferTeamList = resp.data.data.paginated
+                this.totalTransferTeam = resp.data.data.totalData
 
                 return resp
             } catch (error) {
@@ -895,6 +932,254 @@ export const useProjectStore = defineStore('project', {
             } catch (error) {
                 return error
             }
-        }
+        },
+        async assignVj(employees, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/assignVj`, employees)
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+
+                return error
+            }
+        },
+        async removeVJ(projectUid) {
+            try {
+                const resp = await axios.delete(`/production/project/${projectUid}/removeAllVJ`)
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+
+                return error
+            }
+        },
+        async eventReady(projectUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/readyToGo`)
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+
+                return error
+            }
+        },
+        async finalCheckItem(projectUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/prepareFinalCheck`)
+
+                return resp
+            } catch (error) {
+                return error
+            }
+        },
+        takeActionReturnEquipment(payload, equipment) {
+            var condition = {
+                is_good_condition: !payload.condition ? false : true,
+                detail_condition: payload.detail_condition || '',
+            }
+
+            let newArr = this.detailListRequest.map((elem) => {
+                if (elem.uid == equipment.uid) {
+                    elem.returnCondition = condition
+                }
+
+                return elem
+            })
+
+            this.detailListRequest = newArr
+        },
+        async returnEquipment(payload, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/returnEquipment`, {equipment: payload})
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+
+                return error
+            }
+        },
+        downloadReferences(project) {
+            window.open(
+                import.meta.env.VITE_API_URL + '/production/project/' + project.uid + '/downloadReferences',
+                '_blank'
+            );
+        },
+        async getScheduler(projectUid, params = null) {
+            try {
+                var url = `/production/project/scheduler/${projectUid}`
+
+                const resp = await axios.get(url, {params: params})
+
+                return resp
+            } catch(error) {
+                return error
+            }
+        },
+        async getPicScheduler(projectUid) {
+            try {
+                const resp = await axios.get('/production/project/' + projectUid + '/getPicScheduler')
+
+                return resp
+            } catch(err) {
+                return err
+            }
+        },
+        async assignPic(pics, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/assignPic`, {pics: pics})
+
+                showNotification(resp.data.message)
+
+                this.detail = resp.data.data.full_detail;
+
+                return resp
+            } catch(error) {
+                console.log('error', error)
+                showNotification(error.response.data.message, 'error')
+            }
+        },
+        async subtitutePic(payload, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/subtitutePic`, payload)
+
+                showNotification(resp.data.message)
+
+                if (resp.data.data.full_detail.length) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp
+            } catch(e) {
+                showNotification(e.response.data.message, 'error')
+
+                return e
+            }
+        },
+        async getPicSubtitute(projectUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/getPicForSubtitute`)
+
+                return resp
+            } catch(e) {
+                return e
+            }
+        },
+        downloadProofOfWork(projectUid, proofOfWorkId) {
+            window.open(
+                import.meta.env.VITE_API_URL + `/production/project/${projectUid}/downloadProofOfWork/${proofOfWorkId}`,
+                '_blank'
+            );
+        },
+        downloadReviseMedia(projectUid, proofOfWorkId) {
+            window.open(
+                import.meta.env.VITE_API_URL + `/production/project/${projectUid}/downloadReviseMedia/${proofOfWorkId}`,
+                '_blank'
+            );
+        },
+        async getProjectsFolder(params) {
+            try {
+                console.log('params', params)
+                var search = new URLSearchParams(params)
+                const resp = await axios.get(`/production/project/getProjectsFolder?${search}`)
+
+                this.projectsFolder = resp.data.data.folders
+
+                return resp
+            } catch(e) {
+                return e
+            }
+        },
+        async getProjectYears() {
+            try {
+                const resp = await axios.get(`/production/project/getProjectYears`)
+
+                return resp
+            } catch(e) {
+                return e
+            }
+        },
+        async getProjectFolderDetail(params) {
+            try {
+                var search = new URLSearchParams(params)
+                var url = `/production/project/getProjectFolderDetail?${search}`
+
+                const resp = await axios.get(url)
+
+                return resp
+            } catch(e) {
+                return e
+            }
+        },
+        async cancelProject(payload, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/cancelProject`, payload)
+
+                showNotification(resp.data.message)
+
+                this.detail = resp.data.data.full_detail;
+
+                return resp
+            } catch(error) {
+                showNotification(error.response.data.message, 'error')
+
+                return error
+            }
+        },
+        async getMembersToLend(employeeUid, transferUid) {
+            try {
+                const resp = await axios.get(`/production/team-transfers/${transferUid}/getMembersToLend/${employeeUid}`)
+
+                return resp
+            } catch(e) {
+                return e
+            }
+        },
+        async initEntertainment() {
+            try {
+                const resp = await axios.get(`/production/project/initEntertainmentTeam`)
+
+                return resp
+            } catch(e) {
+                return e
+            }
+        },
+        async requestEntertainment(payload, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/requestEntertainment`, payload)
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch(error) {
+                showNotification(error.response.data.message, 'error')
+
+                return error
+            }
+        },
+        async approveWithManualSelection(transferUid, payload) {
+          try {
+            const resp = await axios.post('/production/team-transfers/approve-selection/' + transferUid, payload)
+
+            showNotification(resp.data.message)
+
+            return resp
+          } catch (error) {
+            showNotification(error.response.data.message, 'error')
+
+            return error
+          }
+        },
     },
 })

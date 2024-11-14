@@ -40,12 +40,19 @@
                     <v-btn
                         variant="flat"
                         color="primary"
+                        :disabled="loading"
                         class="w-100 mb-3"
                         @click.prevent="saveDate">
-                        {{ $t('save') }}
+                        <template v-if="loading">
+                            {{ $t('processing') }}
+                        </template>
+                        <template v-else>
+                            {{ $t('save') }}
+                        </template>
                     </v-btn>
                     <v-btn
                         variant="flat"
+                        :disabled="loading"
                         color="white"
                         class="w-100 mb-3"
                         @click.prevent="cancel">
@@ -103,6 +110,8 @@ const [end_date] = defineField('end_date');
 
 const _date = useDate();
 
+const loading = ref(false)
+
 const show = ref(false);
 
 const props = defineProps({
@@ -146,8 +155,11 @@ function updatedDate(values) {
 }
 
 const saveDate = handleSubmit(async (values) => {
+    loading.value = true
     values.task_id = detailOfTask.value.uid;
     const resp = await store.updateDeadline(values, route.params.id);
+
+    loading.value = false
 
     if (resp.status < 300) {
         emit('save-event', values);

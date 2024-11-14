@@ -7,6 +7,7 @@
         <table-list
             :headers="headers"
             :items="listOfBrands"
+            :hasAddDropdown="true"
             :totalItems="totalItems"
             :loading="loading"
             :itemsPerPage="itemsPerPage"
@@ -15,6 +16,26 @@
             @bulk-delete-event="bulkDelete"
             @add-data-event="showForm"
             @table-event="initBrands">
+
+            <template v-slot:addDropdown>
+                <v-list>
+                    <v-list-item class="d-flex align-center ga-3 pointer" @click.prevent="showImportForm = true">
+                        <v-icon
+                            :icon="mdiImport"
+                            size="15"></v-icon>
+
+                        {{ $t('textImport') }}
+                    </v-list-item>
+                    <v-list-item class="d-flex align-center ga-3 pointer" @click.prevent="showForm">
+                        <v-icon
+                            :icon="mdiPaperRoll"
+                            size="15"></v-icon>
+
+                        {{ $t('manualInput') }}
+                    </v-list-item>
+                </v-list>
+            </template>
+
             <template v-slot:action="{ value }">
                 <v-menu
                     open-on-click>
@@ -127,6 +148,13 @@
             :showConfirm="showConfirmation"
             :deleteIds="selectedIds"
             @action-bulk-submit="doBulkDelete"></confirmation-modal>
+
+        <import-excel :is-show="showImportForm" 
+            @close-event="closeImportForm"
+            @submit-event="importFile"
+            download-template-url="/download/template/brand"
+            :error-list="errorImport"
+            :loading="loadingImport"></import-excel>
     </div>
 </template>
 
@@ -134,7 +162,7 @@
 import { useBrandStore } from '@/stores/brand'
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { mdiCogOutline, mdiPencil, mdiTrashCanOutline } from '@mdi/js';
+import { mdiCogOutline, mdiImport, mdiPaperRoll, mdiPencil, mdiTrashCanOutline } from '@mdi/js';
 import { watch } from 'vue';
 import * as yup from 'yup'
 import { useForm } from 'vee-validate';
@@ -145,15 +173,21 @@ const { t } = useI18n();
 
 const store = useBrandStore();
 
+const showImportForm = ref(false)
+
 const itemsPerPage = ref(10);
 
 const totalItems = ref(0);
+
+const errorImport = ref([])
 
 const showConfirmation = ref(false);
 
 const isShowForm = ref(false);
 
 const loading = ref(true);
+
+const loadingImport = ref(false)
 
 const detailData = ref(null);
 
@@ -220,6 +254,11 @@ const breadcrumbs = ref([
     },
 ]);
 
+function closeImportForm() {
+    showImportForm.value = false
+    errorImport.value = []
+}
+
 async function initBrands(payload) {
     loading.value = true;
     await store.initBrands(payload);
@@ -258,6 +297,21 @@ async function doBulkDelete(payload) {
         showConfirmation.value = false;
         selectedIds.value = [];
         initBrands();
+    }
+}
+
+async function importFile(payload) {
+    loadingImport.value = true
+    const resp = await store.importFile(payload)
+    loadingImport.value = false
+
+    if (resp.status < 300) {
+        if (resp.data.data.error.length) {
+            errorImport.value = resp.data.data.error
+        } else {
+            closeImportForm()
+        }
+        initBrands()
     }
 }
 

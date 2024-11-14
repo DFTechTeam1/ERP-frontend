@@ -23,12 +23,6 @@
       <v-divider class="mt-5"></v-divider>
     </v-list-item>
 
-    <v-list-item class="text-center pt-0 pb-0 h-auto" style="min-height: auto;">
-      <v-btn flat density="compact" class="w-100 bg-grey-lighten-1">
-        Mark as Read
-      </v-btn>
-    </v-list-item>
-
   </v-list>
 </template>
 

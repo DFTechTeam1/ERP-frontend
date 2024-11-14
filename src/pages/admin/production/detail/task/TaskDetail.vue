@@ -15,18 +15,18 @@
                             :class="{'w-100': editFormName}"
                             @submit="updateTaskName">
                             <div class="w-100">
-                                <input type="text" 
-                                    class="form-control" 
+                                <input type="text"
+                                    class="form-control"
                                     v-model="name"
                                     v-if="editFormName"
                                     id="project-name">
-                                <div class="invalid-feedback" 
+                                <div class="invalid-feedback"
                                     style="line-height: 1; margin-top: 5px;"
                                     v-if="errors.name">
                                     {{ errors.name }}
                                 </div>
                             </div>
-    
+
                             <v-icon
                                 :icon="mdiPencil"
                                 class="pointer"
@@ -34,7 +34,7 @@
                                 @click.prevent="editFormName = true"
                                 size="20"></v-icon>
 
-                            <v-btn 
+                            <v-btn
                                 class="btn-update-name"
                                 variant="plain"
                                 density="compact"
@@ -147,8 +147,8 @@
 
                                 <template v-if="isAddDescription">
                                     <div class="editor bg-white mt-4">
-                                        <QuillEditor 
-                                            theme="snow" 
+                                        <QuillEditor
+                                            theme="snow"
                                             ref="description_quill"
                                             @update:content="updateDescription" />
                                     </div>
@@ -240,7 +240,7 @@
                                         variant="flat"
                                         class="w-100 text-left mb-3"
                                         color="grey-darken-1"
-                                        v-if="useCheckPermission('add_team_member')"
+                                        v-if="useCheckPermission('assign_task_pic')"
                                         :disabled="!detailOfTask.is_active || !detailOfTask.has_task_access || detailProject.project_is_complete"
                                         @click.prevent="choosePic">
                                         <v-icon
@@ -367,8 +367,8 @@
                                                         input-type="select"
                                                         :select-options="moveToBoards"
                                                         v-model="moveToBoardVal"></field-input>
-                                                    <div 
-                                                        class="invalid-feedback text-red" 
+                                                    <div
+                                                        class="invalid-feedback text-red"
                                                         :class="{
                                                             'd-none': !errorManualMovingTask,
                                                             'd-block': errorManualMovingTask
@@ -406,7 +406,7 @@
                                         class="w-100 text-left mb-3"
                                         color="success"
                                         :disabled="markAsCompleteLoading || detailProject.project_is_complete"
-                                        v-if="detailOfTask.is_project_pic && detailOfTask.need_approval_pm"
+                                        v-if="(detailOfTask.is_project_pic && detailOfTask.need_approval_pm) || (detailOfTask.need_approval_pm && detailOfTask.is_director)"
                                         @click.prevent="markAsCompleteTask(detailOfTask.uid)">
                                         <v-icon
                                             class="mr-1"
@@ -424,7 +424,7 @@
                                         class="w-100 text-left mb-3"
                                         color="red"
                                         :disabled="reviseLoading || detailProject.project_is_complete"
-                                        v-if="detailOfTask.is_project_pic && detailOfTask.need_approval_pm"
+                                        v-if="(detailOfTask.is_project_pic && detailOfTask.need_approval_pm) || (detailOfTask.need_approval_pm && detailOfTask.is_director)"
                                         @click.prevent="reviseTask(detailOfTask)">
                                         <v-icon
                                             class="mr-1"
@@ -466,7 +466,8 @@
         <revise-detail
             :is-show="showDetailRevise"
             :detail="selectedRevises"
-            @close-event="closeRevise"></revise-detail>
+            @close-event="closeRevise"
+            :detail-task="detailOfTask"></revise-detail>
 
         <add-pic-form
             @close-event="closePicForm"
@@ -480,7 +481,8 @@
             transition="scroll-x-transition"
             :is-show="showDetailProofWork"
             @close-event="showDetailProofWork = false"
-            :detail="detailOfTask.proof_of_works_detail"></detail-proof-of-work>
+            :detail="detailOfTask.proof_of_works_detail"
+            :detail-task="detailOfTask"></detail-proof-of-work>
 
         <confirmation-modal
             :title="t('deleteTask')"
@@ -532,10 +534,10 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { 
-    mdiLaptop, 
-    mdiClose, 
-    mdiMenu, 
+import {
+    mdiLaptop,
+    mdiClose,
+    mdiMenu,
     mdiTrashCan,
     mdiClockOutline,
     mdiAccountSupervisor,
@@ -737,7 +739,7 @@ async function doDeleteTask(taskIds) {
 function updateDescription() {
     if (description_quill.value.getText().length > 1) {
         description.value = description_quill.value.getHTML();
-    } else {                                                                                                                                                                                                                                                                                                                                                                              
+    } else {
         description.value = null;
     }
 
@@ -784,7 +786,7 @@ function closeRevise() {
 
 function editDescription() {
     isAddDescription.value = true;
-    
+
     setTimeout(() => {
         description_quill.value.setHTML(detailOfTask.value.description);
     }, 200);
@@ -813,7 +815,7 @@ const updateTaskName = handleSubmit(async (values) => {
 
     if (resp.status < 300) {
         editFormName.value = false;
-    }   
+    }
 })
 
 function openProofOfWork() {
@@ -869,7 +871,7 @@ async function manualMoveTask() {
             task_id: detailOfTask.value.uid,
             board_source_id: detailOfTask.value.board.id,
         }, detailProject.value.uid);
-        
+
         if (resp.status < 300) {
             if (resp.data.data.show_proof_of_work) { // show proof of work form
                 targetBoard.value = moveToBoardVal.value;
@@ -877,7 +879,7 @@ async function manualMoveTask() {
                 showProofOfWork.value = true;
             }
         }
-    
+
         if (!resp.status) {
             if (resp.response.status == 422) {
                 errorManualMovingTask.value = resp.response.data.errors.board_id[0]
@@ -885,7 +887,7 @@ async function manualMoveTask() {
                 errorManualMovingTask.value = null;
             }
         }
-    
+
         loadingMoveTo.value = false;
     }
 }

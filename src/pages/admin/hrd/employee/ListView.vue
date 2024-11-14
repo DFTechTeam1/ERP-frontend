@@ -50,7 +50,9 @@
                                 :image="'/user.png'"
                                 size="40"></v-avatar>
                             <div>
-                                <p class="fw-bold">{{ value.name }}</p>
+                                <router-link :to="`/admin/employees/${value.uid}/general`" class="disable-link">
+                                    <p class="fw-bold">{{ value.name }}</p>
+                                </router-link>
                                 <p class="email">{{ value.email }}</p>
                             </div>
                         </div>
@@ -137,6 +139,20 @@
                                         </div>
                                     </template>
                                 </v-list-item>
+                                <v-list-item
+                                    class="pointer"
+                                    @click.prevent="resign(value.uid)">
+                                    <template v-slot:title>
+                                        <div
+                                            class="d-flex align-center"
+                                            style="gap: 8px; font-size: 12px;">
+                                            <v-icon
+                                            :icon="mdiPowerCycle"
+                                            size="15"></v-icon>
+                                            {{ $t('resign') }}
+                                        </div>
+                                    </template>
+                                </v-list-item>
                             </v-list>
                         </v-menu>
                     </td>
@@ -165,6 +181,10 @@
         <spreadsheet-preview :is-show="showPreviewImport" @close-event="closeSpreadsheetPreview"></spreadsheet-preview>
 
         <import-excel :is-show="showImportForm" @close-event="closeImportForm"></import-excel>
+
+        <resign-form :is-show="showConfirmationResign"
+            :employee-uid="selectedResignId"
+            @close-event="closeResignForm"></resign-form>
     </div>
 </template>
 
@@ -187,12 +207,14 @@ import {
     mdiTrashCanOutline,
     mdiAccountPlus,
     mdiImport,
-    mdiPaperRoll
+    mdiPaperRoll,
+    mdiPowerCycle
  } from '@mdi/js';
 import FilterEmployee from './FilterEmployee.vue';
 import AddAsUserView from './AddAsUser.vue';
 import SpreadsheetPreview from './SpreadsheetPreview.vue';
 import ImportExcel from './ImportView.vue'
+import ResignForm from './ResignForm.vue'
 
 const { t } = useI18n();
 
@@ -206,8 +228,10 @@ const {
  } = storeToRefs(store);
 
 const showConfirmation = ref(false);
+const showConfirmationResign = ref(false)
 const showConfirmationAddtoUser = ref(false);
 const selectedIds = ref([]);
+const selectedResignId = ref(null)
 const selectedAddUserId = ref(null);
 const totalItems = ref(0);
 const itemsPerPage = ref(10);
@@ -298,7 +322,7 @@ function deleteEmployee(uid) {
 }
 
 function detailEmployee(employeeUid) {
-    router.push({path: '/admin/employees/' + employeeUid});
+    router.push({path: '/admin/employees/' + employeeUid + '/general'});
 }
 
 function closeImportForm(isShowPreview = false) {
@@ -345,7 +369,6 @@ function addAsUser(id) {
 }
 
 function closeFormAddUser(payload) {
-    console.log('payload ref', payload);
     showConfirmationAddtoUser.value = false;
     selectedAddUserId.value = null;
 
@@ -392,5 +415,19 @@ function cancelFilter() {
     searchParam.value = null;
     isShowFilter.value = false;
     showClearFilter.value = false;
+}
+
+async function resign(employeeUid) {
+    showConfirmationResign.value = true
+    selectedResignId.value = employeeUid
+}
+
+function closeResignForm(isRefresh) {
+    showConfirmationResign.value = false
+    selectedResignId.value = null
+
+    if (isRefresh) {
+        initEmployees()
+    }
 }
 </script>

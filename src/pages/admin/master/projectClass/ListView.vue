@@ -65,6 +65,11 @@
                 :label="t('maximalPoint')"
                 v-model="maximal_point"
                 :error-message="errors.maximal_point"></field-input>
+
+              <color-picker
+                :label="t('color')"
+                v-model="color"
+                :error-message="errors.color"></color-picker>
           </v-card-text>
   
           <v-divider></v-divider>
@@ -145,10 +150,12 @@ import { useProjectClassStore } from "@/stores/projectClass";
     validationSchema: yup.object({
       name: yup.string().required(t('nameRequired')),
       maximal_point: yup.string().required(t('maximalPointRequired')),
+      color: yup.string().required(),
     }),
   });
   
   const validateData = handleSubmit(async (values) => {
+    console.log('values', values)
     isLoading.value = true;
 
     var storeResult;
@@ -169,6 +176,8 @@ import { useProjectClassStore } from "@/stores/projectClass";
   });
   
   const [name] = defineField("name");
+
+  const [color] = defineField("color");
   
   const [maximal_point] = defineField("maximal_point");
   
@@ -226,6 +235,7 @@ import { useProjectClassStore } from "@/stores/projectClass";
 
         setFieldValue('name', selected[0].name)
         setFieldValue('maximal_point', selected[0].point)
+        setFieldValue('color', selected[0].color)
 
         formTitle.value = t("editProjectClass");
         isShowForm.value = true;

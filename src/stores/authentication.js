@@ -3,6 +3,8 @@ import axios from 'axios'
 import { useNotification } from "@kyvg/vue3-notification";
 import { tokenSetter } from "@/compose/tokenSetter";
 import { useBreakToken } from "@/compose/breakToken";
+import { showNotification } from "@/compose/notification";
+import apiClient from '@/plugins/axiosClient'
 
 const { notify } = useNotification();
 
@@ -67,6 +69,30 @@ export const useAuthenticationStore = defineStore('authentication', {
                         type: 'error',
                     });
                 })
+        },
+        async forgotPassword(payload) {
+            try {
+                const resp = await axios.post('/auth/forgotPassword', payload)
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+                
+                return error
+            }
+        },
+        async resetPassword(payload) {
+            try {
+                const resp = await axios.post('/auth/resetPassword', payload)
+
+                showNotification(resp.data.message)
+
+                return resp
+            } catch (error) {
+                showNotification(error.response.data.message, 'error')
+
+                return error
+            }
         }
     }
 })

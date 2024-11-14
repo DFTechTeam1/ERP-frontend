@@ -42,9 +42,17 @@
                             v-model="sender_name"
                             :error-message="errors.sender_name"></field-input>
 
-                        <button-submit
-                            :is-loading="loading"
-                            :full-width="false"></button-submit>
+                        <v-btn
+                            variant="flat"
+                            color="primary"
+                            type="submit">
+                            <template v-if="loading">
+                                {{ $t('processing') }}
+                            </template>
+                            <template v-else>
+                                {{ $t('save') }}
+                            </template>
+                        </v-btn>
                     </v-col>
                 </v-row>
             </v-form>

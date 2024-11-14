@@ -4,289 +4,119 @@
             :title="$t('inventories')"
             :breadcrumbs="breadcrumbs"></breadcrumb-data>
 
-        <div class="item-wrapper">
-            <!-- header -->
-            <div class="custom-header d-flex align-center justify-space-between">
-                <p class="header-title">
-                    All Item
-                </p>
+      <table-list
+        :headers="headers"
+        :items="listOfInventories"
+        :totalItems="totalOfInventoryList"
+        :loading="loading"
+        :itemsPerPage="itemsPerPage"
+        :filterSearch="false"
+        :showClearFilter="showClearFilter"
+        :fullCustomBody="true"
+        :custom-filter-button="true"
+        :hasCheckbox="false"
+        :btnAddText="$t('buildItem')"
+        :allowed-create-button="useCheckPermission('create_project')"
+        @bulk-delete-event="bulkDelete"
+        @add-data-event="buildForm"
+        @table-event="getList"
+        @filter-action="showFilter"
+        @clear-filter-action="clearFilter">
 
-                <div class="header-action">
-                    <v-btn
-                        variant="flat"
-                        color="primary"
-                        @click.prevent="buildForm">
-                        Build Inventory
-                    </v-btn>
-                </div>
-            </div>
-            <!-- end header -->
-
-            <!-- summary -->
-            <div class="summary mb-5">
-                <v-chip density="compact" color="primary" variant="flat" border="border" class="pointer">
-                    100 Total Custom Inventory
-                </v-chip>
-                <v-chip density="compact" color="success" variant="flat" border="border" class="pointer ms-3">
-                    3 is On Warehouse
-                </v-chip>
-                <v-chip density="compact" color="red" variant="flat" border="border" class="pointer ms-3">
-                    3 is On Project
-                </v-chip>
-                <v-chip density="compact" color="warning" variant="flat" border="border" class="pointer ms-3">
-                    1 is Waiting to Check
-                </v-chip>
-            </div>
-
-            <div class="item-list">
-                <template v-if="loading">
-                    <v-skeleton-loader type="table-tbody"></v-skeleton-loader>
+        <template v-slot:bodytable="{ value }">
+          <tr>
+            <td>
+              <p>{{ value.name }}</p>
+              <v-chip
+                density="compact"
+                color="primary"
+                class="mt-1 mb-2"
+                style="font-size: 12px;">
+                {{ value.build_series }}
+              </v-chip>
+            </td>
+            <td>
+              {{ value.total_items }} {{ $t('item') }}
+            </td>
+            <td>
+              {{ value.location }}
+            </td>
+            <td>
+              {{ value.total_price }}
+            </td>
+            <td>
+              <v-menu
+                open-on-click>
+                <template v-slot:activator="{ props }">
+                  <v-icon
+                    v-bind="props"
+                    :icon="mdiCogOutline"
+                    color="blue"></v-icon>
                 </template>
-                <template v-else>
-                    <template v-if="listOfInventories.length">
-                        <v-list lines="two" class="list-data" v-for="(item, x) in listOfInventories" :key="x">
-                            <v-list-item class="item-inner">
-        
-                                <template v-slot:prepend>
-                                    <v-img
-                                        width="130"
-                                        height="auto"
-                                        src="/noimage.png"></v-img>
-                                </template>
-                                
-                                <template v-slot:title>
-                                    <div class="inventory-info">
-                                        <p class="inventory-subid">
-                                            {{ item.build_series }}
-                                        </p>
-                                        <p class="inventory-item d-flex align-center ga-4">
-                                            {{ item.name }}
-    
-                                            <v-chip v-if="item.default_request_item" color="success">
-                                                {{ $t('defaultRequestItem') }}
-                                            </v-chip>
-                                        </p>
-                                    </div>
-        
-                                    <p class="update">
-                                        Updated: <span class="time">
-                                        {{ item.updated }}
-                                        </span>
-                                    </p>
-                                </template>
-        
-                                <template v-slot:subtitle>
-                                    <div class="subtitle">
-                                        <p class="unit">
-                                            {{ item.total_items }} items
-                                        </p>
-        
-                                        <v-divider vertical class="ms-3 me-3" thickness="3" color="red" length="15"></v-divider>
-                                        
-                                        <p class="price">IDR {{ item.total_price }}</p>
-        
-                                        <v-divider vertical class="ms-3 me-3" thickness="3" color="red" length="15"></v-divider>
-        
-                                        <v-chip density="compact"
-                                            color="red">
-                                            {{ item.location }}
-                                        </v-chip>
-                                    </div>
-                                </template>
-        
-                                <template v-slot:append>
-                                    <div class="action d-flex align-center justify-space-between mt-1">
-        
-                                        <v-menu>
-                                            <template v-slot:activator="{ props }">
-                                                <v-icon
-                                                    v-bind="props"
-                                                    :icon="mdiDotsVertical"
-                                                    size="20"></v-icon>
-                                            </template>
-                                            <v-list>
-                                                <v-list-item style="font-size: 12px;" class="list-action-item">
-                                                    <div class="d-flex align-center ga-4 pointer">
-                                                        <v-icon
-                                                            :icon="mdiHistory"
-                                                            size="20"></v-icon>
-            
-                                                        <p>History</p>
-                                                    </div>
-                                                </v-list-item>
-                                                <v-list-item style="font-size: 12px;" class="list-action-item"
-                                                    @click.prevent="editInventory(item.uid)">
-                                                    <div class="d-flex align-center ga-4 pointer">
-                                                        <v-icon
-                                                            :icon="mdiPencilOutline"
-                                                            size="20"></v-icon>
-            
-                                                        <p>Edit</p>
-                                                    </div>
-                                                </v-list-item>
-                                                <v-list-item style="font-size: 12px;" class="list-action-item">
-                                                    <div class="d-flex align-center ga-4 pointer">
-                                                        <v-icon
-                                                            :icon="mdiTrashCanOutline"
-                                                            size="20"></v-icon>
-            
-                                                        <p>Delete</p>
-                                                    </div>
-                                                </v-list-item>
-                                                <v-list-item style="font-size: 12px;" class="list-action-item">
-                                                    <div class="d-flex align-center ga-4 pointer">
-                                                        <v-icon
-                                                            :icon="mdiFileExportOutline"
-                                                            size="20"></v-icon>
-            
-                                                        <p>Export</p>
-                                                    </div>
-                                                </v-list-item>
-                                            </v-list>
-                                        </v-menu>
-                                    </div>
-                                </template>
-        
-                            </v-list-item>
-                        </v-list>
-                    </template>
 
-                    <template v-else>
-                        <v-card flat>
-                            <v-card-text class="text-center">
-                                <h4>{{ t('emptyCustomItem') }}</h4>
-                            </v-card-text>
-                        </v-card>
+                <v-list>
+                  <v-list-item
+                    class="pointer">
+                    <template v-slot:title>
+                      <router-link
+                        :to="'/admin/inventories/custom/' + value.uid"
+                        style="color: #000; font-weight: bold;">
+                        <div
+                          class="d-flex align-center"
+                          style="gap: 8px; font-size: 12px;">
+                          <v-icon
+                            :icon="mdiEyeCircle"
+                            size="15"></v-icon>
+                          {{ $t('detail') }}
+                        </div>
+                      </router-link>
                     </template>
-                </template>
-            </div>
+                  </v-list-item>
 
-            <div class="pagination-wrapper" v-if="listOfInventories.length > 10">
-                <v-pagination
-                    v-model="page"
-                    :length="totalOfPagination"
-                    :total-visible="5"
-                    ></v-pagination>
-            </div>
-        </div>
+                  <v-list-item
+                    class="pointer">
+                    <template v-slot:title>
+                      <router-link
+                        :to="'/admin/inventories/custom/edit/' + value.uid"
+                        style="color: #000; font-weight: bold;">
+                        <div
+                          class="d-flex align-center"
+                          style="gap: 8px; font-size: 12px;">
+                          <v-icon
+                            :icon="mdiPencil"
+                            size="15"></v-icon>
+                          {{ $t('edit') }}
+                        </div>
+                      </router-link>
+                    </template>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </td>
+          </tr>
+        </template>
+
+      </table-list>
+
+      <FilterDialog
+        :is-show="showFilterDialog"
+        @close-event="closeFilter"></FilterDialog>
     </div>
 </template>
 
-<style lang="scss">
-.custom-header {
-    margin-bottom: 20px;
-    padding-left: 10px;
-
-    .header-title {
-        font-size: 24px;
-        color: #323232;
-    }
-}
-
-.item-inner {
-    .v-list-item__append {
-        align-self: baseline !important;
-    }
-
-    .v-list-item__content {
-        align-self: baseline !important;
-    }
-
-    .v-list-item-title {
-        display: flex;
-        justify-content: space-between;
-
-        .update {
-            padding-right: 150px;
-            padding-top: 5px;
-        }
-    }
-
-}
-</style>
-
-<style lang="scss" scoped>
-.list-action-item {
-    min-height: 25px !important;
-}
-
-.list-action-item:hover {
-    background-color: #f4f4f4;
-}
-
-.list-data {
-    padding-top: 0;
-    padding-bottom: 0;
-}
-.item-inner:hover,
-.list-data:hover {
-    box-shadow: 0px 10px 12px -3px rgba(0,0,0,0.1);
-}
-.list-data {
-    margin-bottom: 10px;
-    border-radius: 8px !important;
-    transition: all .5s;
-}
-.item-inner {
-    border-radius: 8px !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    cursor: pointer;
-
-    .action {
-        .update {
-            font-size: 14px;
-
-            .time {
-                font-weight: bolder;
-            }
-        }
-    }
-
-    .subtitle {
-        margin-left: 10px;
-        margin-top: 4px;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-
-        .unit {
-            font-weight: bolder;
-            color: #000;
-            font-size: 12px;
-        }
-
-        .price {
-            font-weight: bold;
-        }
-    }
-
-    .inventory-info {
-        margin-left: 10px;
-
-        .inventory-subid {
-            font-size: 12px;
-            margin-bottom: 3px;
-            color: darkgrey;
-            font-weight: bolder;
-        }
-    
-        .inventory-item {
-            font-weight: bold;
-            font-size: 18px;
-        }
-    }
-
-}
-</style>
-
 <script setup>
 import { useCustomInventoriesStore } from '@/stores/customInventories';
-import { mdiDotsVertical, mdiFileExportOutline, mdiHistory, mdiPencilOutline, mdiTrashCanOutline } from '@mdi/js';
+import {
+  mdiCogOutline,
+  mdiEyeCircle, mdiPencil,
+} from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router';
+import {useCheckPermission} from "@/compose/checkPermission";
+import TableList from "@/components/TableList.vue";
+import FilterDialog from "@/pages/admin/inventory/custom/FilterDialog.vue";
 
 const { t } = useI18n()
 
@@ -294,9 +124,50 @@ const router = useRouter()
 
 const store = useCustomInventoriesStore()
 
-const { listOfInventories, totalOfPagination } = storeToRefs(store)
+const { listOfInventories, totalOfInventoryList } = storeToRefs(store)
 
 const page = ref(1)
+
+const showFilterDialog = ref(false);
+
+const showClearFilter = ref(false);
+
+const itemsPerPage = ref(10)
+
+const filterData = ref(null);
+
+const headers = ref([
+  {
+    title: t('name'),
+    key: 'name',
+    align: 'start',
+    sortable: true
+  },
+  {
+    title: t('totalItem'),
+    key: 'name',
+    align: 'start',
+    sortable: true
+  },
+  {
+    title: t('location'),
+    key: 'location',
+    align: 'start',
+    sortable: true
+  },
+  {
+    title: t('price'),
+    key: 'location',
+    align: 'start',
+    sortable: true
+  },
+  {
+    title: t('action'),
+    key: 'uid',
+    align: 'start',
+    sortable: true
+  },
+]);
 
 const loading = ref(false)
 
@@ -319,17 +190,47 @@ function buildForm() {
     })
 }
 
-async function getList() {
-    loading.value = true
-    await store.getList()
-    loading.value = false
+function showFilter() {
+  showFilterDialog.value = true;
 }
 
-function editInventory(uid) {
-    router.push({path: `/admin/inventories/custom/edit/${uid}`})
+function clearFilter() {
+  filterData.value = null;
+  showClearFilter.value = false;
+  getList();
 }
 
-onMounted(() => {
-    getList()
-})
+function closeFilter(payloadFilter) {
+  showFilterDialog.value = false;
+
+  if (payloadFilter) {
+    filterData.value = payloadFilter
+    showClearFilter.value = true;
+    getList();
+  } else {
+    filterData.value = null;
+  }
+}
+
+async function getList(payload = null) {
+    if (filterData.value && !payload) {
+      payload = {
+        page: 1,
+        itemsPerPage: 10,
+        name: filterData.value.name
+      }
+    } else if (!filterData.value && !payload) {
+      payload = {
+        page: 1,
+        itemsPerPage: 10
+      };
+    }
+
+    loading.value = true;
+    await store.getList(payload);
+    loading.value = false;
+}
+
+function bulkDelete(payload) {
+}
 </script>

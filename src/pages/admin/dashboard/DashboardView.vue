@@ -1,16 +1,10 @@
 <template>
     <div>
-        <v-row
-            align-content="center">
-            <v-col
-                cols="12"
-                md="8">
-                <!-- <select v-model="$i18n.locale">
-                    <option v-for="locale in $i18n.availableLocales" :key="`locale-${locale}`" :value="locale">{{ locale }}</option>
-                  </select> -->
+        <v-row>
+            <v-col cols="12" md="8">
                 <v-card
                     width="100%"
-                    class="card-primary card-greeting card-h-200 card-dashboard">
+                    class="card-primary card-greeting card-h-200 card-dashboard mb-5">
                     <template v-slot:title>
                         <v-row
                             align-content="center">
@@ -27,7 +21,7 @@
                                             alt="user"></v-img>
                                         </v-avatar>
                                         <span class="greeting-text">
-                                            Welcome Back {{ username }}!
+                                            {{ $t('welcomeBack') }} {{ username }}!
                                         </span>
                                     </div>
 
@@ -45,8 +39,29 @@
                                                 v-for="(report, r) in listOfReports.left"
                                                 :key="r">
                                                 <div class="wrapper-info">
-                                                    <p class="value">
-                                                        {{ report.value }}
+                                                    <p class="value position-relative">
+                                                        <template v-if="report.is_hide_nominal && hideNominal">
+                                                          ***********
+                                                        </template>
+                                                        <template v-else>
+                                                          {{ report.value }}
+                                                        </template>
+
+                                                        <template v-if="report.is_hide_nominal != undefined">
+                                                          <v-icon
+                                                            v-if="report.is_hide_nominal"
+                                                            :icon="mdiEyeOffOutline"
+                                                            class="icon-eye"
+                                                            @click.prevent="changeAvailability(report, false)"
+                                                            size="15"></v-icon>
+
+                                                          <v-icon
+                                                            v-if="!report.is_hide_nominal"
+                                                            :icon="mdiEyeOutline"
+                                                            class="icon-eye"
+                                                            @click.prevent="changeAvailability(report, true)"
+                                                            size="15"></v-icon>
+                                                        </template>
                                                     </p>
                                                     <p class="text">
                                                         {{ report.text }}
@@ -68,92 +83,74 @@
                         </v-row>
                     </template>
                 </v-card>
-            </v-col>
 
-            <template v-if="loading">
-                <v-col
-                    md="2"
-                    cols="12">
-                    <v-skeleton-loader type="card"></v-skeleton-loader>
-                </v-col>
-                <v-col
-                    md="2"
-                    cols="12">
-                    <v-skeleton-loader type="card"></v-skeleton-loader>
-                </v-col>
-            </template>
-            <template v-else>
-                <template v-if="listOfReports.right">
-                    <v-col
-                        md="2"
-                        cols="12"
-                        v-for="(right, rt) in listOfReports.right"
-                        :key="rt">
-                        <v-card
-                            density="default"
-                            width="100%"
-                            variant="elevated"
-                            class="card-project-chart card-h-200 card-dashboard">
-                            <template v-if="right.value == 0">
-                                <v-card-text class="d-flex align-center justify-center h-100">
-                                    <div class="text-center">
-                                        <p class="value">
-                                            {{ right.value }}
-                                        </p>
-                                        <p class="text">
-                                            {{ right.text }}
-                                        </p>
-                                    </div>
-                                </v-card-text>
-                            </template>
-                            <template v-else>
-                                <v-card-item>
-                                    <v-card-title>
-                                        <p class="value">
-                                            {{ right.value }}
-                                        </p>
-                                        <p class="text">
-                                            {{ right.text }}
-                                        </p>
-                                    </v-card-title>
-                                </v-card-item>
-    
-                                <v-card-text>
-                                    <apexchart height="150" type="donut" :options="right.options" :series="right.series"></apexchart>
-                                </v-card-text>
-                            </template>
-                        </v-card>
-                    </v-col>
-                </template>
-                <template v-else>
-                    <v-col
-                        cols="12"
-                        md="4">
-                        <project-deadline />
-                    </v-col>
-                </template>
-            </template>
-        </v-row>
 
-        <v-row>
-            <!-- Calendar -->
-            <v-col
-                cols="12"
-                md="8">
                 <calendar-event />
             </v-col>
-            <!-- End Calendar -->
+            <v-col cols="12" md="4">
+                <template v-if="listOfReports.right">
+                    <v-row>
+                        <v-col
+                            md="6"
+                            cols="12"
+                            v-for="(right, rt) in listOfReports.right"
+                            :key="rt">
+                            <v-card
+                                density="default"
+                                width="100%"
+                                variant="elevated"
+                                class="card-project-chart card-h-200 card-dashboard">
+                                <template v-if="right.value == 0">
+                                    <v-card-text class="d-flex align-center justify-center h-100">
+                                        <div class="text-center">
+                                            <p class="value">
+                                                {{ right.value }}
+                                            </p>
+                                            <p class="text">
+                                                {{ right.text }}
+                                            </p>
+                                        </div>
+                                    </v-card-text>
+                                </template>
+                                <template v-else>
+                                    <v-card-item>
+                                        <v-card-title>
+                                            <p class="value">
+                                                {{ right.value }}
+                                            </p>
+                                            <p class="text">
+                                                {{ right.text }}
+                                            </p>
+                                        </v-card-title>
+                                    </v-card-item>
 
-            <v-col
-                cols="12"
-                md="4"
-                v-if="listOfReports.right">
-                <project-deadline />
+                                    <v-card-text>
+                                        <apexchart height="150" type="donut" :options="right.options" :series="right.series"></apexchart>
+                                    </v-card-text>
+                                </template>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </template>
+                <template v-else>
+                    <v-row>
+                        <v-col
+                            cols="12"
+                            md="12">
+                            <project-deadline />
+                        </v-col>
+                    </v-row>
+                </template>
+
+                <div v-if="listOfReports.right"
+                    class="mt-5">
+                    <project-deadline />
+                </div>
             </v-col>
         </v-row>
     </div>
 </template>
-  
+
 <script setup>
 import { onMounted, ref } from 'vue'
 import CalendarEvent from './CalendarEvent.vue'
@@ -161,6 +158,7 @@ import ProjectDeadline from './ProjectDeadline.vue'
 import { useBreakToken } from '@/compose/breakToken';
 import { useDashboardStore } from '@/stores/dashboard';
 import { storeToRefs } from 'pinia';
+import { mdiEyeOffOutline, mdiEyeOutline } from "@mdi/js";
 
 const store = useDashboardStore()
 
@@ -176,12 +174,26 @@ async function getReport() {
     loading.value = false
 }
 
+function changeAvailability(data, target) {
+  console.log("data", data);
+
+  listOfReports.value.left.map((item) => {
+    if (item.text === data.text) {
+      item.is_hide_nominal = target;
+    }
+
+    return item;
+  });
+}
+
 onMounted(() => {
     var user = useBreakToken('user')
     username.value = user.employee ? user.employee.name : 'admin'
 
     getReport()
 })
+
+const hideNominal = ref(true);
 </script>
 
 <style lang="scss" scoped>
@@ -224,7 +236,7 @@ onMounted(() => {
     .wrapper-info {
 
         .value {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: bold !important;
         }
 
@@ -241,5 +253,11 @@ onMounted(() => {
     padding-bottom: 0 !important;
     padding-top: 2rem !important;
 }
+
+.icon-eye {
+  position: absolute;
+  top: -8px;
+  right: -15px;
+  cursor: pointer;
+}
 </style>
-  

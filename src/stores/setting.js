@@ -38,7 +38,7 @@ export const useSettingStore = defineStore('setting', {
                 this.addonSetting = resp.data.data.addon;
                 this.kanbanSetting = resp.data.data.kanban;
                 this.generalSetting = resp.data.data.general;
-                this.emailSetting = resp.data.data.email;
+                this.emailSetting = resp.data.data.email || [];
                 this.variableSetting = resp.data.data.variables || [];
 
                 return resp;

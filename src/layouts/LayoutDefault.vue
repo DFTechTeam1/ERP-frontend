@@ -27,7 +27,7 @@
           <template
             v-for="(menus, menuKey) in layoutItems"
             :key="menuKey">
-          
+
             <v-list-subheader v-if="!rail">{{ menuKey }}</v-list-subheader>
 
             <template
@@ -39,15 +39,15 @@
                   class="sub-menu pointer"
                   color="blue"
                   :class="{
-                    'menu-active': activeMenuGetters == menu.link,
+                    'menu-active': menu.active_menu,
                     'menu-collapsed': rail,
                   }"
                   base-color="#000"
-                  @click="navigate(menu.link)">
+                  @click="navigate(menu)">
                   <template v-slot:prepend>
-                    <v-img size="18" 
-                      :src="menu.icon" 
-                      width="15" 
+                    <v-img size="18"
+                      :src="menu.icon"
+                      width="15"
                       height="15"
                       class="mr-2"></v-img>
                   </template>
@@ -59,53 +59,57 @@
 
               <template v-else>
 
-                <v-list-group
-                  :value="menu.name"
-                  color="blue"
-                  :class="{
-                    'menu-group-collapsed': rail
-                  }">
-                  
-                  <template v-slot:activator="{ props }">
-                    <v-list-item
-                      v-bind="props"
-                      class="sub-menu pointer">
+                <v-list>
 
+                  <v-list-group
+                    :value="menu.name"
+                    color="blue"
+                    :class="{
+                      'menu-group-collapsed': rail
+                    }">
+
+                    <template v-slot:activator="{ props }">
+                      <v-list-item
+                        v-bind="props"
+                        class="sub-menu pointer">
+
+                        <template v-slot:prepend>
+                          <v-img size="18"
+                            :src="menu.icon"
+                            width="15"
+                            height="15"
+                            class="mr-2"></v-img>
+                        </template>
+                        <template v-slot:title>
+                          {{ menu.name }}
+                        </template>
+
+                      </v-list-item>
+                    </template>
+
+                    <v-list-item
+                      v-for="(children, c) in menu.children"
+                      :key="c"
+                      class="sub-menu pointer"
+                      :class="{
+                        'menu-active': children.link == activeMenuGetters,
+                        'menu-collapsed': rail,
+                      }"
+                      @click="navigate(children)"
+                    >
                       <template v-slot:prepend>
-                        <v-img size="18" 
-                          :src="menu.icon"
-                          width="15"
-                          height="15"
-                          class="mr-2"></v-img>
+                        <v-icon
+                          :icon="mdiCircleOutline"
+                          size="15"></v-icon>
                       </template>
                       <template v-slot:title>
-                        {{ menu.name }}
+                        {{ children.name }}
                       </template>
-
                     </v-list-item>
-                  </template>
 
-                  <v-list-item
-                    v-for="(children, c) in menu.children"
-                    :key="c"
-                    class="sub-menu pointer"
-                    :class="{
-                      'menu-active': children.link == activeMenuGetters,
-                      'menu-collapsed': rail,
-                    }"
-                    @click="navigate(children.link)"
-                  >
-                    <template v-slot:prepend>
-                      <v-icon 
-                        :icon="mdiCircleOutline"
-                        size="15"></v-icon>
-                    </template>
-                    <template v-slot:title>
-                      {{ children.name }}
-                    </template>
-                  </v-list-item>
+                  </v-list-group>
 
-                </v-list-group>
+                </v-list>
 
               </template>
 
@@ -147,8 +151,8 @@
       </v-navigation-drawer>
     </template>
     <template v-else>
-      <v-navigation-drawer 
-        v-model="drawer" 
+      <v-navigation-drawer
+        v-model="drawer"
         :temporary="true"
         class="main-sidebar position-fixed">
         <!-- logo -->
@@ -170,7 +174,7 @@
           <template
             v-for="(menus, menuKey) in layoutItems"
             :key="menuKey">
-          
+
             <v-list-subheader v-if="!rail">{{ menuKey }}</v-list-subheader>
 
             <template
@@ -182,15 +186,15 @@
                   class="sub-menu pointer"
                   color="blue"
                   :class="{
-                    'menu-active': activeMenuGetters == menu.link,
+                    'menu-active': menu.active_menu,
                     'menu-collapsed': rail,
                   }"
                   base-color="#000"
-                  @click="navigate(menu.link)">
+                  @click="navigate(menu)">
                   <template v-slot:prepend>
-                    <v-img size="18" 
-                      :src="menu.icon" 
-                      width="15" 
+                    <v-img size="18"
+                      :src="menu.icon"
+                      width="15"
                       height="15"
                       class="mr-2"></v-img>
                   </template>
@@ -202,53 +206,58 @@
 
               <template v-else>
 
-                <v-list-group
-                  :value="menu.name"
-                  color="blue"
-                  :class="{
-                    'menu-group-collapsed': rail
-                  }">
-                  
-                  <template v-slot:activator="{ props }">
-                    <v-list-item
-                      v-bind="props"
-                      class="sub-menu pointer">
+                <v-list>
 
+                  <v-list-group
+                    :value="menu.name"
+                    color="blue"
+                    :class="{
+                      'menu-group-collapsed': rail
+                    }">
+
+                    <template v-slot:activator="{ props }">
+                      <v-list-item
+                        v-bind="props"
+                        class="sub-menu pointer">
+
+                        <template v-slot:prepend>
+                          <v-img size="18"
+                            :src="menu.icon"
+                            width="15"
+                            height="15"
+                            class="mr-2"></v-img>
+                        </template>
+                        <template v-slot:title>
+                          {{ menu.name }}
+                        </template>
+
+                      </v-list-item>
+                    </template>
+
+                    <v-list-item
+                      v-for="(children, c) in menu.children"
+                      :key="c"
+                      class="sub-menu pointer"
+                      :class="{
+                        'menu-active': children.link == activeMenuGetters,
+                        'menu-collapsed': rail,
+                      }"
+                      @click="navigate(children)"
+                    >
                       <template v-slot:prepend>
-                        <v-img size="18" 
-                          :src="menu.icon"
-                          width="15"
-                          height="15"
-                          class="mr-2"></v-img>
+                        <v-icon
+                          :icon="mdiCircleOutline"
+                          size="15"></v-icon>
                       </template>
                       <template v-slot:title>
-                        {{ menu.name }}
+                        {{ children.name }}
                       </template>
-
                     </v-list-item>
-                  </template>
 
-                  <v-list-item
-                    v-for="(children, c) in menu.children"
-                    :key="c"
-                    class="sub-menu pointer"
-                    :class="{
-                      'menu-active': children.link == activeMenuGetters,
-                      'menu-collapsed': rail,
-                    }"
-                    @click="navigate(children.link)"
-                  >
-                    <template v-slot:prepend>
-                      <v-icon 
-                        :icon="mdiCircleOutline"
-                        size="15"></v-icon>
-                    </template>
-                    <template v-slot:title>
-                      {{ children.name }}
-                    </template>
-                  </v-list-item>
+                  </v-list-group>
 
-                </v-list-group>
+                </v-list>
+
 
               </template>
 
@@ -282,17 +291,24 @@
             v-if="!mobile"
           ></v-icon>
         </template>
-  
+
         <v-app-bar-title>
           {{ globalAppName }}
         </v-app-bar-title>
 
-        <!-- <v-menu open-on-click>
+        <v-menu open-on-click>
           <template v-slot:activator="{props}">
             <v-avatar class="me-5">
               <v-img
+                v-if="currentLang == 'en'"
                 v-bind="props"
                 src="/lang/britain.png"
+                width="40"
+                height="40"></v-img>
+              <v-img
+                v-if="currentLang == 'id'"
+                v-bind="props"
+                src="/lang/indo.png"
                 width="40"
                 height="40"></v-img>
             </v-avatar>
@@ -318,8 +334,8 @@
               </v-avatar>
             </v-list-item>
           </v-list>
-        </v-menu> -->
-  
+        </v-menu>
+
         <v-menu open-on-click
           :close-on-content-click="false">
           <template v-slot:activator="{ props }">
@@ -330,10 +346,10 @@
               class="header-bell"
             ></v-icon>
           </template>
-  
+
           <BellNotification />
         </v-menu>
-  
+
         <v-menu open-on-click>
           <template v-slot:activator="{ props }">
             <v-avatar
@@ -344,7 +360,7 @@
             >
             </v-avatar>
           </template>
-  
+
           <v-list>
             <v-list-item>
               <template v-slot:title>
@@ -353,7 +369,7 @@
                     <p class="title">User Profile</p>
                     <div class="d-flex align-center" style="gap: 10px">
                       <v-avatar image="/userprofile.jpg" size="90"></v-avatar>
-  
+
                       <div class="profile-detail">
                         <p class="name" v-if="username">{{ username }}</p>
                         <p class="position" v-if="position">{{ position }}</p>
@@ -361,42 +377,60 @@
                       </div>
                     </div>
                   </div>
-  
+
                   <v-divider style="margin: 10px 0"></v-divider>
                 </div>
               </template>
             </v-list-item>
-  
+
             <v-list-item>
               <template v-slot:prepend>
                 <div class="icon-profile">
                   <v-icon :icon="mdiAccount"></v-icon>
                 </div>
               </template>
-  
+
               <template v-slot:title>
                 <div class="dropdown-profile-wrapper">
-                  <p class="title">Profile</p>
-                  <p class="subtitle">Account Setting</p>
+                  <p class="title no-decoration">Profile</p>
+                  <p class="subtitle no-decoration">Account Setting</p>
                 </div>
               </template>
             </v-list-item>
-  
-            <v-list-item>
+
+            <v-list-item
+              @click.prevent="resetPasswordForm">
               <template v-slot:prepend>
                 <div class="icon-profile">
-                  <v-icon :icon="mdiTable"></v-icon>
+                  <v-icon :icon="mdiKeyOutline"></v-icon>
                 </div>
               </template>
-  
+
               <template v-slot:title>
                 <div class="dropdown-profile-wrapper">
-                  <p class="title">My task</p>
-                  <p class="subtitle">To do and Daily task</p>
+                  <p class="title no-decoration">Reset Password</p>
+                  <p class="subtitle no-decoration">Reset your app password</p>
                 </div>
               </template>
             </v-list-item>
-  
+
+            <router-link to="/admin/production/tasks">
+              <v-list-item>
+                <template v-slot:prepend>
+                  <div class="icon-profile">
+                    <v-icon :icon="mdiTable"></v-icon>
+                  </div>
+                </template>
+
+                <template v-slot:title>
+                  <div class="dropdown-profile-wrapper no-decoration">
+                    <p class="title no-decoration">My task</p>
+                    <p class="subtitle no-decoration">To do and Daily task</p>
+                  </div>
+                </template>
+              </v-list-item>
+            </router-link>
+
             <v-list-item>
               <template v-slot:title>
                 <v-btn
@@ -416,6 +450,9 @@
       </v-app-bar>
     </div>
 
+    <ResetPassword :is-show="showResetPasswordForm"
+      @close-event="closeFormResetPassword"></ResetPassword>
+
     <v-main style="min-height: 300px; background-color: transparent;">
       <div class="main-content-drawer"
         :class="{
@@ -431,9 +468,9 @@
 <script setup>
 import AppFooter from "@/components/AppFooter.vue";
 import BellNotification from './BellNotification.vue'
-import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower } from "@mdi/js";
+import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower, mdiKeyOutline } from "@mdi/js";
 import { useDisplay } from "vuetify/lib/framework.mjs";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useMenusStore } from "@/stores/menus";
 import { useAuthenticationStore } from "@/stores/authentication";
 import { useRouter, useRoute } from "vue-router";
@@ -445,6 +482,7 @@ import { useSettingStore } from "@/stores/setting";
 import pusher from "@/plugins/pusher";
 import { useNotificationStore } from "@/stores/notification";
 import { useI18n } from "vue-i18n";
+import ResetPassword from '@/components/ResetPassword.vue'
 
 const i18n = useI18n()
 
@@ -462,7 +500,7 @@ const permissions = ref([]);
 
 if (encodedText) {
   var { decodedString } = useEncrypt(encodedText, saltKey);
-  
+
   permissions.value = decodedString.permissions;
 }
 
@@ -472,6 +510,8 @@ const route = useRoute();
 
 const rail = ref(false);
 
+const showResetPasswordForm = ref(false)
+
 const drawer = ref(null);
 
 const { mobile } = useDisplay();
@@ -480,7 +520,9 @@ const store = useMenusStore();
 
 const authStore = useAuthenticationStore();
 
-const menus = ref([]);
+const menusData = ref([]);
+
+const openMenu = ref([])
 
 const { activeMenuGetters, pathNameGetters } = storeToRefs(store);
 
@@ -491,6 +533,8 @@ const username = ref(null);
 const email = ref(null);
 
 const position = ref(null);
+
+const currentLang = ref('en')
 
 const layoutItems = ref(useBreakToken('menus'));
 
@@ -504,7 +548,7 @@ const accountLists = ref([
 function retrieveNotification() {
   var userId = useBreakToken("user");
   var channel = pusher.subscribe("my-channel-" + userId.id);
-  
+
   channel.bind("notification-event", (notif) => {
     console.log("notif", notif);
 
@@ -525,11 +569,48 @@ function changeLocal(lang) {
 }
 
 onMounted(() => {
-  menus.value = store.getMenus();
+  openMenu.value = []
 
   if (localStorage.getItem('lang')) {
     i18n.locale.value = localStorage.getItem('lang')
+    currentLang.value = localStorage.getItem('lang')
   }
+
+  var newLayout = useBreakToken('menus')
+  for (let a in newLayout) {
+    if (newLayout[a].length) {
+      newLayout[a].map((elem) => {
+        elem.active_menu = false
+
+        if (currentLang.value == 'en') {
+          elem.name = elem.lang_en
+        } else if (currentLang.value == 'id') {
+          elem.name = elem.lang_id
+        }
+
+        // set active menu
+        if (route.meta.parentLink) {
+          if (route.meta.parentLink == elem.link) {
+            elem.active_menu = true
+          }
+        }
+
+        if (elem.children.length) {
+          elem.children.map((elemChild) => {
+            if (currentLang.value == 'en') {
+              elemChild.name = elemChild.lang_en
+            } else if (currentLang.value == 'id') {
+              elemChild.name = elemChild.lang_id
+            }
+          })
+        }
+
+        return elem
+      })
+    }
+  }
+
+  layoutItems.value = newLayout
 
   initNotification()
 
@@ -560,7 +641,7 @@ onMounted(() => {
 
   // set user name on header and sidebar
   var user = useBreakToken('user');
-  
+
   if (
     (user) && (user.employee)
   ) {
@@ -577,14 +658,65 @@ onMounted(() => {
 });
 
 function navigate(path) {
-  store.navigateMenu(path);
-  router.push(path);
+  store.navigateMenu(path.link);
+  router.push(path.link);
+
+  openMenu.value = [path.name]
 }
 
 async function logout() {
   await authStore.logout();
   router.push({ path: "/auth/a/login" });
 }
+
+function resetPasswordForm() {
+  showResetPasswordForm.value = true
+}
+
+function closeFormResetPassword() {
+  showResetPasswordForm.value = false
+}
+
+watch(route, (values) => {
+  openMenu.value = []
+
+  var newLayout = useBreakToken('menus')
+  for (let a in newLayout) {
+    if (newLayout[a].length) {
+      newLayout[a].map((elem) => {
+        elem.active_menu = false
+
+        if (currentLang.value == 'en') {
+          elem.name = elem.lang_en
+        } else if (currentLang.value == 'id') {
+          elem.name = elem.lang_id
+        }
+
+        // set active menu
+        if (values.meta.parentLink) {
+          if (values.meta.parentLink == elem.link) {
+            elem.active_menu = true
+          }
+        }
+
+        if (elem.children.length) {
+          elem.children.map((elemChild) => {
+            if (currentLang.value == 'en') {
+              elemChild.name = elemChild.lang_en
+            } else if (currentLang.value == 'id') {
+              elemChild.name = elemChild.lang_id
+            }
+            return elemChild
+          })
+        }
+
+        return elem
+      })
+    }
+  }
+
+  layoutItems.value = newLayout
+})
 </script>
 
 <style scoped lang="scss">
@@ -610,6 +742,13 @@ async function logout() {
 .v-list-scroll {
   max-height: calc(100% - 200px) !important;
   overflow: scroll !important;
+}
+@media screen and (max-width: 576px) {
+  .v-list-scroll {
+    max-height: calc(100% - 20px) !important;
+    padding-bottom: 50px;
+    overflow: scroll !important;
+  }
 }
 .icon-profile {
   background: rgb(236, 242, 255);
@@ -729,7 +868,7 @@ header {
   background-color: $base-light-primary !important;
   background: linear-gradient(270deg, rgba(115,103,240, .7), rgb(115,103,240)) !important;
   border-radius: 8px !important;
-  
+
   .v-list-item-title {
     color: #fff !important;
   }

@@ -13,7 +13,7 @@
                             {{ $t('projectStatistic') }}
                         </v-toolbar-title>
                     </v-toolbar>
-        
+
                     <v-card-text>
                         <template v-if="!detailProject">
                             <v-skeleton-loader type="list-item-two-line"></v-skeleton-loader>
@@ -25,7 +25,7 @@
                                     md="6">
                                     <div class="report-item mb-3">
                                         <v-label class="fw-bold" style="opacity: 1;">{{ $t('feedback') }}</v-label>
-                                        <p class="report-value">Event terlalu mepet</p>
+                                        <p class="report-value">{{ detailProject.feedback || '' }}</p>
                                     </div>
                                 </v-col>
                                 <v-col
@@ -46,16 +46,16 @@
                                                     <p class="report-subtitle">Additional point is {{ first.additional_point }}</p>
                                                     <p class="report-subtitle">Total point is <span class="fw-bold">{{ first.total_point }}</span></p>
                                                 </template>
-    
+
                                                 <v-divider class="mt-3"></v-divider>
                                             </v-list-item>
-    
+
                                         </v-list>
-            
+
                                         <div class="text-center" v-if="!showMorePoint && detailProject.report.more_line">
                                             <p class="pointer show-more-text" @click.prevent="showMorePoint = true">Show more ...</p>
                                         </div>
-            
+
                                         <v-expand-transition>
                                             <v-list
                                                 v-if="showMorePoint && detailProject.report.more_line"
@@ -72,12 +72,12 @@
                                                         <p class="report-subtitle">Additional point is {{ more.additional_point }}</p>
                                                         <p class="report-subtitle">Total point is <span class="fw-bold">{{ more.total_point }}</span></p>
                                                     </template>
-    
+
                                                     <v-divider class="mt-3"></v-divider>
                                                 </v-list-item>
                                             </v-list>
                                         </v-expand-transition>
-            
+
                                         <div class="text-center" v-if="showMorePoint && detailProject.report.more_line">
                                             <p class="pointer show-more-text" @click.prevent="showMorePoint = false">Hide</p>
                                         </div>

@@ -20,7 +20,7 @@
 
             <!-- Detail Calendar -->
             <div class="detail-calendar">
-                <div class="detail-calendar__title">Events</div>
+                <div class="detail-calendar__title">{{ $t('events') }}</div>
 
                 <template v-if="loadingCalendar">
                     <v-skeleton-loader
@@ -59,7 +59,7 @@
                                             <tr>
                                                 <td style="width: 55%; font-weight: bold;">VJ</td>
                                                 <td style="width: 3%">:</td>
-                                                <td style="width: 42%;">-</td>
+                                                <td style="width: 42%;">{{ event.customData.vj }}</td>
                                             </tr>
                                             <tr>
                                                 <td style="width: 55%; font-weight: bold;">Equipment</td>
@@ -75,8 +75,8 @@
 
                     <template v-else>
                         <v-empty-state
-                        headline="No Event"
-                        title="You have no event yet"
+                        :headline="t('noEvent')"
+                        :title="t('youHaveNoEvent')"
                         :icon="mdiCalendarAlert"
                         ></v-empty-state>
                     </template>
@@ -137,12 +137,15 @@ import { useDashboardStore } from '@/stores/dashboard'
 import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'
 import { mdiCalendarAlert, mdiCalendarAccount } from '@mdi/js'
+import { useI18n } from 'vue-i18n';
 
 const store = useDashboardStore()
 
 const { detailOfProjectCalendar, listOfProjectCalendar } = storeToRefs(store)
 
 const loadingCalendar = ref(false)
+
+const { t } = useI18n()
 
 const calendar = ref(null)
 

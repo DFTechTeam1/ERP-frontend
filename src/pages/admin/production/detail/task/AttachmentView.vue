@@ -10,6 +10,10 @@
         </div>
 
         <div class="attachment-wrapper">
+            <image-preview
+              @close-event="hidePreviewImage"
+              :media-path="previewImagePath"
+              :is-show="showPreviewImage"></image-preview>
             <div class="attachment-item d-flex ga-3 mt-2 align-center"
                 v-for="(media, x) in props.detail.medias"
                 :key="x">
@@ -18,6 +22,8 @@
                         <v-img
                             v-if="media.ext == 'jpg' || media.ext == 'jpeg' || media.ext == 'webp' || media.ext == 'png'"
                             :src="media.media_link"
+                            class="pointer"
+                            @click.prevent="previewImage(`${media.media_link}`)"
                             width="100%"></v-img>
                         <v-icon
                             v-if="media.ext == 'pdf'"
@@ -37,7 +43,7 @@
                 <div class="detail">
                     <p class="name fw-bold">{{ media.media }}</p>
                     <p class="detail-attachment">
-                        Added {{ media.update_timing }} 
+                        Added {{ media.update_timing }}
                         <v-icon
                             class="mx-2"
                             :icon="mdiCircle"
@@ -58,7 +64,7 @@
                             :icon="mdiCircle"
                             color="black"
                             size="5"></v-icon>
-                        <span class="action-link" 
+                        <span class="action-link"
                             @click.prevent="showConfirmDeleteModal(media)"
                             v-if="detailOfTask.is_active">
                             {{ $t('delete') }}
@@ -120,11 +126,11 @@
 
 <script setup>
 import { useProjectStore } from '@/stores/project';
-import { 
-    mdiAttachment, 
-    mdiCircle, 
-    mdiFileExcelBox, 
-    mdiFilePdfBox, 
+import {
+    mdiAttachment,
+    mdiCircle,
+    mdiFileExcelBox,
+    mdiFilePdfBox,
     mdiLink } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
@@ -148,6 +154,19 @@ const props = defineProps({
 const showConfirmDelete = ref(false);
 
 const selectedIds = ref([]);
+
+const showPreviewImage = ref(false);
+
+const previewImagePath = ref(null);
+
+function previewImage(media) {
+  showPreviewImage.value = true;
+  previewImagePath.value = media;
+}
+
+function hidePreviewImage(value) {
+  showPreviewImage.value = value;
+}
 
 function downloadData(media) {
     window.location.href = import.meta.env.VITE_API_URL + `/production/project/${detailOfTask.value.uid}/downloadAttachment/${media.id}`;

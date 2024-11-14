@@ -28,13 +28,23 @@
                             <br>
                             <p>{{ item.reason }}</p>
                             <br><br>
-                            <v-label>{{ $t('images') }}</v-label>
-                            <div class="image-wrap d-flex align-center w-100 ga-4">
-                                <div class="image-item">
+                            <v-label class="d-flex align-center ga-2">
+                                {{ $t('images') }}
+
+                                <v-icon
+                                    :icon="mdiDownload"
+                                    class="pointer"
+                                    size="20"
+                                    @click.prevent="downloadMedia(props.detail[x])"></v-icon>
+                            </v-label>
+                            <div class="image-wrap d-flex align-center w-100 ga-4 flex-wrap">
+                                <div class="image-item"
+                                    v-for="(image, i) in props.detail[x].images"
+                                    :key="i">
                                     <v-img
-                                        height="100"
-                                        width="100"
-                                        :src="item.full_path"></v-img>
+                                        height="auto"
+                                        width="150"
+                                        :src="image"></v-img>
                                 </div>
                             </div>
                         </v-expansion-panel-text>
@@ -47,9 +57,12 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { mdiClose } from '@mdi/js'
+import { mdiClose, mdiDownload } from '@mdi/js'
+import { useProjectStore } from '@/stores/project'
 
 const emit = defineEmits(['close-event'])
+
+const store = useProjectStore()
 
 const props = defineProps({
     isShow: {
@@ -59,6 +72,9 @@ const props = defineProps({
     detail: {
         default: [],
     },
+    detailTask: {
+        default: null,
+    }
 })
 
 const show = ref(false)
@@ -68,4 +84,8 @@ watch(props, (values) => {
         show.value = values.isShow
     }
 })
+
+function downloadMedia(item) {
+    store.downloadReviseMedia(props.detailTask.project.uid, item.id)
+}
 </script>

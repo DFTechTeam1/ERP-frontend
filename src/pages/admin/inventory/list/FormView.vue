@@ -23,10 +23,10 @@
                             <v-tab value="general">{{ $t('general') }}</v-tab>
                             <v-tab value="images">{{ $t('images') }}</v-tab>
                         </v-tabs>
-    
+
                         <v-window v-model="formTab" class="no-shadow">
                             <v-window-item value="images" class="pb-5">
-                                <v-row 
+                                <v-row
                                     class="mt-3"
                                     v-if="previewImage.length">
                                     <v-col
@@ -35,7 +35,7 @@
                                         lg="2"
                                         v-for="(image,x) in previewImage"
                                         :key="x">
-                                        <div 
+                                        <div
                                             class="box-preview-image position-relative"
                                             :id="'preview-image-' + x">
                                             <v-icon
@@ -48,9 +48,9 @@
                                                 :src="image.image"
                                                 width="40"
                                                 height="auto"></v-img>
-                                                
-                                            <input 
-                                                type="hidden" 
+
+                                            <input
+                                                type="hidden"
                                                 :id="'preview-image-key-' + x"
                                                 :value="image.id" />
                                         </div>
@@ -92,7 +92,7 @@
                                         </div>
                                     </v-col>
                                 </v-row>
-            
+
                                 <v-row>
                                     <v-col cols="12" lg="6" md="6">
                                         <div class="form-group">
@@ -115,7 +115,7 @@
                                         </div>
                                     </v-col>
                                 </v-row>
-            
+
                                 <v-row class="mb-3">
                                     <v-col cols="12" lg="4" md="4">
                                         <div class="form-group">
@@ -150,7 +150,7 @@
                                         </div>
                                     </v-col>
                                 </v-row>
-    
+
                                 <!-- Each stock form -->
                                 <v-expansion-panels
                                     v-model="openPanel"
@@ -161,24 +161,26 @@
                                         color="primary"
                                         class="no-shadow">
                                         <v-expansion-panel-text>
-                                            <div 
+                                            <div
                                                 class="box-item-stock mt-3 position-relative"
                                                 v-for="(boxStock, keyBox) in fields"
                                                 :id="'box-item-stock-' + boxStock.key"
                                                 :key="boxStock.key">
-                                                <div 
+                                                <template v-if="!boxStock.value.is_on_edit.length">
+                                                  <div
                                                     v-if="keyBox > 0"
                                                     class="box-item-stock-remove"
                                                     @click.prevent="removeBoxStock(boxStock.key)">
                                                     <v-icon
-                                                        :icon="mdiCloseCircle"
-                                                        color="red"
-                                                        size="25"></v-icon>
-                                                </div>
+                                                      :icon="mdiCloseCircle"
+                                                      color="red"
+                                                      size="25"></v-icon>
+                                                  </div>
+                                                </template>
                                                 <v-row>
                                                     <v-col
                                                         cols="12"
-                                                        :lg="boxStock.value.location == 1 ? 4 : 6" 
+                                                        :lg="boxStock.value.location == 1 ? 4 : 6"
                                                         :md="boxStock.value.location == 1 ? 4 : 6">
                                                         <v-text-field
                                                             :label="t('itemName')"
@@ -188,7 +190,7 @@
                                                     </v-col>
                                                     <v-col
                                                         cols="12"
-                                                        :lg="boxStock.value.location == 1 ? 4 : 6" 
+                                                        :lg="boxStock.value.location == 1 ? 4 : 6"
                                                         :md="boxStock.value.location == 1 ? 4 : 6">
                                                         <field-input
                                                             :label="t('itemLocation')"
@@ -211,16 +213,49 @@
                                                             :selectOptions="listOfAllEmployees"></field-input>
                                                     </v-col>
                                                 </v-row>
+
+                                                <v-row>
+                                                  <v-col
+                                                    cols="12"
+                                                    lg="4"
+                                                    md="4">
+                                                    <year-picker
+                                                      v-model="boxStock.value.year_of_purchase"
+                                                      :label="t('yearOfPurchase')"
+                                                      :isRequired="false"></year-picker>
+                                                  </v-col>
+                                                  <v-col
+                                                    cols="12"
+                                                    lg="4"
+                                                    md="4">
+                                                    <field-input
+                                                      v-model="boxStock.value.warranty"
+                                                      :label="t('warranty')"
+                                                      :isRequired="false"
+                                                      :suffixText="t('year')"></field-input>
+                                                  </v-col>
+                                                  <v-col
+                                                    cols="12"
+                                                    lg="4"
+                                                    md="4">
+                                                    <field-input
+                                                      v-model="boxStock.value.purchase_price"
+                                                      :error-message="errors[`item_locations[${keyBox}].purchase_price`]"
+                                                      :label="t('purchasePrice')"
+                                                      :isRequired="false"
+                                                      :prefixText="t('rupiah')"></field-input>
+                                                  </v-col>
+                                                </v-row>
                                             </div>
-    
-                                            <div 
+
+                                            <div
                                                 class="box-item-stock mt-3"
                                                 id="box-item-stock-add">
                                                 <v-row>
                                                     <v-col
                                                         class="d-flex align-center justify-center ma-auto">
-                                                        <div 
-                                                            class="text-center border-dotted cursor-pointer" 
+                                                        <div
+                                                            class="text-center border-dotted cursor-pointer"
                                                             style="border-color: rgba(0,0,0,.2);"
                                                             @click.prevent="addMoreStock">
                                                             <v-icon
@@ -239,45 +274,45 @@
                                     </v-expansion-panel>
                                 </v-expansion-panels>
                                 <!-- End Each stock form -->
-    
-                                <v-row>
-                                    <v-col 
-                                        cols="12"
-                                        lg="4"
-                                        md="4">
-                                        <year-picker
-                                            v-model="year_of_purchase"
-                                            :label="t('yearOfPurchase')"
-                                            :isRequired="false"></year-picker>
-                                    </v-col>
-                                    <v-col 
-                                        cols="12"
-                                        lg="4"
-                                        md="4">
-                                        <field-input
-                                            v-model="warranty"
-                                            :label="t('warranty')"
-                                            :isRequired="false"
-                                            :suffixText="t('year')"></field-input>
-                                    </v-col>
-                                    <v-col 
-                                        cols="12"
-                                        lg="4"
-                                        md="4">
-                                        <field-input
-                                            v-model="purchase_price"
-                                            :error-message="errors.purchase_price"
-                                            :label="t('purchasePrice')"
-                                            :isRequired="false"
-                                            :prefixText="t('rupiah')"></field-input>
-                                    </v-col>
-                                </v-row>
-    
+
+<!--                                <v-row>-->
+<!--                                    <v-col-->
+<!--                                        cols="12"-->
+<!--                                        lg="4"-->
+<!--                                        md="4">-->
+<!--                                        <year-picker-->
+<!--                                            v-model="year_of_purchase"-->
+<!--                                            :label="t('yearOfPurchase')"-->
+<!--                                            :isRequired="false"></year-picker>-->
+<!--                                    </v-col>-->
+<!--                                    <v-col-->
+<!--                                        cols="12"-->
+<!--                                        lg="4"-->
+<!--                                        md="4">-->
+<!--                                        <field-input-->
+<!--                                            v-model="warranty"-->
+<!--                                            :label="t('warranty')"-->
+<!--                                            :isRequired="false"-->
+<!--                                            :suffixText="t('year')"></field-input>-->
+<!--                                    </v-col>-->
+<!--                                    <v-col-->
+<!--                                        cols="12"-->
+<!--                                        lg="4"-->
+<!--                                        md="4">-->
+<!--                                        <field-input-->
+<!--                                            v-model="purchase_price"-->
+<!--                                            :error-message="errors.purchase_price"-->
+<!--                                            :label="t('purchasePrice')"-->
+<!--                                            :isRequired="false"-->
+<!--                                            :prefixText="t('rupiah')"></field-input>-->
+<!--                                    </v-col>-->
+<!--                                </v-row>-->
+
                                 <v-row class="mb-15">
                                     <v-col cols="12" lg="12" md="12">
                                         <v-label :text="t('description')" class="mb-3"></v-label>
-                                        <QuillEditor 
-                                            theme="snow" 
+                                        <QuillEditor
+                                            theme="snow"
                                             ref="description_quill"
                                             @update:content="updateDescription" />
                                         <div v-if="errors.description" class="invalid-feedback">{{ errors.description }}</div>
@@ -285,8 +320,8 @@
                                 </v-row>
                             </v-window-item>
                         </v-window>
-    
-    
+
+
                         <v-row>
                             <v-col>
                                 <v-btn
@@ -327,6 +362,7 @@ import { watch } from 'vue';
 import { useError } from '@/compose/handleError'
 import { useRouter, useRoute } from 'vue-router';
 import { mdiCloseCircle, mdiPlusBox } from '@mdi/js';
+import FieldInput from "@/components/FieldInput.vue";
 
 // yup.setLocale({
 //     mixed: {
@@ -344,7 +380,7 @@ const brandStore = useBrandStore();
 const unitStore = useUnitStore();
 const supplierStore = useSupplierStore();
 
-const { 
+const {
     inventoryTypesAll
 } = storeToRefs(inventoryTypeStore);
 
@@ -386,9 +422,6 @@ const { errors, handleSubmit, defineField, resetForm, setErrors, setValues } = u
         supplier_id: yup.string().nullable(),
         warehouse_id: yup.string().required(t('warehouseRequired')),
         stock: yup.number(t('fieldMustBeNumber')).required(t('stockRequired')),
-        year_of_purchase: yup.string().nullable(),
-        warranty: yup.string().nullable(),
-        purchase_price: yup.string().required(t('purchasePriceRequired')),
         description: yup.string().nullable(),
         item_locations: yup.array().of(
             yup.object().shape({
@@ -404,7 +437,11 @@ const { errors, handleSubmit, defineField, resetForm, setErrors, setValues } = u
                     otherwise: function () {
                         return yup.string().nullable()
                     }
-                })
+                }),
+                purchase_price: yup.string().required(t('purchasePriceRequired')),
+                year_of_purchase: yup.string().nullable(),
+                warranty: yup.string().nullable(),
+                is_on_edit: yup.string().nullable(),
             })
         )
     }),
@@ -427,14 +464,19 @@ const validateData = handleSubmit(async values => {
 
     if (pond.value) {
         for (let a = 0; a < pond.value.getFiles().length; a++) {
+          console.log('check', pond.value.getFiles()[a].file);
             formData.append('images[]', pond.value.getFiles()[a].file);
         }
     }
+    return false;
 
     for (let b = 0; b < values.item_locations.length; b++) {
         formData.append(`item_locations[${b}][location]`, values.item_locations[b].location);
         formData.append(`item_locations[${b}][user_id]`, values.item_locations[b].user_id);
         formData.append(`item_locations[${b}][id]`, values.item_locations[b].id);
+        formData.append(`item_locations[${b}][purchase_price]`, values.item_locations[b].purchase_price);
+        formData.append(`item_locations[${b}][warranty]`, values.item_locations[b].warranty);
+        formData.append(`item_locations[${b}][year_of_purchase]`, values.item_locations[b].year_of_purchase);
     }
 
     formData.append('name', values.name);
@@ -459,7 +501,7 @@ const validateData = handleSubmit(async values => {
                 formData.append(`deleted_item_stock[${c}][id]`, deletedItemStock.value[c].id)
             }
         }
-        
+
         if (deletedimages.value.length) {
             for (let d = 0; d < deletedimages.value.length; d++) {
                 formData.append(`deleted_images[${d}][id]`, deletedimages.value[d].id)
@@ -495,7 +537,7 @@ const [warranty] = defineField('warranty');
 const [description] = defineField('description');
 const [purchase_price] = defineField('purchase_price');
 const nameMirror = ref('');
-const { remove, push, fields } = useFieldArray('item_locations');
+const { remove, push, fields, replace } = useFieldArray('item_locations');
 
 const isShowDatePicker = ref(false);
 
@@ -563,7 +605,7 @@ onMounted(async () => {
         // update breadcrumb
         breadcrumbs.value[2].title = t('editInventory');
     } else {
-        push({location: '', user: '', id: ''})
+        push({location: '', user: '', id: '', purchase_price: '', warranty: '', year_of_purchase: '', is_on_edit: ''})
         stock.value = fields.value.length
     }
 });
@@ -593,7 +635,7 @@ function removeBoxStock(index) {
 }
 
 function addMoreStock() {
-    push({location: '', user_id: '', id: ''})
+    push({location: '', user_id: '', id: '', purchase_price: '', warranty: '', year_of_purchase: '', is_on_edit: ''})
 
     stock.value = fields.value.length
 }
@@ -609,7 +651,6 @@ async function getDetail() {
             uid: route.params.uid
         });
         if (detailData.value.status < 300) {
-            console.log('detail', detailData.value);
             name.value = detailData.value.data.data.name;
             item_type.value = detailData.value.data.data.item_type.uid;
             unit_id.value = detailData.value.data.data.unit.uid;
@@ -625,26 +666,29 @@ async function getDetail() {
                     description_quill.value.setHTML(detailData.value.data.data.description)
                 }
             }, 500);
-    
+
             // handle image
             if (detailData.value.data.data.images.length) {
                 previewImage.value = detailData.value.data.data.images
             }
-    
+
             // update stock to show all items
             var items = [];
             for (let a = 0; a < detailData.value.data.data.stock; a++) {
                 items.push(
                     {
-                        location: detailData.value.data.data.items[a].current_location, 
-                        user_id: detailData.value.data.data.items[a].user_id ? detailData.value.data.data.items[a].user_id.toString() : '', 
-                        id: detailData.value.data.data.items[a].id
+                        location: detailData.value.data.data.items[a].current_location,
+                        user_id: detailData.value.data.data.items[a].user_id ? detailData.value.data.data.items[a].user_id.toString() : '',
+                        id: detailData.value.data.data.items[a].id,
+                        purchase_price: detailData.value.data.data.items[a].purchase_price,
+                        warranty: detailData.value.data.data.items[a].warranty,
+                        year_of_purchase: detailData.value.data.data.items[a].year_of_purchase,
+                        is_on_edit: detailData.value.data.data.deleteable ? '1' : ''
                     }
                 );
             }
-            setValues({
-                item_locations: items,
-            });
+
+            replace(items)
         }
     }
 }
@@ -663,7 +707,7 @@ function updateStock() {
 function updateDescription() {
     if (description_quill.value.getText().length > 1) {
         description.value = description_quill.value.getHTML();
-    } else {                                                                                                                                                                                                                                                                                                                                                                              
+    } else {
         description.value = null;
     }
 

@@ -218,6 +218,21 @@ export const useMenusStore = defineStore("menus", {
     getMenus() {
       var menus = this.menus;
 
+      var currentLang = localStorage.getItem('lang')
+      if (currentLang == 'en') {
+        menus = menus.map((elem) => {
+          elem.name = elem.lang_en
+
+          return elem
+        })
+      } else if (currentLang == 'id') {
+        menus = menus.map((elem) => {
+          elem.name = elem.lang_id
+
+          return elem
+        })
+      }
+
       return menus;
     },
     getPanelMenus() {

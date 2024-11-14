@@ -13,28 +13,92 @@
             :filterSearch="false"
             :showClearFilter="showClearFilter"
             :fullCustomBody="true"
+            :custom-filter-button="true"
             :hasCheckbox="false"
             :btnAddText="$t('createProject')"
+            :allowed-create-button="useCheckPermission('create_project')"
             :filter-tooltip="t('filterProject')"
+            :show-filter-result="false"
             @bulk-delete-event="bulkDelete"
             @add-data-event="showForm"
             @table-event="initProjects"
             @filter-action="showFilter"
             @clear-filter-action="clearFilter">
 
+            <template v-slot:custom-filter-button>
+              <v-btn
+                variant="outlined"
+                :color="thisMonthFilterColor"
+                density="compact"
+                @click.prevent="filterButton('month')">
+                <v-icon
+                  v-if="thisMonthFilterActive"
+                  :icon="mdiCheckCircle"
+                  size="15"
+                  class="me-2"
+                  color="success"></v-icon>
+                {{ $t('thisMonth') }}
+              </v-btn>
+
+              <v-btn
+                variant="outlined"
+                :color="todayFilterColor"
+                density="compact"
+                @click.prevent="filterButton('today')">
+                <v-icon
+                  v-if="todayFilterActive"
+                  :icon="mdiCheckCircle"
+                  size="15"
+                  class="me-2"
+                  color="success"></v-icon>
+                {{ $t('today') }}
+              </v-btn>
+
+              <v-btn
+                variant="outlined"
+                :color="allFilterColor"
+                density="compact"
+                @click.prevent="filterButton('all')">
+                <v-icon
+                  v-if="allFilterActive"
+                  :icon="mdiCheckCircle"
+                  size="15"
+                  class="me-2"
+                  color="success"></v-icon>
+                {{ $t('all') }}
+              </v-btn>
+            </template>
+
+            <template v-slot:filter-result>
+                <v-chip density="compact" color="purple-darken-3"
+                    :append-icon="mdiClose">
+                    filter result
+                </v-chip>
+            </template>
+
             <template v-slot:bodytable="{ value }">
                 <tr>
                     <td>
-                        <router-link 
+                        <router-link
                             :to="'/admin/production/project/' + value.uid"
                             style="color: #000; font-weight: bold;">{{ value.name }}</router-link>
                     </td>
                     <td>
                         <p class="fw-bold">{{ value.project_date }}</p>
                     </td>
-                    <td>{{ value.marketing }}</td>
                     <td>{{ value.venue }}</td>
-                    <td>{{ value.pic }}</td>
+                    <td>
+                        <template v-if="value.no_pic">
+                            <v-chip
+                                density="compact"
+                                color="grey-lighten-1">
+                                {{ value.pic }}
+                            </v-chip>
+                        </template>
+                        <template v-else>
+                            {{ value.pic }}
+                        </template>
+                    </td>
                     <td>{{ value.event_type }}</td>
                     <td>
                         <v-chip :color="value.status_color">
@@ -59,7 +123,7 @@
                                 :icon="mdiCogOutline"
                                 color="blue"></v-icon>
                             </template>
-                    
+
                             <v-list>
                                 <!-- <v-list-item
                                     class="pointer"
@@ -78,7 +142,7 @@
                                 <v-list-item
                                     class="pointer">
                                     <template v-slot:title>
-                                        <router-link 
+                                        <router-link
                                             :to="'/admin/production/project/' + value.uid"
                                             style="color: #000; font-weight: bold;">
                                             <div
@@ -124,8 +188,8 @@
                                 </v-list-item>
                                 <v-list-item
                                     class="pointer"
-                                    v-if="useCheckPermission('change_project_status')"
-                                    @click.prevent="changeStatus(value.uid, value.status_raw)">
+                                    v-if="useCheckPermission('change_project_status') && !value.project_is_complete"
+                                    @click.prevent="changeStatus(value, value.status_raw)">
                                     <template v-slot:title>
                                         <div
                                             class="d-flex align-center"
@@ -137,22 +201,127 @@
                                         </div>
                                     </template>
                                 </v-list-item>
+                                <v-list-item
+                                    class="pointer"
+                                    v-if="value.project_is_complete && value.need_return_equipment"
+                                    @click.prevent="returnEquipment(value.uid)">
+                                    <template v-slot:title>
+                                        <div
+                                            class="d-flex align-center"
+                                            style="gap: 8px; font-size: 12px;">
+                                            <v-icon
+                                            :icon="mdiTransfer"
+                                            size="15"></v-icon>
+                                            {{ $t('returnEquipment') }}
+                                        </div>
+                                    </template>
+                                </v-list-item>
+                                <v-list-item
+                                    class="pointer"
+                                    v-if="useCheckPermission('assign_vj') && !value.project_is_complete && !value.have_vj && !value.no_pic"
+                                    @click.prevent="assignVJ(value.uid)">
+                                    <template v-slot:title>
+                                        <div
+                                            class="d-flex align-center"
+                                            style="gap: 8px; font-size: 12px;">
+                                            <v-icon
+                                            :icon="mdiDisc"
+                                            size="15"></v-icon>
+                                            {{ $t('assignVJ') }}
+                                        </div>
+                                    </template>
+                                </v-list-item>
+                                <v-list-item
+                                    class="pointer"
+                                    v-if="useCheckPermission('assign_vj') && !value.project_is_complete && value.have_vj && !value.no_pic"
+                                    @click.prevent="removeAllVJ(value.uid)">
+                                    <template v-slot:title>
+                                        <div
+                                            class="d-flex align-center"
+                                            style="gap: 8px; font-size: 12px;">
+                                            <v-icon
+                                            :icon="mdiTrashCan"
+                                            size="15"></v-icon>
+                                            {{ $t('removeAllVj') }}
+                                        </div>
+                                    </template>
+                                </v-list-item>
+                                <v-list-item
+                                    class="pointer"
+                                    v-if="!value.is_final_check && !value.no_pic && useCheckPermission('final_check')"
+                                    @click.prevent="showFinalCheck(value.uid)">
+                                    <template v-slot:title>
+                                        <div
+                                            class="d-flex align-center"
+                                            style="gap: 8px; font-size: 12px;">
+                                            <v-icon
+                                            :icon="mdiCheckOutline"
+                                            size="15"></v-icon>
+                                            {{ $t('finalCheck') }}
+                                        </div>
+                                    </template>
+                                </v-list-item>
+                                <v-list-item
+                                    class="pointer"
+                                    v-if="value.no_pic"
+                                    @click.prevent="showScheduler(value.uid)">
+                                    <template v-slot:title>
+                                        <div
+                                            class="d-flex align-center"
+                                            style="gap: 8px; font-size: 12px;">
+                                            <v-icon
+                                            :icon="mdiPencilCircleOutline"
+                                            size="15"></v-icon>
+                                            {{ $t('assignPic') }}
+                                        </div>
+                                    </template>
+                                </v-list-item>
+                                <v-list-item
+                                    class="pointer"
+                                    v-if="!value.no_pic && useCheckPermission('assign_pic')"
+                                    @click.prevent="showSubtitute(value.uid)">
+                                    <template v-slot:title>
+                                        <div
+                                            class="d-flex align-center"
+                                            style="gap: 8px; font-size: 12px;">
+                                            <v-icon
+                                            :icon="mdiSwapHorizontal"
+                                            size="15"></v-icon>
+                                            {{ $t('subtitutePic') }}
+                                        </div>
+                                    </template>
+                                </v-list-item>
+                                <!-- <v-list-item
+                                    class="pointer"
+                                    v-if="useCheckPermission('assign_vj') && !value.project_is_complete && value.have_vj"
+                                    @click.prevent="assignVJ(value.uid)">
+                                    <template v-slot:title>
+                                        <div
+                                            class="d-flex align-center"
+                                            style="gap: 8px; font-size: 12px;">
+                                            <v-icon
+                                            :icon="mdiTransfer"
+                                            size="15"></v-icon>
+                                            {{ $t('changeVJ') }}
+                                        </div>
+                                    </template>
+                                </v-list-item> -->
                             </v-list>
                         </v-menu>
                     </td>
                 </tr>
             </template>
-            
+
         </table-list>
 
         <confirmation-modal
-            :title="$t('deleteProject')"
-            :text="$t('deleteProjectConfirmation')"
+            :title="titleConfirmationDelete"
+            :text="textConfirmationDelete"
             :showConfirm="showConfirmation"
             :deleteIds="selectedIds"
             @action-bulk-submit="doBulkDelete"></confirmation-modal>
 
-        <filter-project 
+        <filter-project
             :show="isShowFilter"
             @filter-event="doFilter"
             @close-event="cancelFilter"></filter-project>
@@ -161,7 +330,24 @@
             :is-show="isChangeStatusConfirm"
             :base-status="projectCurrentStatus"
             :uid="projectToChangeStatus"
+            :project="projectDetail"
             @close-event="closeChangeStatus"></status-form>
+
+        <AssignVJ :project-uid="selectedProjectForVJ" :is-show="showVJForm" @close-event="closeVjForm"></AssignVJ>
+
+        <final-check :is-show="showFinalCheckForm" @close-event="closeFinalCheck" :project-uid="projectUidFinalCheck"></final-check>
+
+        <return-equipment-form :is-show="showReturnEquipmentForm"
+            :project-uid="projectUidReturnEquipment"
+            @close-event="closeReturnEquipment"></return-equipment-form>
+
+        <FinderManager :is-show="showFinderManager"
+            @close-event="closeFinderManager"
+            :project-uid="projectUidFinderManager" />
+
+        <SubtitutePic :is-show="showSubtitutePic"
+            @close-event="closeSubtitutePic"
+            :project-uid="projectUidSubtitutePic"></SubtitutePic>
     </div>
 </template>
 
@@ -177,16 +363,28 @@ import { useI18n } from 'vue-i18n';
 import { useProjectStore } from '@/stores/project'
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
+import FinderManager from './FinderManager.vue'
+import SubtitutePic from './SubtitutePic.vue'
 
-import { 
-    mdiCogOutline, 
-    mdiEyeCircle,
-    mdiTransfer,
-    mdiTrashCanOutline,
- } from '@mdi/js';
+import {
+  mdiClose,
+  mdiCheckOutline,
+  mdiCogOutline,
+  mdiDisc,
+  mdiEyeCircle,
+  mdiTransfer,
+  mdiTrashCan,
+  mdiTrashCanOutline,
+  mdiPencilCircleOutline,
+  mdiSwapHorizontal, mdiCheckCircle
+} from '@mdi/js';
 import FilterProject from './FilterProject.vue';
 import StatusForm from './ChangeStatusForm.vue'
-import { useCheckPermission } from '@/compose/checkPermission';
+import AssignVJ from './AssignVJ.vue';
+import { useCheckPermission } from '@/compose/checkPermission'
+import FinalCheck from './FinalCheck.vue'
+import ReturnEquipmentForm from './ReturnEquipment.vue'
+import TableList from "@/components/TableList.vue";
 
 const { t } = useI18n();
 
@@ -194,24 +392,48 @@ const router = useRouter();
 
 const store = useProjectStore();
 
-const { 
+const filterProjectItem = ref(null)
+
+const showFinderManager = ref(false)
+
+const showSubtitutePic = ref(false)
+
+const projectUidFinderManager = ref(null)
+
+const projectUidSubtitutePic = ref(null)
+
+const {
     listOfProjects,
     totalOfProjects,
  } = storeToRefs(store);
 
+const titleConfirmationDelete = ref(t('deleteProject'))
+const textConfirmationDelete = ref(t('deleteProjectConfirmation'))
 const showConfirmation = ref(false);
+const confirmFunction = ref('delete')
 const isChangeStatusConfirm = ref(false)
 const projectToChangeStatus = ref(null)
+const projectDetail = ref(null)
 const projectCurrentStatus = ref(null)
-const showConfirmationAddtoUser = ref(false);
 const selectedIds = ref([]);
-const selectedAddUserId = ref(null);
 const totalItems = ref(0);
 const itemsPerPage = ref(10);
 const loading = ref(true);
+const thisMonthFilterActive = ref(true)
+const todayFilterColor = ref('grey-lighten-2')
+const thisMonthFilterColor = ref('blue-lighten-2')
+const allFilterColor = ref('grey-lighten-2')
+const todayFilterActive = ref(false)
+const allFilterActive = ref(false)
 const showClearFilter = ref(false);
+const showReturnEquipmentForm = ref(false)
+const projectUidReturnEquipment = ref(null)
 const isShowFilter = ref(false);
-const searchParam = ref(null);
+const searchParam = ref(null)
+const selectedProjectForVJ = ref(null)
+const showVJForm = ref(false)
+const showFinalCheckForm = ref(false)
+const projectUidFinalCheck = ref(null)
 const breadcrumbs = ref([
     {
         title: t('project'),
@@ -229,12 +451,6 @@ const headers = ref([
     {
         title: t('date'),
         key: 'project_date',
-        align: 'start',
-        sortable: true
-    },
-    {
-        title: t('marketing'),
-        key: 'marketing',
         align: 'start',
         sortable: true
     },
@@ -275,15 +491,93 @@ const headers = ref([
         sortable: true
     },
     {
-        title: t('action'), 
+        title: t('action'),
         key: 'uid',
         align: 'start',
         sortable: true
     },
 ]);
 
+function filterButton(type) {
+  if (type === 'month') {
+    thisMonthFilterActive.value = !thisMonthFilterActive.value
+
+    thisMonthFilterColor.value = 'blue-lighten-2'
+    todayFilterColor.value = 'grey-lighten-2'
+    allFilterColor.value = 'grey-lighten-2'
+
+    todayFilterActive.value = false
+    allFilterActive.value = false
+  } else if (type === 'today') {
+    todayFilterActive.value = !todayFilterActive.value
+
+    thisMonthFilterColor.value = 'grey-lighten-2'
+    todayFilterColor.value = 'blue-lighten-2'
+    allFilterColor.value = 'grey-lighten-2'
+
+    thisMonthFilterActive.value = false
+    allFilterActive.value = false
+  } else {
+    todayFilterActive.value = false
+    thisMonthFilterActive.value = false
+    allFilterActive.value = !allFilterActive.value
+
+    thisMonthFilterColor.value = 'grey-lighten-2'
+    todayFilterColor.value = 'grey-lighten-2'
+    allFilterColor.value = 'blue-lighten-2'
+  }
+
+  initProjects()
+}
+
+function showScheduler(projectUid) {
+    projectUidFinderManager.value = projectUid
+    showFinderManager.value = true
+}
+
+function showSubtitute(projectUid) {
+    projectUidSubtitutePic.value = projectUid
+    showSubtitutePic.value = true
+}
+
+function returnEquipment(projectUid) {
+    showReturnEquipmentForm.value = true
+
+    projectUidReturnEquipment.value = projectUid
+}
+
 function showForm() {
     router.push({path: '/admin/production/project/create'});
+}
+
+function assignVJ(uid) {
+    showVJForm.value = true
+
+    selectedProjectForVJ.value = uid
+}
+
+function removeAllVJ(projectUid) {
+    showConfirmation.value = true;
+    selectedIds.value = [projectUid]
+
+    textConfirmationDelete.value = t('rmeoveVjConfirmation')
+    titleConfirmationDelete.value = t('removeVjTitle')
+
+    confirmFunction.value = 'vj'
+}
+
+function closeFinalCheck(isRefresh = false) {
+    showFinalCheckForm.value = false
+
+    if (isRefresh) {
+        initProjects()
+    }
+}
+
+function showFinalCheck(uid) {
+    projectUidFinalCheck.value = uid
+
+    showFinalCheckForm.value = true
 }
 
 function deleteProject(uid) {
@@ -291,7 +585,12 @@ function deleteProject(uid) {
 }
 
 async function doBulkDelete(payload) {
-    let deleteData = await store.bulkDelete(payload.value);
+    let deleteData
+    if (confirmFunction.value == 'delete') {
+        deleteData = await store.bulkDelete(payload.value);
+    } else if (confirmFunction.value == 'vj') {
+        deleteData = await store.removeVJ(payload[0])
+    }
 
     if ((deleteData.status != undefined) && (deleteData.status < 300)) {
         showConfirmation.value = false;
@@ -301,30 +600,44 @@ async function doBulkDelete(payload) {
 }
 
 async function initProjects(payload = '') {
-    if (payload == '' && searchParam.value != '') {
-        payload = {filter: searchParam.value}
-    } else if (payload != '' && searchParam.value != '') {
-        payload.filter = searchParam.value;
+    if (payload === '') {
+      payload = {page: 1, itemsPerPage: 10}
     }
 
+    if (payload === '' && searchParam.value !== '') {
+        payload = {filter: searchParam.value}
+    } else if (payload !== '' && searchParam.value !== '') {
+      payload.filter = searchParam.value;
+    }
+
+    payload.filter_month = thisMonthFilterActive.value
+    payload.filter_today = todayFilterActive.value
+
     loading.value = true;
-    await store.initProjects(payload);
+    const resp = await store.initProjects(payload);
     loading.value = false;
     totalItems.value = totalOfProjects.value;
-}
 
-function addAsUser(id) {
-    showConfirmationAddtoUser.value = true;
-    selectedAddUserId.value = {user_id: id};
-}
-
-function editEmployee(uid) {
-    router.push({path: '/admin/employees/edit/' + uid});
+    if (
+      (resp.status < 300) &&
+      (!resp.data.data.isAllItems)
+    ) {
+    }
 }
 
 function bulkDelete(payload) {
     showConfirmation.value = true;
     selectedIds.value = payload
+
+    confirmFunction.value = 'delete'
+}
+
+function closeVjForm(payload) {
+    showVJForm.value = false
+
+    if (payload) {
+        initProjects()
+    }
 }
 
 function showFilter() {
@@ -333,12 +646,28 @@ function showFilter() {
 
 function clearFilter() {
     searchParam.value = '';
+    thisMonthFilterActive.value = true
+    todayFilterActive.value = false
+    allFilterActive.value = false
+
+    thisMonthFilterColor.value = 'blue-lighten-2'
+    todayFilterColor.value = 'grey-lighten-2'
+    allFilterColor.value = 'grey-lighten-2'
+
     initProjects();
     showClearFilter.value = false;
 }
 
 function doFilter(payload) {
     searchParam.value = payload;
+    thisMonthFilterActive.value = false
+    todayFilterActive.value = false
+    allFilterActive.value = false
+
+    thisMonthFilterColor.value = 'grey-lighten-2'
+    todayFilterColor.value = 'grey-lighten-2'
+    allFilterColor.value = 'grey-lighten-2'
+
     initProjects();
     isShowFilter.value = false;
     showClearFilter.value = true;
@@ -350,18 +679,43 @@ function cancelFilter() {
     showClearFilter.value = false;
 }
 
-function changeStatus(uid, currentStatus) {
+function changeStatus(project, currentStatus) {
     isChangeStatusConfirm.value = true
-    projectToChangeStatus.value = uid
+    projectToChangeStatus.value = project.uid
     projectCurrentStatus.value = currentStatus
-
-    console.log('projectCurrentStatus', projectCurrentStatus.value);
+    projectDetail.value = project
 }
 
-function closeChangeStatus(isRefresh) {
+function closeChangeStatus(isRefresh = false) {
     isChangeStatusConfirm.value = false
     projectToChangeStatus.value = null
     projectCurrentStatus.value = null
+
+    if (isRefresh) {
+        initProjects()
+    }
+}
+
+function closeReturnEquipment(isRefresh = false) {
+    showReturnEquipmentForm.value = false
+
+    if (isRefresh) {
+        initProjects()
+    }
+}
+
+function closeSubtitutePic(isRefresh = false) {
+    showSubtitutePic.value = false
+    projectUidSubtitutePic.value = null
+
+    if (isRefresh) {
+        initProjects()
+    }
+}
+
+function closeFinderManager(isRefresh = false) {
+    showFinderManager.value = false
+    projectUidFinderManager.value = null
 
     if (isRefresh) {
         initProjects()
