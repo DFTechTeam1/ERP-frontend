@@ -402,6 +402,28 @@
                                         <template v-else>{{ $t('approveTask') }}</template>
                                     </v-btn>
                                     <v-btn
+                                      variant="flat"
+                                      class="w-100 text-left mb-3"
+                                      color="warning"
+                                      v-if="!detailOfTask.is_hold && detailOfTask.show_hold_button"
+                                      @click.prevent="holdTask(detailOfTask.uid)">
+                                      <v-icon
+                                        class="mr-1"
+                                        :icon="mdiExclamation"
+                                        size="20"></v-icon>
+                                      <template v-if="loadingApprove">{{ $t('processing') }}</template>
+                                      <template v-else>{{ $t('holdTask') }}</template>
+                                    </v-btn>
+                                    <v-btn
+                                      variant="flat"
+                                      class="w-100 text-left mb-3"
+                                      color="success"
+                                      v-if="detailOfTask.is_hold"
+                                      @click.prevent="startTask(detailOfTask.uid)">
+                                      <template v-if="loadingApprove">{{ $t('processing') }}</template>
+                                      <template v-else>{{ $t('startTask') }}</template>
+                                    </v-btn>
+                                    <v-btn
                                         variant="flat"
                                         class="w-100 text-left mb-3"
                                         color="success"
@@ -491,6 +513,26 @@
             :delete-ids="deletedTaskIds"
             @actionBulkSubmit="doDeleteTask"></confirmation-modal>
 
+        <modalForm
+          :title="t('holdTask')"
+          :text="t('holdTaskConfirmation')"
+          :show-confirm="showHoldTaskConfirmation"
+          :delete-ids="holdTaskIds"
+          :loading-process="loadingHoldTask"
+          :close-emit="true"
+          @cancelConfirm="clearHoldForm"
+          @actionBulkSubmit="doHoldTask">
+          <template #formBody>
+            <form>
+              <field-input
+                :label="t('reason')"
+                v-model="reason"
+                :error-message="errorsHold.reason"
+                density="compact"></field-input>
+            </form>
+          </template>
+        </modalForm>
+
         <proof-of-work
             :is-manual-approve-task="manualApproveTask"
             :is-show="showProofOfWork"
@@ -535,23 +577,23 @@
 <script setup>
 import { ref, watch } from 'vue';
 import {
-    mdiLaptop,
-    mdiClose,
-    mdiMenu,
-    mdiTrashCan,
-    mdiClockOutline,
-    mdiAccountSupervisor,
-    mdiAttachment,
-    mdiArrowRight,
-    mdiPencil,
-    mdiCheck,
-    mdiCancel,
-    mdiMathLog,
-    mdiCheckCircle,
-    mdiTimeline,
-    mdiRefresh,
-    mdiBook,
- } from '@mdi/js';
+  mdiLaptop,
+  mdiClose,
+  mdiMenu,
+  mdiTrashCan,
+  mdiClockOutline,
+  mdiAccountSupervisor,
+  mdiAttachment,
+  mdiArrowRight,
+  mdiPencil,
+  mdiCheck,
+  mdiCancel,
+  mdiMathLog,
+  mdiCheckCircle,
+  mdiTimeline,
+  mdiRefresh,
+  mdiBook, mdiExclamation,
+} from '@mdi/js';
 import TaskMember from './TaskMember.vue';
 import TaskDeadline from './TaskDeadline.vue';
 import DeadlineForm from './DeadlineForm.vue';
@@ -583,6 +625,14 @@ const { defineField, errors, setFieldValue, handleSubmit } = useForm({
         name: yup.string().required(),
     }),
 });
+
+const { defineField: fieldHold, validate: validateHold, errors: errorsHold, resetForm: resetHoldForm, values: valuesHoldForm } = useForm({
+  validationSchema: yup.object({
+    reason: yup.string().required(t("reasonRequired"))
+  })
+});
+
+const [reason] = fieldHold('reason');
 
 const [name] = defineField('name');
 
@@ -630,11 +680,17 @@ const showAttachmentForm = ref(false);
 
 const showDeleteForm = ref(false);
 
+const showHoldTaskConfirmation = ref(false);
+
+const loadingHoldTask = ref(false);
+
 const showDeadlineForm = ref(false);
 
 const description_quill = ref(null);
 
 const deletedTaskIds = ref([]);
+
+const holdTaskIds = ref([]);
 
 const description = ref(null);
 
@@ -726,6 +782,27 @@ function saveDate(payload) {
 function deleteTask(taskUid) {
     showDeleteForm.value = true;
     deletedTaskIds.value = [taskUid];
+}
+
+function clearHoldForm() {
+  resetHoldForm();
+  showHoldTaskConfirmation.value = false;
+  holdTaskIds.value = [];
+}
+
+async function doHoldTask(taskIds) {
+  const { valid } = await validateHold();
+  if (valid) {
+    loadingHoldTask.value = true;
+    const resp = await store.holdTask(taskIds[0], detailProject.value.uid, valuesHoldForm);
+    loadingHoldTask.value = false;
+
+    if (resp.status < 300) {
+      showHoldTaskConfirmation.value = false;
+      holdTaskIds.value = [];
+      closeDetailTask();
+    }
+  }
 }
 
 async function doDeleteTask(taskIds) {
@@ -848,6 +925,7 @@ function closeDetailTask() {
     isAddDescription.value = false;
     showAttachmentForm.value = false;
     showDeleteForm.value = false;
+    showHoldTaskConfirmation.value = false;
     showDeadlineForm.value = false;
     description_quill.value = false;
     deletedTaskIds.value = [];
@@ -902,6 +980,18 @@ function closeProofWork() {
     }
 
     emit('close-event', true)
+}
+
+async function startTask(taskUid) {
+  const resp = await store.startTask(taskUid, detailProject.value.uid);
+  if (resp.status < 300) {
+    closeDetailTask();
+  }
+}
+
+function holdTask(taskUid) {
+  showHoldTaskConfirmation.value = true;
+  holdTaskIds.value = [taskUid];
 }
 
 async function approveTask(taskUid) {

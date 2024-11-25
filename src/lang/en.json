@@ -662,5 +662,9 @@
     "detailItem": "Detail Item",
     "detailCustomInventory": "Detail Custom Inventory",
     "itemType": "Item Type",
-    "listItemOnBundle": "List item on bundle"
+    "listItemOnBundle": "List item on bundle",
+    "holdTask": "Hold Task",
+    "holdTaskConfirmation": "Are you sure to hold this task for a while?",
+    "startTask": "Start Task",
+    "ledAreaRequired": "LED Area required"
 }

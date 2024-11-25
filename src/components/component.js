@@ -1,6 +1,7 @@
 import BreadcrumbData from "./BreadcrumbData.vue";
 import TableList from './TableList.vue';
 import ConfirmationModal from "./ConfirmationModal.vue";
+import ModalForm from "./ModalForm.vue";
 import FieldInput from './FieldInput.vue'
 import YearPicker from './YearPicker.vue'
 import DatePicker from './DatePicker.vue'
@@ -62,6 +63,7 @@ export function registerComponent(app) {
         .component('rounded-input', RoundedInput)
         .component('button-group-nav', ButtonGroupNavigation)
         .component('confirmationModal', ConfirmationModal)
+        .component('modalForm', ModalForm)
         .component('ve-select', vSelect)
         .component('QuillEditor', QuillEditor)
         .component('field-input', FieldInput)
