@@ -87,8 +87,11 @@ import { useFieldArray, useForm } from 'vee-validate';
 import {onMounted, ref, watch} from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as yup from 'yup'
+import {useRoute} from "vue-router";
 
 const { t } = useI18n()
+
+const route = useRoute();
 
 const show = ref(false)
 
@@ -127,8 +130,10 @@ watch(props, (values) => {
 })
 
 onMounted(() => {
-  setFieldValue('name', 'main');
-  setFieldValue('led', [{width: '1', height: '1'}]);
+  if (!route.params.id) {
+    setFieldValue('name', 'main');
+    setFieldValue('led', [{width: '1', height: '1'}]);
+  }
 
   validateData();
 })
