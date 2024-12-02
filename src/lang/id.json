@@ -666,5 +666,7 @@
     "holdTask": "Tunda Tugas",
     "holdTaskConfirmation": "Kamu yakin ingin menunda tugas untuk sementara waktu?",
     "startTask": "Mulai Lagi",
-    "ledAreaRequired": "LED harus diisi"
+    "ledAreaRequired": "LED harus diisi",
+    "listOfTask": "List Semua Tugas",
+    "userHaveNoTask": "User belum memiliki tugas"
 }
