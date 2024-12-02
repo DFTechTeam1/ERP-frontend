@@ -71,6 +71,8 @@ onMounted(() => {
   if (props.data) {
     ledSetting.value = props.data
   }
+
+  console.log("ledSetting", props.data)
 })
 </script>
 
