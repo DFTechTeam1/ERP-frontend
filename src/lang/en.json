@@ -666,5 +666,7 @@
     "holdTask": "Hold Task",
     "holdTaskConfirmation": "Are you sure to hold this task for a while?",
     "startTask": "Start Task",
-    "ledAreaRequired": "LED Area required"
+    "ledAreaRequired": "LED Area required",
+    "listOfTask": "List of Task",
+    "userHaveNoTask": "User have no task"
 }

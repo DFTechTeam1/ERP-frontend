@@ -1207,6 +1207,15 @@ export const useProjectStore = defineStore('project', {
             showNotification(error.response.data.message, 'error');
             return error;
           }
+        },
+        async getEmployeeListTask(projectUid, employeeId) {
+          try {
+            const resp = await axios.get(`/production/project/${projectUid}/task/${employeeId}/listTask`);
+
+            return resp.data.data;
+          } catch (error) {
+            return error;
+          }
         }
     },
 })

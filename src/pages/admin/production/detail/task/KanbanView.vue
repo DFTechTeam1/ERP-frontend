@@ -9,7 +9,7 @@
                 v-for="(board, keyBoard) in listOfPorjectBoards"
                 :key="keyBoard">
 
-                <!--  
+                <!--
                 * data-bab = data board_as_backlog
                 * data-bsc = data board_start_calculated
                 * data-bcpm = data board_to_check_by_pm
@@ -28,15 +28,15 @@
                     itemKey="name"
                 >
                     <template #item="{ element }">
-                        <div 
-                            class="list-group-item position-relative" 
+                        <div
+                            class="list-group-item position-relative"
                             :data-id="element.uid"
                             :id="'d' + element.id + 'o'"
                             style="min-height: 50px;"
                             @click.prevent="chooseCard(element, board)">
 
                             <p style="font-size: 16px;">{{ element.name }}</p>
-                            
+
                             <div v-if="element.pics.length" class="pic mt-1 mb-1">
                                 <task-member
                                     :members="element.pics"
@@ -47,13 +47,14 @@
                                 <v-chip
                                     v-if="element.pics.length"
                                     density="compact"
+                                    class="status-preview"
                                     :color="element.task_status_color">
                                     {{ element.task_status }}
                                 </v-chip>
                                 <p class="time text-right" v-if="element.end_date">
                                     <v-icon
                                         :icon="mdiClockOutline"
-                                        size="20"></v-icon>
+                                        size="16"></v-icon>
                                     {{ element.end_date_text }}
 
                                     <v-tooltip
@@ -106,6 +107,10 @@
 </template>
 
 <style scoped lang="scss">
+.status-preview {
+  font-size: 10px;
+}
+
 .kanban-wrapper {
     background-color: #f6f6f6;
     height: 500px;
@@ -142,7 +147,7 @@
         }
 
         .list-group {
-            width: calc(100%/3);
+            width: calc((100%/4) - 20px);
             height: 100%;
             overflow-y: scroll;
             overflow-x: hidden;
@@ -176,10 +181,14 @@
 }
 
 .title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     text-align: center;
     margin-bottom: 10px;
+}
+
+.time {
+  font-size: 12px;
 }
 </style>
 
@@ -338,14 +347,14 @@ async function endMoving(evt) {
                 task_id: movingTask.value,
                 board_source_id: sourceBoardId,
             }, route.params.id);
-        
+
             document.getElementById('loader').style.display = 'none';
-        
+
             if (resp.status > 300) {
                 return false;
             }
         }
-        
+
     }
 
 }
