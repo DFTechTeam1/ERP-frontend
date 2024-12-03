@@ -85,7 +85,7 @@
                     </v-row>
                     <v-row>
                         <v-col cols="12" md="6" class="pb-0 pt-0 mb-2">
-                            <field-input :is-readonly="true" :is-required="false" :suffix-text="'m<sup>2</sup>'" :label="t('totalLedArea')"
+                            <field-input :is-readonly="true" :suffix-text="'m<sup>2</sup>'" :label="t('totalLedArea')"
                                 :error-message="errors.led_area" v-model="led_area"></field-input>
                         </v-col>
                         <v-col cols="12" md="6" class="pb-0 pt-0 mb-2">
@@ -100,51 +100,6 @@
                           <LedDetailForm
                             @update-led-event="updateLedArea"
                             ref="ledFormComponent"></LedDetailForm>
-<!--                            <v-label>{{ $t('ledArea') }}</v-label>-->
-<!--                            <v-list v-if="ledSetting.length">-->
-<!--                                <v-list-item-->
-<!--                                    style="transition: all .3s"-->
-<!--                                    lines="three"-->
-<!--                                    class="mb-1 border-bottom pb-2 led-item"-->
-<!--                                    v-for="(led, l) in ledSetting"-->
-<!--                                    :key="l">-->
-<!--                                    <template v-slot:title>-->
-<!--                                        <p class="mb-1 title">{{ led.name }}</p>-->
-<!--                                    </template>-->
-<!--                                    <template v-slot:subtitle>-->
-<!--                                        <p class="fw-bold subtitle">-->
-<!--                                            {{ $t('total') }} <span v-html="led.total" style="font-weight: normal !important;"></span>-->
-<!--                                        </p>-->
-<!--                                        <p class="fw-bold subtitle">-->
-<!--                                            {{ $t('detail') }} <span v-html="led.textDetail" style="font-weight: normal !important;"></span>-->
-<!--                                        </p>-->
-<!--                                    </template>-->
-<!--                                    <template v-slot:prepend>-->
-<!--                                        <v-icon-->
-<!--                                            :icon="mdiMonitorScreenshot"></v-icon>-->
-<!--                                    </template>-->
-<!--                                    <template v-slot:append>-->
-<!--                                        <v-icon-->
-<!--                                            :icon="mdiClose"-->
-<!--                                            @click.prevent="removeLed(l)"></v-icon>-->
-<!--                                    </template>-->
-<!--                                </v-list-item>-->
-<!--                            </v-list>-->
-<!--                            <v-list v-else>-->
-<!--                                <v-list-item class="text-center">-->
-<!--                                    <v-empty-state-->
-<!--                                        title="No LED for this project"-->
-<!--                                        text="LED area will be appear on this section"></v-empty-state>-->
-<!--                                </v-list-item>-->
-<!--                            </v-list>-->
-
-<!--                            <v-btn-->
-<!--                                class="w-100"-->
-<!--                                variant="flat"-->
-<!--                                color="grey-lighten-3"-->
-<!--                                @click.prevent="showLedForm">-->
-<!--                                {{ $t('addMore') }}-->
-<!--                            </v-btn>-->
                         </v-col>
                         <v-col cols="12" md="6" class="pb-0 pt-0 mb-2">
                             <v-label :text="t('note')" class="mb-3"></v-label>
@@ -226,10 +181,10 @@ const { defineField, errors, setFieldValue, setFieldError, handleSubmit } = useF
         collaboration: yup.string().nullable(),
         note: yup.string().nullable(),
         classification: yup.string().required(t('eventClassRequired')),
-        led_area: yup.string().nullable(),
+        led_area: yup.string().required(t('ledAreaRequired')),
         country_id: yup.string().required(t('countryRequired')),
         state_id: yup.string().required(t('stateRequired'))
-    }),
+    })
 })
 
 const [name] = defineField('name');

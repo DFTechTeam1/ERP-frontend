@@ -27,7 +27,7 @@
                             {{ $t('reportAsDone') }}
                         </v-btn>
                     </v-toolbar>
-        
+
                     <v-card-text>
                         <general-information :detail="detailProject" />
                     </v-card-text>
@@ -60,11 +60,11 @@
                                 </v-btn>
                             </v-btn-toggle>
                         </v-toolbar-title>
-    
+
                         <v-btn icon v-if="useCheckPermission('add_team_member')">
                             <v-icon
                                 :icon="mdiDotsVertical"></v-icon>
-    
+
                             <v-menu
                                 activator="parent">
                                 <v-list>
@@ -79,7 +79,7 @@
                             </v-menu>
                         </v-btn>
                     </v-toolbar>
-        
+
                     <v-card-text
                         class="m-0"
                         style="height: 100%; overflow: scroll; padding: 0; padding-bottom: 60px;">
@@ -114,7 +114,7 @@
                                 @click.prevent="showFormReferences = true">
                                 {{ $t('addReferences') }}
                             </v-btn>
-                            
+
                             <v-btn
                                 v-if="(detailProject) && (detailProject.references) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
                                 variant="outlined"
@@ -133,7 +133,7 @@
                             </v-btn>
                         </div>
                     </v-toolbar>
-        
+
                     <v-card-text
                         class="m-0"
                         style="height: 100%; overflow: hidden; padding: 0; padding-bottom: 20px;">
@@ -243,7 +243,7 @@
 
 <style scoped lang="scss">
 .tab-detail-project {
-    display: flex;
+    display: block;
 }
 
 .report-subtitle {
@@ -329,7 +329,7 @@ const breadcrumbs = ref([
 
 const references = ref([]);
 
-const tabDirection = ref('vertical');
+const tabDirection = ref('horizontal');
 
 const canMoveToProgress = ref(false);
 
@@ -415,7 +415,7 @@ onMounted(() => {
     if (mobile.value) {
         tabDirection.value = 'horizontal';
     } else {
-        tabDirection.value = 'vertical';
+        tabDirection.value = 'horizontal';
     }
 
     initProjectClass()
@@ -428,5 +428,5 @@ onMounted(() => {
     canMoveTask.value = useCheckPermission('move_task');
     canAddTask.value = useCheckPermission('add_task');
     canDeleteTask.value = useCheckPermission('delete_task');
-}) 
+})
 </script>

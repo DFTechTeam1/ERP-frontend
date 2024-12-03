@@ -1181,5 +1181,41 @@ export const useProjectStore = defineStore('project', {
             return error
           }
         },
+        async holdTask(taskUid, projectUid, payload) {
+          try {
+            const resp = await axios.post(`/production/project/${projectUid}/task/${taskUid}/hold`, payload);
+            showNotification(resp.data.message);
+            this.detailTask = resp.data.data.task;
+            this.detail = resp.data.data.full_detail;
+            this.projectBoards = resp.data.data.full_detail.boards;
+            return resp;
+          } catch (error) {
+            showNotification(error.response.data.message, 'error');
+
+            return error;
+          }
+        },
+        async startTask(taskUid, projectUid) {
+          try {
+            const resp = await axios.get(`/production/project/${projectUid}/task/${taskUid}/startTask`);
+            showNotification(resp.data.message);
+            this.detailTask = resp.data.data.task;
+            this.detail = resp.data.data.full_detail;
+            this.projectBoards = resp.data.data.full_detail.boards;
+            return resp;
+          } catch (error) {
+            showNotification(error.response.data.message, 'error');
+            return error;
+          }
+        },
+        async getEmployeeListTask(projectUid, employeeId) {
+          try {
+            const resp = await axios.get(`/production/project/${projectUid}/task/${employeeId}/listTask`);
+
+            return resp.data.data;
+          } catch (error) {
+            return error;
+          }
+        }
     },
 })

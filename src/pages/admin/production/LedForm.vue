@@ -84,15 +84,18 @@
 <script setup>
 import { mdiClose, mdiPlus } from '@mdi/js';
 import { useFieldArray, useForm } from 'vee-validate';
-import { ref, watch } from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as yup from 'yup'
+import {useRoute} from "vue-router";
 
 const { t } = useI18n()
 
+const route = useRoute();
+
 const show = ref(false)
 
-const { defineField, handleSubmit, errors, resetForm } = useForm({
+const { defineField, handleSubmit, errors, resetForm, setFieldValue } = useForm({
     validationSchema: yup.object({
         led: yup.array().of(
             yup.object().shape({
@@ -101,7 +104,7 @@ const { defineField, handleSubmit, errors, resetForm } = useForm({
             }),
         ),
         name: yup.string().required(t('nameRequired')),
-    })
+    }),
 })
 
 const { push, fields, remove, replace } = useFieldArray('led');
@@ -124,6 +127,15 @@ watch(props, (values) => {
             initSize()
         }
     }
+})
+
+onMounted(() => {
+  if (!route.params.id) {
+    setFieldValue('name', 'main');
+    setFieldValue('led', [{width: '1', height: '1'}]);
+  }
+
+  validateData();
 })
 
 function initSize() {
