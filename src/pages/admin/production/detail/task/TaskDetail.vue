@@ -419,8 +419,9 @@
                                       class="w-100 text-left mb-3"
                                       color="success"
                                       v-if="detailOfTask.is_hold"
+                                      :disabled="loadingStartTask"
                                       @click.prevent="startTask(detailOfTask.uid)">
-                                      <template v-if="loadingApprove">{{ $t('processing') }}</template>
+                                      <template v-if="loadingStartTask">{{ $t('processing') }}</template>
                                       <template v-else>{{ $t('startTask') }}</template>
                                     </v-btn>
                                     <v-btn
@@ -699,6 +700,8 @@ const moveToBoards = ref([]);
 const loading = ref(false);
 
 const loadingApprove = ref(false)
+
+const loadingStartTask = ref(false);
 
 const showTextCard = ref(true)
 
@@ -983,7 +986,9 @@ function closeProofWork() {
 }
 
 async function startTask(taskUid) {
+  loadingStartTask.value = true;
   const resp = await store.startTask(taskUid, detailProject.value.uid);
+  loadingStartTask.value = false;
   if (resp.status < 300) {
     closeDetailTask();
   }
