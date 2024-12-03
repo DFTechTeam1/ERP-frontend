@@ -87,33 +87,6 @@
                                 :error-message="errors.client_portal"></field-input>
 
                             <field-input
-                                class="mb-3"
-                                :label="t('pic')"
-                                :is-multiple="true"
-                                v-if="useGetRole() != 'pm'"
-                                v-model="pic"
-                                :is-required="false"
-                                :custom-options="true"
-                                :error-message="errors.pic"
-                                inputType="select"
-                                :select-options="projectManagerList">
-                                <template v-slot:selectOption="{props, item}">
-                                    <v-list-item
-                                        v-bind="props"
-                                        :prepend-avatar="item.raw.image">
-
-                                        <template v-slot:title>
-                                            {{ item.raw.title }}
-                                        </template>
-                                        <template v-slot:subtitle>
-                                            {{ item.raw.workload_on_date }} Project on this selected date
-                                        </template>
-
-                                    </v-list-item>
-                                </template>
-                            </field-input>
-
-                            <field-input
                               :is-readonly="true"
                               :is-required="false"
                               :suffix-text="'m<sup>2</sup>'"
@@ -182,7 +155,6 @@ const { handleSubmit, defineField, errors, setValues, setFieldValue } = useForm(
         status: yup.string().nullable(),
         note: yup.string().nullable(),
         client_portal: yup.string().required(),
-        pic: yup.array().nullable(),
         led_area: yup.string().nullable(),
     }),
     initialValues: {
@@ -192,7 +164,6 @@ const { handleSubmit, defineField, errors, setValues, setFieldValue } = useForm(
         status: detailProject.value.status_raw,
         note: detailProject.value.note,
         client_portal: detailProject.value.client_portal,
-        pic: detailProject.value.pic_ids,
         country_id: detailProject.value.country_id,
         state_id: detailProject.value.state_id,
         city_id: detailProject.value.city_id,
@@ -210,7 +181,6 @@ const [collaboration] = defineField('collaboration')
 const [status] = defineField('status')
 const [note] = defineField('note')
 const [client_portal] = defineField('client_portal')
-const [pic] = defineField('pic')
 
 const props = defineProps({
     isOpen: {
@@ -270,14 +240,6 @@ async function initProjectStatus() {
     }
 }
 
-async function initProjectManager(payload = null) {
-    const resp = await employeeStore.getProjectManager(payload);
-
-    if (resp.status < 300) {
-        projectManagerList.value = resp.data.data;
-    }
-}
-
 async function initCountries() {
     const resp = await regionStore.initCountries()
 
@@ -316,7 +278,6 @@ async function prepareData() {
     await Promise.all([
         initEventType(),
         initProjectStatus(),
-        initProjectManager(),
         initCountries(),
         initStates(detailProject.value.country_id),
         initCities(detailProject.value.state_id)
@@ -344,7 +305,6 @@ watch(detailProject, (values) => {
             status: values.status_raw,
             note: values.note,
             client_portal: values.client_portal,
-            pic: values.pic_ids,
         })
     }
 })
