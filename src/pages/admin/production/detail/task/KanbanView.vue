@@ -35,7 +35,7 @@
                             style="min-height: 50px;"
                             @click.prevent="chooseCard(element, board)">
 
-                            <p style="font-size: 16px;">{{ element.name }}</p>
+                            <p style="font-size: 14px;">{{ element.name }}</p>
 
                             <div v-if="element.pics.length" class="pic mt-1 mb-1">
                                 <task-member
@@ -54,7 +54,7 @@
                                 <p class="time text-right" v-if="element.end_date">
                                     <v-icon
                                         :icon="mdiClockOutline"
-                                        size="16"></v-icon>
+                                        size="14"></v-icon>
                                     {{ element.end_date_text }}
 
                                     <v-tooltip
@@ -181,7 +181,7 @@
 }
 
 .title {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     text-align: center;
     margin-bottom: 10px;

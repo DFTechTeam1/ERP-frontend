@@ -19,7 +19,7 @@
 					<div class="header-action d-flex align-center justify-space-between">
 						<div class="filter-wrapper">
 							<div class="d-flex ga-4 align-center">
-								<div class="d-flex ga-2 pointer align-center filter-item" 
+								<div class="d-flex ga-2 pointer align-center filter-item"
 									:class="{
 										'active': filterModel == 'column'
 									}"
@@ -46,7 +46,7 @@
 										</v-list>
 							      </v-menu>
 								</div>
-								<div class="d-flex ga-2 pointer align-center filter-item" 
+								<div class="d-flex ga-2 pointer align-center filter-item"
 									:class="{
 										'active': filterModel == 'group'
 									}"
@@ -76,7 +76,7 @@
 										</v-list>
 							      </v-menu>
 								</div>
-								<div class="d-flex ga-2 pointer align-center filter-item" 
+								<div class="d-flex ga-2 pointer align-center filter-item"
 									style="font-size: 12px;"
 									:class="{
 										'active': filterModel == 'filter'
@@ -94,7 +94,7 @@
 										width="300"
 										:close-on-content-click="false">
 										<v-form @submit="validateFilterDate">
-											{{errors}}
+
 											<v-list>
 												<v-list-item>
 										            <button-group-nav
@@ -102,7 +102,7 @@
 										            	v-model="dateGroupModel"></button-group-nav>
 
 										            <div class="filter-month" v-if="dateGroupModel == 'month'">
-										            	<VueDatePicker month-picker 
+										            	<VueDatePicker month-picker
 										            		v-model="filter_month"
 										            		:teleport="true"></VueDatePicker>
 										            </div>
@@ -131,7 +131,7 @@
 
 												<v-list-item class="filter-column-dropdown">
 													<v-switch
-											        	v-model="filterByVenue"	
+											        	v-model="filterByVenue"
 										                color="primary"
 										                label="By Venue"
 										                value="filter_venue"
@@ -144,7 +144,7 @@
 												</v-list-item>
 
 												<v-list-item>
-													<v-btn color="success" 
+													<v-btn color="success"
 														type="submit"
 														class="w-100 mb-2">
 														{{ $t('filter') }}
@@ -169,9 +169,9 @@
 							<!-- result filter -->
 							<div class="filter-result mt-2">
 								<v-chip color="primary" density="compact" class="chip-filter-group" v-if="resultFilterGroup">
-									<v-icon :icon="mdiClose" 
-										size="20" 
-										class="pointer" 
+									<v-icon :icon="mdiClose"
+										size="20"
+										class="pointer"
 										@click.prevent="clearGroupFilter"
 										start></v-icon>
 									<p class="filter-group-value">
@@ -186,9 +186,9 @@
 								</v-chip>
 								<v-chip color="primary" density="compact" class="chip-filter-group" v-if="filterByVenue != ''"
 								>
-									<v-icon :icon="mdiClose" 
-										size="20" 
-										class="pointer" 
+									<v-icon :icon="mdiClose"
+										size="20"
+										class="pointer"
 										@click.prevent="clearFilterVenue(true)"
 										start></v-icon>
 									<p class="filter-group-value">
@@ -217,9 +217,9 @@
 						<v-table>
 							<thead>
 								<tr>
-									<th 
+									<th
 										v-for="(column, c) in columns"
-										:key="c" 
+										:key="c"
 										:class="`column-${column.name}`">
 										{{ column.text }}
 									</th>
@@ -244,12 +244,12 @@
 									            	:class="{
 														'bg-primary': event.selected_project
 													}">
-													<td class="column-name" 
+													<td class="column-name"
 														:rowspan="getRowSpan(events, 'name', index)"
 														v-if="groupModel == 'name'">
 														{{ event.name }}
 													</td>
-													<td class="column-class" 
+													<td class="column-class"
 														:rowspan="getRowSpan(events, 'name', index)"
 														v-if="groupModel == 'class'">
 														{{ event.event_class }}
@@ -278,12 +278,12 @@
 									            	:class="{
 														'bg-primary': event.selected_project
 													}">
-													<td class="column-name" 
+													<td class="column-name"
 														:rowspan="getRowSpan(events, 'name', index)"
 														v-if="groupModel == 'name'">
 														{{ event.name }}
 													</td>
-													<td class="column-class" 
+													<td class="column-class"
 														:rowspan="getRowSpan(events, 'name', index)"
 														v-if="groupModel == 'class'">
 														<v-chip :style="{ backgroundColor: event.event_class_color }">
@@ -419,8 +419,8 @@ import * as yup from 'yup'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 import { useProjectStore } from '@/stores/project'
-import { 
-	mdiClose, 
+import {
+	mdiClose,
 	mdiViewColumnOutline,
 	mdiFormatListGroup,
 	mdiFilterOutline,
@@ -495,8 +495,8 @@ const resultFilterDate = ref(false)
 const items = ref([])
 
 const columnsModel = ref([
-	'name', 'project', 'date', 
-	'class', 'venue', 'eventType', 
+	'name', 'project', 'date',
+	'class', 'venue', 'eventType',
 	'status', 'collaboration', 'led'
 ])
 
@@ -606,6 +606,14 @@ async function getScheduler(isDefault = false) {
 		setDefaultFilter()
 	}
 
+  console.log("filter", masterFilter.value);
+  if (masterFilter.value.end_date) {
+    masterFilter.value.end_date = moment(masterFilter.value.end_date, "YYYY, MMMM DD").format("YYYY-MM-DD");
+  }
+  if (masterFilter.value.start_date) {
+    masterFilter.value.start_date = moment(masterFilter.value.start_date, "YYYY, MMMM DD").format("YYYY-MM-DD");
+  }
+
 	const resp = await store.getScheduler(props.projectUid, masterFilter.value)
 
 	loadingProcess.value = false
@@ -711,7 +719,7 @@ function updateColumnFilter(value) {
 				if (filterColumns[b].status) {
 					currentCol.classList.remove('d-none')
 				} else {
-					currentCol.classList.add('d-none')					
+					currentCol.classList.add('d-none')
 				}
 			})
 		}
@@ -726,7 +734,7 @@ function groupedBy(arr, key) {
   	return arr.reduce((result, currentValue) => {
 	    // Get the value of the key to group by
 	    const groupKey = currentValue[key];
-	    
+
 	    // Initialize the array for this key if it doesn't exist
 	    if (!result[groupKey]) {
 	      result[groupKey] = [];
@@ -803,7 +811,7 @@ const validateFilterDate = handleSubmit((values) => {
 	if (filterByVenue.value != '') {
 		masterFilter.value.filter_venue = 1
 	} else {
-		masterFilter.value.filter_venue = 0		
+		masterFilter.value.filter_venue = 0
 	}
 
 	if (dateGroupModel.value == 'month') {

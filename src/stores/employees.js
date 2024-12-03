@@ -67,7 +67,7 @@ export const useEmployeesStore = defineStore('employees', {
         },
         async checkIdNumber(payload) {
             const isValid = await axios.get('/employees/checkIdNumber?id_number=' + payload.id_number)
-    
+
             return isValid.data.data.is_available;
         },
         async getAll(payload = null) {
@@ -88,7 +88,7 @@ export const useEmployeesStore = defineStore('employees', {
                     date = payload.date;
                 }
 
-                const resp = await axios.get('/employees/getProjectManagers?date=' + date);
+                const resp = await axios.get(`/employees/getProjectManagers?date=${date}`);
                 this.allProjectManagers = resp.data.data;
                 return resp;
             } catch (error) {
@@ -212,7 +212,7 @@ export const useEmployeesStore = defineStore('employees', {
                 text: this.storeDataResult.data.message,
                 type: 'success',
             });
-            
+
             return this.storeDataResult;
         },
         storeDocuments(payload) {
@@ -221,7 +221,7 @@ export const useEmployeesStore = defineStore('employees', {
         },
         async generateEmployeeId() {
             const employeeIdRaw = await axios('/employees/generateEmployeeId');
-            
+
             if (employeeIdRaw.status < 300) {
                 return employeeIdRaw.data.data.employee_id;
             }
@@ -281,13 +281,13 @@ export const useEmployeesStore = defineStore('employees', {
             try {
                 if (this.previewImport.length) {
                     const resp = await axios.post('/employees/submitImport', this.previewImport)
-                    
+
                     notify({
                         title: 'Success',
                         text: resp.data.message,
                         type: 'success',
                     });
-                    
+
                     return resp
                 }
             } catch (error) {
@@ -335,9 +335,9 @@ export const useEmployeesStore = defineStore('employees', {
         async storeFamily(payload, employeeUid) {
             try {
                 const resp = await axios.post(`employees/${employeeUid}/storeFamily`, payload)
-    
+
                 showNotification(resp.data.message)
-    
+
                 return resp
             } catch (error) {
                 showNotification(error.response.data.message, 'error')
@@ -347,9 +347,9 @@ export const useEmployeesStore = defineStore('employees', {
         async updateFamily(payload, familyUid) {
             try {
                 const resp = await axios.put(`employees/${familyUid}/updateFamily`, payload)
-    
+
                 showNotification(resp.data.message)
-    
+
                 return resp
             } catch (error) {
                 showNotification(error.response.data.message, 'error')
@@ -361,7 +361,7 @@ export const useEmployeesStore = defineStore('employees', {
                 const resp = await axios.get(`employees/${employeeUid}/initFamily`)
 
                 this.employeeFamilies = resp.data.data
-    
+
                 return resp
             } catch (error) {
                 return error
@@ -372,7 +372,7 @@ export const useEmployeesStore = defineStore('employees', {
                 const resp = await axios.delete(`employees/${familyUid}/deleteFamily`)
 
                 showNotification(resp.data.message)
-    
+
                 return resp
             } catch (error) {
                 showNotification(error.response.data.message, 'error')
@@ -384,7 +384,7 @@ export const useEmployeesStore = defineStore('employees', {
                 const resp = await axios.get(`employees/${employeeUid}/initEmergency`)
 
                 this.employeeEmergencyContact = resp.data.data
-    
+
                 return resp
             } catch (error) {
                 return error
@@ -393,9 +393,9 @@ export const useEmployeesStore = defineStore('employees', {
         async storeEmergency(payload, employeeUid) {
             try {
                 const resp = await axios.post(`employees/${employeeUid}/storeEmergency`, payload)
-    
+
                 showNotification(resp.data.message)
-    
+
                 return resp
             } catch (error) {
                 showNotification(error.response.data.message, 'error')
@@ -405,9 +405,9 @@ export const useEmployeesStore = defineStore('employees', {
         async updateEmergency(payload, familyUid) {
             try {
                 const resp = await axios.put(`employees/${familyUid}/updateEmergency`, payload)
-    
+
                 showNotification(resp.data.message)
-    
+
                 return resp
             } catch (error) {
                 showNotification(error.response.data.message, 'error')
@@ -419,7 +419,7 @@ export const useEmployeesStore = defineStore('employees', {
                 const resp = await axios.delete(`employees/${emergencyUid}/deleteEmergency`)
 
                 showNotification(resp.data.message)
-    
+
                 return resp
             } catch (error) {
                 showNotification(error.response.data.message, 'error')
