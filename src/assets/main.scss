@@ -150,6 +150,12 @@ table thead th {
     margin: 0 auto;
 }
 
+@media screen and (min-width: 1700px) {
+    .main-app-bar {
+        padding: 0 calc($padding-main-right + 90px) 0 calc($sidebar-width + $padding-main-left + 110px) !important;
+    }
+}
+
 @media screen and (max-width: 1180px) {
     .main-app-bar {
         padding: 0 40px !important;
