@@ -606,7 +606,6 @@ async function getScheduler(isDefault = false) {
 		setDefaultFilter()
 	}
 
-  console.log("filter", masterFilter.value);
   if (masterFilter.value.end_date) {
     masterFilter.value.end_date = moment(masterFilter.value.end_date, "YYYY, MMMM DD").format("YYYY-MM-DD");
   }
