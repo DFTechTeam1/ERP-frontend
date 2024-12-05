@@ -70,6 +70,7 @@ import { mdiClose } from '@mdi/js'
 import { useProjectStore } from '@/stores/project'
 import { storeToRefs } from 'pinia';
 import { useProjectClassStore } from '@/stores/projectClass'
+import moment from "moment/moment";
 
 const store = useProjectStore();
 
@@ -163,6 +164,11 @@ async function initEventTypes() {
 
 const validateData = handleSubmit(async (values) => {
     loading.value = true;
+    // update date
+    if (values.date) {
+      values.date = moment(values.date, "YYYY, MMMM DD").format("YYYY-MM-DD");
+    }
+    console.log('values', values);
     const storeData = await store.editBasicInformation(values, detailProject.value.uid)
     loading.value = false;
 

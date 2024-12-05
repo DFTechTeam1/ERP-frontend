@@ -157,6 +157,7 @@ import { watch } from 'vue';
 import { useProjectClassStore } from '@/stores/projectClass';
 import LedForm from './LedForm.vue';
 import LedDetailForm from './components/LedDetailForm.vue';
+import moment from "moment/moment";
 
 const router = useRouter();
 
@@ -404,6 +405,11 @@ const validateData = handleSubmit(async (values) => {
 
     // call the child function to get updated led setting
     values.led_detail = ledFormComponent.value.getValue();
+
+    // update date
+    if (values.project_date) {
+      values.project_date = moment(values.project_date, "YYYY, MMMM DD").format("YYYY-MM-DD");
+    }
 
     const resp = await store.storeProject(values);
 
