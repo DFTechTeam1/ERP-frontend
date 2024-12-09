@@ -699,17 +699,7 @@ function clearFilter() {
     year: false,
   });
 
-    // change ui for filter month
-    if (listProjectParams.value.filter_month) {
-      thisMonthFilterColor.value = 'blue-lighten-2'
-      thisMonthFilterActive.value = true;
-    } else if (listProjectParams.value.filter_today) {
-      todayFilterColor.value = 'grey-lighten-2';
-      todayFilterActive.value = true
-    } else {
-      allFilterColor.value = 'grey-lighten-2';
-      allFilterActive.value = true;
-    }
+  toggleFilterButton('month');
 
     // store.setProjectDurationFilter({
     //   month: thisMonthFilterActive.value,
