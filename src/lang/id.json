@@ -668,5 +668,6 @@
     "startTask": "Mulai Lagi",
     "ledAreaRequired": "LED harus diisi",
     "listOfTask": "List Semua Tugas",
-    "userHaveNoTask": "User belum memiliki tugas"
+    "userHaveNoTask": "User belum memiliki tugas",
+    "thisYear": "Tahun ini"
 }
