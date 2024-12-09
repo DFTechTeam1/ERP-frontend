@@ -23,6 +23,9 @@ export const useProjectStore = defineStore('project', {
         projectBoards: [],
         allTasks: [],
         detailTask: null,
+        projectParams: {},
+        forceUpdatePages: false,
+        keepProjectParams: false,
         teams: [
             {
                 uid: '99383',
@@ -69,6 +72,8 @@ export const useProjectStore = defineStore('project', {
         ],
     }),
     getters: {
+        keyKeepProjectParams: (state) => state.keepProjectParams,
+        listProjectParams: (state) => state.projectParams,
         listOfProjectsFolder: (state) => state.projectsFolder,
         listOfProjectCalendar: (state) => state.projectCalendar,
         detailOfProjectCalendar: (state) => state.projectCalendarDetail,
@@ -86,14 +91,32 @@ export const useProjectStore = defineStore('project', {
         listOfTransferTeam: (state) => state.transferTeamList,
     },
     actions: {
+        setKeepProjectParams(payload) {
+          this.keepProjectParams = payload;
+        },
+        setForceUpdatePages(payload) {
+          this.forceUpdatePages = payload;
+        },
+        setProjectParams(payload) {
+          if (this.forceUpdatePages) {
+            this.projectParams.page = payload.page;
+            this.projectParams.itemsPerPage = payload.itemsPerPage;
+            this.projectParams.sortBy = payload.sortBy;
+          }
+        },
+        setProjectDurationFilter(payload) {
+          this.projectParams.filter_month = payload.month;
+          this.projectParams.filter_today = payload.today;
+        },
+        setSearchParamProject(payload) {
+          this.projectParams.filter = payload;
+        },
         async getDetail(payload) {
             try {
                 const resp = await axios.get('/production/project/' + payload.id);
 
                 const saltKey = import.meta.env.VITE_SALT_KEY;
                 const { decodedString } = useEncrypt(resp.data.data.detail, saltKey);
-
-                console.log('decodedString', decodedString);
 
                 this.detail = decodedString;
                 this.projectBoards = decodedString.boards;
@@ -149,15 +172,15 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
-        async initProjects(payload) {
+        async initProjects() {
             try {
                 let params = {
-                    page: payload ? payload.page : 1,
-                    itemsPerPage: payload ? payload.itemsPerPage : 10,
-                    sortBy: payload ? payload.sortBy : [],
-                    search: payload ? payload.filter : '',
-                    filter_month: payload.filter_month,
-                    filter_today: payload.filter_today,
+                    page: this.projectParams ? this.projectParams.page : 1,
+                    itemsPerPage: this.projectParams ? this.projectParams.itemsPerPage : 10,
+                    sortBy: this.projectParams ? this.projectParams.sortBy : [],
+                    search: this.projectParams ? this.projectParams.filter : '',
+                    filter_month: this.projectParams ? this.projectParams.filter_month : true,
+                    filter_today: this.projectParams ? this.projectParams.filter_today : false,
                 };
 
                 this.projects = []

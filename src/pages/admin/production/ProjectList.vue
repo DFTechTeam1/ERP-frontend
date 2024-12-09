@@ -358,11 +358,11 @@
 </style>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import {onBeforeMount, onMounted, ref} from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from '@/stores/project'
 import { storeToRefs } from 'pinia';
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
 import FinderManager from './FinderManager.vue'
 import SubtitutePic from './SubtitutePic.vue'
 
@@ -405,6 +405,8 @@ const projectUidSubtitutePic = ref(null)
 const {
     listOfProjects,
     totalOfProjects,
+    listProjectParams,
+    keyKeepProjectParams
  } = storeToRefs(store);
 
 const titleConfirmationDelete = ref(t('deleteProject'))
@@ -498,7 +500,7 @@ const headers = ref([
     },
 ]);
 
-function filterButton(type) {
+function toggleFilterButton(type) {
   if (type === 'month') {
     thisMonthFilterActive.value = !thisMonthFilterActive.value
 
@@ -520,12 +522,18 @@ function filterButton(type) {
   } else {
     todayFilterActive.value = false
     thisMonthFilterActive.value = false
-    allFilterActive.value = !allFilterActive.value
+    allFilterActive.value = !thisMonthFilterActive.value && !todayFilterActive.value
 
     thisMonthFilterColor.value = 'grey-lighten-2'
     todayFilterColor.value = 'grey-lighten-2'
     allFilterColor.value = 'blue-lighten-2'
   }
+}
+
+function filterButton(type) {
+  toggleFilterButton(type);
+
+  store.setForceUpdatePages(false);
 
   initProjects()
 }
@@ -600,32 +608,32 @@ async function doBulkDelete(payload) {
 }
 
 async function initProjects(payload = '') {
-    if (payload === '') {
-      payload = {page: 1, itemsPerPage: 10}
+    if (!keyKeepProjectParams.value) {
+      if (payload === '') {
+        payload = {page: 1, itemsPerPage: 10}
+      }
+
+      store.setProjectDurationFilter({
+        month: thisMonthFilterActive.value,
+        today: todayFilterActive.value
+      });
+
+      store.setProjectParams({
+        page: payload.page,
+        itemsPerPage: payload.itemsPerPage,
+        sortBy: payload.sortBy,
+      })
     }
 
-    if (payload === '' && searchParam.value !== '') {
-      payload = {filter: searchParam.value}
-    } else if (payload !== '' && searchParam.value !== '') {
-      payload.filter = searchParam.value;
-    }
-
-    payload.filter_month = thisMonthFilterActive.value
-    payload.filter_today = todayFilterActive.value
-
-    console.log("payload init project", payload);
-    console.log("search params", searchParam.value);
+    itemsPerPage.value = listProjectParams.value.itemsPerPage;
 
     loading.value = true;
-    const resp = await store.initProjects(payload);
+    await store.initProjects();
     loading.value = false;
     totalItems.value = totalOfProjects.value;
 
-    if (
-      (resp.status < 300) &&
-      (!resp.data.data.isAllItems)
-    ) {
-    }
+    store.setForceUpdatePages(true);
+    store.setKeepProjectParams(false);
 }
 
 function bulkDelete(payload) {
@@ -649,19 +657,39 @@ function showFilter() {
 
 function clearFilter() {
     searchParam.value = '';
-    thisMonthFilterActive.value = true
-    todayFilterActive.value = false
-    allFilterActive.value = false
 
-    thisMonthFilterColor.value = 'blue-lighten-2'
-    todayFilterColor.value = 'grey-lighten-2'
-    allFilterColor.value = 'grey-lighten-2'
+  store.setProjectDurationFilter({
+    month: true,
+    today: false
+  });
+
+    // change ui for filter month
+    if (listProjectParams.value.filter_month) {
+      thisMonthFilterColor.value = 'blue-lighten-2'
+      thisMonthFilterActive.value = true;
+    } else if (listProjectParams.value.filter_today) {
+      todayFilterColor.value = 'grey-lighten-2';
+      todayFilterActive.value = true
+    } else {
+      allFilterColor.value = 'grey-lighten-2';
+      allFilterActive.value = true;
+    }
+
+    // store.setProjectDurationFilter({
+    //   month: thisMonthFilterActive.value,
+    //   today: todayFilterActive.value
+    // });
+    store.setSearchParamProject({});
+
+    store.setForceUpdatePages(false);
 
     initProjects();
     showClearFilter.value = false;
 }
 
 function doFilter(payload) {
+    console.log("filter data", payload);
+
     searchParam.value = payload;
     thisMonthFilterActive.value = false
     todayFilterActive.value = false
@@ -670,6 +698,16 @@ function doFilter(payload) {
     thisMonthFilterColor.value = 'grey-lighten-2'
     todayFilterColor.value = 'grey-lighten-2'
     allFilterColor.value = 'grey-lighten-2'
+
+    // clear button filter
+    store.setProjectDurationFilter({
+      month: thisMonthFilterActive.value,
+      today: todayFilterActive.value
+    });
+
+    store.setSearchParamProject(searchParam.value);
+
+    store.setForceUpdatePages(false);
 
     initProjects();
     isShowFilter.value = false;
@@ -726,6 +764,17 @@ function closeFinderManager(isRefresh = false) {
 }
 
 onMounted(() => {
+})
 
+onBeforeMount(() => {
+  if (listProjectParams.value.filter_month !== undefined) {
+    toggleFilterButton('month');
+  } else if (listProjectParams.value.filter_today !== undefined) {
+    toggleFilterButton('today');
+  } if (listProjectParams.value.filter_today === false && listProjectParams.value.filter_month === false) {
+    toggleFilterButton('all');
+  } else {
+    toggleFilterButton('month');
+  }
 })
 </script>
