@@ -46,7 +46,7 @@
                                 </v-list-item>
                             </template>
                         </field-input>
-    
+
                         <v-btn
                             variant="flat"
                             color="primary"
@@ -128,7 +128,7 @@ const validateData = handleSubmit(async (values) => {
 
     if (resp.status < 300) {
         resetForm()
-        emit('close-event', true)
+        emit('close-event')
     }
 })
 
