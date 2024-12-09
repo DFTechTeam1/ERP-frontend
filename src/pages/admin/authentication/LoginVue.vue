@@ -26,18 +26,32 @@
                 type="password">
             </v-text-field>
 
-            <a
+            <div class="d-flex align-center justify-space-between">
+              <a
                 href="/auth/a/forgot-password"
                 class="text-primary no-underline"
                 style="font-size: 12px;">
                 {{ $t('forgotPassword') }}
-            </a>
+              </a>
+
+              <v-checkbox
+                :style="{
+                fontSize: '10px'
+                }"
+                class="remember"
+                v-model="remember_me"
+                color="success"
+                label="Remember me?"
+                :value="true"
+                hide-details
+              ></v-checkbox>
+            </div>
 
             <v-btn
                 height="auto"
                 type="submit"
                 :disabled="isLoading"
-                class="btn-primary w-100 pt-3 pb-3 mt-3">
+                class="btn-primary w-100 pt-3 pb-3">
                 <template v-if="isLoading">
                     {{ $t('processing') }}
                 </template>
@@ -66,6 +80,7 @@ const { errors, handleSubmit, defineField } = useForm({
   validationSchema: yup.object({
     email: yup.string().email().required(),
     password: yup.string().min(6).required(),
+    remember_me: yup.boolean().default(false)
   }),
 });
 
@@ -88,6 +103,7 @@ const submitData = handleSubmit(async values => {
 
 const [email, emailAttrs] = defineField('email');
 const [password, passwordAttrs] = defineField('password');
+const [remember_me] = defineField('remember_me')
 
 const isLoading = ref(false);
 
@@ -95,3 +111,9 @@ onMounted(() => {
     console.log('route', route);
 })
 </script>
+
+<style lang="scss">
+.remember label {
+  font-size: 12px !important;
+}
+</style>
