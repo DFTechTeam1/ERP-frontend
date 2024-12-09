@@ -109,9 +109,9 @@ async function processForm(values) {
     loading.value = true
     const resp = await store.changeStatus(values, props.uid)
     loading.value = false
-    
+
     if (resp.status < 300) {
-        closeStatusForm(true)
+        closeStatusForm()
     }
 }
 

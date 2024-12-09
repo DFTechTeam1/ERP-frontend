@@ -707,6 +707,20 @@ export const useProjectStore = defineStore('project', {
                 if (resp.data.data.full_detail) {
                     this.detail = resp.data.data.full_detail;
                     this.projectBoards = resp.data.data.full_detail.boards;
+
+                    // update list of products
+                    this.projects.map((project) => {
+                      if (project.uid == resp.data.data.full_detail.uid) {
+                        project.status = resp.data.data.full_detail.status;
+                        project.status_color = resp.data.data.full_detail.status_color;
+                        project.status_raw = resp.data.data.full_detail.status_raw;
+                      }
+
+                      return project;
+                    });
+
+                    console.log("projects", this.projects);
+                    console.log("detail", resp.data.data.full_detail);
                 }
 
                 return resp
@@ -1044,6 +1058,17 @@ export const useProjectStore = defineStore('project', {
 
                 this.detail = resp.data.data.full_detail;
 
+                // update project list state
+                this.projects.map((project) => {
+                  if (project.uid === resp.data.data.full_detail.uid) {
+                    project.pic = resp.data.data.list_updated.pic;
+                    project.no_pic = resp.data.data.list_updated.no_pic;
+                    project.pic_eid = resp.data.data.list_updated.pic_eid;
+                  }
+
+                  return project;
+                });
+
                 return resp
             } catch(error) {
                 console.log('error', error)
@@ -1059,6 +1084,17 @@ export const useProjectStore = defineStore('project', {
                 if (resp.data.data.full_detail.length) {
                     this.detail = resp.data.data.full_detail;
                 }
+
+                // update project list
+                this.projects.map((project) => {
+                  if (project.uid == projectUid) {
+                    project.pic = resp.data.data.list_updated.pic;
+                    project.no_pic = resp.data.data.list_updated.no_pic;
+                    project.pic_eid = resp.data.data.list_updated.pic_eid;
+                  }
+
+                  return project;
+                });
 
                 return resp
             } catch(e) {

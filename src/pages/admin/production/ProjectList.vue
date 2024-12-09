@@ -605,13 +605,16 @@ async function initProjects(payload = '') {
     }
 
     if (payload === '' && searchParam.value !== '') {
-        payload = {filter: searchParam.value}
+      payload = {filter: searchParam.value}
     } else if (payload !== '' && searchParam.value !== '') {
       payload.filter = searchParam.value;
     }
 
     payload.filter_month = thisMonthFilterActive.value
     payload.filter_today = todayFilterActive.value
+
+    console.log("payload init project", payload);
+    console.log("search params", searchParam.value);
 
     loading.value = true;
     const resp = await store.initProjects(payload);
