@@ -42,6 +42,20 @@
 
               <v-btn
                 variant="outlined"
+                :color="yearFilterColor"
+                density="compact"
+                @click.prevent="filterButton('year')">
+                <v-icon
+                  v-if="thisYearFilterActive"
+                  :icon="mdiCheckCircle"
+                  size="15"
+                  class="me-2"
+                  color="success"></v-icon>
+                {{ $t('thisYear') }}
+              </v-btn>
+
+              <v-btn
+                variant="outlined"
                 :color="todayFilterColor"
                 density="compact"
                 @click.prevent="filterButton('today')">
@@ -422,7 +436,9 @@ const totalItems = ref(0);
 const itemsPerPage = ref(10);
 const loading = ref(true);
 const thisMonthFilterActive = ref(true)
+const thisYearFilterActive = ref(false);
 const todayFilterColor = ref('grey-lighten-2')
+const yearFilterColor = ref('grey-lighten-2')
 const thisMonthFilterColor = ref('blue-lighten-2')
 const allFilterColor = ref('grey-lighten-2')
 const todayFilterActive = ref(false)
@@ -501,30 +517,47 @@ const headers = ref([
 ]);
 
 function toggleFilterButton(type) {
-  if (type === 'month') {
-    thisMonthFilterActive.value = !thisMonthFilterActive.value
+  if (type === 'year') {
+    thisYearFilterActive.value = true;
 
-    thisMonthFilterColor.value = 'blue-lighten-2'
+    yearFilterColor.value = 'blue-lighten-2'
+    thisMonthFilterColor.value = 'grey-lighten-2'
     todayFilterColor.value = 'grey-lighten-2'
     allFilterColor.value = 'grey-lighten-2'
 
+    thisMonthFilterActive.value = false;
+    todayFilterActive.value = false
+    allFilterActive.value = false
+  } else if (type === 'month') {
+    thisMonthFilterActive.value = true;
+
+    thisMonthFilterColor.value = 'blue-lighten-2'
+    yearFilterColor.value = 'grey-lighten-2'
+    todayFilterColor.value = 'grey-lighten-2'
+    allFilterColor.value = 'grey-lighten-2'
+
+    thisYearFilterActive.value = false;
     todayFilterActive.value = false
     allFilterActive.value = false
   } else if (type === 'today') {
-    todayFilterActive.value = !todayFilterActive.value
+    todayFilterActive.value = true;
 
     thisMonthFilterColor.value = 'grey-lighten-2'
+    yearFilterColor.value = 'grey-lighten-2'
     todayFilterColor.value = 'blue-lighten-2'
     allFilterColor.value = 'grey-lighten-2'
 
+    thisYearFilterActive.value = false;
     thisMonthFilterActive.value = false
     allFilterActive.value = false
   } else {
     todayFilterActive.value = false
     thisMonthFilterActive.value = false
+    thisYearFilterActive.value = false;
     allFilterActive.value = !thisMonthFilterActive.value && !todayFilterActive.value
 
     thisMonthFilterColor.value = 'grey-lighten-2'
+    yearFilterColor.value = 'grey-lighten-2'
     todayFilterColor.value = 'grey-lighten-2'
     allFilterColor.value = 'blue-lighten-2'
   }
@@ -603,6 +636,7 @@ async function doBulkDelete(payload) {
     if ((deleteData.status != undefined) && (deleteData.status < 300)) {
         showConfirmation.value = false;
         selectedIds.value = [];
+        store.setKeepProjectParams(true);
         initProjects();
     }
 }
@@ -615,7 +649,8 @@ async function initProjects(payload = '') {
 
       store.setProjectDurationFilter({
         month: thisMonthFilterActive.value,
-        today: todayFilterActive.value
+        today: todayFilterActive.value,
+        year: thisYearFilterActive.value,
       });
 
       store.setProjectParams({
@@ -660,7 +695,8 @@ function clearFilter() {
 
   store.setProjectDurationFilter({
     month: true,
-    today: false
+    today: false,
+    year: false,
   });
 
     // change ui for filter month
@@ -702,7 +738,8 @@ function doFilter(payload) {
     // clear button filter
     store.setProjectDurationFilter({
       month: thisMonthFilterActive.value,
-      today: todayFilterActive.value
+      today: todayFilterActive.value,
+      year: thisYearFilterActive.value,
     });
 
     store.setSearchParamProject(searchParam.value);
@@ -767,11 +804,14 @@ onMounted(() => {
 })
 
 onBeforeMount(() => {
-  if (listProjectParams.value.filter_month !== undefined) {
+  console.log('check 2', listProjectParams.value);
+  if (listProjectParams.value.filter_month  === true) {
     toggleFilterButton('month');
-  } else if (listProjectParams.value.filter_today !== undefined) {
+  } else if (listProjectParams.value.filter_today === true) {
     toggleFilterButton('today');
-  } if (listProjectParams.value.filter_today === false && listProjectParams.value.filter_month === false) {
+  } else if (listProjectParams.value.filter_year === true) {
+    toggleFilterButton('year');
+  } else if (listProjectParams.value.filter_today === false && listProjectParams.value.filter_month === false && listProjectParams.value.filter_year === false) {
     toggleFilterButton('all');
   } else {
     toggleFilterButton('month');

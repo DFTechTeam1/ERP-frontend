@@ -107,6 +107,7 @@ export const useProjectStore = defineStore('project', {
         setProjectDurationFilter(payload) {
           this.projectParams.filter_month = payload.month;
           this.projectParams.filter_today = payload.today;
+          this.projectParams.filter_year = payload.year;
         },
         setSearchParamProject(payload) {
           this.projectParams.filter = payload;
@@ -181,6 +182,7 @@ export const useProjectStore = defineStore('project', {
                     search: this.projectParams ? this.projectParams.filter : '',
                     filter_month: this.projectParams ? this.projectParams.filter_month : true,
                     filter_today: this.projectParams ? this.projectParams.filter_today : false,
+                    filter_year: this.projectParams ? this.projectParams.filter_year : false,
                 };
 
                 this.projects = []
