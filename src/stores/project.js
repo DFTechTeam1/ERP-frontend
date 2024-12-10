@@ -26,6 +26,7 @@ export const useProjectStore = defineStore('project', {
         projectParams: {},
         forceUpdatePages: false,
         keepProjectParams: false,
+        haveFilterData: false,
         teams: [
             {
                 uid: '99383',
@@ -72,6 +73,7 @@ export const useProjectStore = defineStore('project', {
         ],
     }),
     getters: {
+        isHaveFilterData: (state) => state.haveFilterData,
         keyKeepProjectParams: (state) => state.keepProjectParams,
         listProjectParams: (state) => state.projectParams,
         listOfProjectsFolder: (state) => state.projectsFolder,
@@ -91,6 +93,9 @@ export const useProjectStore = defineStore('project', {
         listOfTransferTeam: (state) => state.transferTeamList,
     },
     actions: {
+        setFilterData(payload) {
+          this.haveFilterData = payload;
+        },
         setKeepProjectParams(payload) {
           this.keepProjectParams = payload;
         },

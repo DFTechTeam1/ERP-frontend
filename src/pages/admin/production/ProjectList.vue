@@ -11,7 +11,7 @@
             :loading="loading"
             :itemsPerPage="itemsPerPage"
             :filterSearch="false"
-            :showClearFilter="showClearFilter"
+            :showClearFilter="isHaveFilterData"
             :fullCustomBody="true"
             :custom-filter-button="true"
             :hasCheckbox="false"
@@ -86,7 +86,6 @@
             <template v-slot:filter-result>
                 <v-chip density="compact" color="purple-darken-3"
                     :append-icon="mdiClose">
-                    filter result
                 </v-chip>
             </template>
 
@@ -420,7 +419,8 @@ const {
     listOfProjects,
     totalOfProjects,
     listProjectParams,
-    keyKeepProjectParams
+    keyKeepProjectParams,
+    isHaveFilterData
  } = storeToRefs(store);
 
 const titleConfirmationDelete = ref(t('deleteProject'))
@@ -698,6 +698,7 @@ function clearFilter() {
     today: false,
     year: false,
   });
+  store.setFilterData(false);
 
   toggleFilterButton('month');
 
@@ -710,35 +711,34 @@ function clearFilter() {
     store.setForceUpdatePages(false);
 
     initProjects();
-    showClearFilter.value = false;
+    showClearFilter.value = isHaveFilterData.value;
 }
 
 function doFilter(payload) {
-    console.log("filter data", payload);
+  searchParam.value = payload;
+  thisMonthFilterActive.value = false
+  todayFilterActive.value = false
+  allFilterActive.value = false
 
-    searchParam.value = payload;
-    thisMonthFilterActive.value = false
-    todayFilterActive.value = false
-    allFilterActive.value = false
+  thisMonthFilterColor.value = 'grey-lighten-2'
+  todayFilterColor.value = 'grey-lighten-2'
+  allFilterColor.value = 'grey-lighten-2'
 
-    thisMonthFilterColor.value = 'grey-lighten-2'
-    todayFilterColor.value = 'grey-lighten-2'
-    allFilterColor.value = 'grey-lighten-2'
+  // clear button filter
+  store.setProjectDurationFilter({
+    month: thisMonthFilterActive.value,
+    today: todayFilterActive.value,
+    year: thisYearFilterActive.value,
+  });
 
-    // clear button filter
-    store.setProjectDurationFilter({
-      month: thisMonthFilterActive.value,
-      today: todayFilterActive.value,
-      year: thisYearFilterActive.value,
-    });
+  store.setSearchParamProject(searchParam.value);
 
-    store.setSearchParamProject(searchParam.value);
+  store.setForceUpdatePages(false);
+  store.setFilterData(true);
 
-    store.setForceUpdatePages(false);
-
-    initProjects();
-    isShowFilter.value = false;
-    showClearFilter.value = true;
+  initProjects();
+  isShowFilter.value = false;
+  showClearFilter.value = isHaveFilterData.value;
 }
 
 function cancelFilter() {
@@ -791,10 +791,14 @@ function closeFinderManager(isRefresh = false) {
 }
 
 onMounted(() => {
+
 })
 
 onBeforeMount(() => {
-  console.log('check 2', listProjectParams.value);
+  if (isHaveFilterData.value) {
+    clearFilter();
+  }
+
   if (listProjectParams.value.filter_month  === true) {
     toggleFilterButton('month');
   } else if (listProjectParams.value.filter_today === true) {
@@ -806,5 +810,6 @@ onBeforeMount(() => {
   } else {
     toggleFilterButton('month');
   }
+
 })
 </script>
