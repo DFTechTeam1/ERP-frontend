@@ -106,7 +106,7 @@ const { errors, defineField, handleSubmit, setValues } = useForm({
     }),
     initialValues: {
         name: detailProject.value ? detailProject.value.name : '',
-        date: detailProject.value ? detailProject.value.project_date : '',
+        date: detailProject.value ? moment(detailProject.value.project_date, "DD MMMM YYYY").format("YYYY, MMMM DD") : '',
         event_type: detailProject.value ? detailProject.value.event_type_raw : '',
         classification: detailProject.value ? detailProject.value.event_class_raw : '',
     }
@@ -140,7 +140,7 @@ watch(detailProject, (values) => {
 function setForm(values) {
     setValues({
         name: values.name,
-        date: values.project_date,
+        date: moment(values.project_date, "DD MMMM YYYY").format("YYYY, MMMM DD"),
         event_type: values.event_type_raw,
         classification: values.event_class_raw,
     })
@@ -165,6 +165,7 @@ async function initEventTypes() {
 const validateData = handleSubmit(async (values) => {
     loading.value = true;
     // update date
+  console.log("values1", values);
     if (values.date) {
       values.date = moment(values.date, "YYYY, MMMM DD").format("YYYY-MM-DD");
     }
