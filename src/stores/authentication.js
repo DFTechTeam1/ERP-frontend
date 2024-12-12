@@ -19,7 +19,7 @@ export const useAuthenticationStore = defineStore('authentication', {
         async login(payload) {
             try {
                 const resp = await axios.post('/auth/login', payload, {
-                  withCredentials: import.meta.env.VITE_NODE_ENV === 'production'
+                  withCredentials: true
                 });
 
                 localStorage.setItem('dfauth', resp.data.data.token);
