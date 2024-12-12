@@ -18,7 +18,9 @@ export const useAuthenticationStore = defineStore('authentication', {
     actions: {
         async login(payload) {
             try {
-                const resp = await axios.post('/auth/login', payload);    
+                const resp = await axios.post('/auth/login', payload, {
+                  withCredentials: import.meta.env.VITE_NODE_ENV === 'production'
+                });
 
                 localStorage.setItem('dfauth', resp.data.data.token);
 
@@ -77,7 +79,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 return resp
             } catch (error) {
                 showNotification(error.response.data.message, 'error')
-                
+
                 return error
             }
         },

@@ -838,9 +838,7 @@ function openPicDialog() {
 function closePicDialog(isCloseForm = false) {
 	showPicDialog.value = false
 
-	if (isCloseForm) {
-		closeFinderManager(isCloseForm)
-	}
+  closeFinderManager(isCloseForm)
 }
 
 function clearFilterVenue(isRefresh = false) {

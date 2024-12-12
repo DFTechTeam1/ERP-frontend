@@ -40,8 +40,8 @@
 									<ListPic
 										:pics="pics"
 										@select-item="selectPic"></ListPic>
-								</v-list>	
-							</v-menu>	
+								</v-list>
+							</v-menu>
 						</v-text-field>
 
 						<v-btn class="w-100" variant="flat" color="primary"
@@ -136,7 +136,7 @@ function selectPic(user) {
 	var selected = pics.value.filter((filter) => {
 		return filter.id == user.id
 	})
-	
+
 	pic.value.push(selected[0].id)
 	pic.value = [...new Set(pic.value)]
 
@@ -152,7 +152,7 @@ const validateData = handleSubmit(async () => {
 	loading.value = false
 
 	if (resp.status < 300) {
-		closeDialog(true)
+		closeDialog()
 	}
 })
 

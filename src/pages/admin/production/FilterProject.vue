@@ -25,7 +25,7 @@
                                 :is-required="false"></field-input>
                         </v-col>
                     </v-row>
-                    
+
                     <v-row>
                         <v-col cols="12"
                             style="padding-bottom: 0 !important; padding-top: 0 !important;"
@@ -106,6 +106,7 @@ import { mdiClose } from '@mdi/js';
 import { onMounted } from 'vue';
 import { useEmployeesStore } from '@/stores/employees';
 import { useProjectStore } from '@/stores/project';
+import moment from "moment";
 
 const store = useEmployeesStore();
 
@@ -141,9 +142,25 @@ const [pic] = defineField('pic');
 const [event_type] = defineField('event_type');
 const [classification] = defineField('classification');
 
+function areAllFieldsEmpty(values) {
+  return Object.values(values).every(value => value === '' || value === null || value === undefined);
+}
+
 const doFilter = handleSubmit((values) => {
-    resetForm();
-    emit('filterEvent', values);
+    if (!areAllFieldsEmpty(values)) {
+      resetForm();
+
+      // format date
+      if (values.start_date) {
+        values.start_date = moment(values.start_date, "YYYY, MMMM DD").format("YYYY-MM-DD");
+      }
+      if (values.end_date) {
+        values.end_date = moment(values.end_date, "YYYY, MMMM DD").format("YYYY-MM-DD");
+      }
+      emit('filterEvent', values);
+    } else {
+      emit('closeEvent');
+    }
 })
 
 const pics = ref([]);
@@ -160,7 +177,7 @@ function closeFilter() {
 
 async function initPic() {
     const resp = await store.getProjectManager();
-    
+
     if (resp.status < 300) {
         pics.value = resp.data.data;
     }

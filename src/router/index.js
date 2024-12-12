@@ -69,6 +69,7 @@ import LayoutDefault from "@/layouts/LayoutDefault.vue";
 import { i18n } from '@/lang';
 import { useBreakToken } from "@/compose/breakToken";
 import { useCheckPermission } from "@/compose/checkPermission";
+import {useProjectStore} from "@/stores/project";
 
 const { t } = i18n.global;
 
@@ -577,6 +578,7 @@ const router = createRouter({
               name: t('detailProject'),
               component: DetailProject,
               meta: {
+                isDetailProject: true,
                 parentData: "Production",
                 requiresAuth: true,
                 parentLink: '/admin/production/projects',
@@ -865,11 +867,18 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
+  const store = useProjectStore();
+
   // TODO: DELETED SOON
   if (to.path == '/') {
     return {
       path: '/auth/a/login'
     }
+  }
+
+  if (to.path === "/admin/production/projects" && from.meta.isDetailProject) {
+    store.setForceUpdatePages(false);
+    store.setKeepProjectParams(true);
   }
 
   // redirected

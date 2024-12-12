@@ -23,7 +23,7 @@
 					<template v-else>
 						<div class="form-wrapper">
 							<div class="current-wrapper">
-								<p class="title">{{ $t('currentPic') }}</p>	
+								<p class="title">{{ $t('currentPic') }}</p>
 
 								<v-list class="mt-4"
 									lines="three" v-if="selectedPic.length">
@@ -44,7 +44,7 @@
 							</div>
 
 							<div class="current-wrapper">
-								<p class="title">{{ $t('currentPic') }}</p>	
+								<p class="title">{{ $t('currentPic') }}</p>
 
 								<v-list class="mt-4"
 									lines="three">
@@ -60,7 +60,7 @@
 							@click.prevent="submitForm">
 							{{ $t('save') }}
 						</v-btn>
-						
+
 					</template>
 				</v-form>
 			</v-card-text>
@@ -186,11 +186,11 @@ async function submitForm() {
 	const resp = await store.subtitutePic({pics: pics, removed: removedPic.value}, props.projectUid)
 
 	if (resp.status < 300) {
-		closeDialog(true)
+		closeDialog()
 	}
 
 	loading.value = false
-}	
+}
 
 async function initUsers() {
 	loadingPrepare.value = true

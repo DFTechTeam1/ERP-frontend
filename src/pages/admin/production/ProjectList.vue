@@ -11,7 +11,7 @@
             :loading="loading"
             :itemsPerPage="itemsPerPage"
             :filterSearch="false"
-            :showClearFilter="showClearFilter"
+            :showClearFilter="isHaveFilterData"
             :fullCustomBody="true"
             :custom-filter-button="true"
             :hasCheckbox="false"
@@ -38,6 +38,20 @@
                   class="me-2"
                   color="success"></v-icon>
                 {{ $t('thisMonth') }}
+              </v-btn>
+
+              <v-btn
+                variant="outlined"
+                :color="yearFilterColor"
+                density="compact"
+                @click.prevent="filterButton('year')">
+                <v-icon
+                  v-if="thisYearFilterActive"
+                  :icon="mdiCheckCircle"
+                  size="15"
+                  class="me-2"
+                  color="success"></v-icon>
+                {{ $t('thisYear') }}
               </v-btn>
 
               <v-btn
@@ -72,7 +86,6 @@
             <template v-slot:filter-result>
                 <v-chip density="compact" color="purple-darken-3"
                     :append-icon="mdiClose">
-                    filter result
                 </v-chip>
             </template>
 
@@ -358,11 +371,11 @@
 </style>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import {onBeforeMount, onMounted, ref} from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from '@/stores/project'
 import { storeToRefs } from 'pinia';
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
 import FinderManager from './FinderManager.vue'
 import SubtitutePic from './SubtitutePic.vue'
 
@@ -405,6 +418,9 @@ const projectUidSubtitutePic = ref(null)
 const {
     listOfProjects,
     totalOfProjects,
+    listProjectParams,
+    keyKeepProjectParams,
+    isHaveFilterData
  } = storeToRefs(store);
 
 const titleConfirmationDelete = ref(t('deleteProject'))
@@ -420,7 +436,9 @@ const totalItems = ref(0);
 const itemsPerPage = ref(10);
 const loading = ref(true);
 const thisMonthFilterActive = ref(true)
+const thisYearFilterActive = ref(false);
 const todayFilterColor = ref('grey-lighten-2')
+const yearFilterColor = ref('grey-lighten-2')
 const thisMonthFilterColor = ref('blue-lighten-2')
 const allFilterColor = ref('grey-lighten-2')
 const todayFilterActive = ref(false)
@@ -498,34 +516,57 @@ const headers = ref([
     },
 ]);
 
-function filterButton(type) {
-  if (type === 'month') {
-    thisMonthFilterActive.value = !thisMonthFilterActive.value
+function toggleFilterButton(type) {
+  if (type === 'year') {
+    thisYearFilterActive.value = true;
 
-    thisMonthFilterColor.value = 'blue-lighten-2'
+    yearFilterColor.value = 'blue-lighten-2'
+    thisMonthFilterColor.value = 'grey-lighten-2'
     todayFilterColor.value = 'grey-lighten-2'
     allFilterColor.value = 'grey-lighten-2'
 
+    thisMonthFilterActive.value = false;
+    todayFilterActive.value = false
+    allFilterActive.value = false
+  } else if (type === 'month') {
+    thisMonthFilterActive.value = true;
+
+    thisMonthFilterColor.value = 'blue-lighten-2'
+    yearFilterColor.value = 'grey-lighten-2'
+    todayFilterColor.value = 'grey-lighten-2'
+    allFilterColor.value = 'grey-lighten-2'
+
+    thisYearFilterActive.value = false;
     todayFilterActive.value = false
     allFilterActive.value = false
   } else if (type === 'today') {
-    todayFilterActive.value = !todayFilterActive.value
+    todayFilterActive.value = true;
 
     thisMonthFilterColor.value = 'grey-lighten-2'
+    yearFilterColor.value = 'grey-lighten-2'
     todayFilterColor.value = 'blue-lighten-2'
     allFilterColor.value = 'grey-lighten-2'
 
+    thisYearFilterActive.value = false;
     thisMonthFilterActive.value = false
     allFilterActive.value = false
   } else {
     todayFilterActive.value = false
     thisMonthFilterActive.value = false
-    allFilterActive.value = !allFilterActive.value
+    thisYearFilterActive.value = false;
+    allFilterActive.value = !thisMonthFilterActive.value && !todayFilterActive.value
 
     thisMonthFilterColor.value = 'grey-lighten-2'
+    yearFilterColor.value = 'grey-lighten-2'
     todayFilterColor.value = 'grey-lighten-2'
     allFilterColor.value = 'blue-lighten-2'
   }
+}
+
+function filterButton(type) {
+  toggleFilterButton(type);
+
+  store.setForceUpdatePages(false);
 
   initProjects()
 }
@@ -595,34 +636,39 @@ async function doBulkDelete(payload) {
     if ((deleteData.status != undefined) && (deleteData.status < 300)) {
         showConfirmation.value = false;
         selectedIds.value = [];
+        store.setKeepProjectParams(true);
         initProjects();
     }
 }
 
 async function initProjects(payload = '') {
-    if (payload === '') {
-      payload = {page: 1, itemsPerPage: 10}
+    if (!keyKeepProjectParams.value) {
+      if (payload === '') {
+        payload = {page: 1, itemsPerPage: 10}
+      }
+
+      store.setProjectDurationFilter({
+        month: thisMonthFilterActive.value,
+        today: todayFilterActive.value,
+        year: thisYearFilterActive.value,
+      });
+
+      store.setProjectParams({
+        page: payload.page,
+        itemsPerPage: payload.itemsPerPage,
+        sortBy: payload.sortBy,
+      })
     }
 
-    if (payload === '' && searchParam.value !== '') {
-        payload = {filter: searchParam.value}
-    } else if (payload !== '' && searchParam.value !== '') {
-      payload.filter = searchParam.value;
-    }
-
-    payload.filter_month = thisMonthFilterActive.value
-    payload.filter_today = todayFilterActive.value
+    itemsPerPage.value = listProjectParams.value.itemsPerPage;
 
     loading.value = true;
-    const resp = await store.initProjects(payload);
+    await store.initProjects();
     loading.value = false;
     totalItems.value = totalOfProjects.value;
 
-    if (
-      (resp.status < 300) &&
-      (!resp.data.data.isAllItems)
-    ) {
-    }
+    store.setForceUpdatePages(true);
+    store.setKeepProjectParams(false);
 }
 
 function bulkDelete(payload) {
@@ -646,31 +692,53 @@ function showFilter() {
 
 function clearFilter() {
     searchParam.value = '';
-    thisMonthFilterActive.value = true
-    todayFilterActive.value = false
-    allFilterActive.value = false
 
-    thisMonthFilterColor.value = 'blue-lighten-2'
-    todayFilterColor.value = 'grey-lighten-2'
-    allFilterColor.value = 'grey-lighten-2'
+  store.setProjectDurationFilter({
+    month: true,
+    today: false,
+    year: false,
+  });
+  store.setFilterData(false);
+
+  toggleFilterButton('month');
+
+    // store.setProjectDurationFilter({
+    //   month: thisMonthFilterActive.value,
+    //   today: todayFilterActive.value
+    // });
+    store.setSearchParamProject({});
+
+    store.setForceUpdatePages(false);
 
     initProjects();
-    showClearFilter.value = false;
+    showClearFilter.value = isHaveFilterData.value;
 }
 
 function doFilter(payload) {
-    searchParam.value = payload;
-    thisMonthFilterActive.value = false
-    todayFilterActive.value = false
-    allFilterActive.value = false
+  searchParam.value = payload;
+  thisMonthFilterActive.value = false
+  todayFilterActive.value = false
+  allFilterActive.value = false
 
-    thisMonthFilterColor.value = 'grey-lighten-2'
-    todayFilterColor.value = 'grey-lighten-2'
-    allFilterColor.value = 'grey-lighten-2'
+  thisMonthFilterColor.value = 'grey-lighten-2'
+  todayFilterColor.value = 'grey-lighten-2'
+  allFilterColor.value = 'grey-lighten-2'
 
-    initProjects();
-    isShowFilter.value = false;
-    showClearFilter.value = true;
+  // clear button filter
+  store.setProjectDurationFilter({
+    month: thisMonthFilterActive.value,
+    today: todayFilterActive.value,
+    year: thisYearFilterActive.value,
+  });
+
+  store.setSearchParamProject(searchParam.value);
+
+  store.setForceUpdatePages(false);
+  store.setFilterData(true);
+
+  initProjects();
+  isShowFilter.value = false;
+  showClearFilter.value = isHaveFilterData.value;
 }
 
 function cancelFilter() {
@@ -723,6 +791,25 @@ function closeFinderManager(isRefresh = false) {
 }
 
 onMounted(() => {
+
+})
+
+onBeforeMount(() => {
+  if (isHaveFilterData.value) {
+    clearFilter();
+  }
+
+  if (listProjectParams.value.filter_month  === true) {
+    toggleFilterButton('month');
+  } else if (listProjectParams.value.filter_today === true) {
+    toggleFilterButton('today');
+  } else if (listProjectParams.value.filter_year === true) {
+    toggleFilterButton('year');
+  } else if (listProjectParams.value.filter_today === false && listProjectParams.value.filter_month === false && listProjectParams.value.filter_year === false) {
+    toggleFilterButton('all');
+  } else {
+    toggleFilterButton('month');
+  }
 
 })
 </script>
