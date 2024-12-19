@@ -884,6 +884,11 @@ router.beforeEach((to, from) => {
   // redirected
   var officeMenu = [
     {
+      path: '/branches',
+      slug: 'branches',
+      currentPath: '/admin/master/branches'
+    },
+    {
       path: '/roles',
       slug: 'roles',
       currentPath: '/admin/user-management/roles'
