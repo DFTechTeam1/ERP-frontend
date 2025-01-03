@@ -99,6 +99,7 @@
 import { showNotification } from '@/compose/notification';
 import { usePerformanceReportStore } from '@/stores/performanceReport';
 import { mdiOfficeBuilding } from '@mdi/js';
+import moment from 'moment';
 import { storeToRefs } from 'pinia';
 import { useForm } from 'vee-validate';
 import { watch } from 'vue';
@@ -141,8 +142,8 @@ async function getReport() {
     
     console.log('values', values);
     var param = {
-        startDate: values.filter_date ?? '',
-        endDate: values.end_date ?? '',
+        startDate: values.filter_date ? moment(values.filter_date, "YYYY, MMMM DD").format("YYYY-MM-DD") : '',
+        endDate: values.end_date ? moment(values.end_date, "YYYY, MMMM DD").format("YYYY-MM-DD") : '',
     }
     await store.getReport(param)
 }
