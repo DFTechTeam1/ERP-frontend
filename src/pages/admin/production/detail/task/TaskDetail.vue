@@ -5,67 +5,97 @@
         persistent>
         <v-card class="bg-grey-lighten-2">
             <v-card-item>
-                <v-card-title class="d-flex align-center justify-space-between">
-                    <div class="task-name d-flex align-center ga-4">
-                        <v-icon
-                            :icon="mdiLaptop"
-                            size="20"></v-icon>
-                        <p v-if="!editFormName" style="text-wrap: wrap;">{{ detailOfTask.name }}</p>
-                        <v-form class="d-flex align-center ga-4"
-                            :class="{'w-100': editFormName}"
-                            @submit="updateTaskName">
-                            <div class="w-100">
-                                <input type="text"
-                                    class="form-control"
-                                    v-model="name"
-                                    v-if="editFormName"
-                                    id="project-name">
-                                <div class="invalid-feedback"
-                                    style="line-height: 1; margin-top: 5px;"
-                                    v-if="errors.name">
-                                    {{ errors.name }}
-                                </div>
-                            </div>
-
+                <v-card-title class="d-flex justify-space-between"
+                    :style="{
+                        alignItems: 'self-start'
+                    }">
+                    <div class="d-flex align-center justify-space-between"
+                        :style="{
+                            width: '90%'
+                        }">
+                        <div class="task-name d-flex align-center ga-4">
                             <v-icon
-                                :icon="mdiPencil"
-                                class="pointer"
-                                v-if="!editFormName && detailOfTask.is_active && !detailProject.project_is_complete"
-                                @click.prevent="editFormName = true"
+                                :icon="mdiLaptop"
                                 size="20"></v-icon>
+                            <p v-if="!editFormName" style="text-wrap: wrap;">{{ detailOfTask.name }}</p>
+                            <v-form class="d-flex align-center ga-4"
+                                :class="{'w-100': editFormName}"
+                                @submit="updateTaskName">
+                                <div class="w-100">
+                                    <input type="text"
+                                        class="form-control"
+                                        v-model="name"
+                                        v-if="editFormName"
+                                        id="project-name">
+                                    <div class="invalid-feedback"
+                                        style="line-height: 1; margin-top: 5px;"
+                                        v-if="errors.name">
+                                        {{ errors.name }}
+                                    </div>
+                                </div>
+    
+                                <v-icon
+                                    :icon="mdiPencil"
+                                    class="pointer"
+                                    v-if="!editFormName && detailOfTask.is_active && !detailProject.project_is_complete"
+                                    @click.prevent="editFormName = true"
+                                    size="20"></v-icon>
+    
+                                <v-btn
+                                    class="btn-update-name"
+                                    variant="plain"
+                                    density="compact"
+                                    :disabled="loadingEditName"
+                                    type="submit"
+                                    v-if="editFormName">
+                                    <v-icon
+                                        :icon="mdiCheck"
+                                        color="success"
+                                        size="20"></v-icon>
+                                </v-btn>
+                                <v-btn
+                                    class="btn-update-name"
+                                    variant="plain"
+                                    density="compact"
+                                    :disabled="loadingEditName"
+                                    v-if="editFormName"
+                                    @click.prevent="editFormName = false">
+                                    <v-icon
+                                        :icon="mdiCancel"
+                                        color="red"
+                                        size="20"></v-icon>
+                                </v-btn>
+                            </v-form>
+                        </div>
+                    </div> 
 
-                            <v-btn
-                                class="btn-update-name"
-                                variant="plain"
-                                density="compact"
-                                :disabled="loadingEditName"
-                                type="submit"
-                                v-if="editFormName">
-                                <v-icon
-                                    :icon="mdiCheck"
-                                    color="success"
-                                    size="20"></v-icon>
-                            </v-btn>
-                            <v-btn
-                                class="btn-update-name"
-                                variant="plain"
-                                density="compact"
-                                :disabled="loadingEditName"
-                                v-if="editFormName"
-                                @click.prevent="editFormName = false">
-                                <v-icon
-                                    :icon="mdiCancel"
-                                    color="red"
-                                    size="20"></v-icon>
-                            </v-btn>
-                        </v-form>
+                    <div class="d-flex mb-5"
+                        :style="{
+                            fontWeight: 'bolder',
+                            fontSize: '14px',
+                        }">
+                        <v-tooltip
+                            v-model="showIdentifierIdCopy"
+                            location="top">
+                            <template v-slot:activator="{ props }">
+                                <p class="me-5 border-dashed pointer px-2 mb-0 pb-0"
+                                    :style="{
+                                        borderWidth: '1px'
+                                    }"
+                                    v-bind="props"
+                                    @click.prevent="copyIdentifier">
+                                    {{ detailOfTask.task_identifier_id }}
+                                </p>
+                            </template>
+                            <span>Click to copy</span>
+                        </v-tooltip>
+                        <v-icon
+                            :icon="mdiClose"
+                            size="20"
+                            color="red"
+                            class="pointer"
+                            @click.prevent="closeDetailTask"></v-icon>
                     </div>
-
-                    <v-icon
-                        :icon="mdiClose"
-                        size="25"
-                        class="pointer"
-                        @click.prevent="closeDetailTask"></v-icon>
                 </v-card-title>
             </v-card-item>
 
@@ -576,7 +606,7 @@
 </style>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import {
   mdiLaptop,
   mdiClose,
@@ -614,6 +644,7 @@ import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useCheckPermission } from '@/compose/checkPermission';
+import { showNotification } from '@/compose/notification';
 
 const { t } = useI18n();
 
@@ -646,6 +677,10 @@ const showReviseForm = ref(false)
 const detailTaskForRevise = ref(null)
 
 const selectedRevises = ref([])
+
+const showIdentifierIdCopy = ref(false);
+
+const intervalIdentifier = ref(null);
 
 const isShowTimeTracker = ref(false)
 
@@ -743,7 +778,7 @@ watch(props, (values) => {
         show.value = values.isShow
 
         if (values.isShow) {
-            getBoardsMoveTo()
+            getBoardsMoveTo();
         }
 
         if (detailOfTask.value) {
@@ -1021,5 +1056,11 @@ function reviseTask(detail) {
 function closeReviseForm() {
     showReviseForm.value = false
     detailTaskForRevise.value = null
+}
+
+function copyIdentifier() {
+    navigator.clipboard.writeText(detailOfTask.value.task_identifier_id);
+
+    showNotification('Task id has been copied to clipboard', 'success');
 }
 </script>
