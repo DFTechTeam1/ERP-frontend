@@ -45,9 +45,20 @@
                                         <div class="link-item d-flex ga-3 w-100"
                                             v-for="(link, lx) in fieldLink"
                                             :key="link.key">
+                                            <field-input
+                                                :label="t('name')"
+                                                density="compact"
+                                                class="w-50"
+                                                :class="{
+                                                    'mb-2': errors[`link[${lx}].name`]
+                                                }"
+                                                v-model="link.value.name"
+                                                :error-message="errors[`link[${lx}].name`]"
+                                                :is-solo="true"></field-input>
+
                                             <field-input :label="t('link')"
                                                 density="compact"
-                                                class="w-100"
+                                                class="w-50"
                                                 :class="{
                                                     'mb-2': errors[`link[${lx}].href`]
                                                 }"
@@ -136,7 +147,8 @@ const { errors, handleSubmit, resetForm } = useForm({
                         .matches(/^(?=.*(http:\/\/|\\\\192*|https:\/\/|file:\/\/)).+$/, {
                         message: 'String must start with http:// or \\\\192..... or https:// or file://',
                             excludeEmptyString: true,
-                        })
+                        }),
+                    name: yup.string().nullable()
                 })
             )
     }),
@@ -144,7 +156,7 @@ const { errors, handleSubmit, resetForm } = useForm({
         files: [
             {path: ''},
         ],
-        link: [{href: ''}],
+        link: [{href: '', name: ''}],
     },
 });
 
@@ -182,7 +194,6 @@ watch(errors, (values) => {
 })
 
 const validateData = handleSubmit(async(values) => {
-    console.log('values', values);
     loading.value = true;
     var formData = new FormData();
     for (let a = 0; a < values.files.length; a++) {
@@ -191,6 +202,7 @@ const validateData = handleSubmit(async(values) => {
 
     for (let b = 0; b < values.link.length; b++) {
         formData.append(`link[${b}][href]`, values.link[b].href)
+        formData.append(`link[${b}][name]`, values.link[b].name)
     }
     const resp = await store.storeReferences(formData, detailProject.value.uid);
     loading.value = false;

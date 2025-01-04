@@ -8,7 +8,7 @@
                     :key="l"
                     :prepend-icon="mdiAttachment">
                     <template v-slot:title>
-                        <a :href="link.link" target="_blank">{{ link.media_path + ' ' + (parseInt(l) + 1) }}</a>
+                        <a :href="link.link" target="_blank">{{ link.name || link.media_path + ' ' + (parseInt(l) + 1) }}</a>
                     </template>
                     <template v-slot:append>
                         <v-icon
