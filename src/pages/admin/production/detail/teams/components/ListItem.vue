@@ -114,13 +114,6 @@
       </v-card>
     </v-dialog>
 	</template>
-	<template v-else>
-		<v-empty-state
-            :title="t('noDataToDispay')"
-            image="/paper.png"
-            size="80"
-            ></v-empty-state>
-	</template>
 </template>
 
 <style lang="scss">

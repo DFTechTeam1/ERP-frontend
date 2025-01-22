@@ -70,6 +70,16 @@
                                 :is-required="false"
                                 input-type="select"
                                 :select-options="positionList"></field-input>
+
+                            <field-input
+                                class="mb-3"
+                                :label="t('defineRoleAsEntertainment')"
+                                v-model="role_as_entertainment"
+                                :error-message="errors.role_as_entertainment"
+                                :is-required="false"
+                                input-type="select"
+                                :is-multiple="true"
+                                :select-options="roles"></field-input>
     
                             <field-input
                                 class="mb-3"
@@ -102,10 +112,13 @@ import { onMounted, ref } from 'vue';
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia';
 import { usePositionStore } from '@/stores/position';
+import { useRoleStore } from '@/stores/role';
 
 const { t } = useI18n()
 
 const store = useSettingStore()
+
+const storeRole = useRoleStore();
 
 const loadingPrepare = ref(false)
 
@@ -118,6 +131,7 @@ const { defineField, errors, handleSubmit, setFieldValue } = useForm({
         position_as_directors: yup.array().nullable(),
         position_as_visual_jokey: yup.array().nullable(),
         position_as_project_manager: yup.array().nullable(),
+        role_as_entertainment: yup.array().nullable(),
         position_as_production: yup.array().nullable(),
         position_as_marketing: yup.string().nullable(),
         special_production_position: yup.string().nullable(),
@@ -128,6 +142,7 @@ const { defineField, errors, handleSubmit, setFieldValue } = useForm({
 const [position_as_directors] = defineField('position_as_directors')
 const [position_as_visual_jokey] = defineField('position_as_visual_jokey')
 const [position_as_project_manager] = defineField('position_as_project_manager')
+const [role_as_entertainment] = defineField('role_as_entertainment')
 const [position_as_marketing] = defineField('position_as_marketing')
 const [days_to_raise_deadline_alert] = defineField('days_to_raise_deadline_alert')
 const [special_production_position] = defineField('special_production_position')
@@ -136,6 +151,8 @@ const [position_as_production] = defineField('position_as_production')
 const loading = ref(false)
 
 const positionList = ref([])
+
+const roles = ref([]);
 
 const daysRaiseAlert = ref([
     {
@@ -186,6 +203,8 @@ async function initSetting() {
             setFieldValue('position_as_production', elem.value)
         } else if (elem.key == 'position_as_visual_jokey') {
             setFieldValue('position_as_visual_jokey', elem.value)
+        } else if (elem.key == 'role_as_entertainment') {
+            setFieldValue('role_as_entertainment', elem.value)
         }
     })
 }
@@ -198,11 +217,20 @@ async function initPosition() {
     }
 }
 
+async function initRoles() {
+    const resp = await storeRole.getAllRoles();
+
+    if (resp.status < 300) {
+        roles.value = resp.data.data;
+    }
+}
+
 async function prepareData() {
     loadingPrepare.value = true
     await Promise.all([
         initPosition(),
-        initSetting()
+        initSetting(),
+        initRoles()
     ])
 
     loadingPrepare.value = false

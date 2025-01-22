@@ -28,6 +28,7 @@
 
     .preview-wrapper {
         overflow: hidden;
+        height: 100%;
     }
 
     .reference-value {
@@ -48,7 +49,7 @@
 </style>
 
 <template>
-    <div class="preview-wrapper pr-3 pl-3">
+    <div class="preview-wrapper pr-3 pl-3" style="height: 320px;">
         <template v-if="(detailProject) && (detailProject.references.link != undefined || detailProject.references.files != undefined || detailProject.references.pdf != undefined)">
             <!-- custom navigation -->
             <div class="custom-navigation">
@@ -88,17 +89,11 @@
         </template>
 
         <template v-else>
-            <div class="empty pt-10" v-if="(detailProject) && (!detailProject.project_is_complete)">
-                <h3>{{ $t('emptyReference') }}</h3>
-                <v-btn
-                    class="mt-3"
-                    variant="flat"
-                    color="primary"
-                    v-if="useCheckPermission('add_references')"
-                    @click.prevent="$emit('open-form')">
-                    {{ $t('addReferences') }}
-                </v-btn>
-            </div>
+            <v-empty-state
+                :title="t('noDataToDispay')"
+                image="/paper.png"
+                size="80"
+                ></v-empty-state>
         </template>
 
         <form-view

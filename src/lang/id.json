@@ -488,6 +488,7 @@
     "projectIsNeedFeedback": "Event sudah berakhir. Beri penilaian untuk event dan tim",
     "projectIsDone": "Event sudah selesai",
     "defineSpecialPositionInProduction": "Tentukan posisi yang akan selalu muncul pada anggota tim setiap project manager",
+    "defineRoleAsEntertainment": "Tentukan role untuk Entertainment",
     "searchItem": "Cari item ...",
     "setAsDefaultRequestItem": "Atur sebagai default equipment yang dibawa untuk event",
     "defaultRequestItem": "Default event equipment",
@@ -669,5 +670,14 @@
     "ledAreaRequired": "LED harus diisi",
     "listOfTask": "List Semua Tugas",
     "userHaveNoTask": "User belum memiliki tugas",
-    "thisYear": "Tahun ini"
+    "thisYear": "Tahun ini",
+    "songs": "Musik",
+    "addSongs": "Tambah Musik",
+    "emptySongList": "Belum ada musik di event ini",
+    "songWillAppearHere": "Semua musik akan muncul disini",
+    "songRequired": "Musik harus diisi",
+    "info": "Info",
+    "infoMusicHasBeenDistributed": "Music sudah mulai di kerjakan. Kamu membutuhkan persetujuan PM Entertainment untuk mengubah ini",
+    "confirmDeleteSong": "Hapus Musik",
+    "textConfirmDeleteSong": "Apakah kamu yakin ingin menghapus musik ini?"
 }
