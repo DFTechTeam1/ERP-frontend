@@ -3,9 +3,8 @@
         <v-btn
             variant="flat"
             color="primary"
-            :class="{
-                'w-100': props.fullWidth
-            }"
+            :class="props.customClass"
+            :style="props.customStyle"
             :disabled="props.isLoading"
             type="submit">
             <template v-if="props.isLoading">{{ $t('processing') }}</template>
@@ -27,6 +26,11 @@ const props = defineProps({
     isLoading: {
         type: Boolean,
         default: false,
-    }
+    },
+    customClass: {
+        type: String,
+        default: 'w-100'
+    },
+    customStyle: Object
 })
 </script>

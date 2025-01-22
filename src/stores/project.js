@@ -1282,6 +1282,39 @@ export const useProjectStore = defineStore('project', {
           } catch (error) {
             return error;
           }
-        }
+        },
+        async storeSong(projectUid, values) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/song`, values);
+
+                this.detail = resp.data.data.full_detail;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async updateSong(projectUid, songUid, values) {
+            try {
+                const resp = await axios.put(`/production/project/${projectUid}/song/${songUid}`, values);
+
+                this.detail = resp.data.data.full_detail;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async deleteSong(projectUid, songUid) {
+            try {
+                const resp = await axios.delete(`/production/project/${projectUid}/song/${songUid}`);
+
+                this.detail = resp.data.data.full_detail;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
     },
 })

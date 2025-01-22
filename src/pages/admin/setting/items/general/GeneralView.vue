@@ -69,14 +69,25 @@
                             :error-message="errors.super_user_role"></field-input>
 
                         <field-input
-                            :label="t('definePositionAsProjectManager')"
+                            :label="t('defineRoleAsProjectManager')"
                             class="mt-5"
                             :is-required="false"
                             v-model="project_manager_role"
                             input-type="select"
                             :select-options="roles"
                             :hint="t('superUserRoleHint')"
+                            :is-multiple="true"
                             :error-message="errors.project_manager_role"></field-input>
+
+                        <field-input
+                            :label="t('defineRoleAsDirector')"
+                            class="mt-5"
+                            :is-required="false"
+                            v-model="director_role"
+                            input-type="select"
+                            :select-options="roles"
+                            :hint="t('superUserRoleHint')"
+                            :error-message="errors.director_role"></field-input>
 
                         <field-input
                             :label="t('productionStaffRole')"
@@ -126,6 +137,8 @@ const { defineField, errors, handleSubmit, setFieldValue, setFieldError } = useF
         board_as_finalize: yup.string().nullable(),
         super_user_role: yup.string().nullable(),
         production_staff_role: yup.array().nullable(),
+        project_manager_role: yup.array().nullable(),
+        all_employee_role: yup.array().nullable(),
     }),
 });
 
@@ -137,6 +150,8 @@ const [board_as_animating] = defineField('board_as_animating');
 const [board_as_finalize] = defineField('board_as_finalize');
 const [super_user_role] = defineField('super_user_role');
 const [project_manager_role] = defineField('project_manager_role');
+const [director_role] = defineField('director_role');
+const [all_employee_role] = defineField('all_employee_role');
 const [production_staff_role] = defineField('production_staff_role');
 
 const loading = ref(true);
@@ -281,7 +296,9 @@ async function initSetting() {
         } else if (elem.key == 'board_as_finalize' && elem.value) {
             setFieldValue('board_as_finalize', parseInt(elem.value));
         } else if (elem.key == 'project_manager_role' && elem.value) {
-            setFieldValue('project_manager_role', parseInt(elem.value));
+            setFieldValue('project_manager_role', elem.value);
+        } else if (elem.key == 'director_role' && elem.value) {
+            setFieldValue('director_role', elem.value);
         }
     })
 }

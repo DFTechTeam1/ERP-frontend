@@ -17,7 +17,7 @@
             </v-card-item>
 
             <v-card-text
-                class="mt-5">
+                class="mt-1">
                 <v-form
                     @submit="validateData">
                         <div class="reference-form-wrapper">
@@ -39,7 +39,7 @@
                                 </v-btn-toggle>    
                             </div>
 
-                            <div class="reference-form-wrapper__form">
+                            <div class="reference-form-wrapper__form mt-5">
                                 <div class="images-form" v-if="tab == 'link'">
                                     <div class="link-wrapper w-100">
                                         <div class="link-item d-flex ga-3 w-100"

@@ -398,6 +398,7 @@ import { useCheckPermission } from '@/compose/checkPermission'
 import FinalCheck from './FinalCheck.vue'
 import ReturnEquipmentForm from './ReturnEquipment.vue'
 import TableList from "@/components/TableList.vue";
+import { useGetRole } from '@/compose/getRole';
 
 const { t } = useI18n();
 
@@ -660,12 +661,12 @@ async function initProjects(payload = '') {
       })
     }
 
-    itemsPerPage.value = listProjectParams.value.itemsPerPage;
-
+    
     loading.value = true;
     await store.initProjects();
     loading.value = false;
     totalItems.value = totalOfProjects.value;
+    itemsPerPage.value = parseInt(payload.itemsPerPage || 10);
 
     store.setForceUpdatePages(true);
     store.setKeepProjectParams(false);
@@ -790,10 +791,6 @@ function closeFinderManager(isRefresh = false) {
     }
 }
 
-onMounted(() => {
-
-})
-
 onBeforeMount(() => {
   if (isHaveFilterData.value) {
     clearFilter();
@@ -811,5 +808,9 @@ onBeforeMount(() => {
     toggleFilterButton('month');
   }
 
-})
+});
+
+onMounted(() => {
+    console.log("role", useGetRole());
+});
 </script>

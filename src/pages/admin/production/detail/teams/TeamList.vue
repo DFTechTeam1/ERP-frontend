@@ -1,9 +1,20 @@
 <template>
     <v-skeleton-loader type="table" v-if="detailProject == null"></v-skeleton-loader>
-    <div v-else class="px-3">
-        <v-list>
-            <list-item :list="detailProject.teams" :haveTaskInformation="true"></list-item>
-        </v-list>
+    <div v-else class="px-3" style="height: 100%;">
+        <template v-if="detailProject.teams.length">
+            <v-list>
+                <list-item :list="detailProject.teams" :haveTaskInformation="true"></list-item>
+            </v-list>
+        </template>
+        <template v-else>
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                <v-empty-state
+                    :title="t('noDataToDispay')"
+                    image="/paper.png"
+                    size="80"
+                    ></v-empty-state>
+            </div>
+        </template>
     </div>
 </template>
 

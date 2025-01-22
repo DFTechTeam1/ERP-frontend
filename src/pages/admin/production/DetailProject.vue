@@ -38,10 +38,11 @@
                 v-if="useCheckPermission('list_member') && useCheckPermission('list_entertainment_member')"
                 cols="12"
                 md="5">
-                <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
+                <v-skeleton-loader v-if="loading" type="card" height="800"></v-skeleton-loader>
                 <master-card
                     v-else
-                    max-height="400"
+                    min-height="830"
+                    max-height="830"
                     height="100%">
                     <v-toolbar color="surface">
                         <v-toolbar-title class="d-flex align-center justify-space-between">
@@ -92,55 +93,97 @@
             <v-col
                 cols="12"
                 :md="useCheckPermission('list_member') && useCheckPermission('list_entertainment_member') ? '7' : '12'">
-                <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
-                <master-card
-                    v-else
-                    class="mb-2"
-                    max-height="400"
-                    height="100%">
-                    <v-toolbar color="surface" class="pe-4">
-                        <v-toolbar-title>
-                            {{ $t('references') }}
-                        </v-toolbar-title>
-
-                        <v-spacer></v-spacer>
-
-                        <div class="d-flex align-center ga-2">
-                            <v-btn
-                                v-if="(detailProject) && (detailProject.references) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
-                                variant="outlined"
-                                color="primary"
-                                size="small"
-                                @click.prevent="showFormReferences = true">
-                                {{ $t('addReferences') }}
-                            </v-btn>
-
-                            <v-btn
-                                v-if="(detailProject) && (detailProject.references) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
-                                variant="outlined"
-                                color="primary"
-                                size="small"
-                                @click.prevent="downloadReferences()">
-                                <v-icon
-                                    :icon="mdiDownloadMultiple"
-                                    size="20"
-                                    class="pointer"></v-icon>
-
-                                <v-tooltip
-                                    activator="parent"
-                                    location="start"
-                                  >{{ $t('download') }}</v-tooltip>
-                            </v-btn>
-                        </div>
-                    </v-toolbar>
-
-                    <v-card-text
-                        class="m-0"
-                        style="height: 100%; overflow: hidden; padding: 0; padding-bottom: 20px;">
-                        <references-view :media="references" :show-form="showFormReferences" @close-form="closeFormReferences"
-                            @open-form="showFormReferences = true"></references-view>
-                    </v-card-text>
-                </master-card>
+                <v-row>
+                    <v-col cols="12">
+                        <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
+                        <master-card
+                            v-else
+                            class="mb-2"
+                            min-height="400"
+                            max-height="400"
+                            height="100%">
+                            <v-toolbar color="surface" class="pe-4">
+                                <v-toolbar-title>
+                                    {{ $t('references') }}
+                                </v-toolbar-title>
+        
+                                <v-spacer></v-spacer>
+        
+                                <div class="d-flex align-center ga-2">
+                                    <v-btn
+                                        v-if="(detailProject) && useCheckPermission('add_references')"
+                                        variant="outlined"
+                                        color="primary"
+                                        size="small"
+                                        @click.prevent="showFormReferences = true">
+                                        {{ $t('addReferences') }}
+                                    </v-btn>
+        
+                                    <v-btn
+                                        v-if="(detailProject) && (detailProject.references) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
+                                        variant="outlined"
+                                        color="primary"
+                                        size="small"
+                                        @click.prevent="downloadReferences()">
+                                        <v-icon
+                                            :icon="mdiDownloadMultiple"
+                                            size="20"
+                                            class="pointer"></v-icon>
+        
+                                        <v-tooltip
+                                            activator="parent"
+                                            location="start"
+                                          >{{ $t('download') }}</v-tooltip>
+                                    </v-btn>
+                                </div>
+                            </v-toolbar>
+        
+                            <v-card-text
+                                class="m-0"
+                                style="height: 100%; overflow: hidden; padding: 0; padding-bottom: 20px;">
+                                <references-view :media="references" :show-form="showFormReferences" @close-form="closeFormReferences"
+                                    @open-form="showFormReferences = true"></references-view>
+                            </v-card-text>
+                        </master-card>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
+                        <master-card
+                            v-else
+                            class="mb-2"
+                            max-height="400"
+                            min-height="400"
+                            height="100%">
+                            <v-toolbar color="surface" class="pe-4">
+                                <v-toolbar-title>
+                                    {{ $t('songs') }}
+                                </v-toolbar-title>
+        
+                                <v-spacer></v-spacer>
+        
+                                <div class="d-flex align-center ga-2">
+                                    <v-btn
+                                        variant="outlined"
+                                        color="primary"
+                                        size="small"
+                                        type="button"
+                                        @click.prevent="showSongForm = true">
+                                        {{ $t('addSongs') }}
+                                    </v-btn>
+                                </div>
+                            </v-toolbar>
+        
+                            <v-card-text
+                                class="m-0"
+                                style="height: 100%; overflow: hidden; padding: 0; padding-bottom: 20px;">
+                                <song-list v-if="detailProject"
+                                    :songs="detailProject.songs" />
+                                <song-form :is-show="showSongForm"
+                                    @close-event="showSongForm = false"></song-form>
+                            </v-card-text>
+                        </master-card>
+                    </v-col>
+                </v-row>
             </v-col>
         </v-row>
 
@@ -269,6 +312,7 @@ import TeamView from './detail/teams/TeamList.vue';
 import EntertainmentList from './detail/teams/EntertainmentList.vue';
 import KanbanView from './detail/task/KanbanView.vue';
 import ReferencesView from './detail/references/ReferencesView.vue';
+import SongList from './detail/songs/SongList.vue';
 import EquipmentList from './detail/equipment/EquipmentList.vue';
 import ShowreelsView from './detail/showreels/ShowreelsView.vue'
 import ProgressView from './detail/progress/ProgressView.vue';
@@ -284,6 +328,8 @@ import { mdiDotsVertical, mdiHandBackLeftOutline, mdiDownloadMultiple } from '@m
 import { storeToRefs } from 'pinia';
 import { useProjectClassStore } from '@/stores/projectClass';
 import { showNotification } from '@/compose/notification'
+import { reference } from '@popperjs/core';
+import SongForm from './detail/songs/SongForm.vue';
 
 const store = useProjectStore();
 
@@ -300,6 +346,8 @@ const showFormTeamRequest = ref(false)
 const showRequestEntertainment = ref(false)
 
 const requestEntertainmentProjectUid = ref(null)
+
+const showSongForm = ref(false);
 
 const showFormReferences = ref(false)
 
