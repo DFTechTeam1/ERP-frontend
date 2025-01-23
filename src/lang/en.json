@@ -682,5 +682,10 @@
     "info": "Info",
     "infoMusicHasBeenDistributed": "Music has been distributed. You'll need Entertainment PM approval for this changes",
     "confirmDeleteSong": "Delete Song",
-    "textConfirmDeleteSong": "Are you sure to delete this song?"
+    "textConfirmDeleteSong": "Are you sure to delete this song?",
+    "equipments": "Equipments",
+    "approve": "Approve",
+    "distribute": "Distribute",
+    "approveChanges": "Approve Changes",
+    "detailChanges": "Detail Changes"
 }

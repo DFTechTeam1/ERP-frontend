@@ -41,8 +41,8 @@
                 <v-skeleton-loader v-if="loading" type="card" height="800"></v-skeleton-loader>
                 <master-card
                     v-else
-                    min-height="830"
-                    max-height="830"
+                    :min-height="useCheckPermission('list_request_song') ? 830 : 400"
+                    :max-height="useCheckPermission('list_request_song') ? 830 : 400"
                     height="100%">
                     <v-toolbar color="surface">
                         <v-toolbar-title class="d-flex align-center justify-space-between">
@@ -146,7 +146,8 @@
                             </v-card-text>
                         </master-card>
                     </v-col>
-                    <v-col cols="12">
+                    <v-col cols="12"
+                        v-if="useCheckPermission('list_request_song')">
                         <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
                         <master-card
                             v-else
@@ -161,7 +162,8 @@
         
                                 <v-spacer></v-spacer>
         
-                                <div class="d-flex align-center ga-2">
+                                <div class="d-flex align-center ga-2"
+                                    v-if="useCheckPermission('create_request_song')">
                                     <v-btn
                                         variant="outlined"
                                         color="primary"
@@ -330,6 +332,8 @@ import { useProjectClassStore } from '@/stores/projectClass';
 import { showNotification } from '@/compose/notification'
 import { reference } from '@popperjs/core';
 import SongForm from './detail/songs/SongForm.vue';
+import { useGetRole } from '@/compose/getRole';
+import BaseRole from '@/enums/system/BaseRole';
 
 const store = useProjectStore();
 

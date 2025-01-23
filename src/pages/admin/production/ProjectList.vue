@@ -4,363 +4,356 @@
             :title="$t('project')"
             :breadcrumbs="breadcrumbs"></breadcrumb-data>
 
-        <table-list
-            :headers="headers"
-            :items="listOfProjects"
-            :totalItems="totalItems"
-            :loading="loading"
-            :itemsPerPage="itemsPerPage"
-            :filterSearch="false"
-            :showClearFilter="isHaveFilterData"
-            :fullCustomBody="true"
-            :custom-filter-button="true"
-            :hasCheckbox="false"
-            :btnAddText="$t('createProject')"
-            :allowed-create-button="useCheckPermission('create_project')"
-            :filter-tooltip="t('filterProject')"
-            :show-filter-result="false"
-            @bulk-delete-event="bulkDelete"
-            @add-data-event="showForm"
-            @table-event="initProjects"
-            @filter-action="showFilter"
-            @clear-filter-action="clearFilter">
-
-            <template v-slot:custom-filter-button>
-              <v-btn
-                variant="outlined"
-                :color="thisMonthFilterColor"
-                density="compact"
-                @click.prevent="filterButton('month')">
-                <v-icon
-                  v-if="thisMonthFilterActive"
-                  :icon="mdiCheckCircle"
-                  size="15"
-                  class="me-2"
-                  color="success"></v-icon>
-                {{ $t('thisMonth') }}
-              </v-btn>
-
-              <v-btn
-                variant="outlined"
-                :color="yearFilterColor"
-                density="compact"
-                @click.prevent="filterButton('year')">
-                <v-icon
-                  v-if="thisYearFilterActive"
-                  :icon="mdiCheckCircle"
-                  size="15"
-                  class="me-2"
-                  color="success"></v-icon>
-                {{ $t('thisYear') }}
-              </v-btn>
-
-              <v-btn
-                variant="outlined"
-                :color="todayFilterColor"
-                density="compact"
-                @click.prevent="filterButton('today')">
-                <v-icon
-                  v-if="todayFilterActive"
-                  :icon="mdiCheckCircle"
-                  size="15"
-                  class="me-2"
-                  color="success"></v-icon>
-                {{ $t('today') }}
-              </v-btn>
-
-              <v-btn
-                variant="outlined"
-                :color="allFilterColor"
-                density="compact"
-                @click.prevent="filterButton('all')">
-                <v-icon
-                  v-if="allFilterActive"
-                  :icon="mdiCheckCircle"
-                  size="15"
-                  class="me-2"
-                  color="success"></v-icon>
-                {{ $t('all') }}
-              </v-btn>
-            </template>
-
-            <template v-slot:filter-result>
-                <v-chip density="compact" color="purple-darken-3"
-                    :append-icon="mdiClose">
-                </v-chip>
-            </template>
-
-            <template v-slot:bodytable="{ value }">
-                <tr>
-                    <td>
-                        <router-link
-                            :to="'/admin/production/project/' + value.uid"
-                            style="color: #000; font-weight: bold;">{{ value.name }}</router-link>
-                    </td>
-                    <td>
-                        <p class="fw-bold">{{ value.project_date }}</p>
-                    </td>
-                    <td>{{ value.venue }}</td>
-                    <td>
-                        <template v-if="value.no_pic">
-                            <v-chip
-                                density="compact"
-                                color="grey-lighten-1">
-                                {{ value.pic }}
-                            </v-chip>
-                        </template>
-                        <template v-else>
-                            {{ value.pic }}
-                        </template>
-                    </td>
-                    <td>{{ value.event_type }}</td>
-                    <td>
-                        <v-chip :color="value.status_color">
-                            {{ value.status }}
-                        </v-chip>
-                    </td>
-                    <td>
-                        <p class="fw-bold">{{ value.led_area }} m<sup>2</sup></p>
-                    </td>
-                    <td>
-                        <v-chip
-                            :color="value.event_class_color">
-                            {{ value.event_class }}
-                        </v-chip>
-                    </td>
-                    <td>
-                        <v-menu
-                            open-on-click>
-                            <template v-slot:activator="{ props }">
-                            <v-icon
-                                v-bind="props"
-                                :icon="mdiCogOutline"
-                                color="blue"></v-icon>
+        <template v-if="useGetRole() != BaseRole.Entertainment && useGetRole() != BaseRole.ProjectManagerEntertainment">
+            <table-list
+                :headers="headers"
+                :items="listOfProjects"
+                :totalItems="totalItems"
+                :loading="loading"
+                :itemsPerPage="itemsPerPage"
+                :filterSearch="false"
+                :showClearFilter="isHaveFilterData"
+                :fullCustomBody="true"
+                :custom-filter-button="true"
+                :hasCheckbox="false"
+                :btnAddText="$t('createProject')"
+                :allowed-create-button="useCheckPermission('create_project')"
+                :filter-tooltip="t('filterProject')"
+                :show-filter-result="false"
+                @bulk-delete-event="bulkDelete"
+                @add-data-event="showForm"
+                @table-event="initProjects"
+                @filter-action="showFilter"
+                @clear-filter-action="clearFilter">
+    
+                <template v-slot:custom-filter-button>
+                  <v-btn
+                    variant="outlined"
+                    :color="thisMonthFilterColor"
+                    density="compact"
+                    @click.prevent="filterButton('month')">
+                    <v-icon
+                      v-if="thisMonthFilterActive"
+                      :icon="mdiCheckCircle"
+                      size="15"
+                      class="me-2"
+                      color="success"></v-icon>
+                    {{ $t('thisMonth') }}
+                  </v-btn>
+    
+                  <v-btn
+                    variant="outlined"
+                    :color="yearFilterColor"
+                    density="compact"
+                    @click.prevent="filterButton('year')">
+                    <v-icon
+                      v-if="thisYearFilterActive"
+                      :icon="mdiCheckCircle"
+                      size="15"
+                      class="me-2"
+                      color="success"></v-icon>
+                    {{ $t('thisYear') }}
+                  </v-btn>
+    
+                  <v-btn
+                    variant="outlined"
+                    :color="todayFilterColor"
+                    density="compact"
+                    @click.prevent="filterButton('today')">
+                    <v-icon
+                      v-if="todayFilterActive"
+                      :icon="mdiCheckCircle"
+                      size="15"
+                      class="me-2"
+                      color="success"></v-icon>
+                    {{ $t('today') }}
+                  </v-btn>
+    
+                  <v-btn
+                    variant="outlined"
+                    :color="allFilterColor"
+                    density="compact"
+                    @click.prevent="filterButton('all')">
+                    <v-icon
+                      v-if="allFilterActive"
+                      :icon="mdiCheckCircle"
+                      size="15"
+                      class="me-2"
+                      color="success"></v-icon>
+                    {{ $t('all') }}
+                  </v-btn>
+                </template>
+    
+                <template v-slot:filter-result>
+                    <v-chip density="compact" color="purple-darken-3"
+                        :append-icon="mdiClose">
+                    </v-chip>
+                </template>
+    
+                <template v-slot:bodytable="{ value }">
+                    <tr>
+                        <td>
+                            <router-link
+                                :to="'/admin/production/project/' + value.uid"
+                                style="color: #000; font-weight: bold;">{{ value.name }}</router-link>
+                        </td>
+                        <td>
+                            <p class="fw-bold">{{ value.project_date }}</p>
+                        </td>
+                        <td>{{ value.venue }}</td>
+                        <td>
+                            <template v-if="value.no_pic">
+                                <v-chip
+                                    density="compact"
+                                    color="grey-lighten-1">
+                                    {{ value.pic }}
+                                </v-chip>
                             </template>
-
-                            <v-list>
-                                <!-- <v-list-item
-                                    class="pointer"
-                                    @click.prevent="editEmployee(value.uid)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiPencil"
-                                            size="15"></v-icon>
-                                            {{ $t('edit') }}
-                                        </div>
-                                    </template>
-                                </v-list-item> -->
-                                <v-list-item
-                                    class="pointer">
-                                    <template v-slot:title>
-                                        <router-link
-                                            :to="'/admin/production/project/' + value.uid"
-                                            style="color: #000; font-weight: bold;">
+                            <template v-else>
+                                {{ value.pic }}
+                            </template>
+                        </td>
+                        <td>{{ value.event_type }}</td>
+                        <td>
+                            <v-chip :color="value.status_color">
+                                {{ value.status }}
+                            </v-chip>
+                        </td>
+                        <td>
+                            <p class="fw-bold">{{ value.led_area }} m<sup>2</sup></p>
+                        </td>
+                        <td>
+                            <v-chip
+                                :color="value.event_class_color">
+                                {{ value.event_class }}
+                            </v-chip>
+                        </td>
+                        <td>
+                            <v-menu
+                                open-on-click>
+                                <template v-slot:activator="{ props }">
+                                    <v-icon
+                                        v-bind="props"
+                                        :icon="mdiCogOutline"
+                                        color="blue"></v-icon>
+                                </template>
+    
+                                <v-list>
+                                    <v-list-item
+                                        class="pointer">
+                                        <template v-slot:title>
+                                            <router-link
+                                                :to="'/admin/production/project/' + value.uid"
+                                                style="color: #000; font-weight: bold;">
+                                                <div
+                                                    class="d-flex align-center"
+                                                    style="gap: 8px; font-size: 12px;">
+                                                    <v-icon
+                                                    :icon="mdiEyeCircle"
+                                                    size="15"></v-icon>
+                                                    {{ $t('detail') }}
+                                                </div>
+                                            </router-link>
+                                        </template>
+                                    </v-list-item>
+                                    <!-- <v-list-item
+                                        class="pointer"
+                                        @click.prevent="addAsUser(value.uid)"
+                                        v-if="!value.user">
+                                        <template v-slot:title>
                                             <div
                                                 class="d-flex align-center"
                                                 style="gap: 8px; font-size: 12px;">
                                                 <v-icon
-                                                :icon="mdiEyeCircle"
+                                                :icon="mdiAccountPlus"
                                                 size="15"></v-icon>
-                                                {{ $t('detail') }}
+                                                {{ $t('addAsUser') }}
                                             </div>
-                                        </router-link>
-                                    </template>
-                                </v-list-item>
-                                <!-- <v-list-item
-                                    class="pointer"
-                                    @click.prevent="addAsUser(value.uid)"
-                                    v-if="!value.user">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiAccountPlus"
-                                            size="15"></v-icon>
-                                            {{ $t('addAsUser') }}
-                                        </div>
-                                    </template>
-                                </v-list-item> -->
-                                <v-list-item
-                                    class="pointer"
-                                    v-if="useCheckPermission('delete_project')"
-                                    @click.prevent="deleteProject(value.uid)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiTrashCanOutline"
-                                            size="15"></v-icon>
-                                            {{ $t('delete') }}
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-list-item
-                                    class="pointer"
-                                    v-if="useCheckPermission('change_project_status') && !value.project_is_complete"
-                                    @click.prevent="changeStatus(value, value.status_raw)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiTransfer"
-                                            size="15"></v-icon>
-                                            {{ $t('changeStatus') }}
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-list-item
-                                    class="pointer"
-                                    v-if="value.project_is_complete && value.need_return_equipment"
-                                    @click.prevent="returnEquipment(value.uid)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiTransfer"
-                                            size="15"></v-icon>
-                                            {{ $t('returnEquipment') }}
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-list-item
-                                    class="pointer"
-                                    v-if="useCheckPermission('assign_vj') && !value.project_is_complete && !value.have_vj && !value.no_pic"
-                                    @click.prevent="assignVJ(value.uid)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiDisc"
-                                            size="15"></v-icon>
-                                            {{ $t('assignVJ') }}
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-list-item
-                                    class="pointer"
-                                    v-if="useCheckPermission('assign_vj') && !value.project_is_complete && value.have_vj && !value.no_pic"
-                                    @click.prevent="removeAllVJ(value.uid)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiTrashCan"
-                                            size="15"></v-icon>
-                                            {{ $t('removeAllVj') }}
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-list-item
-                                    class="pointer"
-                                    v-if="!value.is_final_check && !value.no_pic && useCheckPermission('final_check')"
-                                    @click.prevent="showFinalCheck(value.uid)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiCheckOutline"
-                                            size="15"></v-icon>
-                                            {{ $t('finalCheck') }}
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-list-item
-                                    class="pointer"
-                                    v-if="value.no_pic"
-                                    @click.prevent="showScheduler(value.uid)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiPencilCircleOutline"
-                                            size="15"></v-icon>
-                                            {{ $t('assignPic') }}
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-list-item
-                                    class="pointer"
-                                    v-if="!value.no_pic && useCheckPermission('assign_pic')"
-                                    @click.prevent="showSubtitute(value.uid)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiSwapHorizontal"
-                                            size="15"></v-icon>
-                                            {{ $t('subtitutePic') }}
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <!-- <v-list-item
-                                    class="pointer"
-                                    v-if="useCheckPermission('assign_vj') && !value.project_is_complete && value.have_vj"
-                                    @click.prevent="assignVJ(value.uid)">
-                                    <template v-slot:title>
-                                        <div
-                                            class="d-flex align-center"
-                                            style="gap: 8px; font-size: 12px;">
-                                            <v-icon
-                                            :icon="mdiTransfer"
-                                            size="15"></v-icon>
-                                            {{ $t('changeVJ') }}
-                                        </div>
-                                    </template>
-                                </v-list-item> -->
-                            </v-list>
-                        </v-menu>
-                    </td>
-                </tr>
-            </template>
+                                        </template>
+                                    </v-list-item> -->
+                                    <v-list-item
+                                        class="pointer"
+                                        v-if="useCheckPermission('delete_project')"
+                                        @click.prevent="deleteProject(value.uid)">
+                                        <template v-slot:title>
+                                            <div
+                                                class="d-flex align-center"
+                                                style="gap: 8px; font-size: 12px;">
+                                                <v-icon
+                                                :icon="mdiTrashCanOutline"
+                                                size="15"></v-icon>
+                                                {{ $t('delete') }}
+                                            </div>
+                                        </template>
+                                    </v-list-item>
+                                    <v-list-item
+                                        class="pointer"
+                                        v-if="useCheckPermission('change_project_status') && !value.project_is_complete"
+                                        @click.prevent="changeStatus(value, value.status_raw)">
+                                        <template v-slot:title>
+                                            <div
+                                                class="d-flex align-center"
+                                                style="gap: 8px; font-size: 12px;">
+                                                <v-icon
+                                                :icon="mdiTransfer"
+                                                size="15"></v-icon>
+                                                {{ $t('changeStatus') }}
+                                            </div>
+                                        </template>
+                                    </v-list-item>
+                                    <v-list-item
+                                        class="pointer"
+                                        v-if="value.project_is_complete && value.need_return_equipment"
+                                        @click.prevent="returnEquipment(value.uid)">
+                                        <template v-slot:title>
+                                            <div
+                                                class="d-flex align-center"
+                                                style="gap: 8px; font-size: 12px;">
+                                                <v-icon
+                                                :icon="mdiTransfer"
+                                                size="15"></v-icon>
+                                                {{ $t('returnEquipment') }}
+                                            </div>
+                                        </template>
+                                    </v-list-item>
+                                    <v-list-item
+                                        class="pointer"
+                                        v-if="useCheckPermission('assign_vj') && !value.project_is_complete && !value.have_vj && !value.no_pic"
+                                        @click.prevent="assignVJ(value.uid)">
+                                        <template v-slot:title>
+                                            <div
+                                                class="d-flex align-center"
+                                                style="gap: 8px; font-size: 12px;">
+                                                <v-icon
+                                                :icon="mdiDisc"
+                                                size="15"></v-icon>
+                                                {{ $t('assignVJ') }}
+                                            </div>
+                                        </template>
+                                    </v-list-item>
+                                    <v-list-item
+                                        class="pointer"
+                                        v-if="useCheckPermission('assign_vj') && !value.project_is_complete && value.have_vj && !value.no_pic"
+                                        @click.prevent="removeAllVJ(value.uid)">
+                                        <template v-slot:title>
+                                            <div
+                                                class="d-flex align-center"
+                                                style="gap: 8px; font-size: 12px;">
+                                                <v-icon
+                                                :icon="mdiTrashCan"
+                                                size="15"></v-icon>
+                                                {{ $t('removeAllVj') }}
+                                            </div>
+                                        </template>
+                                    </v-list-item>
+                                    <v-list-item
+                                        class="pointer"
+                                        v-if="!value.is_final_check && !value.no_pic && useCheckPermission('final_check')"
+                                        @click.prevent="showFinalCheck(value.uid)">
+                                        <template v-slot:title>
+                                            <div
+                                                class="d-flex align-center"
+                                                style="gap: 8px; font-size: 12px;">
+                                                <v-icon
+                                                :icon="mdiCheckOutline"
+                                                size="15"></v-icon>
+                                                {{ $t('finalCheck') }}
+                                            </div>
+                                        </template>
+                                    </v-list-item>
+                                    <v-list-item
+                                        class="pointer"
+                                        v-if="value.no_pic"
+                                        @click.prevent="showScheduler(value.uid)">
+                                        <template v-slot:title>
+                                            <div
+                                                class="d-flex align-center"
+                                                style="gap: 8px; font-size: 12px;">
+                                                <v-icon
+                                                :icon="mdiPencilCircleOutline"
+                                                size="15"></v-icon>
+                                                {{ $t('assignPic') }}
+                                            </div>
+                                        </template>
+                                    </v-list-item>
+                                    <v-list-item
+                                        class="pointer"
+                                        v-if="!value.no_pic && useCheckPermission('assign_pic')"
+                                        @click.prevent="showSubtitute(value.uid)">
+                                        <template v-slot:title>
+                                            <div
+                                                class="d-flex align-center"
+                                                style="gap: 8px; font-size: 12px;">
+                                                <v-icon
+                                                :icon="mdiSwapHorizontal"
+                                                size="15"></v-icon>
+                                                {{ $t('subtitutePic') }}
+                                            </div>
+                                        </template>
+                                    </v-list-item>
+                                    <!-- <v-list-item
+                                        class="pointer"
+                                        v-if="useCheckPermission('assign_vj') && !value.project_is_complete && value.have_vj"
+                                        @click.prevent="assignVJ(value.uid)">
+                                        <template v-slot:title>
+                                            <div
+                                                class="d-flex align-center"
+                                                style="gap: 8px; font-size: 12px;">
+                                                <v-icon
+                                                :icon="mdiTransfer"
+                                                size="15"></v-icon>
+                                                {{ $t('changeVJ') }}
+                                            </div>
+                                        </template>
+                                    </v-list-item> -->
+                                </v-list>
+                            </v-menu>
+                        </td>
+                    </tr>
+                </template>
+    
+            </table-list>
 
-        </table-list>
+            <confirmation-modal
+                :title="titleConfirmationDelete"
+                :text="textConfirmationDelete"
+                :showConfirm="showConfirmation"
+                :deleteIds="selectedIds"
+                @action-bulk-submit="doBulkDelete"></confirmation-modal>
+    
+            <filter-project
+                :show="isShowFilter"
+                @filter-event="doFilter"
+                @close-event="cancelFilter"></filter-project>
+    
+            <status-form
+                :is-show="isChangeStatusConfirm"
+                :base-status="projectCurrentStatus"
+                :uid="projectToChangeStatus"
+                :project="projectDetail"
+                @close-event="closeChangeStatus"></status-form>
+    
+            <AssignVJ :project-uid="selectedProjectForVJ" :is-show="showVJForm" @close-event="closeVjForm"></AssignVJ>
+    
+            <final-check :is-show="showFinalCheckForm" @close-event="closeFinalCheck" :project-uid="projectUidFinalCheck"></final-check>
+    
+            <return-equipment-form :is-show="showReturnEquipmentForm"
+                :project-uid="projectUidReturnEquipment"
+                @close-event="closeReturnEquipment"></return-equipment-form>
+    
+            <FinderManager :is-show="showFinderManager"
+                @close-event="closeFinderManager"
+                :project-uid="projectUidFinderManager" />
+    
+            <SubtitutePic :is-show="showSubtitutePic"
+                @close-event="closeSubtitutePic"
+                :project-uid="projectUidSubtitutePic"></SubtitutePic>
+        </template>
 
-        <confirmation-modal
-            :title="titleConfirmationDelete"
-            :text="textConfirmationDelete"
-            :showConfirm="showConfirmation"
-            :deleteIds="selectedIds"
-            @action-bulk-submit="doBulkDelete"></confirmation-modal>
+        <template v-else>
+            <project-list-entertainment />
+        </template>
 
-        <filter-project
-            :show="isShowFilter"
-            @filter-event="doFilter"
-            @close-event="cancelFilter"></filter-project>
-
-        <status-form
-            :is-show="isChangeStatusConfirm"
-            :base-status="projectCurrentStatus"
-            :uid="projectToChangeStatus"
-            :project="projectDetail"
-            @close-event="closeChangeStatus"></status-form>
-
-        <AssignVJ :project-uid="selectedProjectForVJ" :is-show="showVJForm" @close-event="closeVjForm"></AssignVJ>
-
-        <final-check :is-show="showFinalCheckForm" @close-event="closeFinalCheck" :project-uid="projectUidFinalCheck"></final-check>
-
-        <return-equipment-form :is-show="showReturnEquipmentForm"
-            :project-uid="projectUidReturnEquipment"
-            @close-event="closeReturnEquipment"></return-equipment-form>
-
-        <FinderManager :is-show="showFinderManager"
-            @close-event="closeFinderManager"
-            :project-uid="projectUidFinderManager" />
-
-        <SubtitutePic :is-show="showSubtitutePic"
-            @close-event="closeSubtitutePic"
-            :project-uid="projectUidSubtitutePic"></SubtitutePic>
     </div>
 </template>
 
@@ -378,6 +371,7 @@ import { storeToRefs } from 'pinia';
 import {useRouter} from 'vue-router';
 import FinderManager from './FinderManager.vue'
 import SubtitutePic from './SubtitutePic.vue'
+import ProjectListEntertainment from './entertainment/ProjectListEntertainment.vue';
 
 import {
   mdiClose,
@@ -399,6 +393,7 @@ import FinalCheck from './FinalCheck.vue'
 import ReturnEquipmentForm from './ReturnEquipment.vue'
 import TableList from "@/components/TableList.vue";
 import { useGetRole } from '@/compose/getRole';
+import BaseRole from '@/enums/system/BaseRole';
 
 const { t } = useI18n();
 

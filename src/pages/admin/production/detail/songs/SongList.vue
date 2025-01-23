@@ -1,5 +1,5 @@
 <script setup>
-import { mdiClose, mdiMusic, mdiPencil } from '@mdi/js';
+import { mdiAccount, mdiCheckBold, mdiClose, mdiCogOutline, mdiEyeCircle, mdiMusic, mdiPencil, mdiSourceBranchPlus } from '@mdi/js';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SongForm from './SongForm.vue';
@@ -7,6 +7,7 @@ import SingleSongForm from './SingleSongForm.vue';
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { showNotification } from '@/compose/notification';
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const { t } = useI18n();
 
@@ -63,7 +64,7 @@ function editData(songUid) {
 <template>
     <div style="overflow: scroll; height: 320px;">
         <template v-if="props.songs.length">
-            <v-list lines="two">
+            <v-list lines="three">
                 <v-list-item
                     v-for="(song, songKey) in props.songs"
                     :key="songKey"
@@ -86,35 +87,88 @@ function editData(songUid) {
                                 :icon="mdiPencil"
                                 size="18"
                                 :disabled="song.disabled"
+                                v-if="useCheckPermission('edit_request_song')"
                                 @click.prevent="editData(song.uid)"
                                 color="primary"
                                 class="pointer"></v-icon>
                             <v-icon
                                 :icon="mdiClose"
                                 size="18"
+                                v-if="useCheckPermission('delete_request_song')"
                                 :disabled="song.disabled"
                                 color="red"
                                 @click.prevent="deleteSong(song.uid)"
                                 class="pointer"></v-icon>
+
+                                <v-menu
+                                    open-on-click>
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon
+                                            v-bind="props"
+                                            :icon="mdiCogOutline"
+                                            color="blue"></v-icon>
+                                    </template>
+
+                                    <v-list>
+                                        <v-list-item
+                                            v-if="!song.task"
+                                            class="pointer">
+                                            <template v-slot:title>
+                                                <v-icon
+                                                    :icon="mdiSourceBranchPlus"
+                                                    size="20"
+                                                    color="primary"
+                                                    class="me-2"></v-icon>
+                                                {{ $t("distribute") }}
+                                            </template>
+                                        </v-list-item>
+                                        <v-list-item
+                                            v-if="song.is_request_edit || song.is_request_delete"
+                                            class="pointer">
+                                            <template v-slot:title>
+                                                <v-icon
+                                                    :icon="mdiEyeCircle"
+                                                    size="20"
+                                                    color="success"
+                                                    class="me-2"></v-icon>
+                                                {{ $t("detailChanges") }}
+                                            </template>
+                                        </v-list-item>
+                                    </v-list>
+                                </v-menu>
                         </div>
                     </template>
     
                     <template v-slot:subtitle>
-                        <v-chip
-                            class="mt-1"
-                            :color="song.status_color"
-                            flat
-                            size="small">
-                            {{ song.status_format }}
-                        </v-chip>
-                        <v-chip
-                            v-if="song.status_request"
-                            class="mt-1 ms-1"
-                            color="lime-darken-3"
-                            flat
-                            size="small">
-                            {{ song.status_request }}
-                        </v-chip>
+                        <div>
+                            <v-chip
+                                class="mt-1"
+                                :color="song.status_color"
+                                flat
+                                size="small">
+                                {{ song.status_format }}
+                            </v-chip>
+                            <v-chip
+                                v-if="song.status_request"
+                                class="mt-1 ms-1"
+                                color="lime-darken-3"
+                                flat
+                                size="small">
+                                {{ song.status_request }}
+                            </v-chip>
+                        </div>
+
+                        <div class="mt-2"
+                            v-if="song.task">
+                            <v-chip
+                                size="small">
+                                <v-icon
+                                    :icon="mdiAccount"
+                                    size="15"
+                                    class="me-2"></v-icon>
+                                <span>Ilham</span>
+                            </v-chip>
+                        </div>
                     </template>
                 </v-list-item>
             </v-list>
