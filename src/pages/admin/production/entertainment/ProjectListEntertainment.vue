@@ -422,18 +422,40 @@ function cancelFilter() {
                                 </v-chip>
                             </template>
                             <template v-else-if="header.key === 'songs'">
-                                <v-chip
-                                    v-if="!value.songs.length"
-                                    size="small"
-                                    color="red">
-                                    0 Song
-                                </v-chip>
-                                <v-chip
-                                    v-else
-                                    size="small"
-                                    color="info">
-                                    {{ value.songs.length }} Songs
-                                </v-chip>
+                                <template v-if="!value.songs.length">
+                                    <v-chip
+                                        size="small"
+                                        color="red">
+                                        0 Song
+                                    </v-chip>
+                                </template>
+                                <template v-else>
+                                    <div class="d-flex algin-center justify-content-baseline"
+                                        :style="{
+                                            gap: '5px'
+                                        }">
+                                        <div>
+                                            <v-chip
+                                                v-for="(songItem, s) in value.assignSong"
+                                                :key="s"
+                                                size="small"
+                                                color="info"
+                                                class="mb-1">
+                                                {{ songItem.name }} (<b>{{ songItem.task.employee.nickname }}</b>)
+                                            </v-chip>
+                                        </div>
+                                        <div>
+                                            <v-chip
+                                                v-for="(songItem, s) in value.unassignSong"
+                                                :key="s"
+                                                size="small"
+                                                color="red"
+                                                class="mb-1">
+                                                {{ songItem.name }}
+                                            </v-chip>
+                                        </div>
+                                    </div>
+                                </template>
                             </template>
                             <template v-else-if="header.key === 'number_of_equipments'">
                                 <v-chip

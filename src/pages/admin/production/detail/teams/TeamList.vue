@@ -95,7 +95,6 @@ const headers = ref([
 ])
 
 watch(props, (values) => {
-  console.log("wathcer team list", values);
     if (values && detailProject.value) {
         listTeams.value = detailProject.value.teams
     }

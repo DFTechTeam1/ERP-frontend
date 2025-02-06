@@ -258,3 +258,27 @@ table thead th {
 .filter-result  .v-chip__content p {
     font-size: 12px !important;
 }
+
+/* Scrollbar width */
+::-webkit-scrollbar {
+    width: 8px; /* Adjust as needed */
+    height: 8px; /* For horizontal scrollbar */
+  }
+  
+  /* Scrollbar track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Light gray */
+    border-radius: 10px;
+  }
+  
+  /* Scrollbar thumb (the moving part) */
+  ::-webkit-scrollbar-thumb {
+    background: #888; /* Dark gray */
+    border-radius: 10px;
+  }
+  
+  /* Scrollbar thumb on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker gray */
+  }
+  

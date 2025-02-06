@@ -8,14 +8,25 @@ export const useDashboardStore = defineStore('dashboard', {
         projectCalendarGrouping: [],
         projectDeadline: [],
         reports: [],
+        projectSongs: [],
     }),
     getters: {
         listOfProjectCalendar: (state) => state.projectCalendar,
         detailOfProjectCalendar: (state) => state.projectCalendarDetail,
         listOfProjectDeadline: (state) => state.projectDeadline,
         listOfReports: (state) => state.reports,
+        listOfProjectSongs: (state) => state.projectSongs
     },
     actions: {
+        async getProjectSong() {
+            try {
+                const resp = await axios.get(`/dashboard/projectSong`);
+
+                this.projectSongs = resp.data.data;
+            } catch (error) {
+                return error;
+            }
+        },
         async getReport(payload) {
             try {
                 var month = 0

@@ -139,6 +139,12 @@
                             md="12">
                             <project-deadline />
                         </v-col>
+
+                        <v-col
+                            cols="12"
+                            md="12">
+                            <project-song />
+                        </v-col>
                     </v-row>
                 </template>
 
@@ -155,10 +161,11 @@
 import { onMounted, ref } from 'vue'
 import CalendarEvent from './CalendarEvent.vue'
 import ProjectDeadline from './ProjectDeadline.vue'
+import ProjectSong from './ProjectSong.vue';
 import { useBreakToken } from '@/compose/breakToken';
 import { useDashboardStore } from '@/stores/dashboard';
 import { storeToRefs } from 'pinia';
-import { mdiEyeOffOutline, mdiEyeOutline } from "@mdi/js";
+import { mdiArrowRight, mdiEyeOffOutline, mdiEyeOutline } from "@mdi/js";
 
 const store = useDashboardStore()
 
