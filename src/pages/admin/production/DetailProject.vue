@@ -517,10 +517,12 @@ onMounted(() => {
     canAddTask.value = useCheckPermission('add_task');
     canDeleteTask.value = useCheckPermission('delete_task');
 
-    if (useGetRole(BaseRole.Entertainment) || useGetRole(BaseRole.ProjectManagerEntertainment)) {
+    if (useGetRole() == BaseRole.Entertainment || useGetRole() == BaseRole.ProjectManagerEntertainment) {
         tab.value = 'tab-equipment-check';
     } else {
         tab.value = 'tab-task';
     }
+
+    console.log('tab', tab.value);
 })
 </script>

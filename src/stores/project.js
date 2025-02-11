@@ -1446,6 +1446,32 @@ export const useProjectStore = defineStore('project', {
             } catch (error) {
                 return error;
             }
+        },
+        async songReportAsDone(payload, projectUid, songUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/song/report/${songUid}`, payload);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async songApprovedByPM(projectUid, songUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/song/${songUid}/approveUpper`);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
         }
     },
 })

@@ -5,7 +5,9 @@ import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DetailChangesSong from './DetailChangesSong.vue';
+import ImageDetailWork from './ImageDetailWork.vue';
 import { useCheckPermission } from '@/compose/checkPermission';
+import { showNotification } from '@/compose/notification';
 
 const { t } = useI18n();
 
@@ -29,14 +31,34 @@ const emit = defineEmits(['close-event']);
 
 const show = ref(false);
 
+const showConfirmationModal = ref(false);
+
+const selectedIds = ref([]);
+
+const showDetailImage = ref(false);
+
+const detailImageSong = ref(null);
+
 const expandLogs = ref(false);
 
 const loadingPrepare = ref(false);
+
+const loading = ref(false);
 
 const detailData = ref(null);
 
 function closeDialog(type) {
     emit('close-event', type);
+}
+
+function openDetailImage(images) {
+    showDetailImage.value = true;
+    detailImageSong.value = images;
+}
+
+function closeDetailImage() {
+    showDetailImage.value = false;
+    detailImageSong.value = null;
 }
 
 async function getDetail() {
@@ -47,6 +69,25 @@ async function getDetail() {
     
     if (resp.status < 300) {
         detailData.value = resp.data.data;
+    }
+}
+
+function approveConfirmation() {
+    showConfirmationModal.value = true;
+    selectedIds.value.push(detailData.value.uid);
+}
+
+async function doApprove(ids) {
+    const resp = await store.songApprovedByPM(detailProject.value.uid, ids[0]);
+
+    if (resp.status < 300) {
+        showNotification(resp.data.message);
+
+        emit('close-event');
+        showConfirmationModal.value = false;
+        selectedIds.value = [];
+    } else {
+        showNotification(resp.response.data.message, 'error');
     }
 }
 
@@ -67,7 +108,7 @@ watch(props, async (values) => {
         persistent
         max-width="600">
         <master-card>
-            <template v-if="loadingPrepare">
+            <template v-if="loadingPrepare && !detailData">
                 <div style="padding: 20px;">
                     <v-skeleton-loader width="100%" :height="20" class="mb-10"></v-skeleton-loader>
                     <v-skeleton-loader :height="150" class="mb-3" width="100%"></v-skeleton-loader>
@@ -84,7 +125,7 @@ watch(props, async (values) => {
                             <v-chip
                                 size="small"
                                 :color="detailData.status_color">
-                                {{ detailData.status_format }}
+                                {{ detailData.status_text }}
                             </v-chip>
                         </p>
     
@@ -127,6 +168,88 @@ watch(props, async (values) => {
                             </tr>
                         </tbody>
                     </table>
+
+                    <v-divider class="mt-5 mb-5" v-if="detailData.results.length"></v-divider>
+
+                    <div class="proof" v-if="detailData.results.length">
+                        <p>{{ $t("proofOfWork") }}</p>
+
+                        <table :style="{
+                            borderCollapse: 'collapse'
+                        }">
+                            <tbody>
+                                <template
+                                    v-for="(res, r) in detailData.results"
+                                    :key="r">
+                                    <tr>
+                                        <td>{{ $t("nasPath") }}</td>
+                                        <td>:</td>
+                                        <td>{{ res.nas_path }}</td>
+                                    </tr>
+                                    <tr :style="{
+                                        borderBottom: '1px solid #000000'
+                                    }">
+                                        <td :style="{
+                                            borderBottom: '1px solid #000000'
+                                        }">{{ $t("Image") }}</td>
+                                        <td :style="{
+                                            borderBottom: '1px solid #000000'
+                                        }">:</td>
+                                        <td :style="{
+                                            borderBottom: '1px solid #000000',
+                                            paddingBottom: '20px'
+                                        }">
+                                            <div class="d-flex align-center"
+                                                :style="{
+                                                    flexWrap: 'wrap', 
+                                                    gap: '10px'
+                                                }">
+                                                <template
+                                                    v-for="(image, i) in res.images"
+                                                    :key="i">
+                                                    <v-img
+                                                        v-if="i < 2"
+                                                        class="pointer"
+                                                        :src="image"
+                                                        @click.prevent="openDetailImage(res.images)"
+                                                        width="50"
+                                                        aspect-ratio="12/3"
+                                                        height="auto"></v-img>
+                                                </template>
+                                                <span :style="{
+                                                    fontSize: '12px',
+                                                    cursor: 'pointer'
+                                                }"
+                                                @click.prevent="openDetailImage(res.images)"
+                                                v-if="res.images.length > 2">+{{ res.images.length - 2 }} More</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="useCheckPermission('approve_song_proof_of_work') && useCheckPermission('reject_song_proof_of_work') && !detailData.is_complete">
+                                        <td colspan="3">
+                                            <v-btn
+                                                size="small"
+                                                color="primary"
+                                                v-if="useCheckPermission('approve_song_proof_of_work')"
+                                                :loading="loading"
+                                                @click.prevent="approveConfirmation"
+                                                class="mt-3 me-2">
+                                                {{ $t("approve") }}
+                                            </v-btn> 
+                                            <v-btn
+                                                size="small"
+                                                color="red"
+                                                v-if="useCheckPermission('reject_song_proof_of_work')"
+                                                :loading="loading"
+                                                class="mt-3">
+                                                {{ $t("reject") }}
+                                            </v-btn> 
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
     
                     <v-divider class="mt-5 mb-5"
                         v-if="(detailData.is_request_edit || detailData.is_request_delete) && (useCheckPermission('approve_request_song') || useCheckPermission('reject_request_song'))"></v-divider>
@@ -196,6 +319,19 @@ watch(props, async (values) => {
                             </div>
                         </template>
                     </div>
+
+                    <image-detail-work
+                        @close-event="closeDetailImage"
+                        :is-show="showDetailImage"
+                        :images="detailImageSong" />
+
+                    <confirmation-modal
+                        text="Are you sure to approve this task?"
+                        title="Approve Confirmation"
+                        :loading="loading"
+                        :show-confirm="showConfirmationModal"
+                        :delete-ids="selectedIds"
+                        @action-bulk-submit="doApprove" />
                 </v-card-text>
             </template>
         </master-card>

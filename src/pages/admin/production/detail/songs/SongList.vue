@@ -10,6 +10,9 @@ import { showNotification } from '@/compose/notification';
 import { useCheckPermission } from '@/compose/checkPermission';
 import DistributeForm from './DistributeForm.vue';
 import DetailSong from './DetailSong.vue';
+import ReportDone from './ReportDone.vue';
+import BaseRole from '@/enums/system/BaseRole';
+import { useGetRole } from '@/compose/getRole';
 
 const { t } = useI18n();
 
@@ -32,6 +35,10 @@ const loading = ref(false);
 const showDetailSong = ref(false);
 
 const showSongForm = ref(false);
+
+const showReportForm = ref(false);
+
+const selectedReportId = ref(null);
 
 const showEditForm = ref(false);
 
@@ -89,6 +96,15 @@ function doDetailSong(songUid) {
     detailSongUid.value = songUid;
 }
 
+function closeReportForm() {
+    showReportForm.value = false;
+}
+
+function openReportForm(song) {
+    showReportForm.value = true;
+    selectedReportId.value = song.uid; 
+}
+
 async function startWork(songUid) {
     loading.value = true;
     const resp = await store.startWorkSong(detailProject.value.uid, songUid);
@@ -112,7 +128,7 @@ async function startWork(songUid) {
                     :title="song.name"
                     :class="{
                         'border-bottom': songKey != props.songs.length - 1,
-                        'bg-blue-grey-lighten-5': song.my_own
+                        'bg-blue-grey-lighten-5': song.my_own && useGetRole() != BaseRole.Root && useGetRole() != BaseRole.Director && useGetRole() != BaseRole.ProjectManagerEntertainment
                     }">
                     <template v-slot:prepend>
                         <v-icon
@@ -204,7 +220,7 @@ async function startWork(songUid) {
                                     <v-list-item
                                         v-if="useCheckPermission('song_proof_of_work') && song.my_own && song.need_to_be_done"
                                         class="pointer"
-                                        @click.prevent="startWork(song.uid)">
+                                        @click.prevent="openReportForm(song)">
                                         <template v-slot:title>
                                             <v-icon
                                                 :icon="mdiCheckCircle"
@@ -226,7 +242,7 @@ async function startWork(songUid) {
                                 :color="song.status_color"
                                 flat
                                 size="small">
-                                {{ song.status_format }}
+                                {{ song.status_text }}
                             </v-chip>
                             <v-chip
                                 v-if="song.status_request"
@@ -235,14 +251,6 @@ async function startWork(songUid) {
                                 flat
                                 size="small">
                                 {{ song.status_request }}
-                            </v-chip>
-                            <v-chip
-                                v-if="song.status_of_work"
-                                class="mt-1 ms-1"
-                                :color="song.status_of_work_color"
-                                flat
-                                size="small">
-                                {{ song.status_of_work }}
                             </v-chip>
                         </div>
 
@@ -261,8 +269,14 @@ async function startWork(songUid) {
                 </v-list-item>
             </v-list>
 
+            <report-done
+                :song-uid="selectedReportId"
+                :is-show="showReportForm"
+                @close-event="closeReportForm" />
+
             <song-form :is-show="showSongForm"
                 @close-event="showSongForm = false" />
+
             <single-song-form
                 :is-show="showEditForm"
                 @close-event="showEditForm = false"

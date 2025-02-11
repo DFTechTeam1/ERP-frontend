@@ -707,5 +707,6 @@
     "chooseSong": "Choose Song",
     "saveSong": "Save Song",
     "nextSongAssign": "Next Song",
-    "startWork": "Start Work"
+    "startWork": "Start Work",
+    "nasPath": "NAS Path"
 }
