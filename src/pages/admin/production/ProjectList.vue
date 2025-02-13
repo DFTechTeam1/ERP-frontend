@@ -804,8 +804,4 @@ onBeforeMount(() => {
   }
 
 });
-
-onMounted(() => {
-    console.log("role", useGetRole());
-});
 </script>

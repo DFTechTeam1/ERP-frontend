@@ -139,6 +139,13 @@
                             md="12">
                             <project-deadline />
                         </v-col>
+
+                        <v-col
+                            cols="12"
+                            md="12"
+                            v-if="useGetRole() == BaseRole.Entertainment || useGetRole() == BaseRole.ProjectManagerEntertainment || useGetRole() == BaseRole.Root || useGetRole() == BaseRole.Director">
+                            <project-song />
+                        </v-col>
                     </v-row>
                 </template>
 
@@ -155,10 +162,13 @@
 import { onMounted, ref } from 'vue'
 import CalendarEvent from './CalendarEvent.vue'
 import ProjectDeadline from './ProjectDeadline.vue'
+import ProjectSong from './ProjectSong.vue';
 import { useBreakToken } from '@/compose/breakToken';
 import { useDashboardStore } from '@/stores/dashboard';
 import { storeToRefs } from 'pinia';
-import { mdiEyeOffOutline, mdiEyeOutline } from "@mdi/js";
+import { mdiArrowRight, mdiEyeOffOutline, mdiEyeOutline } from "@mdi/js";
+import { useGetRole } from '@/compose/getRole';
+import BaseRole from '@/enums/system/BaseRole';
 
 const store = useDashboardStore()
 

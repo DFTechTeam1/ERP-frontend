@@ -21,6 +21,7 @@ export const useProjectStore = defineStore('project', {
         transferTeamList: [],
         detail: null,
         projectBoards: [],
+        detailEntertainmentWorkload: [],
         allTasks: [],
         detailTask: null,
         projectParams: {},
@@ -73,6 +74,7 @@ export const useProjectStore = defineStore('project', {
         ],
     }),
     getters: {
+        listOfDetailEntertainmentWorkload: (state) => state.detailEntertainmentWorkload,
         isHaveFilterData: (state) => state.haveFilterData,
         keyKeepProjectParams: (state) => state.keepProjectParams,
         listProjectParams: (state) => state.projectParams,
@@ -198,6 +200,31 @@ export const useProjectStore = defineStore('project', {
 
                 this.projects = resp.data.data.paginated;
                 this.totalProjects = resp.data.data.totalData
+
+                // grouping song
+                resp.data.data.paginated.map((mapping) => {
+                    let assignSongs = [];
+                    let unassignSongs = [];
+
+                    if (mapping.songs.length) {
+                        assignSongs = mapping.songs.filter((filter) => {
+                            return filter.task;
+                        });
+
+                        unassignSongs = mapping.songs.filter((filter) => {
+                            return !filter.task;
+                        });
+                    }
+                    
+                    mapping.assignSong = assignSongs;
+                    mapping.unassignSong = unassignSongs;
+
+                    return mapping;
+                });
+
+                this.projects = resp.data.data.paginated;
+
+                console.log("projects", this.projects);
 
                 return resp;
             } catch (error) {
@@ -1316,5 +1343,148 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
+        async getEntertainmentTeamList(projectUid, songUid) {
+            try {
+                return await axios.get(`/production/project/${projectUid}/entertainment/listMember`);
+            } catch (error) {
+                return error;
+            }
+        },
+        async getEntertainmentTeamDetailWorkload(projectUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/entertainment/workload`);
+
+                this.detailEntertainmentWorkload = resp.data.data;
+            } catch (error) {
+                return error;
+            }  
+        },
+        updateDetailEntertainmentWorkload(payload) {
+            this.detailEntertainmentWorkload = payload;
+        },
+        async distributeSong(projectUid, songUid, values) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/song/distribute/${songUid}`, values);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async detailSong(projectUid, songUid) {
+            try {
+                return await axios.get(`/production/project/${projectUid}/song/${songUid}`);
+            } catch (error) {
+                return error;
+            }
+        },
+        async confirmEditSong(projectUid, songUid) {
+            try {
+                const resp = await axios.put(`/production/project/${projectUid}/song/${songUid}/confirmEditSong`);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async confirmDeleteSong(projectUid, songUid) {
+            try {
+                const resp = await axios.put(`production/project/${projectUid}/song/${songUid}/confirmDeleteSong`);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async rejectEditSong(values, projectUid, songUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/song/reject/${songUid}`, values);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async bulkAssignSong(payload, projectUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/bulkAssignWorkerForSong`, payload);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async startWorkSong(projectUid, songUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/song/${songUid}/approve`);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async songReportAsDone(payload, projectUid, songUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/song/report/${songUid}`, payload);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async songApprovedByPM(projectUid, songUid) {
+            try {
+                const resp = await axios.get(`/production/project/${projectUid}/song/${songUid}/approveUpper`);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async reviseSongTask(payload, projectUid, songUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/song/${songUid}/revise`, payload);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        }
     },
 })

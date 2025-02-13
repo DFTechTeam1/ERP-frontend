@@ -207,8 +207,11 @@
 								{{ $t('choosePic') }}
 							</v-btn>
 
-							<ChoosePicDialog :is-show="showPicDialog" @close-event="closePicDialog"
-								:project-uid="projectUid" />
+							<ChoosePicDialog :is-show="showPicDialog" 
+								:project-uid="projectUid"
+								@close-event="closePicDialog"
+								@on-init="initPicDialog"
+								:options="picDialog" />
 						</div>
 					</div>
 					<!-- end filter -->
@@ -486,6 +489,10 @@ const filterButtonDates = ref([
 ])
 
 const itemGroups = ref([]);
+
+const picDialog = ref([]);
+
+const loadingPrepareDialog = ref(false);
 
 const showFilterResult = ref(false)
 
@@ -833,6 +840,16 @@ function closeFilterMenu() {
 
 function openPicDialog() {
 	showPicDialog.value = true
+}
+
+async function initPicDialog() {
+	loadingPrepareDialog.value = true
+	const resp = await store.getPicScheduler(props.projectUid)
+	loadingPrepareDialog.value = false
+
+	if (resp.status < 300) {
+		picDialog.value = resp.data.data
+	}
 }
 
 function closePicDialog(isCloseForm = false) {

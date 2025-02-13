@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="d-flex align-end justify-end"
-            v-if="canRequestEquipment && !detailProject.project_is_complete">
+            v-if="canRequestEquipment && (detailProject) && (!detailProject.project_is_complete)">
             <v-btn
                 variant="flat"
                 color="primary"
