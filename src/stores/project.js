@@ -1472,6 +1472,19 @@ export const useProjectStore = defineStore('project', {
             } catch (error) {
                 return error;
             }
+        },
+        async reviseSongTask(payload, projectUid, songUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/song/${songUid}/revise`, payload);
+
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
         }
     },
 })

@@ -899,6 +899,11 @@ router.beforeEach((to, from) => {
       currentPath: '/admin/user-management/roles'
     },
     {
+      path: '/users',
+      slug: 'users',
+      currentPath: '/admin/user-management/users'
+    },
+    {
       path: '/positions',
       slug: 'positions',
       currentPath: '/admin/master/positions'

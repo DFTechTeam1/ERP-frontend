@@ -142,7 +142,8 @@
 
                         <v-col
                             cols="12"
-                            md="12">
+                            md="12"
+                            v-if="useGetRole() == BaseRole.Entertainment || useGetRole() == BaseRole.ProjectManagerEntertainment || useGetRole() == BaseRole.Root || useGetRole() == BaseRole.Director">
                             <project-song />
                         </v-col>
                     </v-row>
@@ -166,6 +167,8 @@ import { useBreakToken } from '@/compose/breakToken';
 import { useDashboardStore } from '@/stores/dashboard';
 import { storeToRefs } from 'pinia';
 import { mdiArrowRight, mdiEyeOffOutline, mdiEyeOutline } from "@mdi/js";
+import { useGetRole } from '@/compose/getRole';
+import BaseRole from '@/enums/system/BaseRole';
 
 const store = useDashboardStore()
 

@@ -48,7 +48,6 @@ const [preview] = defineField('preview');
 const show = ref(false);
 
 function updateImages() {
-    console.log("oke");
     if (pond.value.getFiles().length) {
         var images = [];
         for (let a = 0; a < pond.value.getFiles().length; a++) {

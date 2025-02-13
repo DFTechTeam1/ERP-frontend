@@ -6,6 +6,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DetailChangesSong from './DetailChangesSong.vue';
 import ImageDetailWork from './ImageDetailWork.vue';
+import ReviseSong from './ReviseSong.vue';
 import { useCheckPermission } from '@/compose/checkPermission';
 import { showNotification } from '@/compose/notification';
 
@@ -37,6 +38,10 @@ const selectedIds = ref([]);
 
 const showDetailImage = ref(false);
 
+const showRejectForm = ref(false);
+
+const selectedIdForReject = ref(null);
+
 const detailImageSong = ref(null);
 
 const expandLogs = ref(false);
@@ -49,6 +54,17 @@ const detailData = ref(null);
 
 function closeDialog(type) {
     emit('close-event', type);
+}
+
+function openRejectForm(uid) {
+    showRejectForm.value = true;
+    selectedIdForReject.value = uid;
+}
+
+function closeReviseForm() {
+    showRejectForm.value = false;
+    selectedIdForReject.value = null;
+    emit('close-event');
 }
 
 function openDetailImage(images) {
@@ -225,28 +241,55 @@ watch(props, async (values) => {
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr v-if="useCheckPermission('approve_song_proof_of_work') && useCheckPermission('reject_song_proof_of_work') && !detailData.is_complete">
-                                        <td colspan="3">
-                                            <v-btn
-                                                size="small"
-                                                color="primary"
-                                                v-if="useCheckPermission('approve_song_proof_of_work')"
-                                                :loading="loading"
-                                                @click.prevent="approveConfirmation"
-                                                class="mt-3 me-2">
-                                                {{ $t("approve") }}
-                                            </v-btn> 
-                                            <v-btn
-                                                size="small"
-                                                color="red"
-                                                v-if="useCheckPermission('reject_song_proof_of_work')"
-                                                :loading="loading"
-                                                class="mt-3">
-                                                {{ $t("reject") }}
-                                            </v-btn> 
-                                        </td>
-                                    </tr>
                                 </template>
+                            </tbody>
+                        </table>
+                        <div class="action-wrapper" v-if="useCheckPermission('approve_song_proof_of_work') && useCheckPermission('reject_song_proof_of_work') && detailData.can_take_action">
+                            <v-btn
+                                size="small"
+                                color="primary"
+                                v-if="useCheckPermission('approve_song_proof_of_work')"
+                                :loading="loading"
+                                @click.prevent="approveConfirmation"
+                                class="mt-3 me-2">
+                                {{ $t("approve") }}
+                            </v-btn> 
+                            <v-btn
+                                size="small"
+                                color="red"
+                                v-if="useCheckPermission('reject_song_proof_of_work')"
+                                :loading="loading"
+                                @click.prevent="openRejectForm(detailData.uid)"
+                                class="mt-3">
+                                {{ $t("reject") }}
+                            </v-btn> 
+                        </div>
+                    </div>
+
+                    <v-divider class="mt-5 mb-5" v-if="(detailData.worker) && (detailData.worker.revises.length)"></v-divider>
+
+                    <div class="proof" v-if="(detailData.worker) && (detailData.worker.revises.length)">
+                        <p>{{ $t("revise") }}</p>
+
+                        <table :style="{
+                            borderCollapse: 'collapse',
+                            width: '100%'
+                        }">
+                            <tbody>
+                                <tr v-for="(revise, r) in detailData.worker.revises"
+                                    :key="r"
+                                    :style="{
+                                        width: '100%',
+                                    }">
+                                    <td :style="{
+                                        width: '60%',
+                                        fontWeight: 'bold'
+                                    }">{{ revise.created_at }}</td>
+                                    <td :style="{
+                                        width: '40%',
+                                        textAlign: 'left'
+                                    }">{{ revise.reason }}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -332,6 +375,11 @@ watch(props, async (values) => {
                         :show-confirm="showConfirmationModal"
                         :delete-ids="selectedIds"
                         @action-bulk-submit="doApprove" />
+
+                    <revise-song
+                        :is-show="showRejectForm"
+                        @close-event="closeReviseForm"
+                        :song-uid="selectedIdForReject" />
                 </v-card-text>
             </template>
         </master-card>

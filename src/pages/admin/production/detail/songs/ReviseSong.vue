@@ -43,9 +43,9 @@ function closeDialog() {
     emit('close-event');
 }
 
-const submitReject = handleSubmit(async (values) => {
+const submitRevise = handleSubmit(async (values) => {
     loading.value = true;
-    const resp = await store.rejectEditSong(values, detailProject.value.uid, props.songUid);
+    const resp = await store.reviseSongTask(values, detailProject.value.uid, props.songUid);
     loading.value = false;
 
     if (resp.status < 300) {
@@ -70,7 +70,7 @@ watch(props, (values) => {
         <master-card>
             <v-card-item>
                 <v-card-title class="d-flex align-center justify-space-between mb-5">
-                    <p class="m-0">{{ $t("reject") }}</p>
+                    <p class="m-0">{{ $t("revise") }}</p>
 
                     <v-icon
                         :icon="mdiClose"
@@ -79,7 +79,7 @@ watch(props, (values) => {
                 </v-card-title>
 
                 <v-card-text>
-                    <v-form @submit.prevent="submitReject">
+                    <v-form @submit.prevent="submitRevise">
                         <field-input
                             :label="t('reason')"
                             v-model="reason"
