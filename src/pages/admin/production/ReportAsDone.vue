@@ -233,15 +233,24 @@ async function initTaskTeam() {
 }
 
 const validateData = handleSubmit(async (values) => {
-    values.points = teams.value
-    
+    values.points = teams.value.filter((filter) => {
+        return filter.point > 0;
+    }).map((mapping) => {
+        return {
+            uid: mapping.uid,
+            point: mapping.point,
+            additional_point: mapping.additional_point,
+            tasks: mapping.tasks
+        }
+    });
+
     loading.value = true
     const resp = await store.completeProject(values, detailProject.value.uid)
     loading.value = false
 
     if (resp.status < 300) {
-        resetForm()
-        emit('close-event')
+        resetForm();
+        emit('close-event');
     }
 })
 

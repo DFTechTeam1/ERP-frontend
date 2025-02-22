@@ -708,5 +708,7 @@
     "saveSong": "Save Song",
     "nextSongAssign": "Next Song",
     "startWork": "Start Work",
-    "nasPath": "NAS Path"
+    "nasPath": "NAS Path",
+    "export": "Export",
+    "allEmployee": "All Employee"
 }

@@ -92,6 +92,13 @@ export const usePerformanceReportStore = defineStore('performanceReport', {
                 this.selectedTeam = null
             }
             
+        },
+        async exportData(values) {
+            try {
+                return await axios.post('/performanceReport/export', values);
+            } catch (error) {
+                return error;
+            }
         }
     }
 })

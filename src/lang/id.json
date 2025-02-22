@@ -705,5 +705,7 @@
     "saveSong": "Simpan Musik",
     "nextSongAssign": "Musik yang akan dikerjakan",
     "startWork": "Mulai Bekerja",
-    "nasPath": "NAS Path"
+    "nasPath": "NAS Path",
+    "export": "Export",
+    "allEmployee": "Semua Karyawan"
 }
