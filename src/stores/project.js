@@ -19,6 +19,7 @@ export const useProjectStore = defineStore('project', {
         totalProjects: 0,
         totalTransferTeam: 0,
         transferTeamList: [],
+        projectNeedToBeComplete: [],
         detail: null,
         projectBoards: [],
         detailEntertainmentWorkload: [],
@@ -74,6 +75,7 @@ export const useProjectStore = defineStore('project', {
         ],
     }),
     getters: {
+        listProjectNeedToBeComplete: (state) => state.projectNeedToBeComplete,
         listOfDetailEntertainmentWorkload: (state) => state.detailEntertainmentWorkload,
         isHaveFilterData: (state) => state.haveFilterData,
         keyKeepProjectParams: (state) => state.keepProjectParams,
@@ -118,6 +120,17 @@ export const useProjectStore = defineStore('project', {
         },
         setSearchParamProject(payload) {
           this.projectParams.filter = payload;
+        },
+        async getProjectNeedToBeComplete(payload) {
+            try {
+                const resp = await axios.get('/dashboard/needCompleteProject');
+
+                this.projectNeedToBeComplete = resp.data.data;
+                
+                return resp;
+            } catch (error) {
+                return error;
+            }
         },
         async getDetail(payload) {
             try {

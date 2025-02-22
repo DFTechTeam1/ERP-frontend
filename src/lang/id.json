@@ -707,5 +707,6 @@
     "startWork": "Mulai Bekerja",
     "nasPath": "NAS Path",
     "export": "Export",
-    "allEmployee": "Semua Karyawan"
+    "allEmployee": "Semua Karyawan",
+    "needToBeComplte": "Harus Diselesaikan"
 }
