@@ -1,8 +1,30 @@
 <template>
     <master-card>
         <v-card-item>
-            <v-card-title>
+            <v-card-title class="d-flex align-center justify-space-between">
                 {{ $t('filterData') }}
+
+                <v-menu>
+                    <template v-slot:activator="{ props }">
+                        <v-icon
+                            v-bind="props"
+                            :icon="mdiDotsVertical"
+                            size="25"
+                            class="pointer"></v-icon>
+                    </template>
+
+                    <v-list>
+                        <v-list-item
+                            @click.prevent="openExportForm">
+                            <template v-slot:prepend>
+                                <v-icon
+                                    :icon="mdiFileExcel"
+                                    size="15"></v-icon>
+                            </template>
+                            <v-list-item-title>Export</v-list-item-title>
+                        </v-list-item>
+                    </v-list>
+                </v-menu>
             </v-card-title>
         </v-card-item>
 
@@ -61,6 +83,9 @@
                     {{ $t('getReport') }}
                 </v-btn>
             </template>
+
+            <export-form :is-show="showExportForm"
+                @close-event="closeExportForm" />
         </v-card-text>
     </master-card>
 </template>
@@ -98,13 +123,15 @@
 <script setup>
 import { showNotification } from '@/compose/notification';
 import { usePerformanceReportStore } from '@/stores/performanceReport';
-import { mdiOfficeBuilding } from '@mdi/js';
+import { mdiDotsVertical, mdiEllipse, mdiExport, mdiFileExcel, mdiOfficeBuilding } from '@mdi/js';
 import moment from 'moment';
 import { storeToRefs } from 'pinia';
 import { useForm } from 'vee-validate';
+import { ref } from 'vue';
 import { watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as yup from 'yup'
+import ExportForm from './ExportForm.vue';
 
 const { t } = useI18n()
 
@@ -118,6 +145,8 @@ const props = defineProps({
         default: false,
     },
 })
+
+const showExportForm = ref(false);
 
 const { defineField, errors, values, setFieldValue } = useForm({
     validationSchema: yup.object({
@@ -150,6 +179,14 @@ async function getReport() {
 
 function clearSearch() {
     setFieldValue('name', '')
+}
+
+function openExportForm() {
+    showExportForm.value = true;
+}
+
+function closeExportForm() {
+    showExportForm.value = false;
 }
 
 watch(name, async (values) => {
