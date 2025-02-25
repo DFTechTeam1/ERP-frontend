@@ -37,17 +37,36 @@
 								activator="parent">
 								<v-list
 									lines="three">
-									<ListPic
-										:pics="pics"
-										@select-item="selectPic"></ListPic>
+									
+                                    <v-list-item
+                                        v-for="(item, i) in pics"
+                                        :key="i"
+                                        prepend-avatar="/user.png"
+                                        @click.prevent="selectPic(item)">
+                                        <template v-slot:title>
+                                            <p class="w-100 d-flex align-center justify-space-between">
+                                                {{ item.name }} - {{ item.employee_id }}
+                                            </p>
+                                        </template>
+
+                                        <template v-slot:subtitle>
+                                            <div class="mt-2">
+                                                <v-chip color="primary" density="compact">
+                                                    {{ item.workload }} {{ $t("workload") }}
+                                                </v-chip>
+                                            </div>
+                                        </template>
+                                    </v-list-item>
+
 								</v-list>
 							</v-menu>
 						</v-text-field>
 
 						<v-btn class="w-100" variant="flat" color="primary"
-							type="submit">
+							type="submit"
+							:disabled="loading">
 							<template v-if="loading">
-								{{ $t('save') }}
+								{{ $t('processing') }}
 							</template>
 							<template v-else>
 								{{ $t('save') }}
@@ -67,7 +86,8 @@ import { useI18n } from 'vue-i18n'
 import { useProjectStore } from '@/stores/project'
 import * as yup from 'yup'
 import { useForm } from 'vee-validate'
-import ListPic from './components/ListPicDropdown.vue'
+import ListPicDropdown from '../../components/ListPicDropdown.vue'
+import { showNotification } from '@/compose/notification'
 
 const show = ref(false)
 
@@ -95,6 +115,9 @@ const props = defineProps({
 	options: {
 		type: Array,
 		default: []
+	},
+	songUid: {
+		type: String
 	}
 })
 
@@ -122,7 +145,7 @@ watch(props, (values) => {
 
 async function initPic() {
 	loadingPrepare.value = true
-	const resp = await store.getPicScheduler(props.projectUid)
+	const resp = await store.getEntertainmentTeamList(props.projectUid)
 	loadingPrepare.value = false
 
 	if (resp.status < 300) {
@@ -137,25 +160,25 @@ function closeDialog(closeAll = false) {
 
 function selectPic(user) {
 	var selected = pics.value.filter((filter) => {
-		return filter.id == user.id
+		return filter.uid == user.uid
 	})
 
-	pic.value.push(selected[0].id)
-	pic.value = [...new Set(pic.value)]
+    pic.value = user.uid;
+    picNames.value = selected[0].name
 
-	picNames.value.push(selected[0].name)
-	picNames.value = [...new Set(picNames.value)]
-
-	setFieldValue('selected_pic', picNames.value.join(','))
+	setFieldValue('selected_pic', picNames.value)
 }
 
-const validateData = handleSubmit(async () => {
+const validateData = handleSubmit(async (values) => {
 	loading.value = true
-	const resp = await store.assignPic(pic.value, props.projectUid)
+	const resp = await store.distributeSong(props.projectUid, props.songUid, {employee_uid: pic.value});
 	loading.value = false
 
 	if (resp.status < 300) {
 		closeDialog()
+		showNotification(resp.data.message);
+	} else {
+		showNotification(resp.response.data.message, 'error');
 	}
 })
 

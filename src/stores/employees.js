@@ -71,15 +71,20 @@ export const useEmployeesStore = defineStore('employees', {
             return isValid.data.data.is_available;
         },
         async getAll(payload = null) {
-            var url = '/employees/all';
-            if (payload) {
-                url += '?min_level=' + payload.min_levelt;
-            }
+            try {
+                var url = '/employees/all';
+                if (payload) {
+                    url += '?min_level=' + payload.min_levelt;
+                }
+    
+                const resp = await axios.get(url);
 
-            await axios.get(url)
-                .then((res) => {
-                    this.allEmployees = res.data.data;
-                });
+                this.allEmployees = resp.data.data;
+
+                return resp;
+            } catch (error) {
+                return error
+            }
         },
         async getProjectManager(payload = null) {
             try {

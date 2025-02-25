@@ -1,6 +1,6 @@
 <template>
     <v-dialog
-        max-width="400"
+        :max-width="props.maxWidth"
         v-model="isShowConfirm">
         <v-card
             :title="props.title">
@@ -25,6 +25,7 @@
                     v-else
                     height="auto"
                     size="small"
+                    :disabled="props.loading"
                     class="btn-secondary pt-3 pb-3 mt-3"
                     @click.prevent="$emit('cancelConfirm')">
                     {{ $t('close') }}
@@ -34,6 +35,7 @@
                     height="auto"
                     size="small"
                     type="button"
+                    :disabled="props.loading"
                     @click.prevent="$emit('actionBulkSubmit', props.deleteIds)"
                     class="btn-primary pt-3 pb-3 mt-3">
                     {{ $t('yes') }}
@@ -58,6 +60,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
   showConfirm: {
     type: Boolean,
     default: false,
@@ -69,6 +75,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  maxWidth: {
+    type: String,
+    default: '400'
+  }
 });
 
 const isShowConfirm = ref(false);

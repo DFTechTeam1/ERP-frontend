@@ -1,5 +1,5 @@
 <template>
-    <master-card style="border-radius: 6px;" min-height="220">
+    <master-card style="border-radius: 6px;" min-height="300">
         <v-card-item>
             <v-card-title>
                 {{ $t('detailPoint') }}
@@ -21,6 +21,7 @@
                         class="point-table-performance"
                         v-model:expanded="expanded"
                         :headers="headers"
+                        :height="350"
                         :items="memberReportResult.point_detail"
                         items-per-page="1000"
                         item-value="project_name"

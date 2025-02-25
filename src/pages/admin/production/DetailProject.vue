@@ -38,10 +38,11 @@
                 v-if="useCheckPermission('list_member') && useCheckPermission('list_entertainment_member')"
                 cols="12"
                 md="5">
-                <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
+                <v-skeleton-loader v-if="loading" type="card" height="800"></v-skeleton-loader>
                 <master-card
                     v-else
-                    max-height="400"
+                    :min-height="useCheckPermission('list_request_song') ? 830 : 400"
+                    :max-height="useCheckPermission('list_request_song') ? 830 : 400"
                     height="100%">
                     <v-toolbar color="surface">
                         <v-toolbar-title class="d-flex align-center justify-space-between">
@@ -92,55 +93,129 @@
             <v-col
                 cols="12"
                 :md="useCheckPermission('list_member') && useCheckPermission('list_entertainment_member') ? '7' : '12'">
-                <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
-                <master-card
-                    v-else
-                    class="mb-2"
-                    max-height="400"
-                    height="100%">
-                    <v-toolbar color="surface" class="pe-4">
-                        <v-toolbar-title>
-                            {{ $t('references') }}
-                        </v-toolbar-title>
+                <v-row>
+                    <v-col cols="12"
+                        :md="!useCheckPermission('list_member') ? '6': '12'">
+                        <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
+                        <master-card
+                            v-else
+                            class="mb-2"
+                            min-height="400"
+                            max-height="400"
+                            height="100%">
+                            <v-toolbar color="surface" class="pe-4">
+                                <v-toolbar-title>
+                                    {{ $t('references') }}
+                                </v-toolbar-title>
+        
+                                <v-spacer></v-spacer>
+        
+                                <div class="d-flex align-center ga-2">
+                                    <v-btn
+                                        v-if="(detailProject) && useCheckPermission('add_references')"
+                                        variant="outlined"
+                                        color="primary"
+                                        size="small"
+                                        @click.prevent="showFormReferences = true">
+                                        {{ $t('addReferences') }}
+                                    </v-btn>
+        
+                                    <v-btn
+                                        v-if="(detailProject) && (detailProject.references) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
+                                        variant="outlined"
+                                        color="primary"
+                                        size="small"
+                                        @click.prevent="downloadReferences()">
+                                        <v-icon
+                                            :icon="mdiDownloadMultiple"
+                                            size="20"
+                                            class="pointer"></v-icon>
+        
+                                        <v-tooltip
+                                            activator="parent"
+                                            location="start"
+                                          >{{ $t('download') }}</v-tooltip>
+                                    </v-btn>
+                                </div>
+                            </v-toolbar>
+        
+                            <v-card-text
+                                class="m-0"
+                                style="height: 100%; overflow: hidden; padding: 0; padding-bottom: 20px;">
+                                <references-view :media="references" :show-form="showFormReferences" @close-form="closeFormReferences"
+                                    @open-form="showFormReferences = true"></references-view>
+                            </v-card-text>
+                        </master-card>
+                    </v-col>
+                    <v-col cols="12"
+                        :md="!useCheckPermission('list_member') ? '6': '12'"
+                        v-if="useCheckPermission('list_request_song')">
+                        <v-skeleton-loader v-if="loading" type="card" height="400"></v-skeleton-loader>
+                        <master-card
+                            v-else
+                            class="mb-2"
+                            max-height="400"
+                            min-height="400"
+                            height="100%">
+                            <v-toolbar color="surface" class="pe-4">
+                                <v-toolbar-title>
+                                    {{ $t('songs') }}
+                                </v-toolbar-title>
+        
+                                <v-spacer></v-spacer>
+        
+                                <div class="d-flex align-center ga-2"
+                                    v-if="useCheckPermission('create_request_song') || useCheckPermission('distribute_request_song')">
+                                    
+                                    <v-menu>
+                                        <template v-slot:activator="{ props }">
+                                            <v-btn
+                                                variant="outlined"
+                                                color="primary"
+                                                size="small"
+                                                type="button"
+                                                v-bind="props">
+                                                {{ $t('action') }}
+                                            </v-btn>
+                                        </template>
 
-                        <v-spacer></v-spacer>
-
-                        <div class="d-flex align-center ga-2">
-                            <v-btn
-                                v-if="(detailProject) && (detailProject.references) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
-                                variant="outlined"
-                                color="primary"
-                                size="small"
-                                @click.prevent="showFormReferences = true">
-                                {{ $t('addReferences') }}
-                            </v-btn>
-
-                            <v-btn
-                                v-if="(detailProject) && (detailProject.references) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
-                                variant="outlined"
-                                color="primary"
-                                size="small"
-                                @click.prevent="downloadReferences()">
-                                <v-icon
-                                    :icon="mdiDownloadMultiple"
-                                    size="20"
-                                    class="pointer"></v-icon>
-
-                                <v-tooltip
-                                    activator="parent"
-                                    location="start"
-                                  >{{ $t('download') }}</v-tooltip>
-                            </v-btn>
-                        </div>
-                    </v-toolbar>
-
-                    <v-card-text
-                        class="m-0"
-                        style="height: 100%; overflow: hidden; padding: 0; padding-bottom: 20px;">
-                        <references-view :media="references" :show-form="showFormReferences" @close-form="closeFormReferences"
-                            @open-form="showFormReferences = true"></references-view>
-                    </v-card-text>
-                </master-card>
+                                        <v-list>
+                                            <v-list-item @click.prevent="showSongForm = true"
+                                                v-if="useCheckPermission('create_request_song')">
+                                                <v-list-item-title>
+                                                    <v-icon
+                                                        :icon="mdiPlus"
+                                                        size="15"></v-icon>
+                                                    {{ $t('addSongs') }}
+                                                </v-list-item-title>
+                                            </v-list-item>
+                                            <v-list-item @click.prevent="showBulkSongDistribute = true"
+                                                v-if="useCheckPermission('distribute_request_song')">
+                                                <v-list-item-title>
+                                                    <v-icon
+                                                        :icon="mdiPlusBoxMultiple"
+                                                        size="15"></v-icon>
+                                                    {{ $t('bulkDistributeSong') }}
+                                                </v-list-item-title>
+                                            </v-list-item>
+                                        </v-list>
+                                    </v-menu>
+                                </div>
+                            </v-toolbar>
+        
+                            <v-card-text
+                                class="m-0"
+                                style="height: 100%; overflow: hidden; padding: 0; padding-bottom: 20px;">
+                                <song-list v-if="detailProject"
+                                    :songs="detailProject.songs" />
+                                <song-form :is-show="showSongForm"
+                                    @close-event="showSongForm = false"></song-form>
+                                <bulk-distribute :is-show="showBulkSongDistribute"
+                                    @close-event="showBulkSongDistribute = false" />
+                            </v-card-text>
+                        </master-card>
+                    </v-col>
+                </v-row>
             </v-col>
         </v-row>
 
@@ -181,7 +256,11 @@
             <div class="w-100 tab-detail-project">
                 <v-tabs show-arrows v-model="tab" :direction="tabDirection">
 
-                    <v-tab :text="t('task')" color="primary" value="tab-task"></v-tab>
+                    <v-tab
+                        :text="t('task')"
+                        color="primary"
+                        v-if="useCheckPermission('list_task')"
+                        value="tab-task"></v-tab>
                     <v-tab :text="t('progress')" color="primary" value="tab-progress"></v-tab>
                     <v-tab :text="t('showreels')" color="primary" value="tab-showreels"></v-tab>
                     <v-tab :text="t('equipmentCheck')" color="primary" value="tab-equipment-check"></v-tab>
@@ -194,7 +273,7 @@
                         <progress-view />
                     </v-window-item>
 
-                    <v-window-item value="tab-task">
+                    <v-window-item value="tab-task" v-if="useCheckPermission('list_task')">
                         <v-card flat class="no-shadow">
                             <v-card-text>
                                 <kanban-view :can-move-to-progress="canMoveToProgress"
@@ -269,6 +348,7 @@ import TeamView from './detail/teams/TeamList.vue';
 import EntertainmentList from './detail/teams/EntertainmentList.vue';
 import KanbanView from './detail/task/KanbanView.vue';
 import ReferencesView from './detail/references/ReferencesView.vue';
+import SongList from './detail/songs/SongList.vue';
 import EquipmentList from './detail/equipment/EquipmentList.vue';
 import ShowreelsView from './detail/showreels/ShowreelsView.vue'
 import ProgressView from './detail/progress/ProgressView.vue';
@@ -280,10 +360,14 @@ import { useRoute } from 'vue-router';
 import { useProjectStore } from '@/stores/project';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { useCheckPermission } from '@/compose/checkPermission';
-import { mdiDotsVertical, mdiHandBackLeftOutline, mdiDownloadMultiple } from '@mdi/js';
+import { mdiDotsVertical, mdiHandBackLeftOutline, mdiDownloadMultiple, mdiPlus, mdiPlusBoxMultiple } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { useProjectClassStore } from '@/stores/projectClass';
 import { showNotification } from '@/compose/notification'
+import SongForm from './detail/songs/SongForm.vue';
+import BulkDistribute from './detail/songs/BulkDistribute.vue';
+import { useGetRole } from '@/compose/getRole';
+import BaseRole from '@/enums/system/BaseRole';
 
 const store = useProjectStore();
 
@@ -300,6 +384,10 @@ const showFormTeamRequest = ref(false)
 const showRequestEntertainment = ref(false)
 
 const requestEntertainmentProjectUid = ref(null)
+
+const showSongForm = ref(false);
+
+const showBulkSongDistribute = ref(false);
 
 const showFormReferences = ref(false)
 
@@ -428,5 +516,13 @@ onMounted(() => {
     canMoveTask.value = useCheckPermission('move_task');
     canAddTask.value = useCheckPermission('add_task');
     canDeleteTask.value = useCheckPermission('delete_task');
+
+    if (useGetRole() == BaseRole.Entertainment || useGetRole() == BaseRole.ProjectManagerEntertainment) {
+        tab.value = 'tab-equipment-check';
+    } else {
+        tab.value = 'tab-task';
+    }
+
+    console.log('tab', tab.value);
 })
 </script>

@@ -30,6 +30,9 @@
                     <template #item="{ element }">
                         <div
                             class="list-group-item position-relative"
+                            :class="{
+                                'list-group-item-glow': element.is_mine
+                            }"
                             :data-id="element.uid"
                             :id="'d' + element.id + 'o'"
                             style="min-height: 50px;"
@@ -162,13 +165,23 @@
             &::-webkit-scrollbar-thumb {
                 background-color: #787878 !important;
                 border-radius: 8px;
-            }
+            } 
 
             .list-group-item {
                 padding: 4px 8px;
                 margin-bottom: 12px;
                 background-color: #fff;
                 cursor: grab;
+            }
+
+            .list-group-item-glow {
+                 /* Neon glow effect */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1),
+                            0 0 15px rgba(0, 0, 0, 0.05),
+                            0 0 20px rgba(0, 0, 0, 0.05),
+                            0 0 25px rgba(0, 0, 0, 0.05),
+                            0 0 30px rgba(0, 0, 0, 0.05);
+                transition: box-shadow 0.3s ease-in-out;
             }
         }
     }

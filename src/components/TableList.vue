@@ -44,7 +44,6 @@
             <slot name="custom-filter-button" v-if="props.customFilterButton"></slot>
           </div>
 
-
           <div class="w-25">
             <div class="table-search-input"
               v-if="filterSearch">
@@ -121,6 +120,14 @@
         :show-select="props.hasCheckbox"
         :show-expand="props.isExpand"
       >
+        <template v-slot:headers="{ headers, isSorted, getSortIcon, toggleSort }" v-if="props.customHeader">
+          <slot name="headerTable"
+            :headers="headers"
+            :isSorted="isSorted"
+            :getSortIcon="getSortIcon"
+            :toggleSort="toggleSort"></slot>
+        </template>
+
         <template v-slot:item.status="{ item }" v-if="props.customStatus">
           <slot name="status" :value="item"></slot>
         </template>
@@ -157,6 +164,10 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const props = defineProps({
+  customHeader: {
+    type: Boolean,
+    default: false,
+  },
   customFilterButton: {
     type: Boolean,
     default: false,
@@ -262,6 +273,13 @@ const emit = defineEmits([
   "filterAction",
   "clearFilterAction"
 ]);
+
+function filterHeaders(headers) {
+    var filter = headers.filter((item) => {
+        return item.available;
+    });
+    return filter;
+}
 
 function bulkDelete() {
   emit("bulkDeleteEvent", selected);

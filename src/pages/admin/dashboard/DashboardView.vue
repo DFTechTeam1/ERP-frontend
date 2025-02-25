@@ -130,6 +130,13 @@
                                 </template>
                             </v-card>
                         </v-col>
+
+                        <v-col
+                            cols="12"
+                            md="12"
+                            v-if="useGetRole() == BaseRole.ProjectManager || useGetRole() == BaseRole.ProjectManagerAdmin || useGetRole() == BaseRole.Root || useGetRole() == BaseRole.Director">
+                            <project-need-complete />
+                        </v-col>
                     </v-row>
                 </template>
                 <template v-else>
@@ -138,6 +145,20 @@
                             cols="12"
                             md="12">
                             <project-deadline />
+                        </v-col>
+
+                        <v-col
+                            cols="12"
+                            md="12"
+                            v-if="useGetRole() == BaseRole.Entertainment || useGetRole() == BaseRole.ProjectManagerEntertainment || useGetRole() == BaseRole.Root || useGetRole() == BaseRole.Director">
+                            <project-song />
+                        </v-col>
+
+                        <v-col
+                            cols="12"
+                            md="12"
+                            v-if="useGetRole() == BaseRole.ProjectManager || useGetRole() == BaseRole.ProjectManagerAdmin || useGetRole() == BaseRole.Root || useGetRole() == BaseRole.Director">
+                            <project-need-complete />
                         </v-col>
                     </v-row>
                 </template>
@@ -155,12 +176,19 @@
 import { onMounted, ref } from 'vue'
 import CalendarEvent from './CalendarEvent.vue'
 import ProjectDeadline from './ProjectDeadline.vue'
+import ProjectSong from './ProjectSong.vue';
 import { useBreakToken } from '@/compose/breakToken';
 import { useDashboardStore } from '@/stores/dashboard';
 import { storeToRefs } from 'pinia';
-import { mdiEyeOffOutline, mdiEyeOutline } from "@mdi/js";
+import { mdiArrowRight, mdiEyeOffOutline, mdiEyeOutline } from "@mdi/js";
+import { useGetRole } from '@/compose/getRole';
+import BaseRole from '@/enums/system/BaseRole';
+import ProjectNeedComplete from './ProjectNeedComplete.vue';
+import { useProjectStore } from '@/stores/project';
 
 const store = useDashboardStore()
+
+const storeProject = useProjectStore();
 
 const { listOfReports } = storeToRefs(store)
 
@@ -186,11 +214,16 @@ function changeAvailability(data, target) {
   });
 }
 
+async function initProjectsToBeCompleted() {
+    await storeProject.getProjectNeedToBeComplete();
+}
+
 onMounted(() => {
     var user = useBreakToken('user')
     username.value = user.employee ? user.employee.name : 'admin'
 
-    getReport()
+    getReport();
+    initProjectsToBeCompleted();
 })
 
 const hideNominal = ref(true);

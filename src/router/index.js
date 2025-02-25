@@ -884,6 +884,36 @@ router.beforeEach((to, from) => {
   // redirected
   var officeMenu = [
     {
+      path: '/employees',
+      slug: 'employees',
+      currentPath: '/admin/employees/list'
+    },
+    {
+      path: '/branches',
+      slug: 'branches',
+      currentPath: '/admin/master/branches'
+    },
+    {
+      path: '/roles',
+      slug: 'roles',
+      currentPath: '/admin/user-management/roles'
+    },
+    {
+      path: '/users',
+      slug: 'users',
+      currentPath: '/admin/user-management/users'
+    },
+    {
+      path: '/positions',
+      slug: 'positions',
+      currentPath: '/admin/master/positions'
+    },
+    {
+      path: '/divisions',
+      slug: 'divisions',
+      currentPath: '/admin/master/divisions'
+    },
+    {
       path: '/inventories',
       slug: 'inventories',
       currentPath: '/admin/inventories/list'

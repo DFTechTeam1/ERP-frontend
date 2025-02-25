@@ -1,9 +1,20 @@
 <template>
     <v-skeleton-loader type="table" v-if="detailProject == null"></v-skeleton-loader>
     <div v-else class="px-3">
-        <v-list>
-            <list-item :list="detailProject.teams" :haveTaskInformation="true"></list-item>
-        </v-list>
+        <template v-if="detailProject.teams.length">
+            <v-list>
+                <list-item :list="detailProject.teams" :haveTaskInformation="true"></list-item>
+            </v-list>
+        </template>
+        <template v-else>
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                <v-empty-state
+                    :title="t('noDataToDispay')"
+                    image="/paper.png"
+                    size="80"
+                    ></v-empty-state>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -84,7 +95,6 @@ const headers = ref([
 ])
 
 watch(props, (values) => {
-  console.log("wathcer team list", values);
     if (values && detailProject.value) {
         listTeams.value = detailProject.value.teams
     }
