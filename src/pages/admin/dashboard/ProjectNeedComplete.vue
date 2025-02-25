@@ -1,6 +1,6 @@
 <script setup>
 import { useProjectStore } from '@/stores/project';
-import { mdiArrowRight } from '@mdi/js';
+import { mdiArrowRight, mdiMailbox } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { onMounted } from 'vue';
@@ -38,7 +38,8 @@ const {
 
         <v-card-text>
             <v-list
-                height="300">
+                height="300"
+                v-if="listProjectNeedToBeComplete.length">
                 <template v-for="(project, x) in listProjectNeedToBeComplete"
                 :key="x">
                     <v-list-item
@@ -75,6 +76,11 @@ const {
                     <v-divider v-if="x != parseInt(listProjectNeedToBeComplete.length) - 1"></v-divider>
                 </template>
             </v-list>
+            <v-empty-state
+                v-else
+                title="There is no project that need to be complete"
+                :icon="mdiMailbox"
+                ></v-empty-state>
         </v-card-text>
     </master-card>
 </template>
