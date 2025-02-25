@@ -1,6 +1,6 @@
 <template>
     <v-skeleton-loader type="table" v-if="detailProject == null"></v-skeleton-loader>
-    <div v-else class="px-3" style="height: 100%;">
+    <div v-else class="px-3">
         <template v-if="detailProject.teams.length">
             <v-list>
                 <list-item :list="detailProject.teams" :haveTaskInformation="true"></list-item>
