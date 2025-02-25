@@ -710,5 +710,6 @@
     "startWork": "Start Work",
     "nasPath": "NAS Path",
     "export": "Export",
-    "allEmployee": "All Employee"
+    "allEmployee": "All Employee",
+    "needToBeComplte": "Need to be Complete"
 }
