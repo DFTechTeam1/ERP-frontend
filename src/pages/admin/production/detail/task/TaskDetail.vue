@@ -848,6 +848,8 @@ async function doDeleteTask(taskIds) {
 
     if (resp.status < 300) {
         emit('close-event');
+    } else {
+        showNotification(resp.response.data.message, 'error');
     }
 }
 
