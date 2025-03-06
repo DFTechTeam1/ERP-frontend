@@ -140,6 +140,7 @@
     
                                 <v-list>
                                     <v-list-item
+                                        v-if="value.action.detail"
                                         class="pointer">
                                         <template v-slot:title>
                                             <router-link
@@ -173,7 +174,7 @@
                                     </v-list-item> -->
                                     <v-list-item
                                         class="pointer"
-                                        v-if="useCheckPermission('delete_project')"
+                                        v-if="value.action.delete"
                                         @click.prevent="deleteProject(value.uid)">
                                         <template v-slot:title>
                                             <div
@@ -188,7 +189,7 @@
                                     </v-list-item>
                                     <v-list-item
                                         class="pointer"
-                                        v-if="useCheckPermission('change_project_status') && !value.project_is_complete"
+                                        v-if="value.action.change_status"
                                         @click.prevent="changeStatus(value, value.status_raw)">
                                         <template v-slot:title>
                                             <div
@@ -203,7 +204,7 @@
                                     </v-list-item>
                                     <v-list-item
                                         class="pointer"
-                                        v-if="value.project_is_complete && value.need_return_equipment"
+                                        v-if="value.action.return_equipment"
                                         @click.prevent="returnEquipment(value.uid)">
                                         <template v-slot:title>
                                             <div
@@ -218,7 +219,7 @@
                                     </v-list-item>
                                     <v-list-item
                                         class="pointer"
-                                        v-if="useCheckPermission('assign_vj') && !value.project_is_complete && !value.have_vj && !value.no_pic"
+                                        v-if="value.action.assign_vj"
                                         @click.prevent="assignVJ(value.uid)">
                                         <template v-slot:title>
                                             <div
@@ -233,7 +234,7 @@
                                     </v-list-item>
                                     <v-list-item
                                         class="pointer"
-                                        v-if="useCheckPermission('assign_vj') && !value.project_is_complete && value.have_vj && !value.no_pic"
+                                        v-if="value.action.remove_all_vj"
                                         @click.prevent="removeAllVJ(value.uid)">
                                         <template v-slot:title>
                                             <div
@@ -248,7 +249,7 @@
                                     </v-list-item>
                                     <v-list-item
                                         class="pointer"
-                                        v-if="!value.is_final_check && !value.no_pic && useCheckPermission('final_check')"
+                                        v-if="value.action.final_check"
                                         @click.prevent="showFinalCheck(value.uid)">
                                         <template v-slot:title>
                                             <div
@@ -263,7 +264,7 @@
                                     </v-list-item>
                                     <v-list-item
                                         class="pointer"
-                                        v-if="value.no_pic"
+                                        v-if="value.action.assign_pic"
                                         @click.prevent="showScheduler(value.uid)">
                                         <template v-slot:title>
                                             <div
@@ -278,7 +279,7 @@
                                     </v-list-item>
                                     <v-list-item
                                         class="pointer"
-                                        v-if="!value.no_pic && useCheckPermission('assign_pic')"
+                                        v-if="value.action.subtitute_pic"
                                         @click.prevent="showSubtitute(value.uid)">
                                         <template v-slot:title>
                                             <div
