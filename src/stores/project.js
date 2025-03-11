@@ -581,15 +581,17 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
-        async uploadProofOfWork(payload, projectId, taskId) {
+        async uploadProofOfWork(payload, projectId, taskId, showNoficationMsg) {
             try {
                 const resp = await axios.post(`/production/project/${projectId}/proofOfWork/${taskId}`, payload)
 
-                notify({
-                    title: 'Success',
-                    text: resp.data.message,
-                    type: 'success',
-                });
+                if (showNoficationMsg) {
+                    notify({
+                        title: 'Success',
+                        text: resp.data.message,
+                        type: 'success',
+                    });
+                }
 
                 this.detailTask = resp.data.data.task;
                 this.detail = resp.data.data.full_detail;

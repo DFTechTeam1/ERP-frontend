@@ -27,12 +27,17 @@
                         item-value="project_name"
                         show-expand>
                         <template v-slot:expanded-row="{ columns, item }">
-                        <tr>
+                        <tr :style="{
+                            borderBottom: '1px solid #e6e6e6'
+                        }">
                             <td :colspan="columns.length">
                                 <v-list>
                                     <v-list-item lines="two" class="task-detail"
                                         v-for="(task, t) in item.tasks"
-                                        :key="t">
+                                        :key="t"
+                                        :style="{
+                                            borderBottom: '1px solid #e6e6e6',
+                                        }">
                                         <v-list-item-title class="title">
                                             {{ task.name }}
                                         </v-list-item-title>
@@ -59,8 +64,8 @@
 }
 
 .task-detail {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
     min-height: auto !important;
 
     .title {
