@@ -154,7 +154,7 @@ async function startWork(songUid) {
                                     <v-list-item
                                         :disabled="song.is_request_edit || song.is_request_delete ? true : false"
                                         @click.prevent="editData(song.uid)"
-                                        v-if="useCheckPermission('edit_request_song')"
+                                        v-if="song.can_edit"
                                         class="pointer">
                                         <template v-slot:title>
                                             <v-icon
@@ -168,7 +168,7 @@ async function startWork(songUid) {
                                     <v-list-item
                                         :disabled="song.is_request_edit || song.is_request_delete ? true : false"
                                         @click.prevent="deleteSong(song.uid) "
-                                        v-if="useCheckPermission('delete_request_song')"
+                                        v-if="song.can_delete"
                                         class="pointer">
                                         <template v-slot:title>
                                             <v-icon
@@ -180,7 +180,7 @@ async function startWork(songUid) {
                                         </template>
                                     </v-list-item>
                                     <v-list-item
-                                        v-if="!song.task && useCheckPermission('distribute_request_song')"
+                                        v-if="song.can_distribute"
                                         @click.prevent="openDistributeForm(song)"
                                         class="pointer">
                                         <template v-slot:title>
@@ -205,7 +205,7 @@ async function startWork(songUid) {
                                         </template>
                                     </v-list-item>
                                     <v-list-item
-                                        v-if="useCheckPermission('song_proof_of_work') && song.my_own && song.need_worker_approval && !song.need_to_be_done"
+                                        v-if="song.can_start_work"
                                         class="pointer"
                                         @click.prevent="startWork(song.uid)">
                                         <template v-slot:title>
@@ -218,7 +218,7 @@ async function startWork(songUid) {
                                         </template>
                                     </v-list-item>
                                     <v-list-item
-                                        v-if="useCheckPermission('song_proof_of_work') && song.my_own && song.need_to_be_done"
+                                        v-if="song.can_approve_work"
                                         class="pointer"
                                         @click.prevent="openReportForm(song)">
                                         <template v-slot:title>

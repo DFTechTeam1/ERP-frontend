@@ -432,7 +432,8 @@ function cancelFilter() {
                                 <template v-else>
                                     <div class="d-flex algin-center justify-content-baseline"
                                         :style="{
-                                            gap: '5px'
+                                            gap: '5px',
+                                            flexWrap: 'wrap'
                                         }">
                                         <div>
                                             <v-chip

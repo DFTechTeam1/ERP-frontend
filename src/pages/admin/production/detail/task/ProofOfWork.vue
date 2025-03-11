@@ -147,8 +147,10 @@ const validateForm = handleSubmit((values) => {
 })
 
 async function assignProof(values = null) {
+    let showNoficationMsg = true;
     if (!values) {
         resetForm();
+        showNoficationMsg = false;
         pond.value = null;
         values = {
             nas_link: null,
@@ -172,7 +174,7 @@ async function assignProof(values = null) {
     formData.append('manual_approve', values.manual_approve)
 
     loading.value = true;
-    await store.uploadProofOfWork(formData, route.params.id || detailProject.value.uid, values.task_id)
+    await store.uploadProofOfWork(formData, route.params.id || detailProject.value.uid, values.task_id, showNoficationMsg)
     loading.value = false;
 
     resetForm();
