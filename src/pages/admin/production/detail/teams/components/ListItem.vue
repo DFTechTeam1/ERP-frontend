@@ -4,12 +4,15 @@
         v-for="(team, t) in list"
         :key="t"
         :lines="team.loan ? 'three' : 'two'"
-        :title="team.name"
         @click.prevent="detailEmployeeTask(team)"
         :border="t === list.length - 1 ? 'none' : 'bottom'">
+          <template v-slot:title>
+            <span>{{ team.name }}</span>
+          </template>
+
 	        <template v-slot:subtitle>
 	            <v-chip class="team-position mt-1"
-	                density="compact"
+                  size="x-small"
 	                color="primary">
 	                {{ team.position.name }}
 	            </v-chip>
@@ -17,9 +20,14 @@
 	            <v-chip v-if="team.loan"
 	                class="team-position mt-1"
 	                color="red"
-	                density="compact">
+                  size="x-small">
 	                {{ $t('loan') }}
 	            </v-chip>
+
+              <v-chip color="primary"
+                size="x-small"
+                class="mt-1 ms-1"
+                v-if="team.is_lead_modeller">Lead Modeller</v-chip>
 	        </template>
 
 	        <template v-slot:append>

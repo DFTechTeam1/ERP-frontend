@@ -456,6 +456,15 @@ export const useEmployeesStore = defineStore('employees', {
 
                 return error
             }
-        }
+        },
+        async get3DModeller(params, projectUid, taskUid) {
+            try {
+                var search = new URLSearchParams(params)
+                return await axios.get(`employees/modeller/${projectUid}/${taskUid}?${search}`);
+            } catch (error) {
+                return error;
+            }
+        },
+        
     }
 })

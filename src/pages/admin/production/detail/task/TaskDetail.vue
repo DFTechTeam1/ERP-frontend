@@ -241,7 +241,25 @@
                                     v-if="showTextCard">{{ $t('addToCard') }}</p>
 
                                 <div class="action-list">
-                                    <v-btn
+                                    <template v-for="(button, b) in detailOfTask.action_list"
+                                    :key="b">
+                                        <v-btn
+                                            v-if="button.group === 'top'"
+                                            variant="flat"
+                                            class="w-100 text-left mb-3"
+                                            :color="button.color"
+                                            :disabled="button.disabled"
+                                            @click.prevent="actionButtonList[button.action]">
+                                            <v-img
+                                                :width="18"
+                                                aspect-ratio="16/9"
+                                                cover
+                                                class="me-2"
+                                                :src="button.icon"></v-img>
+                                            {{ button.label }}
+                                        </v-btn>
+                                    </template>
+                                    <!-- <v-btn
                                         variant="flat"
                                         class="w-100 text-left mb-3"
                                         color="grey-darken-1"
@@ -352,7 +370,7 @@
                                         <template v-else>
                                             {{ $t('showTimeTracker') }}
                                         </template>
-                                    </v-btn>
+                                    </v-btn> -->
                                 </div>
                             </div>
 
@@ -360,17 +378,25 @@
                                 <p class="title-action">{{ $t('action') }}</p>
 
                                 <div class="action-list">
-                                    <!-- <v-btn
-                                        variant="flat"
-                                        class="w-100 text-left mb-3"
-                                        color="grey-darken-1">
-                                        <v-icon
-                                            class="mr-1"
-                                            :icon="mdiArrowRight"
-                                            size="20"></v-icon>
-                                        {{ $t('move') }}
-                                    </v-btn> -->
-                                    <v-menu
+                                    <template v-for="(button, b) in detailOfTask.action_list"
+                                    :key="b">
+                                        <v-btn
+                                            v-if="button.group === 'bottom'"
+                                            variant="flat"
+                                            class="w-100 text-left mb-3"
+                                            :color="button.color"
+                                            :disabled="button.disabled"
+                                            @click.prevent="actionButtonList[button.action]">
+                                            <v-img
+                                                :width="18"
+                                                aspect-ratio="16/9"
+                                                cover
+                                                class="me-2"
+                                                :src="button.icon"></v-img>
+                                            {{ button.label }}
+                                        </v-btn>
+                                    </template>
+                                    <!-- <v-menu
                                         persistent
                                         :close-on-content-click="false">
                                         <template v-slot:activator="{ props }">
@@ -502,7 +528,7 @@
                                             :icon="mdiTrashCan"
                                             size="20"></v-icon>
                                         {{ $t('delete') }}
-                                    </v-btn>
+                                    </v-btn> -->
                                 </div>
                             </div>
                         </div>
@@ -563,6 +589,11 @@
             </form>
           </template>
         </modalForm>
+
+        <distribute-modeler-task
+            :task-uid="detailOfTask.uid"
+            :is-show="showDistirbuteModeller"
+            @close-event="showDistirbuteModeller = false"></distribute-modeler-task>
 
         <proof-of-work
             :is-manual-approve-task="manualApproveTask"
@@ -633,6 +664,7 @@ import AttachmentView from './AttachmentView.vue';
 import TaskAttachment from './TaskAttachment.vue';
 import AttachmentForm from './AttachmentForm.vue';
 import DetailProofOfWork from './DetailProofWork.vue';
+import DistributeModelerTask from './DistributeModelerTask.vue';
 import TaskActivity from './TaskActivity.vue';
 import ProofOfWork from "./ProofOfWork.vue";
 import TimeTracker from './TimeTracker.vue'
@@ -672,11 +704,15 @@ const show = ref(false);
 
 const showDetailRevise = ref(false)
 
+const showDistirbuteModeller = ref(false);
+
 const showReviseForm = ref(false)
 
 const detailTaskForRevise = ref(null)
 
 const selectedRevises = ref([])
+
+const check = ref('mdiClockOutline');
 
 const showIdentifierIdCopy = ref(false);
 
@@ -743,6 +779,28 @@ const showTextCard = ref(true)
 const manualApproveTask = ref(false)
 
 const emit = defineEmits(['close-event']);
+
+const actionButtonList = {
+    openDeadlineForm: () => showDeadlineForm.value = true,
+    completeTask: () => manualCompleteTask(),
+    choosePicAction: () => choosePic(),
+    showReviseAction: () => showRevise(detailOfTask.value),
+    openAttachmentAction: () => openAttachmentForm(),
+    openProofOfWorkAction: () => openProofOfWork(),
+    openLogs: () => showLogs(),
+    openTimeTracker: () => showTimeTracker(),
+    approveTaskAction: () => approveTask(detailOfTask.value.uid),
+    holdTaskAction: () => holdTask(detailOfTask.value.uid),
+    startTaskAction: () => startTask(detailOfTask.value.uid),
+    distributeTaskAction: () => openDistributeTaskForm(),
+    markAsCompleteTaskAction: () => markAsCompleteTask(detailOfTask.value.uid),
+    reviseTaskAction: () => reviseTask(detailOfTask.value),
+    deleteTaskAction: () => deleteTask(detailOfTask.value.uid)
+}
+
+const openDistributeTaskForm = () => {
+    showDistirbuteModeller.value = true;
+};
 
 const props = defineProps({
     isShow: {
@@ -971,7 +1029,8 @@ function closeDetailTask() {
     deletedTaskIds.value = [];
     description.value = null;
     isShowTimeTracker.value = false;
-    showReviseForm.value = false
+    showReviseForm.value = false;
+    showDistirbuteModeller.value = false;
 
     emit('close-event');
 }

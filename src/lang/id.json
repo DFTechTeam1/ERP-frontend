@@ -708,5 +708,10 @@
     "nasPath": "NAS Path",
     "export": "Export",
     "allEmployee": "Semua Karyawan",
-    "needToBeComplte": "Harus Diselesaikan"
+    "needToBeComplte": "Harus Diselesaikan",
+    "defineLeadOfModeller": "Tentukan 'lead' dari 3D Modeller",
+    "taskOnSelectedProject": "{number} tugas di event yang sama",
+    "taskOnNextWeek": "{number} tugas di 7 hari kedepan",
+    "taskOnCurrentWeek": "{number} tugas di 7 hari kebelakang",
+    "needDistribute": "Distribusikan"
 }

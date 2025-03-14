@@ -1500,6 +1500,21 @@ export const useProjectStore = defineStore('project', {
             } catch (error) {
                 return error;
             }
+        },
+        async distributeModeler(payload, projectUid, taskUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/task/${taskUid}/distribute`, payload);
+
+                this.detailTask = resp.data.data.task;
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                    this.projectBoards = resp.data.data.full_detail.boards
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
         }
     },
 })
