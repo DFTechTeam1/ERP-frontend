@@ -49,11 +49,29 @@
                         <!-- filter -->
                         <h3 class="mb-5">{{ $t('filter') }}</h3>
 
-                        <field-input class="mb-3" :label="t('project')" density="compact" :is-required="false"
-                            input-type="select" :select-options="listOfAllProjects" :is-multiple="true" v-model="project_id"></field-input>
+                        <field-input class="mb-3"
+                            :label="t('project')"
+                            density="compact"
+                            :is-required="false"
+                            input-type="select"
+                            :select-options="listOfAllProjects"
+                            :is-multiple="true"
+                            v-model="project_id"></field-input>
 
-                        <field-input class="mb-3" :label="t('taskName')" density="compact"
-                            :is-required="false" v-model="task_name"></field-input>
+                        <field-input class="mb-3"
+                            :label="t('taskName')"
+                            density="compact"
+                            :is-required="false"
+                            v-model="task_name"></field-input>
+
+                        <field-input class="mb-3"
+                            :label="t('status')"
+                            density="compact"
+                            :is-required="false"
+                            input-type="select"
+                            :select-options="taskStatus"
+                            :is-multiple="true"
+                            v-model="status"></field-input>
 
                         <v-btn variant="flat" color="primary" class="w-100" rounded @click.prevent="getTasks">
                             {{ $t('applyFilter') }}
@@ -66,79 +84,156 @@
                             <v-skeleton-loader type="table" class="w-100"></v-skeleton-loader>
                         </template>
                         <template v-else>
-                            <template v-if="!listOfAllTasks.length">
+                            <!-- <template v-if="!listOfAllTasks.length">
                                 <v-empty-state
                                   title="No Task In Any Projects"
                                   text="There was not any task in all projects"
                                 ></v-empty-state>
                             </template>
                             <template v-else>
-                                <v-table class="table-task"
-                                    width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th v-for="(header, h) in headers" :key="h" class="text-start">{{ header.title
-                                                }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(item, x) in listOfAllTasks" :key="x">
-                                            <td>
-                                                <span>{{ item.task_name }}</span>
-                                                <br>
-                                                <v-chip class="mb-1 mt-1 chip-grey" v-if="item.attachments > 0"
-                                                    density="compact">
-                                                    <v-icon :icon="mdiAttachment" size="20" class="mr-2"></v-icon>
-                                                    {{ item.attachments }} Attachments
-                                                </v-chip>
-                                                <v-chip class="mb-1 chip-grey" v-if="item.comments > 0" density="compact">
-                                                    <v-icon :icon="mdiCommentMultipleOutline" size="20"
-                                                        class="mr-2"></v-icon>
-                                                    {{ item.comments }} Comments
-                                                </v-chip>
-                                            </td>
-                                            <td>
-                                                <span>{{ item.project }}</span>
-                                                <br>
-                                                <v-chip color="success" density="compact">
-                                                    {{ item.project_date }}
-                                                </v-chip>
-                                            </td>
-                                            <td>
-                                                <template v-if="item.pics.length">
-                                                    <div class="d-flex align-center ga-2 mb-1" v-for="(pic, x) in item.pics"
-                                                        :key="x">
-                                                        <v-avatar>
-                                                            <v-img src="/user.png"></v-img>
-                                                        </v-avatar>
-                                                        <span>{{ pic.name }}</span>
-                                                    </div>
-                                                </template>
-                                                <template v-else>
-                                                    <span class="pl-3">-</span>
-                                                </template>
-                                            </td>
-                                            <td>
-                                                <v-chip :color="item.status_color" density="compact" label>
-                                                    {{ item.status_text }}
-                                                </v-chip>
-                                            </td>
-                                            <td>
-                                                <span>{{ item.due_date }}</span>
-                                            </td>
-                                            <td>
-                                                <span>{{ item.days_to_go }}</span>
-                                            </td>
-                                            <td>
-                                                <v-icon
-                                                    :icon="mdiEyeOutline"
-                                                    size="20"
-                                                    @click.prevent="chooseTask(item)"></v-icon>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </v-table>
-                            </template>
+                            </template> -->
+                            <v-data-table-server
+                                v-model:items-per-page="itemsPerPage"
+                                :headers="headers"
+                                :sort-by="sortBy"
+                                :items="tasks"
+                                :items-length="totalTasks"
+                                :items-per-page="10"
+                                :page="page"
+                                :loading="loading"
+                                item-value="name"
+                                @update:sortBy="changeSort"
+                                @update:itemsPerPage="updatePerPage"
+                                @update:page="changePage"
+                            >
+                                <template v-slot:item="{item: value}">
+                                    <tr>
+                                        <td>
+                                            <span>{{ value.task_name }}</span>
+                                            <br>
+                                            <v-chip class="mb-1 mt-1 chip-grey" v-if="value.attachments > 0"
+                                                density="compact">
+                                                <v-icon :icon="mdiAttachment" size="20" class="mr-2"></v-icon>
+                                                {{ value.attachments }} Attachments
+                                            </v-chip>
+                                            <v-chip class="mb-1 chip-grey" v-if="value.comments > 0" density="compact">
+                                                <v-icon :icon="mdiCommentMultipleOutline" size="20"
+                                                    class="mr-2"></v-icon>
+                                                {{ value.comments }} Comments
+                                            </v-chip>
+                                        </td>
+                                        <td>
+                                            <span>{{ value.project }}</span>
+                                            <br>
+                                            <v-chip color="success" density="compact">
+                                                {{ value.project_date }}
+                                            </v-chip>
+                                        </td>
+                                        <td>
+                                            <template v-if="value.pics.length">
+                                                <div class="d-flex align-center ga-2 mb-1" v-for="(pic, x) in value.pics"
+                                                    :key="x">
+                                                    <v-avatar>
+                                                        <v-img src="/user.png"></v-img>
+                                                    </v-avatar>
+                                                    <span>{{ pic.name }}</span>
+                                                </div>
+                                            </template>
+                                            <template v-else>
+                                                <span class="pl-3">-</span>
+                                            </template>
+                                        </td>
+                                        <td>
+                                            <v-chip :color="value.status_color" density="compact" label>
+                                                {{ value.status_text }}
+                                            </v-chip>
+                                        </td>
+                                        <td>
+                                            <span>{{ value.due_date }}</span>
+                                        </td>
+                                        <td>
+                                            <span>{{ value.days_to_go }}</span>
+                                        </td>
+                                        <td>
+                                            <v-icon
+                                                :icon="mdiEyeOutline"
+                                                size="20"
+                                                @click.prevent="chooseTask(value)"></v-icon>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </v-data-table-server>
+                            <!-- <table-list
+                                :headers="headers"
+                                :items="listOfAllTasks"
+                                :totalItems="totalTasks"
+                                :loading="loading"
+                                :itemsPerPage="itemsPerPage"
+                                :filterSearch="false"
+                                :has-add-button="false"
+                                :has-filter="false"
+                                :has-checkbox="false"
+                                :full-custom-body="true"
+                            >
+
+                                <template v-slot:bodytable="{ value }">
+                                    <tr>
+                                        <td>
+                                            <span>{{ value.task_name }}</span>
+                                            <br>
+                                            <v-chip class="mb-1 mt-1 chip-grey" v-if="value.attachments > 0"
+                                                density="compact">
+                                                <v-icon :icon="mdiAttachment" size="20" class="mr-2"></v-icon>
+                                                {{ value.attachments }} Attachments
+                                            </v-chip>
+                                            <v-chip class="mb-1 chip-grey" v-if="value.comments > 0" density="compact">
+                                                <v-icon :icon="mdiCommentMultipleOutline" size="20"
+                                                    class="mr-2"></v-icon>
+                                                {{ value.comments }} Comments
+                                            </v-chip>
+                                        </td>
+                                        <td>
+                                            <span>{{ value.project }}</span>
+                                            <br>
+                                            <v-chip color="success" density="compact">
+                                                {{ value.project_date }}
+                                            </v-chip>
+                                        </td>
+                                        <td>
+                                            <template v-if="value.pics.length">
+                                                <div class="d-flex align-center ga-2 mb-1" v-for="(pic, x) in value.pics"
+                                                    :key="x">
+                                                    <v-avatar>
+                                                        <v-img src="/user.png"></v-img>
+                                                    </v-avatar>
+                                                    <span>{{ pic.name }}</span>
+                                                </div>
+                                            </template>
+                                            <template v-else>
+                                                <span class="pl-3">-</span>
+                                            </template>
+                                        </td>
+                                        <td>
+                                            <v-chip :color="value.status_color" density="compact" label>
+                                                {{ value.status_text }}
+                                            </v-chip>
+                                        </td>
+                                        <td>
+                                            <span>{{ value.due_date }}</span>
+                                        </td>
+                                        <td>
+                                            <span>{{ value.days_to_go }}</span>
+                                        </td>
+                                        <td>
+                                            <v-icon
+                                                :icon="mdiEyeOutline"
+                                                size="20"
+                                                @click.prevent="chooseTask(value)"></v-icon>
+                                        </td>
+                                    </tr>
+                                </template>
+
+                            </table-list> -->
                         </template>
                     </v-col>
                 </v-row>
@@ -207,21 +302,35 @@ const store = useProjectStore()
 
 const router = useRouter()
 
-const { listOfAllTasks, listOfAllProjects } = storeToRefs(store)
+const { listOfAllTasks, listOfAllProjects, totalOfAllTasks } = storeToRefs(store)
 
 const { defineField } = useForm({
     validationSchema: yup.object({
         project_id: yup.array().nullable(),
         task_name: yup.string().nullable(),
+        status: yup.string().nullable()
     }),
 })
 
 const [project_id] = defineField('project_id')
 const [task_name] = defineField('task_name')
+const [status] = defineField('status')
 
 const loading = ref(false)
 
 const showDetail = ref(false)
+
+const tasks = ref([]);
+
+const totalTasks = ref(0);
+
+const itemsPerPage = ref(10);
+
+const sortBy = ref([]);
+
+const taskStatus = ref([]);
+
+const page = ref(1);
 
 const breadcrumbs = ref([
     {
@@ -233,11 +342,11 @@ const breadcrumbs = ref([
 
 const headers = ref([
     { title: t('taskName'), align: 'start', key: 'task_name' },
-    { title: t('project'), align: 'start', key: 'project' },
-    { title: t('pic'), align: 'start', key: 'pics' },
-    { title: t('status'), align: 'start', key: 'status' },
-    { title: t('dueDate'), align: 'start', key: 'due_date' },
-    { title: t('daysToGo'), align: 'start', key: 'days_to_go' },
+    { title: t('project'), align: 'start', key: 'project', sortable: false },
+    { title: t('pic'), align: 'start', key: 'pics', sortable: false },
+    { title: t('status'), align: 'start', key: 'status', sortable: false },
+    { title: t('dueDate'), align: 'start', key: 'due_date', sortable: false },
+    { title: t('daysToGo'), align: 'start', key: 'days_to_go', sortable: false },
     { title: '' },
 ])
 
@@ -279,25 +388,61 @@ function openTaskForm() {
     showTaskForm.value = true
 }
 
-async function getTasks() {
+function updatePerPage(item) {
+    itemsPerPage.value = item;
+
+    getTasks({page: page.value, itemsPerPage: itemsPerPage.value});
+}
+
+function changeSort(item) {
+    console.log("sort by", item);
+    sortBy.value = item;
+    
+    getTasks({page: page.value, itemsPerPage: itemsPerPage.value, sortBy: sortBy.value});
+}
+
+function changePage(item) {
+    page.value = item;
+
+    getTasks({page: page.value, itemsPerPage: itemsPerPage.value});
+}
+
+async function getTasks(params) {
     loading.value = true
 
     var payload = {
         project_id: project_id.value || '',
         task_name: task_name.value || '',
+        status: status.value || ''
     }
 
-    await store.getAllTasks(payload)
+    const resp = await store.getAllTasks(payload, params)
+    tasks.value = resp.data.data.paginated;
     loading.value = false
+    totalTasks.value = totalOfAllTasks.value;
 }
 
 async function getProjectList() {
     await store.getAllProjects()
 }
 
-onMounted(async () => {
-    getTasks()
+async function getTaskStatus() {
+    const resp = await store.getAllTaskStatus();
 
-    getProjectList()
+    if (resp.status < 300) {
+        taskStatus.value = resp.data.data;
+    }
+}
+
+async function prepareData() {
+    await Promise.all([
+        getTasks(),
+        getProjectList(),
+        getTaskStatus()
+    ])
+}
+
+onMounted(async () => {
+    prepareData();
 })
 </script>

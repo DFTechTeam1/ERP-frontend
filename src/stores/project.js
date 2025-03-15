@@ -24,6 +24,7 @@ export const useProjectStore = defineStore('project', {
         projectBoards: [],
         detailEntertainmentWorkload: [],
         allTasks: [],
+        allTotalTask: 0,
         detailTask: null,
         projectParams: {},
         forceUpdatePages: false,
@@ -92,6 +93,7 @@ export const useProjectStore = defineStore('project', {
         listOfProjects: (state) => state.projects,
         totalOfProjects: (state) => state.totalProjects,
         listOfAllTasks: (state) => state.allTasks,
+        totalOfAllTasks: (state) => state.allTotalTask,
         listOfProjectStatusses: (state) => state.projectStatusses,
         totalOfTransferTeam: (state) => state.totalTransferTeam,
         listOfTransferTeam: (state) => state.transferTeamList,
@@ -240,6 +242,13 @@ export const useProjectStore = defineStore('project', {
                 console.log("projects", this.projects);
 
                 return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async getAllTaskStatus() {
+            try {
+                return await axios.get(`/production/tasks/status`);
             } catch (error) {
                 return error;
             }
@@ -671,13 +680,28 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
-        async getAllTasks(params) {
+        async getAllTasks(payload, params) {
+            console.log("params", params);
             try {
+                let newParams = {
+                    page: params ? params.page : 1,
+                    itemsPerPage: params ? params.itemsPerPage : 10,
+                    project_id: payload.project_id || '',
+                    task_name: payload.task_name || '',
+                    status: payload.status || '',
+                };
+
+                if (params != undefined && params.sortBy) {
+                    newParams.sortBy = params.sortBy;
+                }
                 const resp = await axios.get('/production/tasks', {
-                    params: params
+                    params: newParams
                 });
 
-                this.allTasks = resp.data.data;
+                this.allTasks = resp.data.data.paginated;
+                this.allTotalTask = resp.data.data.totalData;
+
+                return resp;
             } catch (error) {
                 return error;
             }

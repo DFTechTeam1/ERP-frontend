@@ -6,7 +6,9 @@
             v-for="(member, m) in props.members"
             :key="m"
             size="small"
-            color="primary">
+            :style="{
+                backgroundColor: member.employee.avatar_color
+            }">
             <span>{{ member.employee.initial }}</span>
             <v-tooltip
                 activator="parent"
