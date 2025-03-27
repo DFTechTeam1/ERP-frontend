@@ -128,7 +128,7 @@ export const useProjectStore = defineStore('project', {
                 const resp = await axios.get('/dashboard/needCompleteProject');
 
                 this.projectNeedToBeComplete = resp.data.data;
-                
+
                 return resp;
             } catch (error) {
                 return error;
@@ -230,7 +230,7 @@ export const useProjectStore = defineStore('project', {
                             return !filter.task;
                         });
                     }
-                    
+
                     mapping.assignSong = assignSongs;
                     mapping.unassignSong = unassignSongs;
 
@@ -1396,7 +1396,7 @@ export const useProjectStore = defineStore('project', {
                 this.detailEntertainmentWorkload = resp.data.data;
             } catch (error) {
                 return error;
-            }  
+            }
         },
         updateDetailEntertainmentWorkload(payload) {
             this.detailEntertainmentWorkload = payload;
@@ -1539,6 +1539,28 @@ export const useProjectStore = defineStore('project', {
             } catch (error) {
                 return error;
             }
+        },
+        async checkAllProjectTasks(projectUid) {
+          try {
+            const resp = await axios.get(`/production/project/${projectUid}/precheck`);
+
+            return resp;
+          } catch (error) {
+            return error;
+          }
+        },
+        async completeAllUnfinishedTasks(projectUid) {
+          try {
+            const resp = await axios.post(`/production/project/${projectUid}/completeUnfinishedTask`);
+            if (resp.data.data.full_detail) {
+              this.detail = resp.data.data.full_detail;
+              this.projectBoards = resp.data.data.full_detail.boards
+            }
+
+            return resp;
+          } catch (error) {
+            return error;
+          }
         }
     },
 })
