@@ -713,5 +713,9 @@
     "taskOnSelectedProject": "{number} tugas di event yang sama",
     "taskOnNextWeek": "{number} tugas di 7 hari kedepan",
     "taskOnCurrentWeek": "{number} tugas di 7 hari kebelakang",
-    "needDistribute": "Distribusikan"
+    "needDistribute": "Distribusikan",
+    "youHaveUnfinishedTask": "Kamu mempunyai tugas yang belum selesai",
+    "hereListOfUnfinishedTask": "Berikut list dari tugas yang belum selesai",
+    "completeAndContinue": "Selesaikan Untuk Melanjutkan",
+    "completingTask": "Menyelesaikan pekerjaan ..."
 }

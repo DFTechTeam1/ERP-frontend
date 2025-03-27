@@ -22,7 +22,7 @@
                             variant="flat"
                             color="success"
                             density="compact"
-                            v-if="(detailProject) && (detailProject.is_time_to_complete_project || (detailProject.show_alert_event_is_done && !detailProject.feedback_given))"
+                            v-if="(detailProject) && (detailProject.is_time_to_complete_project || (detailProject.show_alert_event_is_done && !detailProject.feedback_given)) && (detailProject.can_complete_project)"
                             @click.prevent="showFeedbackForm">
                             {{ $t('reportAsDone') }}
                         </v-btn>
@@ -107,9 +107,9 @@
                                 <v-toolbar-title>
                                     {{ $t('references') }}
                                 </v-toolbar-title>
-        
+
                                 <v-spacer></v-spacer>
-        
+
                                 <div class="d-flex align-center ga-2">
                                     <v-btn
                                         v-if="(detailProject) && useCheckPermission('add_references')"
@@ -119,7 +119,7 @@
                                         @click.prevent="showFormReferences = true">
                                         {{ $t('addReferences') }}
                                     </v-btn>
-        
+
                                     <v-btn
                                         v-if="(detailProject) && (detailProject.references) && (detailProject.references.files != undefined || detailProject.references.pdf != undefined || detailProject.references.link != undefined) && (!detailProject.project_is_complete) && useCheckPermission('add_references')"
                                         variant="outlined"
@@ -130,7 +130,7 @@
                                             :icon="mdiDownloadMultiple"
                                             size="20"
                                             class="pointer"></v-icon>
-        
+
                                         <v-tooltip
                                             activator="parent"
                                             location="start"
@@ -138,7 +138,7 @@
                                     </v-btn>
                                 </div>
                             </v-toolbar>
-        
+
                             <v-card-text
                                 class="m-0"
                                 style="height: 100%; overflow: hidden; padding: 0; padding-bottom: 20px;">
@@ -161,12 +161,12 @@
                                 <v-toolbar-title>
                                     {{ $t('songs') }}
                                 </v-toolbar-title>
-        
+
                                 <v-spacer></v-spacer>
-        
+
                                 <div class="d-flex align-center ga-2"
                                     v-if="useCheckPermission('create_request_song') || useCheckPermission('distribute_request_song')">
-                                    
+
                                     <v-menu>
                                         <template v-slot:activator="{ props }">
                                             <v-btn
@@ -202,7 +202,7 @@
                                     </v-menu>
                                 </div>
                             </v-toolbar>
-        
+
                             <v-card-text
                                 class="m-0"
                                 style="height: 100%; overflow: hidden; padding: 0; padding-bottom: 20px;">
@@ -343,7 +343,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import GeneralInformation from './detail/general//GeneralView.vue';
+import GeneralInformation from './detail/general/GeneralView.vue';
 import TeamView from './detail/teams/TeamList.vue';
 import EntertainmentList from './detail/teams/EntertainmentList.vue';
 import KanbanView from './detail/task/KanbanView.vue';

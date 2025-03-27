@@ -62,7 +62,7 @@
                                 </p>
                                 <p style="font-size: 12px;" class="m-0">{{ memberList.email }}</p>
                             </v-list-item-title>
-                            
+
                             <template v-slot:append
                                 v-if="memberList.selected">
                                 <v-list-item-action end>
@@ -74,7 +74,7 @@
                                         color="red"></v-icon>
                                 </v-list-item-action>
                             </template>
-    
+
                         </v-list-item>
                     </v-list>
                 </template>
@@ -133,7 +133,7 @@ async function getPicMember(payload) {
     loadingGetTeams.value = true;
     const resp = await store.getPMMembers(payload);
     loadingGetTeams.value = false;
-    
+
     if (resp.status < 300) {
         members.value.selected = resp.data.data.selected;
         members.value.available = resp.data.data.available;
@@ -202,18 +202,20 @@ async function submitUser() {
     }
 
     loading.value = true;
-    const resp = await store.assignMemberToTask(payload, detailOfTask.value.uid); 
+    const resp = await store.assignMemberToTask(payload, detailOfTask.value.uid);
     loading.value = false;
 
     if (resp.status < 300) {
         removedUser.value = [];
         emit('close-event');
+    } else {
+      showNotification(resp.response.data.message, 'error');
     }
 }
 
 function removeMember(member) {
     removedUser.value.push(member);
-    
+
     member.selected = false;
 
     members.value.available.push(member);
@@ -229,7 +231,7 @@ watch(props, (values) => {
     if (values) {
         show.value = values.isShow;
     }
-    
+
     if (values.isShow) {
         getPicMember({project_id: detailOfTask.value.project_id, task_id: detailOfTask.value.uid});
     }
