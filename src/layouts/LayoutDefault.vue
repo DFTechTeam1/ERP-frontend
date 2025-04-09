@@ -606,8 +606,13 @@ onMounted(() => {
           })
         }
 
-        return elem
-      })
+        return elem;
+      });
+
+      // remove dashboard menu that intended for the new layout
+      newLayout[a] = newLayout[a].filter((filter) => {
+        return filter.new_icon != 'pi pi-chart-scatter';
+      });
     }
   }
 
