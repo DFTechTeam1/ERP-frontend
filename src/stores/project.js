@@ -24,6 +24,7 @@ export const useProjectStore = defineStore('project', {
         projectBoards: [],
         detailEntertainmentWorkload: [],
         allTasks: [],
+        allTotalTask: 0,
         detailTask: null,
         projectParams: {},
         forceUpdatePages: false,
@@ -92,6 +93,7 @@ export const useProjectStore = defineStore('project', {
         listOfProjects: (state) => state.projects,
         totalOfProjects: (state) => state.totalProjects,
         listOfAllTasks: (state) => state.allTasks,
+        totalOfAllTasks: (state) => state.allTotalTask,
         listOfProjectStatusses: (state) => state.projectStatusses,
         totalOfTransferTeam: (state) => state.totalTransferTeam,
         listOfTransferTeam: (state) => state.transferTeamList,
@@ -126,7 +128,7 @@ export const useProjectStore = defineStore('project', {
                 const resp = await axios.get('/dashboard/needCompleteProject');
 
                 this.projectNeedToBeComplete = resp.data.data;
-                
+
                 return resp;
             } catch (error) {
                 return error;
@@ -228,7 +230,7 @@ export const useProjectStore = defineStore('project', {
                             return !filter.task;
                         });
                     }
-                    
+
                     mapping.assignSong = assignSongs;
                     mapping.unassignSong = unassignSongs;
 
@@ -240,6 +242,13 @@ export const useProjectStore = defineStore('project', {
                 console.log("projects", this.projects);
 
                 return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async getAllTaskStatus() {
+            try {
+                return await axios.get(`/production/tasks/status`);
             } catch (error) {
                 return error;
             }
@@ -581,15 +590,17 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
-        async uploadProofOfWork(payload, projectId, taskId) {
+        async uploadProofOfWork(payload, projectId, taskId, showNoficationMsg) {
             try {
                 const resp = await axios.post(`/production/project/${projectId}/proofOfWork/${taskId}`, payload)
 
-                notify({
-                    title: 'Success',
-                    text: resp.data.message,
-                    type: 'success',
-                });
+                if (showNoficationMsg) {
+                    notify({
+                        title: 'Success',
+                        text: resp.data.message,
+                        type: 'success',
+                    });
+                }
 
                 this.detailTask = resp.data.data.task;
                 this.detail = resp.data.data.full_detail;
@@ -669,13 +680,28 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
-        async getAllTasks(params) {
+        async getAllTasks(payload, params) {
+            console.log("params", params);
             try {
+                let newParams = {
+                    page: params ? params.page : 1,
+                    itemsPerPage: params ? params.itemsPerPage : 10,
+                    project_id: payload.project_id || '',
+                    task_name: payload.task_name || '',
+                    status: payload.status || '',
+                };
+
+                if (params != undefined && params.sortBy) {
+                    newParams.sortBy = params.sortBy;
+                }
                 const resp = await axios.get('/production/tasks', {
-                    params: params
+                    params: newParams
                 });
 
-                this.allTasks = resp.data.data;
+                this.allTasks = resp.data.data.paginated;
+                this.allTotalTask = resp.data.data.totalData;
+
+                return resp;
             } catch (error) {
                 return error;
             }
@@ -1370,7 +1396,7 @@ export const useProjectStore = defineStore('project', {
                 this.detailEntertainmentWorkload = resp.data.data;
             } catch (error) {
                 return error;
-            }  
+            }
         },
         updateDetailEntertainmentWorkload(payload) {
             this.detailEntertainmentWorkload = payload;
@@ -1498,6 +1524,53 @@ export const useProjectStore = defineStore('project', {
             } catch (error) {
                 return error;
             }
+        },
+        async distributeModeler(payload, projectUid, taskUid) {
+            try {
+                const resp = await axios.post(`/production/project/${projectUid}/task/${taskUid}/distribute`, payload);
+
+                this.detailTask = resp.data.data.task;
+                if (resp.data.data.full_detail) {
+                    this.detail = resp.data.data.full_detail;
+                    this.projectBoards = resp.data.data.full_detail.boards
+                }
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async checkAllProjectTasks(projectUid) {
+          try {
+            const resp = await axios.get(`/production/project/${projectUid}/precheck`);
+
+            return resp;
+          } catch (error) {
+            return error;
+          }
+        },
+        async completeAllUnfinishedTasks(projectUid) {
+          try {
+            const resp = await axios.post(`/production/project/${projectUid}/completeUnfinishedTask`);
+            if (resp.data.data.full_detail) {
+              this.detail = resp.data.data.full_detail;
+              this.projectBoards = resp.data.data.full_detail.boards
+            }
+
+            return resp;
+          } catch (error) {
+            return error;
+          }
+        },
+        async filterTasks(projectUid, payload) {
+          try {
+            const resp = await axios.post(`/production/project/${projectUid}/tasks/filter`, payload);
+            this.projectBoards = resp.data.data.boards;
+
+            return resp;
+          } catch (error) {
+            return error;
+          }
         }
     },
 })

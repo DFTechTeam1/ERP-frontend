@@ -55,10 +55,14 @@
                             </template>
 
                             <v-list-item-title>
-                                <p style="font-size: 14px" class="m-0 fw-bold">{{ memberList.name }}</p>
+                                <p style="font-size: 14px" class="m-0 fw-bold">
+                                    {{ memberList.name }}
+
+                                    <v-chip color="primary" size="x-small" v-if="memberList.is_lead_modeller">Lead Modeller</v-chip>
+                                </p>
                                 <p style="font-size: 12px;" class="m-0">{{ memberList.email }}</p>
                             </v-list-item-title>
-                            
+
                             <template v-slot:append
                                 v-if="memberList.selected">
                                 <v-list-item-action end>
@@ -70,7 +74,7 @@
                                         color="red"></v-icon>
                                 </v-list-item-action>
                             </template>
-    
+
                         </v-list-item>
                     </v-list>
                 </template>
@@ -96,6 +100,7 @@ import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { watch, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { showNotification } from '@/compose/notification';
 
 const { t } = useI18n();
 
@@ -128,7 +133,7 @@ async function getPicMember(payload) {
     loadingGetTeams.value = true;
     const resp = await store.getPMMembers(payload);
     loadingGetTeams.value = false;
-    
+
     if (resp.status < 300) {
         members.value.selected = resp.data.data.selected;
         members.value.available = resp.data.data.available;
@@ -137,6 +142,31 @@ async function getPicMember(payload) {
 
 function chooseUser(member) {
     if (member) {
+        // validate pic
+        if (members.value.selected.length) {
+            let isHaveLeadModeller = members.value.selected.filter((filter) => {
+                return filter.is_lead_modeller;
+            });
+
+            let isValid = true;
+            let errorMsg = "Cannot add more member when you already have lead modeller in it";
+            if (
+                (isHaveLeadModeller.length) &&
+                (isHaveLeadModeller[0].id != member.id)
+            ) {
+                isValid = false;
+            }
+            if (!isHaveLeadModeller.length && member.is_lead_modeller) {
+                isValid = false;
+                errorMsg = "Cannot combine members with lead modelers";
+            }
+
+            if (!isValid) {
+                showNotification(errorMsg, 'error');
+                return false;
+            }
+        }
+
         member.selected = true;
 
         members.value.selected.push(member);
@@ -150,7 +180,6 @@ function chooseUser(member) {
         var filterRemoved = removedUser.value.filter((filter) => {
             return filter.uid != member.uid;
         });
-        console.log('filterRemoved', filterRemoved);
         removedUser.value = filterRemoved;
     }
 }
@@ -173,18 +202,20 @@ async function submitUser() {
     }
 
     loading.value = true;
-    const resp = await store.assignMemberToTask(payload, detailOfTask.value.uid); 
+    const resp = await store.assignMemberToTask(payload, detailOfTask.value.uid);
     loading.value = false;
 
     if (resp.status < 300) {
         removedUser.value = [];
         emit('close-event');
+    } else {
+      showNotification(resp.response.data.message, 'error');
     }
 }
 
 function removeMember(member) {
     removedUser.value.push(member);
-    
+
     member.selected = false;
 
     members.value.available.push(member);
@@ -200,7 +231,7 @@ watch(props, (values) => {
     if (values) {
         show.value = values.isShow;
     }
-    
+
     if (values.isShow) {
         getPicMember({project_id: detailOfTask.value.project_id, task_id: detailOfTask.value.uid});
     }

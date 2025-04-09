@@ -15,6 +15,15 @@
                             md="6">
                             <field-input
                                 class="mb-3"
+                                :label="t('defineLeadOfModeller')"
+                                v-model="lead_3d_modeller"
+                                :error-message="errors.lead_3d_modeller"
+                                :is-required="false"
+                                input-type="select"
+                                :select-options="modellerList"></field-input>
+
+                            <field-input
+                                class="mb-3"
                                 :label="t('definePositionAsVJ')"
                                 v-model="position_as_visual_jokey"
                                 :error-message="errors.position_as_visual_jokey"
@@ -113,10 +122,14 @@ import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia';
 import { usePositionStore } from '@/stores/position';
 import { useRoleStore } from '@/stores/role';
+import { useEmployeesStore } from '@/stores/employees';
+import { showNotification } from '@/compose/notification';
 
 const { t } = useI18n()
 
 const store = useSettingStore()
+
+const storeEmployee = useEmployeesStore();
 
 const storeRole = useRoleStore();
 
@@ -125,6 +138,8 @@ const loadingPrepare = ref(false)
 const positionStore = usePositionStore()
 
 const { globalVariableSetting } = storeToRefs(store)
+
+const modellerList = ref([]);
 
 const { defineField, errors, handleSubmit, setFieldValue } = useForm({
     validationSchema: yup.object({
@@ -136,6 +151,7 @@ const { defineField, errors, handleSubmit, setFieldValue } = useForm({
         position_as_marketing: yup.string().nullable(),
         special_production_position: yup.string().nullable(),
         days_to_raise_deadline_alert: yup.string().nullable(),
+        lead_3d_modeller: yup.string().nullable()
     })
 })
 
@@ -147,6 +163,7 @@ const [position_as_marketing] = defineField('position_as_marketing')
 const [days_to_raise_deadline_alert] = defineField('days_to_raise_deadline_alert')
 const [special_production_position] = defineField('special_production_position')
 const [position_as_production] = defineField('position_as_production')
+const [lead_3d_modeller] = defineField('lead_3d_modeller')
 
 const loading = ref(false)
 
@@ -184,6 +201,8 @@ const submitForm = handleSubmit(async (values) => {
     
     if (resp.status < 300) {
         initSetting();
+    } else {
+        showNotification(resp.response.data.message, 'error');
     }
 })
 
@@ -205,6 +224,8 @@ async function initSetting() {
             setFieldValue('position_as_visual_jokey', elem.value)
         } else if (elem.key == 'role_as_entertainment') {
             setFieldValue('role_as_entertainment', elem.value)
+        } else if (elem.key == 'lead_3d_modeller') {
+            setFieldValue('lead_3d_modeller', elem.value);
         }
     })
 }
@@ -225,12 +246,23 @@ async function initRoles() {
     }
 }
 
+async function initEmployees() {
+    const resp = await storeEmployee.get3DModeller();
+
+    if (resp.status < 300) {
+        modellerList.value = resp.data.data;
+    } else {
+        modellerList.value = [];
+    }
+}
+
 async function prepareData() {
     loadingPrepare.value = true
     await Promise.all([
         initPosition(),
         initSetting(),
-        initRoles()
+        initRoles(),
+        initEmployees()
     ])
 
     loadingPrepare.value = false

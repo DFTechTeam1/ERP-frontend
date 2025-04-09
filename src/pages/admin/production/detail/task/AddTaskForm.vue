@@ -57,7 +57,8 @@
                         v-model="pic"
                         :is-required="false"
                         :is-multiple="true"
-                        :error-message="errors.pic"></field-input>
+                        :error-message="errors.pic">
+                    </field-input>
 
                     <v-label>{{ $t('attachments') }}</v-label>
                     <file-pond-com
@@ -87,6 +88,7 @@ import { useProjectStore } from '@/stores/project'
 import { mdiClose } from '@mdi/js'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
+import { showNotification } from '@/compose/notification'
 
 const emit = defineEmits(['close-event'])
 
@@ -153,7 +155,9 @@ watch(props, (values) => {
                     title: team.name,
                     value: team.uid,
                 }
-            })
+            });
+
+            // format modeller
 
             additionalTitle.value = detailProject.value.name
         } else {
@@ -242,6 +246,8 @@ const validateData = handleSubmit(async(values) => {
         } else {
             emit('close-event', true)
         }
+    } else {
+        showNotification(resp.response.data.message, 'error');
     }
 })
 

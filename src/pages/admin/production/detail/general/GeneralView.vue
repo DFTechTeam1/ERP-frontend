@@ -2,7 +2,7 @@
     <!-- basic information -->
     <div>
         <v-alert
-            v-if="(detailProject) && (detailProject.show_alert_coming_soon)"
+            v-if="(detailProject) && (detailProject.show_alert_coming_soon) && (detailProject.can_complete_project)"
             class="w-100 mb-3"
             :text="alertText"
             :title="t('alertProjectReminderTitle')"
@@ -10,7 +10,7 @@
             :closable="true"
         ></v-alert>
         <v-alert
-            v-if="(detailProject) && (detailProject.show_alert_event_is_done && !detailProject.feedback_given)"
+            v-if="(detailProject) && (detailProject.show_alert_event_is_done && !detailProject.feedback_given) && (detailProject.can_complete_project)"
             class="w-100 mb-3"
             :text="t('projectIsNeedFeedback')"
             :title="t('projectIsDone')"
@@ -19,10 +19,10 @@
         ></v-alert>
 
         <div class="basic-information">
-            <basic-section 
+            <basic-section
                 :detail="detailProjectData"/>
-    
-            <more-detail 
+
+            <more-detail
                 :detail="detailProjectData"/>
         </div>
     </div>

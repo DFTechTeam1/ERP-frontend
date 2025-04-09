@@ -711,5 +711,15 @@
     "nasPath": "NAS Path",
     "export": "Export",
     "allEmployee": "All Employee",
-    "needToBeComplte": "Need to be Complete"
+    "needToBeComplte": "Need to be Complete",
+    "defineLeadOfModeller": "Define Lead of 3D Modeller",
+    "taskOnSelectedProject": "{number} task in selected project",
+    "taskOnNextWeek": "{number} task in the next 7 days",
+    "taskOnCurrentWeek": "{number} task in last 7 days",
+    "needDistribute": "Distribute",
+    "youHaveUnfinishedTask": "You have unfinished task",
+    "hereListOfUnfinishedTask": "Here is the list of unfinished task",
+    "completeAndContinue": "Complete All and Continue",
+    "completingTask": "Completing the task ...",
+    "searchTaskName": "Search task name ..."
 }
