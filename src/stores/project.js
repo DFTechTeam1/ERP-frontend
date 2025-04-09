@@ -1561,6 +1561,16 @@ export const useProjectStore = defineStore('project', {
           } catch (error) {
             return error;
           }
+        },
+        async filterTasks(projectUid, payload) {
+          try {
+            const resp = await axios.post(`/production/project/${projectUid}/tasks/filter`, payload);
+            this.projectBoards = resp.data.data.boards;
+
+            return resp;
+          } catch (error) {
+            return error;
+          }
         }
     },
 })

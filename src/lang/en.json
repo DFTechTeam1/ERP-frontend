@@ -720,5 +720,6 @@
     "youHaveUnfinishedTask": "You have unfinished task",
     "hereListOfUnfinishedTask": "Here is the list of unfinished task",
     "completeAndContinue": "Complete All and Continue",
-    "completingTask": "Completing the task ..."
+    "completingTask": "Completing the task ...",
+    "searchTaskName": "Search task name ..."
 }
