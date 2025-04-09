@@ -717,5 +717,6 @@
     "youHaveUnfinishedTask": "Kamu mempunyai tugas yang belum selesai",
     "hereListOfUnfinishedTask": "Berikut list dari tugas yang belum selesai",
     "completeAndContinue": "Selesaikan Untuk Melanjutkan",
-    "completingTask": "Menyelesaikan pekerjaan ..."
+    "completingTask": "Menyelesaikan pekerjaan ...",
+    "searchTaskName": "Cari nama tugas ..."
 }
