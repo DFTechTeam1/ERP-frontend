@@ -1,11 +1,12 @@
 <script setup>
 import { useCheckPermission } from '@/compose/checkPermission';
 import { useProjectStore } from '@/stores/project';
-import { mdiCheckCircle, mdiCogOutline, mdiEyeCircle, mdiSwapHorizontal } from '@mdi/js';
+import { mdiCheckCircle, mdiCogOutline, mdiDisc, mdiEyeCircle, mdiSwapHorizontal, mdiTrashCan } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FilterProject from '../FilterProject.vue';
+import AssignVJ from '../AssignVJ.vue';
 
 const { t } = useI18n();
 
@@ -29,6 +30,21 @@ const isShowFilter = ref(false);
 const showClearFilter = ref(false);
 
 const searchParam = ref(null);
+
+const showVJForm = ref(false);
+
+const selectedProjectForVJ = ref(null);
+
+const showConfirmation = ref(false);
+
+const selectedIds = ref([]);
+
+const textConfirmationDelete = ref(t('deleteProjectConfirmation'));
+
+const titleConfirmationDelete = ref(t('deleteProject'));
+
+const confirmFunction = ref('delete')
+
 
 const headers = ref([
     {
@@ -88,6 +104,13 @@ const headers = ref([
         available: true
     },
     {
+        title: t('VJ'),
+        key: 'vj',
+        align: 'start',
+        sortable: false,
+        available: true
+    },
+    {
         title: t('songs'),
         key: 'songs',
         align: 'start',
@@ -116,7 +139,7 @@ function toggleColumns(column, target = false) {
             item.available = target;
         }
 
-        return item; 
+        return item;
     });
 
     headers.value = selected;
@@ -141,7 +164,7 @@ async function initProjects(payload = '') {
       })
     }
 
-    
+
     loading.value = true;
     await store.initProjects();
     loading.value = false;
@@ -150,6 +173,8 @@ async function initProjects(payload = '') {
 
     store.setForceUpdatePages(true);
     store.setKeepProjectParams(false);
+
+    console.log("project list", listOfProjects.value);
 }
 
 function showFilter() {
@@ -276,6 +301,46 @@ function cancelFilter() {
     isShowFilter.value = false;
     showClearFilter.value = false;
 }
+
+function assignVJ(uid) {
+  showVJForm.value = true
+
+  selectedProjectForVJ.value = uid
+}
+
+function removeAllVJ(projectUid) {
+  showConfirmation.value = true;
+  selectedIds.value = [projectUid]
+
+  textConfirmationDelete.value = t('rmeoveVjConfirmation')
+  titleConfirmationDelete.value = t('removeVjTitle')
+
+  confirmFunction.value = 'vj'
+}
+
+function closeVjForm(payload) {
+  showVJForm.value = false
+
+  if (payload) {
+      initProjects()
+  }
+}
+
+async function doBulkDelete(payload) {
+  let deleteData
+  if (confirmFunction.value == 'delete') {
+      deleteData = await store.bulkDelete(payload.value);
+  } else if (confirmFunction.value == 'vj') {
+      deleteData = await store.removeVJ(payload[0])
+  }
+
+  if ((deleteData.status != undefined) && (deleteData.status < 300)) {
+      showConfirmation.value = false;
+      selectedIds.value = [];
+      store.setKeepProjectParams(true);
+      initProjects();
+  }
+}
 </script>
 
 <template>
@@ -315,7 +380,7 @@ function cancelFilter() {
                         <v-icon v-if="header.removable" icon="$close" @click="() => remove(header.key)"></v-icon>
                     </th>
                     </template>
-                </tr>                
+                </tr>
             </template>
 
             <template v-slot:custom-filter-button>
@@ -390,7 +455,7 @@ function cancelFilter() {
                             <template v-if="header.key === 'name'">
                                 <router-link
                                 :to="'/admin/production/project/' + value.uid"
-                                style="color: #000; font-weight: bold;">{{ value[header.key] }}</router-link>        
+                                style="color: #000; font-weight: bold;">{{ value[header.key] }}</router-link>
                             </template>
                             <template v-else-if="header.key === 'project_date'">
                                 <p class="fw-bold">{{ value.project_date }}</p>
@@ -419,6 +484,12 @@ function cancelFilter() {
                                 <v-chip
                                     :color="value.event_class_color">
                                     {{ value.event_class }}
+                                </v-chip>
+                            </template>
+                            <template v-else-if="header.key === 'vj'">
+                                <span v-if="value.vj == '-'">{{ value.vj }}</span>
+                                <v-chip size="x-small" v-else>
+                                    {{ value.vj }}
                                 </v-chip>
                             </template>
                             <template v-else-if="header.key === 'songs'">
@@ -501,6 +572,36 @@ function cancelFilter() {
                                             </template>
                                         </v-list-item>
                                         <v-list-item
+                                          class="pointer"
+                                          v-if="value.action.assign_vj"
+                                          @click.prevent="assignVJ(value.uid)">
+                                          <template v-slot:title>
+                                              <div
+                                                  class="d-flex align-center"
+                                                  style="gap: 8px; font-size: 12px;">
+                                                  <v-icon
+                                                  :icon="mdiDisc"
+                                                  size="15"></v-icon>
+                                                  {{ $t('assignVJ') }}
+                                              </div>
+                                          </template>
+                                        </v-list-item>
+                                        <v-list-item
+                                          class="pointer"
+                                          v-if="value.action.remove_all_vj"
+                                          @click.prevent="removeAllVJ(value.uid)">
+                                          <template v-slot:title>
+                                              <div
+                                                  class="d-flex align-center"
+                                                  style="gap: 8px; font-size: 12px;">
+                                                  <v-icon
+                                                  :icon="mdiTrashCan"
+                                                  size="15"></v-icon>
+                                                  {{ $t('removeAllVj') }}
+                                              </div>
+                                          </template>
+                                        </v-list-item>
+                                        <v-list-item
                                             class="pointer"
                                             v-if="!value.no_pic && useCheckPermission('assign_pic')"
                                             @click.prevent="showSubtitute(value.uid)">
@@ -527,6 +628,15 @@ function cancelFilter() {
             </template>
 
         </table-list>
+
+        <AssignVJ :project-uid="selectedProjectForVJ" :is-show="showVJForm" @close-event="closeVjForm"></AssignVJ>
+
+        <confirmation-modal
+          :title="titleConfirmationDelete"
+          :text="textConfirmationDelete"
+          :showConfirm="showConfirmation"
+          :deleteIds="selectedIds"
+          @action-bulk-submit="doBulkDelete"></confirmation-modal>
 
         <filter-project
             :show="isShowFilter"
