@@ -58,7 +58,7 @@
                                     </ul>
                                   </template>
                                   <template v-else>
-                                    {{ detailProject.status }}
+                                    -
                                   </template>
                                 </p>
                             </div>
