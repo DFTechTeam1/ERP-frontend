@@ -356,7 +356,7 @@ import RequestTeamForm from './RequestTeam.vue'
 import RequestEntertainmentTeam from './RequestEntertainmentTeam.vue'
 import FeedbackForm from './ReportAsDone.vue'
 import ProjectReport from './ProjectReport.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useProjectStore } from '@/stores/project';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { useCheckPermission } from '@/compose/checkPermission';
@@ -378,6 +378,8 @@ const { detailProject } = storeToRefs(store)
 const { mobile } = useDisplay();
 
 const route = useRoute();
+
+const router = useRouter();
 
 const showFormTeamRequest = ref(false)
 
@@ -445,7 +447,11 @@ const loading = ref(false)
 
 async function initProjectDetail() {
     loading.value = true
-    await store.getDetail({ id: route.params.id });
+    const resp = await store.getDetail({ id: route.params.id });
+    console.log("resp", resp);
+    if ((resp.response) && (resp.response.status == 403)) { // if autorized, go to unauthorize page
+      router.push('/not-allowed');
+    }
     loading.value = false
 }
 
