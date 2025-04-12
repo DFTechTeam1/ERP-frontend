@@ -1575,6 +1575,16 @@ export const useProjectStore = defineStore('project', {
           } catch (error) {
             return error;
           }
+        },
+        async removeSongPic(projectUid, songUid) {
+          try {
+            const resp = await axios.get(`/production/project/${projectUid}/song/removePic/${songUid}`);
+
+            this.detail = resp.data.data.full_detail;
+            return resp;
+          } catch (error) {
+            return error;
+          }
         }
     },
 })
