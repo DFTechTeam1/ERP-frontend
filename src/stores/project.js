@@ -1049,6 +1049,8 @@ export const useProjectStore = defineStore('project', {
 
                 showNotification(resp.data.message)
 
+                this.detail = resp.data.data.full_detail;
+
                 return resp
             } catch (error) {
                 showNotification(error.response.data.message, 'error')
@@ -1061,6 +1063,8 @@ export const useProjectStore = defineStore('project', {
                 const resp = await axios.delete(`/production/project/${projectUid}/removeAllVJ`)
 
                 showNotification(resp.data.message)
+
+                this.detail = resp.data.data.full_detail;
 
                 return resp
             } catch (error) {
