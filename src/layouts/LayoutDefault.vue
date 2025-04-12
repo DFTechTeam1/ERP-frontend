@@ -577,7 +577,6 @@ onMounted(() => {
   }
 
   var newLayout = useBreakToken('menus')
-  console.log('newLayout', newLayout);
   for (let a in newLayout) {
     if (newLayout[a].length) {
       newLayout[a].map((elem) => {

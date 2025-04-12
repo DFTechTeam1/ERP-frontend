@@ -33,14 +33,14 @@
                                         {{ errors.name }}
                                     </div>
                                 </div>
-    
+
                                 <v-icon
                                     :icon="mdiPencil"
                                     class="pointer"
                                     v-if="!editFormName && detailOfTask.is_active && !detailProject.project_is_complete"
                                     @click.prevent="editFormName = true"
                                     size="20"></v-icon>
-    
+
                                 <v-btn
                                     class="btn-update-name"
                                     variant="plain"
@@ -67,7 +67,7 @@
                                 </v-btn>
                             </v-form>
                         </div>
-                    </div> 
+                    </div>
 
                     <div class="d-flex mb-5"
                         :style="{
@@ -214,7 +214,7 @@
                             v-if="isShowTimeTracker"></time-tracker>
 
                         <task-attachment
-                            v-if="detailOfTask.task_link.length"
+                            v-if="(detailOfTask.task_link) && (detailOfTask.task_link.length)"
                             :detail="detailOfTask"></task-attachment>
                         <!-- end attachments -->
 

@@ -11,7 +11,7 @@
                         :icon="mdiClose"
                         size="15"
                         class="pointer"
-                        @click.prevent="$emit('close-event')"></v-icon>
+                        @click.prevent="$emit('close-event', false)"></v-icon>
                 </v-card-text>
             </v-card-item>
 
@@ -128,7 +128,7 @@ const validateData = handleSubmit(async (values) => {
 
     if (resp.status < 300) {
         resetForm()
-        emit('close-event')
+        emit('close-event', true)
     }
 })
 
