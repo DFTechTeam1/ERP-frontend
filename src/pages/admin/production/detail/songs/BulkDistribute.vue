@@ -1,7 +1,7 @@
 <script setup>
 import { showNotification } from '@/compose/notification';
 import { useProjectStore } from '@/stores/project';
-import { mdiAccount, mdiArrowLeftCircle, mdiClose, mdiPlusCircle } from '@mdi/js';
+import { mdiAccount, mdiArrowLeftCircle, mdiClose, mdiCloseCircle, mdiPlusCircle } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -53,7 +53,7 @@ function showDetailUser(user) {
         const selected = listOfDetailEntertainmentWorkload.value.filter((filter) => {
             return filter.uid === user.uid;
         });
-    
+
         if (selected.length) {
             detailUser.value = selected[0];
             if (detailUser.value.nextSong == undefined) {
@@ -68,6 +68,22 @@ function showDetailUser(user) {
 function closeSongForm() {
     showSongForm.value = false;
     songList.value = [];
+}
+
+async function removePicSong(projectUid, songUid) {
+  loading.value = true;
+  const resp = await store.removeSongPic(projectUid, songUid);
+  loading.value = false;
+
+  if (resp.status < 300) {
+    showNotification(resp.data.message);
+    // emit('close-event');
+    getWorkload();
+    showSongForm.value = false;
+    detailUser.value = null;
+  } else {
+    showNotification(resp.response.data.message, 'error');
+  }
 }
 
 function openSongForm() {
@@ -91,7 +107,7 @@ function openSongForm() {
 
     let currentSong = detailProject.value.songs;
     currentSong = currentSong.concat(allSelectedSong);
-    
+
     songList.value = currentSong.filter((item, _, self) =>
         self.filter(obj => obj.uid === item.uid && obj.name === item.name).length === 1
     );
@@ -126,7 +142,7 @@ function chooseSongForUser() {
     var activeSong = songList.value.filter((filter) => {
         return filter.active;
     });
-    
+
     detailUser.value.nextSong = activeSong;
 
     showSongForm.value = false;
@@ -183,7 +199,7 @@ async function submitBulkAssign() {
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow
-        
+
         if (values.isShow) {
             getWorkload();
         }
@@ -253,9 +269,9 @@ watch(props, (values) => {
                                 <template v-else>{{ $t("save") }}</template>
                             </v-btn>
                         </v-col>
-    
+
                         <v-divider vertical></v-divider>
-    
+
                         <v-col
                             class="d-flex text-center"
                         >
@@ -297,9 +313,9 @@ watch(props, (values) => {
                                             {{ detailUser.employee_id }}
                                         </v-chip>
                                     </div>
-    
+
                                     <v-divider class="my-3"></v-divider>
-                                    
+
                                     <v-row
                                         class="text-left"
                                         tag="v-card-text">
@@ -329,6 +345,7 @@ watch(props, (values) => {
                                                 <template v-if="songList.length">
                                                     <v-chip
                                                         v-for="(song, s) in songList"
+                                                        :key="s"
                                                         size="small"
                                                         class="me-1 pointer"
                                                         :color="song.active ? 'primary' : ''"
@@ -378,6 +395,15 @@ watch(props, (values) => {
                                                             <template v-slot:prepend>
                                                                 <div class="number me-2">{{ parseInt(s) + 1 }}.</div>
                                                             </template>
+
+                                                            <template v-slot:append>
+                                                              <v-icon
+                                                                :icon="mdiCloseCircle"
+                                                                size="20"
+                                                                class="pointer"
+                                                                @click.prevent="removePicSong(detailProject.uid, song.uid)"
+                                                                :color="loading ? 'grey' : '#fc0349'"></v-icon>
+                                                            </template>
                                                         </v-list-item>
                                                     </v-list>
                                                 </template>
@@ -411,12 +437,12 @@ watch(props, (values) => {
                                         </v-col>
                                     </v-row>
                                 </div>
-                                
+
                             </v-scroll-y-transition>
                         </v-col>
                     </v-row>
                 </template>
             </v-card-text>
-        </master-card>    
+        </master-card>
     </v-dialog>
 </template>
