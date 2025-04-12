@@ -577,7 +577,6 @@ onMounted(() => {
   }
 
   var newLayout = useBreakToken('menus')
-  console.log('newLayout', newLayout);
   for (let a in newLayout) {
     if (newLayout[a].length) {
       newLayout[a].map((elem) => {
@@ -608,6 +607,11 @@ onMounted(() => {
 
         return elem
       })
+
+      // remove dashboard menu that intended for the new layout
+      newLayout[a] = newLayout[a].filter((filter) => {
+        return filter.new_icon != 'pi pi-chart-scatter';
+      });
     }
   }
 

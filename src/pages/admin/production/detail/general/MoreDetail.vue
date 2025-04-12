@@ -44,6 +44,25 @@
                                 </p>
                             </div>
 
+                            <div class="field-item">
+                                <p class="key">{{ $t('VJ') }}</p>
+                                <p class="value">
+                                  <template v-if="detailProject.vjs.length">
+                                    <ul :style="{
+                                      marginLeft: '20px'
+                                    }">
+                                      <li v-for="(vj, v) in detailProject.vjs"
+                                        :key="v">
+                                        {{ vj.employee.nickname }}
+                                      </li>
+                                    </ul>
+                                  </template>
+                                  <template v-else>
+                                    {{ detailProject.status }}
+                                  </template>
+                                </p>
+                            </div>
+
                         </v-col>
 
                         <v-col
