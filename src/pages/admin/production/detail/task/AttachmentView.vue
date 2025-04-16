@@ -66,7 +66,7 @@
                             size="5"></v-icon>
                         <span class="action-link"
                             @click.prevent="showConfirmDeleteModal(media)"
-                            v-if="detailOfTask.is_active">
+                            v-if="detailOfTask.can_delete_attachment">
                             {{ $t('delete') }}
                         </span>
                     </p>

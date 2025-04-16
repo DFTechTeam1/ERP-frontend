@@ -141,51 +141,67 @@ async function getPicMember(payload) {
 }
 
 function chooseUser(member) {
-    if (member) {
-        // validate pic
-        if (members.value.selected.length) {
-            let isHaveLeadModeller = members.value.selected.filter((filter) => {
-                return filter.is_lead_modeller;
-            });
+  if (member) {
+      // validate pic
+      if (members.value.selected.length) {
+        let isHaveLeadModeller = members.value.selected.filter((filter) => {
+            return filter.is_lead_modeller;
+        });
 
-            let isValid = true;
-            let errorMsg = "Cannot add more member when you already have lead modeller in it";
-            if (
-                (isHaveLeadModeller.length) &&
-                (isHaveLeadModeller[0].id != member.id)
-            ) {
-                isValid = false;
-            }
-            if (!isHaveLeadModeller.length && member.is_lead_modeller) {
-                isValid = false;
-                errorMsg = "Cannot combine members with lead modelers";
-            }
-
-            if (!isValid) {
-                showNotification(errorMsg, 'error');
-                return false;
-            }
+        let isValid = true;
+        let errorMsg = "Cannot add more member when you already have lead modeller in it";
+        if (
+            (isHaveLeadModeller.length) &&
+            (isHaveLeadModeller[0].id != member.id)
+        ) {
+            isValid = false;
+        }
+        if (!isHaveLeadModeller.length && member.is_lead_modeller) {
+            isValid = false;
+            errorMsg = "Cannot combine members with lead modelers";
         }
 
-        member.selected = true;
+        if (!isValid) {
+            showNotification(errorMsg, 'error');
+            return false;
+        }
+      }
 
-        members.value.selected.push(member);
+      member.selected = true;
 
-        var available = members.value.available.filter((elem) => {
-            return elem.uid != member.uid;
-        });
+      members.value.selected.push(member);
 
-        members.value.available = available;
+      var available = members.value.available.filter((elem) => {
+          return elem.uid != member.uid;
+      });
 
-        var filterRemoved = removedUser.value.filter((filter) => {
-            return filter.uid != member.uid;
-        });
-        removedUser.value = filterRemoved;
-    }
+      members.value.available = available;
+
+      var filterRemoved = removedUser.value.filter((filter) => {
+          return filter.uid != member.uid;
+      });
+      removedUser.value = filterRemoved;
+  }
 }
 
 async function submitUser() {
     selectedUser.value = members.value.selected;
+
+    // validate user
+    console.log("selected", selectedUser.value);
+    let haveModelerEmployee = false;
+    let haveRegularEmployee = false;
+    for (let a = 0; a < selectedUser.value.length; a++){
+      if (selectedUser.value[a].is_modeler) {
+        haveModelerEmployee = true;
+      } else {
+        haveRegularEmployee = true;
+      }
+    }
+
+    if (haveRegularEmployee && haveModelerEmployee) {
+      return showNotification(t('cannotCombineModelerAndRegularEmployee'), 'error');
+    }
 
     var users = [];
     for (let a = 0; a < selectedUser.value.length; a++) {
