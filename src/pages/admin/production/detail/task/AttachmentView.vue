@@ -66,7 +66,7 @@
                             size="5"></v-icon>
                         <span class="action-link"
                             @click.prevent="showConfirmDeleteModal(media)"
-                            v-if="detailOfTask.is_active">
+                            v-if="detailOfTask.can_delete_attachment">
                             {{ $t('delete') }}
                         </span>
                     </p>
@@ -75,11 +75,12 @@
         </div>
 
         <confirmation-modal
-            :text="t('deleteAttachmentConfirmation')"
-            :title="t('deleteAttachment')"
-            :show-confirm="showConfirmDelete"
-            :delete-ids="selectedIds"
-            @actionBulkSubmit="doDeleteAttachment"></confirmation-modal>
+          :text="t('deleteAttachmentConfirmation')"
+          :title="t('deleteAttachment')"
+          :show-confirm="showConfirmDelete"
+          :delete-ids="selectedIds"
+          :loading="loadingDelete"
+          @actionBulkSubmit="doDeleteAttachment"></confirmation-modal>
     </div>
 </template>
 
@@ -145,6 +146,8 @@ const route = useRoute();
 
 const { detailOfTask } = storeToRefs(store);
 
+const loadingDelete = ref(false);
+
 const props = defineProps({
     detail: {
         default: null,
@@ -180,12 +183,14 @@ function redirectLink(media) {
 }
 
 async function doDeleteAttachment(payload) {
-    const resp = await store.deleteTaskAttachment(route.params.id, detailOfTask.value.uid, payload[0]);
+  loadingDelete.value = true;
+  const resp = await store.deleteTaskAttachment(route.params.id, detailOfTask.value.uid, payload[0]);
+  loadingDelete.value = false;
 
-    if (resp.status < 300) {
-        showConfirmDelete.value = false;
-        selectedIds.value = [];
-    }
+  if (resp.status < 300) {
+      showConfirmDelete.value = false;
+      selectedIds.value = [];
+  }
 }
 
 function showConfirmDeleteModal(media) {

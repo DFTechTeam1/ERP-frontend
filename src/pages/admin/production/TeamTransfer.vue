@@ -190,6 +190,7 @@
             :text="$t('deleteRequestTeamConfirmation')"
             :showConfirm="showConfirmation"
             :deleteIds="selectedIds"
+            :loading="loading"
             @action-bulk-submit="doBulkDelete"></confirmation-modal>
 
         <confirmation-modal
@@ -197,6 +198,7 @@
             :text="$t('approveRequestTeamConfirmation')"
             :showConfirm="showApproveConfirm"
             :deleteIds="selectedIds"
+            :loading="loading"
             @action-bulk-submit="doBulkApprove"></confirmation-modal>
 
         <confirmation-modal
@@ -204,6 +206,7 @@
             :text="$t('cancelRequestTeamConfirmation')"
             :showConfirm="showConfirmationCancel"
             :deleteIds="selectedIds"
+            :loading="loading"
             @action-bulk-submit="doBulkCancel"></confirmation-modal>
 
         <confirmation-modal
@@ -211,6 +214,7 @@
             :text="$t('completeRequestTeamConfirmation')"
             :showConfirm="showConfirmationComplete"
             :deleteIds="selectedIds"
+            :loading="loading"
             @action-bulk-submit="doCompleteRequest"></confirmation-modal>
 
         <reject-form
@@ -381,33 +385,39 @@ async function initTeamTransfers(payload = '') {
 }
 
 async function doBulkDelete(payload) {
-    let deleteData = await store.deleteRequestTeam(payload[0]);
+  loading.value = true;
+  let deleteData = await store.deleteRequestTeam(payload[0]);
+  loading.value = false;
 
-    if ((deleteData.status != undefined) && (deleteData.status < 300)) {
-        showConfirmation.value = false;
-        selectedIds.value = [];
-        initTeamTransfers();
-    }
+  if ((deleteData.status != undefined) && (deleteData.status < 300)) {
+      showConfirmation.value = false;
+      selectedIds.value = [];
+      initTeamTransfers();
+  }
 }
 
 async function doBulkCancel(payload) {
-    let deleteData = await store.bulkCancelRequestTeam(payload);
+  loading.value = true;
+  let deleteData = await store.bulkCancelRequestTeam(payload);
+  loading.value = false;
 
-    if ((deleteData.status != undefined) && (deleteData.status < 300)) {
-        showConfirmationCancel.value = false;
-        selectedIds.value = [];
-        initTeamTransfers();
-    }
+  if ((deleteData.status != undefined) && (deleteData.status < 300)) {
+      showConfirmationCancel.value = false;
+      selectedIds.value = [];
+      initTeamTransfers();
+  }
 }
 
 async function doBulkApprove(payload) {
-    let approveData = await store.approveRequestTeam(payload[0]);
+  loading.value = true;
+  let approveData = await store.approveRequestTeam(payload[0]);
+  loading.value = false;
 
-    if ((approveData.status != undefined) && (approveData.status < 300)) {
-        showApproveConfirm.value = false;
-        selectedIds.value = [];
-        initTeamTransfers();
-    }
+  if ((approveData.status != undefined) && (approveData.status < 300)) {
+      showApproveConfirm.value = false;
+      selectedIds.value = [];
+      initTeamTransfers();
+  }
 }
 
 function completeRequest(uid) {
@@ -431,13 +441,15 @@ function closeRejectForm(isRefresh = false) {
 }
 
 async function doCompleteRequest(payload) {
-    const resp = await store.completeRequestTeam(payload[0])
+  loading.value = true;
+  const resp = await store.completeRequestTeam(payload[0])
+  loading.value = false;
 
-    if (resp.status < 300) {
-        showConfirmationComplete.value = false
-        selectedIds.value = []
-        initTeamTransfers()
-    }
+  if (resp.status < 300) {
+      showConfirmationComplete.value = false
+      selectedIds.value = []
+      initTeamTransfers()
+  }
 }
 
 function chooseTeam(detailRequest) {

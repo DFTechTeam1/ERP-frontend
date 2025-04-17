@@ -80,7 +80,7 @@
                                 :icon="mdiCogOutline"
                                 color="blue"></v-icon>
                             </template>
-                    
+
                             <v-list>
                                 <v-list-item
                                     class="pointer"
@@ -158,7 +158,7 @@
                     </td>
                 </tr>
             </template>
-            
+
         </table-list>
 
         <confirmation-modal
@@ -166,6 +166,7 @@
             :text="$t('deleteEmployeeConfirmation')"
             :showConfirm="showConfirmation"
             :deleteIds="selectedIds"
+            :loading="loading"
             @action-bulk-submit="doBulkDelete"></confirmation-modal>
 
         <add-as-user-view
@@ -173,7 +174,7 @@
             :employee_id="selectedAddUserId"
             @close-form-add-user="closeFormAddUser"></add-as-user-view>
 
-        <filter-employee 
+        <filter-employee
             :show="isShowFilter"
             @filter-event="doFilter"
             @close-event="cancelFilter"></filter-employee>
@@ -200,10 +201,10 @@ import { useI18n } from 'vue-i18n';
 import { useEmployeesStore } from '@/stores/employees'
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-import { 
-    mdiCogOutline, 
-    mdiEyeCircle, 
-    mdiPencil, 
+import {
+    mdiCogOutline,
+    mdiEyeCircle,
+    mdiPencil,
     mdiTrashCanOutline,
     mdiAccountPlus,
     mdiImport,
@@ -222,7 +223,7 @@ const router = useRouter();
 
 const store = useEmployeesStore();
 
-const { 
+const {
     listOfEmployees,
     totalOfEmployees,
  } = storeToRefs(store);
@@ -341,13 +342,15 @@ async function doAddUser(payload) {
 }
 
 async function doBulkDelete(payload) {
-    let deleteData = await store.bulkDelete(payload.value);
+  loading.value = true;
+  let deleteData = await store.bulkDelete(payload.value);
+  loading.value = false;
 
-    if ((deleteData.status != undefined) && (deleteData.status < 300)) {
-        showConfirmation.value = false;
-        selectedIds.value = [];
-        initEmployees();
-    }
+  if ((deleteData.status != undefined) && (deleteData.status < 300)) {
+      showConfirmation.value = false;
+      selectedIds.value = [];
+      initEmployees();
+  }
 }
 
 async function initEmployees(payload = '') {

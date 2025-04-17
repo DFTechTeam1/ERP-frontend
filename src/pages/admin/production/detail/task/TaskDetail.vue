@@ -137,7 +137,7 @@
 
                                 <div>
                                     <v-btn
-                                        v-if="!isAddDescription && detailOfTask.description"
+                                        v-if="detailOfTask.can_edit_description && detailOfTask.description"
                                         variant="flat"
                                         size="small"
                                         color="white"
@@ -145,7 +145,7 @@
                                         {{ $t('edit') }}
                                     </v-btn>
                                     <v-btn
-                                        v-if="!isAddDescription && detailOfTask.description"
+                                        v-if="detailOfTask.can_delete_description && detailOfTask.description"
                                         variant="outlined"
                                         size="small"
                                         color="red"
@@ -158,7 +158,7 @@
 
                             <div class="value-desc">
                                 <template v-if="!detailOfTask.description && !isAddDescription">
-                                    <template v-if="!detailOfTask.is_active || detailProject.project_is_complete">
+                                    <template v-if="!detailOfTask.can_add_description">
                                         <div class="desc-empty">
                                             {{ $t('addMoreDetail') }}
                                         </div>
@@ -637,24 +637,14 @@
 </style>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import {
   mdiLaptop,
   mdiClose,
   mdiMenu,
-  mdiTrashCan,
-  mdiClockOutline,
-  mdiAccountSupervisor,
-  mdiAttachment,
-  mdiArrowRight,
   mdiPencil,
   mdiCheck,
-  mdiCancel,
-  mdiMathLog,
-  mdiCheckCircle,
-  mdiTimeline,
-  mdiRefresh,
-  mdiBook, mdiExclamation,
+  mdiCancel
 } from '@mdi/js';
 import TaskMember from './TaskMember.vue';
 import TaskDeadline from './TaskDeadline.vue';
@@ -712,11 +702,7 @@ const detailTaskForRevise = ref(null)
 
 const selectedRevises = ref([])
 
-const check = ref('mdiClockOutline');
-
 const showIdentifierIdCopy = ref(false);
-
-const intervalIdentifier = ref(null);
 
 const isShowTimeTracker = ref(false)
 
@@ -733,8 +719,6 @@ const moveToBoardVal = ref(null);
 const editFormName = ref(false);
 
 const markAsCompleteLoading = ref(false)
-
-const reviseLoading = ref(false)
 
 const showDetailProofWork = ref(false);
 
