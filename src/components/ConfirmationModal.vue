@@ -18,6 +18,7 @@
                     height="auto"
                     size="small"
                     class="btn-secondary pt-3 pb-3 mt-3"
+                    :disabled="props.loading"
                     @click.prevent="isShowConfirm = false">
                     {{ $t('close') }}
                 </v-btn>
@@ -82,6 +83,16 @@ const props = defineProps({
 });
 
 const isShowConfirm = ref(false);
+
+const loadingProcess = ref(false);
+
+function setLoading(value) {
+  loadingProcess.value = value;
+}
+
+defineExpose({
+  setLoading
+});
 
 watch(props, (values) => {
     isShowConfirm.value = values.showConfirm

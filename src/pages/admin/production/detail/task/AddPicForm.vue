@@ -137,6 +137,8 @@ async function getPicMember(payload) {
     if (resp.status < 300) {
         members.value.selected = resp.data.data.selected;
         members.value.available = resp.data.data.available;
+
+        console.log("members", members.value);
     }
 }
 
