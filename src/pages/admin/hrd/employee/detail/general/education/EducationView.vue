@@ -10,7 +10,7 @@
                     {{ $t('addEmergencyContact') }}
                 </v-btn>
             </div>
-    
+
             <v-table>
                 <thead>
                     <tr>
@@ -53,13 +53,13 @@
                             </td>
                         </tr>
                     </template>
-    
+
                 </tbody>
             </v-table>
-    
+
             <EducationForm :is-show="showForm" @close-event="closeForm"
                 :emergency-data="editEmergency" />
-    
+
             <confirmation-modal
                 :title="t('deleteEmergency')"
                 :text="t('deleteEmergencyConfirmation')"

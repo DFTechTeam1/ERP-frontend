@@ -721,5 +721,6 @@
     "hereListOfUnfinishedTask": "Here is the list of unfinished task",
     "completeAndContinue": "Complete All and Continue",
     "completingTask": "Completing the task ...",
-    "searchTaskName": "Search task name ..."
+    "searchTaskName": "Search task name ...",
+    "cannotCombineModelerAndRegularEmployee": "Cannnot combine modeler with other position"
 }

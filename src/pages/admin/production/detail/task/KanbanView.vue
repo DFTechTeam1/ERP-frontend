@@ -239,7 +239,7 @@
                               v-if="props.canAddTask && ((detailProject) && (!detailProject.project_is_complete) && (detailProject.status_raw))"
                               variant="outlined"
                               color="primary"
-                              class="w-100 mt-3"
+                              class="w-100 mt-3 mb-5"
                               @click.prevent="addTask(board)">
                               {{ $t('addTask') }}
                           </v-btn>
