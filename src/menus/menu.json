@@ -1,0 +1,37 @@
+{
+    "menus": [
+        {
+            "name": "Dashboard",
+            "type": "regular",
+            "childs": [
+                { "path": "/admin/dashboard", "slug": "dashboard", "lang_id": "Dashboard", "lang_en": "Dashboard", "icon": "menus/dashboard.png", "permission": "dashboard_access" },
+                { "path": "/admin/setting", "slug": "setting", "lang_id": "Pengaturan", "lang_en": "Settings", "icon": "menus/setting.png", "permission": "list_setting" }
+            ]
+        },
+        {
+            "name": "Production",
+            "type": "regular",
+            "childs": [
+                { "path": "/admin/production/projects", "slug": "project", "lang_id": "Event", "lang_en": "Project", "icon": "menus/projects.png", "permission": "list_project" },
+                { "path": "/admin/production/files", "slug": "files", "lang_id": "Files", "lang_en": "Files", "icon": "menus/folder.png", "permission": "list_file_manager" },
+                { "path": "/admin/production/tasks", "slug": "task", "lang_id": "Tugas", "lang_en": "Tasks", "icon": "menus/task.png", "permission": "list_task" },
+                { "path": "/admin/production/team-transfer", "slug": "team-transfer", "lang_id": "Team Transfer", "lang_en": "Team Transfer", "icon": "menus/transfer.png", "permission": "list_team_transfer" }
+            ]
+        },
+        {
+            "name": "HRD",
+            "type": "module",
+            "childs": []
+        },
+        {
+            "name": "Inventories",
+            "type": "module",
+            "childs": []
+        },
+        {
+            "name": "Master",
+            "type": "module",
+            "childs": []
+        }
+    ]
+}

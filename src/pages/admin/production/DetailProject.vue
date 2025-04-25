@@ -267,7 +267,41 @@
 
                 </v-tabs>
 
-                <v-window class="w-100 no-shadow" v-model="tab">
+                <v-tabs-window v-model="tab">
+                  <v-tabs-window-item value="tab-task">
+                    <v-card flat class="no-shadow">
+                      <v-card-text>
+                        <kanban-view :can-move-to-progress="canMoveToProgress"
+                          :can-move-to-review-client="canMoveToReviewClient"
+                          :can-move-to-review-pm="canMoveToReviewPm" :can-move-to-revise="canMoveToRevise"
+                          :can-move-to-completed="canMoveToCompleted" :can-move-task="canMoveTask"
+                          :can-add-task="canAddTask" :can-delete-task="canDeleteTask"></kanban-view>
+                      </v-card-text>
+                      </v-card>
+                  </v-tabs-window-item>
+
+                  <v-tabs-window-item value="tab-progress">
+                    <progress-view />
+                  </v-tabs-window-item>
+
+                  <v-tabs-window-item value="tab-showreels">
+                    <v-card flat class="no-shadow">
+                      <v-card-text>
+                        <showreels-view :open-form="isShowShowreels"></showreels-view>
+                      </v-card-text>
+                    </v-card>
+                  </v-tabs-window-item>
+
+                  <v-tabs-window-item value="tab-equipment-check">
+                    <v-card flat class="no-shadow">
+                      <v-card-text>
+                        <equipment-list></equipment-list>
+                      </v-card-text>
+                      </v-card>
+                  </v-tabs-window-item>
+                </v-tabs-window>
+
+                <!-- <v-window class="w-100 no-shadow" v-model="tab">
 
                     <v-window-item value="tab-progress">
                         <progress-view />
@@ -300,7 +334,7 @@
                             </v-card-text>
                         </v-card>
                     </v-window-item>
-                </v-window>
+                </v-window> -->
             </div>
         </v-card>
 

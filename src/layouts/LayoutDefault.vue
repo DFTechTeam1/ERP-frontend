@@ -2,6 +2,7 @@
 <template>
   <v-app>
     <template v-if="!mobile">
+
       <v-navigation-drawer
         mobile-breakpoint="md"
         :rail="rail"
@@ -21,6 +22,106 @@
 
         <!-- MENU ITEMS -->
         <v-list
+          density="compact"
+          class="v-list-scroll no-scroll">
+
+          <template
+            v-for="(menus, menuKey) in layoutItems"
+            :key="menuKey">
+
+            <!-- menu group -->
+            <v-list-subheader v-if="!rail">{{ menus.name }}</v-list-subheader>
+            <!-- end menu group -->
+
+            <template
+              v-for="(menu) in menus.childs"
+              :key="menu.id">
+
+              <template>
+                <v-list-item
+                  class="sub-menu pointer"
+                  color="blue"
+                  :class="{
+                    'menu-active': menu.active_menu,
+                    'menu-collapsed': rail,
+                  }"
+                  base-color="#000"
+                  @click="navigate(menu)">
+                  <template v-slot:prepend>
+                    <v-img size="18"
+                      :src="menu.icon"
+                      width="15"
+                      height="15"
+                      class="mr-2"></v-img>
+                  </template>
+                  <template v-slot:title>
+                    {{ menu.name }}
+                  </template>
+                </v-list-item>
+              </template>
+
+              <!-- <template v-else>
+
+                <v-list>
+
+                  <v-list-group
+                    :value="menu.name"
+                    color="blue"
+                    :class="{
+                      'menu-group-collapsed': rail
+                    }">
+
+                    <template v-slot:activator="{ props }">
+                      <v-list-item
+                        v-bind="props"
+                        class="sub-menu pointer">
+
+                        <template v-slot:prepend>
+                          <v-img size="18"
+                            :src="menu.icon"
+                            width="15"
+                            height="15"
+                            class="mr-2"></v-img>
+                        </template>
+                        <template v-slot:title>
+                          {{ menu.name }}
+                        </template>
+
+                      </v-list-item>
+                    </template>
+
+                    <v-list-item
+                      v-for="(children, c) in menu.children"
+                      :key="c"
+                      class="sub-menu pointer"
+                      :class="{
+                        'menu-active': children.link == activeMenuGetters,
+                        'menu-collapsed': rail,
+                      }"
+                      @click="navigate(children)"
+                    >
+                      <template v-slot:prepend>
+                        <v-icon
+                          :icon="mdiCircleOutline"
+                          size="15"></v-icon>
+                      </template>
+                      <template v-slot:title>
+                        {{ children.name }}
+                      </template>
+                    </v-list-item>
+
+                  </v-list-group>
+
+                </v-list>
+
+              </template> -->
+
+            </template>
+
+          </template>
+
+        </v-list>
+        <!-- <v-list
           density="compact"
           class="v-list-scroll no-scroll">
 
@@ -117,7 +218,7 @@
 
           </template>
 
-        </v-list>
+        </v-list> -->
         <!-- END MENU ITEMS -->
 
         <!-- SHEETS -->
