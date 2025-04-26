@@ -71,6 +71,7 @@ import { useAuthenticationStore } from '@/stores/authentication'
 import { useRoute, useRouter } from 'vue-router';
 import { useGetRole } from '@/compose/getRole';
 import BaseRole from '@/enums/system/BaseRole';
+import { useBreakToken } from '@/compose/breakToken';
 
 const route = useRoute();
 
@@ -92,10 +93,10 @@ const submitData = handleSubmit(async values => {
     isLoading.value = false;
 
     if (resp.status < 300) {
-        console.log('route path', route);
         if (route.path == '/auth/a/login') {
           if (useGetRole() == BaseRole.Hrd) {
-            window.location.href = import.meta.env.VITE_OFFICE_URL + '/';
+            window.location.href = import.meta.env.VITE_OFFICE_URL + '/init/' + useBreakToken('encrypted_user_id');
+            return;
           } else {
             window.location.href = window.location.origin + '/admin/dashboard';
           }
@@ -109,10 +110,6 @@ const [password, passwordAttrs] = defineField('password');
 const [remember_me] = defineField('remember_me')
 
 const isLoading = ref(false);
-
-onMounted(() => {
-    console.log('route', import.meta.env.VITE_OFFICE_URL);
-})
 </script>
 
 <style lang="scss">
