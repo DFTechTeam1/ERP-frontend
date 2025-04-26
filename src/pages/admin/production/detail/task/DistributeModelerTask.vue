@@ -19,43 +19,43 @@
 
             <v-card-text>
                 <form @submit.prevent="validateData">
-                    <field-input
+                    <!-- <field-input
                         label="Assign to Me"
                         v-model="assign_to_me"
-                        input-type="switch"></field-input>
+                        input-type="switch"></field-input> -->
 
-                        <v-text-field
-							density="compact"
-                            v-if="assign_to_me == 0"
-							readonly
-							:clearable="true"
-							multiple
-							v-model="teams"
-                            @click:clear="clearPic"
-							:error-messages="errors.teams"
-							variant="outlined"
-							:label="t('choosePic')">
-							<v-menu
-								max-height="350"
-								activator="parent">
-								<v-list
-									lines="three">
-                                    <list-modeler
-                                        :pics="teamList"
-										@select-item="selectPic"></list-modeler>
-								</v-list>
-							</v-menu>
-						</v-text-field>
+                  <v-text-field
+							      density="compact"
+                    v-if="assign_to_me == 0"
+                    readonly
+                    :clearable="true"
+                    multiple
+                    v-model="teams"
+                    @click:clear="clearPic"
+                    :error-messages="errors.teams"
+                    variant="outlined"
+                    :label="t('choosePic')">
+                      <v-menu
+                        max-height="350"
+                        activator="parent">
+                        <v-list
+                          lines="three">
+                                            <list-modeler
+                                                :pics="teamList"
+                            @select-item="selectPic"></list-modeler>
+                        </v-list>
+                      </v-menu>
+                  </v-text-field>
 
-                    <div class="d-flex justify-end">
-                        <v-btn variant="flat"
-                            :disabled="loading"
-                            color="primary"
-                            type="submit">
-                            <template v-if="loading">{{ $t('processing') }}</template>
-                            <template v-else>{{ $t('needDistribute') }}</template>
-                        </v-btn>
-                    </div>
+                  <div class="d-flex justify-end">
+                      <v-btn variant="flat"
+                        :disabled="loading"
+                        color="primary"
+                        type="submit">
+                        <template v-if="loading">{{ $t('processing') }}</template>
+                        <template v-else>{{ $t('needDistribute') }}</template>
+                      </v-btn>
+                  </div>
                 </form>
             </v-card-text>
         </master-card>
@@ -155,7 +155,7 @@ function closeModal() {
 }
 
 async function getModellerTeam() {
-    const resp = await store.get3DModeller({except_leader: 1}, route.params.id, props.taskUid);
+    const resp = await store.get3DModeller({except_leader: 0}, route.params.id, props.taskUid);
 
     if (resp.status < 300) {
         teamList.value = resp.data.data;

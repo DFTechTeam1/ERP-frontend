@@ -2,7 +2,19 @@
     <v-card class="card-dashboard"
         variant="elevated">
         <v-card-item>
-            <v-card-title class="fw-bold">{{ $t('yourEvent') }}</v-card-title>
+            <v-card-title class="fw-bold d-flex align-items-center justify-space-between">
+              <span>{{ $t('yourEvent') }}</span>
+
+              <!-- shortcut to create project -->
+              <v-btn
+                variant="outlined"
+                color="primary"
+                size="small"
+                @click.prevent="$router.push('/admin/production/project/create')"
+                v-if="useCheckPermission('create_project')">
+                {{ $t("createProject") }}
+              </v-btn>
+            </v-card-title>
         </v-card-item>
         <v-card-text>
             <template v-if="loadingCalendar">
@@ -10,7 +22,7 @@
                     type="date-picker"></v-skeleton-loader>
             </template>
             <template v-else>
-                <VCalendar expanded :attributes="listOfProjectCalendar" 
+                <VCalendar expanded :attributes="listOfProjectCalendar"
                     @did-move="monthChanges"
                     borderless
                     @dayclick="chooseDate"></VCalendar>
@@ -138,6 +150,7 @@ import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'
 import { mdiCalendarAlert, mdiCalendarAccount } from '@mdi/js'
 import { useI18n } from 'vue-i18n';
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const store = useDashboardStore()
 

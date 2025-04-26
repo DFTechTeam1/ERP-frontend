@@ -29,6 +29,7 @@
             :title="t('deleteAttachment')"
             :show-confirm="showConfirmDelete"
             :delete-ids="selectedIds"
+            :loading="loading"
             @actionBulkSubmit="doDeleteAttachment"></confirmation-modal>
     </div>
 </template>
@@ -88,6 +89,8 @@ const route = useRoute();
 
 const showConfirmDelete = ref(false);
 
+const loading = ref(false);
+
 const selectedIds = ref([]);
 
 const props = defineProps({
@@ -102,13 +105,13 @@ function showConfirmDeleteModal(media) {
 }
 
 async function doDeleteAttachment(payload) {
-    console.log('payload', payload);
+  loading.value = true;
+  const resp = await store.deleteTaskAttachment(route.params.id, detailOfTask.value.uid, payload[0]);
+  loading.value = false;
 
-    const resp = await store.deleteTaskAttachment(route.params.id, detailOfTask.value.uid, payload[0]);
-
-    if (resp.status < 300) {
-        showConfirmDelete.value = false;
-        selectedIds.value = [];
-    }
+  if (resp.status < 300) {
+      showConfirmDelete.value = false;
+      selectedIds.value = [];
+  }
 }
 </script>

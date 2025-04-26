@@ -3,11 +3,11 @@
         class="card-dashboard"
         variant="elevated">
         <v-card-item>
-            <v-card-title class="d-flex align-center justify-lg-space-between">
+            <v-card-title class="d-flex align-center justify-space-between">
                 <span class="fw-bold">{{ $t('currentDeadline') }}</span>
 
                 <span class="detail" @click.prevent="projectList">
-                    {{ $t('seeDetail') }} 
+                    {{ $t('seeDetail') }}
                     <v-icon
                         :icon="mdiArrowRight"
                         size="10"></v-icon>
@@ -40,15 +40,15 @@
                                         :icon="mdiCalendarAccount"></v-icon>
                                 </v-avatar>
                             </template>
-        
+
                             <template v-slot:title>
                                 {{ item.name }}
                             </template>
-                            
+
                             <template v-slot:subtitle>
                                 {{ item.project_date }}
                             </template>
-        
+
                             <template v-slot:append>
                                 <v-chip>
                                     {{ item.date_count }}
@@ -79,7 +79,7 @@
 .deadline-item {
     border-radius: 12px !important;
     cursor: pointer;
-    
+
     &:hover {
         border-radius: 12px;
         background-color: #e6e6e6;

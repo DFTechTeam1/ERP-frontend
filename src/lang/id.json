@@ -718,5 +718,6 @@
     "hereListOfUnfinishedTask": "Berikut list dari tugas yang belum selesai",
     "completeAndContinue": "Selesaikan Untuk Melanjutkan",
     "completingTask": "Menyelesaikan pekerjaan ...",
-    "searchTaskName": "Cari nama tugas ..."
+    "searchTaskName": "Cari nama tugas ...",
+    "cannotCombineModelerAndRegularEmployee": "Tidak dapat menggabungkan 3D modeler dengan karyawan posisi lain"
 }

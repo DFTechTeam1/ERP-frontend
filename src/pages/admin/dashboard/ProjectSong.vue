@@ -22,8 +22,8 @@ onMounted(() => {
 <template>
     <master-card>
         <v-card-item>
-            <v-card-title class="d-flex align-center justify-lg-space-between">
-                {{ $t("songs") }} 
+            <v-card-title class="d-flex align-center justify-space-between">
+                {{ $t("songs") }}
 
                 <span class="detail" @click.prevent="$router.push({path: '/admin/production/projects'})"
                 :style="{
@@ -31,7 +31,7 @@ onMounted(() => {
                     cursor: 'pointer',
                     color: '#29B6F6'
                 }">
-                    {{ $t('seeDetail') }} 
+                    {{ $t('seeDetail') }}
                     <v-icon
                         :icon="mdiArrowRight"
                         size="10"></v-icon>

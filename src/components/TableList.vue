@@ -5,9 +5,9 @@
     }">
     <v-card-item>
       <v-card-title>
-        <div class="table-action d-flex align-center justify-space-between mb-4">
+        <div class="table-action mb-4">
           <div
-            class="d-flex align-center ga-2"
+            class="table-action__item"
             v-if="props.hasFilter && !filterSearch">
             <v-btn
               variant="flat"
@@ -95,6 +95,11 @@
             </v-btn>
           </div>
         </div>
+
+        <div v-if="props.hasFilterMobile"
+          class="table-action__item mobile">
+          <slot name="custom-filter-button-mobile" v-if="props.customFilterButtonMobile"></slot>
+        </div>
       </v-card-title>
       <v-card-subtitle v-if="props.showFilterResult">
         <slot name="filter-result"></slot>
@@ -164,11 +169,19 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const props = defineProps({
+  hasFilterMobile: {
+    type: Boolean,
+    default: false
+  },
   customHeader: {
     type: Boolean,
     default: false,
   },
   customFilterButton: {
+    type: Boolean,
+    default: false,
+  },
+  customFilterButtonMobile: {
     type: Boolean,
     default: false,
   },
@@ -321,7 +334,26 @@ watch(selected, (value) => {
 </script>
 
 <style scoped lang="scss">
+.table-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+@media screen and (max-width: 578px) {
+  .table-action {
+
+    &__item {
+      display: block !important;
+    }
+  }
+}
 
 .table-search-input {
   position: relative;
