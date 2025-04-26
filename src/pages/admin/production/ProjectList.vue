@@ -615,11 +615,13 @@ function filterButton(type) {
   toggleFilterButton(type);
 
   // for mobile preview, handle chips color
-  let chips = document.querySelectorAll('.chip-time-filter');
-  chips.forEach((chip) => {
-    chip.classList.remove('text-success');
-  });
-  document.getElementById(`chip-${type}`).classList.add('text-success');
+  if (mobile.value) {
+    let chips = document.querySelectorAll('.chip-time-filter');
+    chips.forEach((chip) => {
+      chip.classList.remove('text-success');
+    });
+    document.getElementById(`chip-${type}`).classList.add('text-success');
+  }
 
   store.setForceUpdatePages(false);
 
