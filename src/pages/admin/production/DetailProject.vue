@@ -255,7 +255,6 @@
 
             <div class="w-100 tab-detail-project">
                 <v-tabs show-arrows v-model="tab" :direction="tabDirection">
-
                     <v-tab
                         :text="t('task')"
                         color="primary"
@@ -269,15 +268,11 @@
 
                 <v-tabs-window v-model="tab">
                   <v-tabs-window-item value="tab-task">
-                    <v-card flat class="no-shadow">
-                      <v-card-text>
-                        <kanban-view :can-move-to-progress="canMoveToProgress"
-                          :can-move-to-review-client="canMoveToReviewClient"
-                          :can-move-to-review-pm="canMoveToReviewPm" :can-move-to-revise="canMoveToRevise"
-                          :can-move-to-completed="canMoveToCompleted" :can-move-task="canMoveTask"
-                          :can-add-task="canAddTask" :can-delete-task="canDeleteTask"></kanban-view>
-                      </v-card-text>
-                      </v-card>
+                    <kanban-view :can-move-to-progress="canMoveToProgress"
+                      :can-move-to-review-client="canMoveToReviewClient"
+                      :can-move-to-review-pm="canMoveToReviewPm" :can-move-to-revise="canMoveToRevise"
+                      :can-move-to-completed="canMoveToCompleted" :can-move-task="canMoveTask"
+                      :can-add-task="canAddTask" :can-delete-task="canDeleteTask"></kanban-view>
                   </v-tabs-window-item>
 
                   <v-tabs-window-item value="tab-progress">
