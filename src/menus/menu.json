@@ -21,16 +21,19 @@
         {
             "name": "HRD",
             "type": "module",
+            "path": "/dashboard",
             "childs": []
         },
         {
             "name": "Inventories",
             "type": "module",
+            "path": "/dashboard",
             "childs": []
         },
         {
             "name": "Master",
             "type": "module",
+            "path": "/dashboard",
             "childs": []
         }
     ]

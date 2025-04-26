@@ -30,35 +30,39 @@
             :key="menuKey">
 
             <!-- menu group -->
-            <v-list-subheader v-if="!rail">{{ menus.name }}</v-list-subheader>
+            <template v-if="menus.type == 'regular'">
+              <v-list-subheader v-if="!rail">{{ menus.name }}</v-list-subheader>
+            </template>
+            <template v-else>
+              <v-list-item
+                @click.prevent="navigate(menus)"
+                class="sub-menu pointer">{{ menus.name }}</v-list-item>
+            </template>
             <!-- end menu group -->
 
             <template
               v-for="(menu) in menus.childs"
               :key="menu.id">
-
-              <template>
-                <v-list-item
-                  class="sub-menu pointer"
-                  color="blue"
-                  :class="{
-                    'menu-active': menu.active_menu,
-                    'menu-collapsed': rail,
-                  }"
-                  base-color="#000"
-                  @click="navigate(menu)">
-                  <template v-slot:prepend>
-                    <v-img size="18"
-                      :src="menu.icon"
-                      width="15"
-                      height="15"
-                      class="mr-2"></v-img>
-                  </template>
-                  <template v-slot:title>
-                    {{ menu.name }}
-                  </template>
-                </v-list-item>
-              </template>
+              <v-list-item
+                class="sub-menu pointer"
+                color="blue"
+                :class="{
+                  'menu-active': menu.active_menu,
+                  'menu-collapsed': rail,
+                }"
+                base-color="#000"
+                @click="navigate(menu)">
+                <template v-slot:prepend>
+                  <v-img size="18"
+                    :src="menu.icon"
+                    width="15"
+                    height="15"
+                    class="mr-2"></v-img>
+                </template>
+                <template v-slot:title>
+                  {{ menu.name }}
+                </template>
+              </v-list-item>
 
               <!-- <template v-else>
 
@@ -567,6 +571,7 @@
 </template>
 
 <script setup>
+import rawMenu from "@/menus/menu.json"
 import AppFooter from "@/components/AppFooter.vue";
 import BellNotification from './BellNotification.vue'
 import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower, mdiKeyOutline } from "@mdi/js";
@@ -669,6 +674,58 @@ function changeLocal(lang) {
   location.reload()
 }
 
+function setMenu() {
+  let newLayout = JSON.parse(localStorage.getItem('rmn'));
+  if (!newLayout) {
+    rawMenu.menus.map((map) => {
+      if (map.type == 'regular') {
+        map.childs.map((child) => {
+          child.active_menu = false;
+
+          if (currentLang.value == 'en') {
+            child.name = child.lang_en;
+          } else {
+            child.name = child.lang_id;
+          }
+
+          if (child.icon) {
+            child.icon = import.meta.env.VITE_BACKEND + `/${child.icon}`;
+          }
+
+          if (route.meta.parentLink == child.path) {
+            child.active_menu = true;
+          }
+
+          return child;
+        });
+      }
+
+      return map;
+    });
+
+    newLayout = rawMenu.menus;
+
+    localStorage.setItem('rmn', JSON.stringify(newLayout));
+  }
+
+  // set active menu
+  newLayout.map((map) => {
+    map.childs.map((child) => {
+      child.active_menu = false;
+
+      if (route.meta.parentLink == child.path) {
+        child.active_menu = true;
+      }
+
+      return child;
+    });
+
+    return map;
+  });
+
+  layoutItems.value = newLayout
+}
+
 onMounted(() => {
   openMenu.value = []
 
@@ -677,46 +734,45 @@ onMounted(() => {
     currentLang.value = localStorage.getItem('lang')
   }
 
-  var newLayout = useBreakToken('menus')
-  for (let a in newLayout) {
-    if (newLayout[a].length) {
-      newLayout[a].map((elem) => {
-        elem.active_menu = false
+  setMenu();
+  // var newLayout = useBreakToken('menus')
+  // for (let a in newLayout) {
+  //   if (newLayout[a].length) {
+  //     newLayout[a].map((elem) => {
+  //       elem.active_menu = false
 
-        if (currentLang.value == 'en') {
-          elem.name = elem.lang_en
-        } else if (currentLang.value == 'id') {
-          elem.name = elem.lang_id
-        }
+  //       if (currentLang.value == 'en') {
+  //         elem.name = elem.lang_en
+  //       } else if (currentLang.value == 'id') {
+  //         elem.name = elem.lang_id
+  //       }
 
-        // set active menu
-        if (route.meta.parentLink) {
-          if (route.meta.parentLink == elem.link) {
-            elem.active_menu = true
-          }
-        }
+  //       // set active menu
+  //       if (route.meta.parentLink) {
+  //         if (route.meta.parentLink == elem.link) {
+  //           elem.active_menu = true
+  //         }
+  //       }
 
-        if (elem.children.length) {
-          elem.children.map((elemChild) => {
-            if (currentLang.value == 'en') {
-              elemChild.name = elemChild.lang_en
-            } else if (currentLang.value == 'id') {
-              elemChild.name = elemChild.lang_id
-            }
-          })
-        }
+  //       if (elem.children.length) {
+  //         elem.children.map((elemChild) => {
+  //           if (currentLang.value == 'en') {
+  //             elemChild.name = elemChild.lang_en
+  //           } else if (currentLang.value == 'id') {
+  //             elemChild.name = elemChild.lang_id
+  //           }
+  //         })
+  //       }
 
-        return elem;
-      });
+  //       return elem;
+  //     });
 
-      // remove dashboard menu that intended for the new layout
-      newLayout[a] = newLayout[a].filter((filter) => {
-        return filter.new_icon != 'pi pi-chart-scatter';
-      });
-    }
-  }
-
-  layoutItems.value = newLayout
+  //     // remove dashboard menu that intended for the new layout
+  //     newLayout[a] = newLayout[a].filter((filter) => {
+  //       return filter.new_icon != 'pi pi-chart-scatter';
+  //     });
+  //   }
+  // }
 
   initNotification()
 
@@ -764,10 +820,14 @@ onMounted(() => {
 });
 
 function navigate(path) {
-  store.navigateMenu(path.link);
-  router.push(path.link);
+  if (path.type == 'regular') {
+    store.navigateMenu(path.path);
+    router.push(path.path);
 
-  openMenu.value = [path.name]
+    openMenu.value = [path.name]
+  } else {
+    window.location.href = import.meta.env.VITE_OFFICE_URL + '/init/' + useBreakToken('encrypted_user_id');
+  }
 }
 
 async function logout() {
@@ -786,42 +846,7 @@ function closeFormResetPassword() {
 watch(route, (values) => {
   openMenu.value = []
 
-  var newLayout = useBreakToken('menus')
-  for (let a in newLayout) {
-    if (newLayout[a].length) {
-      newLayout[a].map((elem) => {
-        elem.active_menu = false
-
-        if (currentLang.value == 'en') {
-          elem.name = elem.lang_en
-        } else if (currentLang.value == 'id') {
-          elem.name = elem.lang_id
-        }
-
-        // set active menu
-        if (values.meta.parentLink) {
-          if (values.meta.parentLink == elem.link) {
-            elem.active_menu = true
-          }
-        }
-
-        if (elem.children.length) {
-          elem.children.map((elemChild) => {
-            if (currentLang.value == 'en') {
-              elemChild.name = elemChild.lang_en
-            } else if (currentLang.value == 'id') {
-              elemChild.name = elemChild.lang_id
-            }
-            return elemChild
-          })
-        }
-
-        return elem
-      })
-    }
-  }
-
-  layoutItems.value = newLayout
+  setMenu();
 })
 </script>
 
