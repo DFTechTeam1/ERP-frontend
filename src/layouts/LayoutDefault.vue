@@ -571,7 +571,6 @@
 </template>
 
 <script setup>
-import rawMenu from "@/menus/menu.json"
 import AppFooter from "@/components/AppFooter.vue";
 import BellNotification from './BellNotification.vue'
 import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower, mdiKeyOutline } from "@mdi/js";
@@ -675,38 +674,28 @@ function changeLocal(lang) {
 }
 
 function setMenu() {
-  let newLayout = JSON.parse(localStorage.getItem('rmn'));
-  if (!newLayout) {
-    rawMenu.menus.map((map) => {
-      if (map.type == 'regular') {
-        map.childs.map((child) => {
-          child.active_menu = false;
+  let menus = useBreakToken('menus').old; // here we just take the 'old' menu.
+  let newLayout = menus.map((map) => {
+    if (map.type == 'regular') {
+      map.childs.map((child) => {
+        child.active_menu = false;
 
-          if (currentLang.value == 'en') {
-            child.name = child.lang_en;
-          } else {
-            child.name = child.lang_id;
-          }
+        if (currentLang.value == 'en') {
+          child.name = child.lang_en;
+        } else {
+          child.name = child.lang_id;
+        }
 
-          if (child.icon) {
-            child.icon = import.meta.env.VITE_BACKEND + `/${child.icon}`;
-          }
+        if (child.icon) {
+          child.icon = import.meta.env.VITE_BACKEND + `/${child.icon}`;
+        }
 
-          if (route.meta.parentLink == child.path) {
-            child.active_menu = true;
-          }
+        return child;
+      });
+    }
 
-          return child;
-        });
-      }
-
-      return map;
-    });
-
-    newLayout = rawMenu.menus;
-
-    localStorage.setItem('rmn', JSON.stringify(newLayout));
-  }
+    return map;
+  });
 
   // set active menu
   newLayout.map((map) => {
