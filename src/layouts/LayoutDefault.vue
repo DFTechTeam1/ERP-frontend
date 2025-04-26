@@ -820,7 +820,7 @@ onMounted(() => {
 });
 
 function navigate(path) {
-  if (path.type == 'regular') {
+  if (path.type == undefined) {
     store.navigateMenu(path.path);
     router.push(path.path);
 
