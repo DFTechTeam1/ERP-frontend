@@ -19,7 +19,7 @@ const {
 <template>
     <master-card>
         <v-card-item>
-            <v-card-title class="d-flex align-center justify-lg-space-between">
+            <v-card-title class="d-flex align-center justify-space-between">
                 {{ $t("needToBeComplte") }}
 
                 <span class="detail" @click.prevent="$router.push({path: '/admin/production/projects'})"
@@ -28,7 +28,7 @@ const {
                     cursor: 'pointer',
                     color: '#29B6F6'
                 }">
-                    {{ $t('seeDetail') }} 
+                    {{ $t('seeDetail') }}
                     <v-icon
                         :icon="mdiArrowRight"
                         size="10"></v-icon>

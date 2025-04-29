@@ -15,81 +15,129 @@
                 :showClearFilter="isHaveFilterData"
                 :fullCustomBody="true"
                 :custom-filter-button="true"
+                :custom-filter-button-mobile="true"
                 :hasCheckbox="false"
                 :btnAddText="$t('createProject')"
                 :allowed-create-button="useCheckPermission('create_project')"
                 :filter-tooltip="t('filterProject')"
                 :show-filter-result="false"
+                :has-filter-mobile="true"
                 @bulk-delete-event="bulkDelete"
                 @add-data-event="showForm"
                 @table-event="initProjects"
                 @filter-action="showFilter"
                 @clear-filter-action="clearFilter">
-    
-                <template v-slot:custom-filter-button>
-                  <v-btn
-                    variant="outlined"
-                    :color="thisMonthFilterColor"
-                    density="compact"
-                    @click.prevent="filterButton('month')">
-                    <v-icon
-                      v-if="thisMonthFilterActive"
-                      :icon="mdiCheckCircle"
-                      size="15"
-                      class="me-2"
-                      color="success"></v-icon>
-                    {{ $t('thisMonth') }}
-                  </v-btn>
-    
-                  <v-btn
-                    variant="outlined"
-                    :color="yearFilterColor"
-                    density="compact"
-                    @click.prevent="filterButton('year')">
-                    <v-icon
-                      v-if="thisYearFilterActive"
-                      :icon="mdiCheckCircle"
-                      size="15"
-                      class="me-2"
-                      color="success"></v-icon>
-                    {{ $t('thisYear') }}
-                  </v-btn>
-    
-                  <v-btn
-                    variant="outlined"
-                    :color="todayFilterColor"
-                    density="compact"
-                    @click.prevent="filterButton('today')">
-                    <v-icon
-                      v-if="todayFilterActive"
-                      :icon="mdiCheckCircle"
-                      size="15"
-                      class="me-2"
-                      color="success"></v-icon>
-                    {{ $t('today') }}
-                  </v-btn>
-    
-                  <v-btn
-                    variant="outlined"
-                    :color="allFilterColor"
-                    density="compact"
-                    @click.prevent="filterButton('all')">
-                    <v-icon
-                      v-if="allFilterActive"
-                      :icon="mdiCheckCircle"
-                      size="15"
-                      class="me-2"
-                      color="success"></v-icon>
-                    {{ $t('all') }}
-                  </v-btn>
+
+                <template v-slot:custom-filter-button-mobile>
+                  <template v-if="mobile">
+                    <v-chip
+                      size="x-small"
+                      variant="outlined"
+                      color="success"
+                      class="chip-time-filter"
+                      id="chip-month"
+                      @click.prevent="filterButton('month')">
+                      {{ $t("thisMonth") }}
+                    </v-chip>
+
+                    <v-chip
+                      size="x-small"
+                      variant="outlined"
+                      color="default"
+                      class="ms-2 chip-time-filter"
+                      id="chip-year"
+                      @click.prevent="filterButton('year')">
+                      {{ $t("thisYear") }}
+                    </v-chip>
+
+                    <v-chip
+                      size="x-small"
+                      variant="outlined"
+                      color="default"
+                      class="ms-2 chip-time-filter"
+                      id="chip-today"
+                      @click.prevent="filterButton('today')">
+                      {{ $t("today") }}
+                    </v-chip>
+
+                    <v-chip
+                      size="x-small"
+                      variant="outlined"
+                      color="default"
+                      class="ms-2 chip-time-filter"
+                      id="chip-all"
+                      @click.prevent="filterButton('all')">
+                      {{ $t("all") }}
+                    </v-chip>
+                  </template>
                 </template>
-    
+
+                <template v-slot:custom-filter-button>
+                  <template v-if="!mobile">
+                    <v-btn
+                      variant="outlined"
+                      :color="thisMonthFilterColor"
+                      density="compact"
+                      @click.prevent="filterButton('month')">
+                      <v-icon
+                        v-if="thisMonthFilterActive"
+                        :icon="mdiCheckCircle"
+                        size="15"
+                        class="me-2"
+                        color="success"></v-icon>
+                      {{ $t('thisMonth') }}
+                    </v-btn>
+
+                    <v-btn
+                      variant="outlined"
+                      :color="yearFilterColor"
+                      density="compact"
+                      @click.prevent="filterButton('year')">
+                      <v-icon
+                        v-if="thisYearFilterActive"
+                        :icon="mdiCheckCircle"
+                        size="15"
+                        class="me-2"
+                        color="success"></v-icon>
+                      {{ $t('thisYear') }}
+                    </v-btn>
+
+                    <v-btn
+                      variant="outlined"
+                      :color="todayFilterColor"
+                      density="compact"
+                      @click.prevent="filterButton('today')">
+                      <v-icon
+                        v-if="todayFilterActive"
+                        :icon="mdiCheckCircle"
+                        size="15"
+                        class="me-2"
+                        color="success"></v-icon>
+                      {{ $t('today') }}
+                    </v-btn>
+
+                    <v-btn
+                      variant="outlined"
+                      :color="allFilterColor"
+                      density="compact"
+                      @click.prevent="filterButton('all')">
+                      <v-icon
+                        v-if="allFilterActive"
+                        :icon="mdiCheckCircle"
+                        size="15"
+                        class="me-2"
+                        color="success"></v-icon>
+                      {{ $t('all') }}
+                    </v-btn>
+                  </template>
+                </template>
+
                 <template v-slot:filter-result>
                     <v-chip density="compact" color="purple-darken-3"
                         :append-icon="mdiClose">
                     </v-chip>
                 </template>
-    
+
                 <template v-slot:bodytable="{ value }">
                     <tr>
                         <td>
@@ -137,7 +185,7 @@
                                         :icon="mdiCogOutline"
                                         color="blue"></v-icon>
                                 </template>
-    
+
                                 <v-list>
                                     <v-list-item
                                         v-if="value.action.detail"
@@ -312,7 +360,7 @@
                         </td>
                     </tr>
                 </template>
-    
+
             </table-list>
 
             <confirmation-modal
@@ -321,31 +369,31 @@
                 :showConfirm="showConfirmation"
                 :deleteIds="selectedIds"
                 @action-bulk-submit="doBulkDelete"></confirmation-modal>
-    
+
             <filter-project
                 :show="isShowFilter"
                 @filter-event="doFilter"
                 @close-event="cancelFilter"></filter-project>
-    
+
             <status-form
                 :is-show="isChangeStatusConfirm"
                 :base-status="projectCurrentStatus"
                 :uid="projectToChangeStatus"
                 :project="projectDetail"
                 @close-event="closeChangeStatus"></status-form>
-    
+
             <AssignVJ :project-uid="selectedProjectForVJ" :is-show="showVJForm" @close-event="closeVjForm"></AssignVJ>
-    
+
             <final-check :is-show="showFinalCheckForm" @close-event="closeFinalCheck" :project-uid="projectUidFinalCheck"></final-check>
-    
+
             <return-equipment-form :is-show="showReturnEquipmentForm"
                 :project-uid="projectUidReturnEquipment"
                 @close-event="closeReturnEquipment"></return-equipment-form>
-    
+
             <FinderManager :is-show="showFinderManager"
                 @close-event="closeFinderManager"
                 :project-uid="projectUidFinderManager" />
-    
+
             <SubtitutePic :is-show="showSubtitutePic"
                 @close-event="closeSubtitutePic"
                 :project-uid="projectUidSubtitutePic"></SubtitutePic>
@@ -395,6 +443,7 @@ import ReturnEquipmentForm from './ReturnEquipment.vue'
 import TableList from "@/components/TableList.vue";
 import { useGetRole } from '@/compose/getRole';
 import BaseRole from '@/enums/system/BaseRole';
+import { useDisplay } from 'vuetify/lib/framework.mjs';
 
 const { t } = useI18n();
 
@@ -403,6 +452,8 @@ const router = useRouter();
 const store = useProjectStore();
 
 const filterProjectItem = ref(null)
+
+const { mobile } = useDisplay();
 
 const showFinderManager = ref(false)
 
@@ -563,6 +614,15 @@ function toggleFilterButton(type) {
 function filterButton(type) {
   toggleFilterButton(type);
 
+  // for mobile preview, handle chips color
+  if (mobile.value) {
+    let chips = document.querySelectorAll('.chip-time-filter');
+    chips.forEach((chip) => {
+      chip.classList.remove('text-success');
+    });
+    document.getElementById(`chip-${type}`).classList.add('text-success');
+  }
+
   store.setForceUpdatePages(false);
 
   initProjects()
@@ -657,7 +717,7 @@ async function initProjects(payload = '') {
       })
     }
 
-    
+
     loading.value = true;
     await store.initProjects();
     loading.value = false;

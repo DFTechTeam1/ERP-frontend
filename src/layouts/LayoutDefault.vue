@@ -2,6 +2,7 @@
 <template>
   <v-app>
     <template v-if="!mobile">
+
       <v-navigation-drawer
         mobile-breakpoint="md"
         :rail="rail"
@@ -21,6 +22,110 @@
 
         <!-- MENU ITEMS -->
         <v-list
+          density="compact"
+          class="v-list-scroll no-scroll">
+
+          <template
+            v-for="(menus, menuKey) in layoutItems"
+            :key="menuKey">
+
+            <!-- menu group -->
+            <template v-if="menus.type == 'regular'">
+              <v-list-subheader v-if="!rail">{{ menus.name }}</v-list-subheader>
+            </template>
+            <template v-else>
+              <v-list-item
+                @click.prevent="navigate(menus)"
+                class="sub-menu pointer">{{ menus.name }}</v-list-item>
+            </template>
+            <!-- end menu group -->
+
+            <template
+              v-for="(menu) in menus.childs"
+              :key="menu.id">
+              <v-list-item
+                class="sub-menu pointer"
+                color="blue"
+                :class="{
+                  'menu-active': menu.active_menu,
+                  'menu-collapsed': rail,
+                }"
+                base-color="#000"
+                @click="navigate(menu)">
+                <template v-slot:prepend>
+                  <v-img size="18"
+                    :src="menu.icon"
+                    width="15"
+                    height="15"
+                    class="mr-2"></v-img>
+                </template>
+                <template v-slot:title>
+                  {{ menu.name }}
+                </template>
+              </v-list-item>
+
+              <!-- <template v-else>
+
+                <v-list>
+
+                  <v-list-group
+                    :value="menu.name"
+                    color="blue"
+                    :class="{
+                      'menu-group-collapsed': rail
+                    }">
+
+                    <template v-slot:activator="{ props }">
+                      <v-list-item
+                        v-bind="props"
+                        class="sub-menu pointer">
+
+                        <template v-slot:prepend>
+                          <v-img size="18"
+                            :src="menu.icon"
+                            width="15"
+                            height="15"
+                            class="mr-2"></v-img>
+                        </template>
+                        <template v-slot:title>
+                          {{ menu.name }}
+                        </template>
+
+                      </v-list-item>
+                    </template>
+
+                    <v-list-item
+                      v-for="(children, c) in menu.children"
+                      :key="c"
+                      class="sub-menu pointer"
+                      :class="{
+                        'menu-active': children.link == activeMenuGetters,
+                        'menu-collapsed': rail,
+                      }"
+                      @click="navigate(children)"
+                    >
+                      <template v-slot:prepend>
+                        <v-icon
+                          :icon="mdiCircleOutline"
+                          size="15"></v-icon>
+                      </template>
+                      <template v-slot:title>
+                        {{ children.name }}
+                      </template>
+                    </v-list-item>
+
+                  </v-list-group>
+
+                </v-list>
+
+              </template> -->
+
+            </template>
+
+          </template>
+
+        </v-list>
+        <!-- <v-list
           density="compact"
           class="v-list-scroll no-scroll">
 
@@ -117,7 +222,7 @@
 
           </template>
 
-        </v-list>
+        </v-list> -->
         <!-- END MENU ITEMS -->
 
         <!-- SHEETS -->
@@ -568,6 +673,48 @@ function changeLocal(lang) {
   location.reload()
 }
 
+function setMenu() {
+  let menus = useBreakToken('menus').old; // here we just take the 'old' menu.
+  let newLayout = menus.map((map) => {
+    if (map.type == 'regular') {
+      map.childs.map((child) => {
+        child.active_menu = false;
+
+        if (currentLang.value == 'en') {
+          child.name = child.lang_en;
+        } else {
+          child.name = child.lang_id;
+        }
+
+        if (child.icon) {
+          child.icon = import.meta.env.VITE_BACKEND + `/${child.icon}`;
+        }
+
+        return child;
+      });
+    }
+
+    return map;
+  });
+
+  // set active menu
+  newLayout.map((map) => {
+    map.childs.map((child) => {
+      child.active_menu = false;
+
+      if (route.meta.parentLink == child.path) {
+        child.active_menu = true;
+      }
+
+      return child;
+    });
+
+    return map;
+  });
+
+  layoutItems.value = newLayout
+}
+
 onMounted(() => {
   openMenu.value = []
 
@@ -576,46 +723,45 @@ onMounted(() => {
     currentLang.value = localStorage.getItem('lang')
   }
 
-  var newLayout = useBreakToken('menus')
-  for (let a in newLayout) {
-    if (newLayout[a].length) {
-      newLayout[a].map((elem) => {
-        elem.active_menu = false
+  setMenu();
+  // var newLayout = useBreakToken('menus')
+  // for (let a in newLayout) {
+  //   if (newLayout[a].length) {
+  //     newLayout[a].map((elem) => {
+  //       elem.active_menu = false
 
-        if (currentLang.value == 'en') {
-          elem.name = elem.lang_en
-        } else if (currentLang.value == 'id') {
-          elem.name = elem.lang_id
-        }
+  //       if (currentLang.value == 'en') {
+  //         elem.name = elem.lang_en
+  //       } else if (currentLang.value == 'id') {
+  //         elem.name = elem.lang_id
+  //       }
 
-        // set active menu
-        if (route.meta.parentLink) {
-          if (route.meta.parentLink == elem.link) {
-            elem.active_menu = true
-          }
-        }
+  //       // set active menu
+  //       if (route.meta.parentLink) {
+  //         if (route.meta.parentLink == elem.link) {
+  //           elem.active_menu = true
+  //         }
+  //       }
 
-        if (elem.children.length) {
-          elem.children.map((elemChild) => {
-            if (currentLang.value == 'en') {
-              elemChild.name = elemChild.lang_en
-            } else if (currentLang.value == 'id') {
-              elemChild.name = elemChild.lang_id
-            }
-          })
-        }
+  //       if (elem.children.length) {
+  //         elem.children.map((elemChild) => {
+  //           if (currentLang.value == 'en') {
+  //             elemChild.name = elemChild.lang_en
+  //           } else if (currentLang.value == 'id') {
+  //             elemChild.name = elemChild.lang_id
+  //           }
+  //         })
+  //       }
 
-        return elem
-      })
+  //       return elem;
+  //     });
 
-      // remove dashboard menu that intended for the new layout
-      newLayout[a] = newLayout[a].filter((filter) => {
-        return filter.new_icon != 'pi pi-chart-scatter';
-      });
-    }
-  }
-
-  layoutItems.value = newLayout
+  //     // remove dashboard menu that intended for the new layout
+  //     newLayout[a] = newLayout[a].filter((filter) => {
+  //       return filter.new_icon != 'pi pi-chart-scatter';
+  //     });
+  //   }
+  // }
 
   initNotification()
 
@@ -663,10 +809,14 @@ onMounted(() => {
 });
 
 function navigate(path) {
-  store.navigateMenu(path.link);
-  router.push(path.link);
+  if (path.type == undefined) {
+    store.navigateMenu(path.path);
+    router.push(path.path);
 
-  openMenu.value = [path.name]
+    openMenu.value = [path.name]
+  } else {
+    window.location.href = import.meta.env.VITE_OFFICE_URL + '/init/' + useBreakToken('encrypted_user_id');
+  }
 }
 
 async function logout() {
@@ -685,42 +835,7 @@ function closeFormResetPassword() {
 watch(route, (values) => {
   openMenu.value = []
 
-  var newLayout = useBreakToken('menus')
-  for (let a in newLayout) {
-    if (newLayout[a].length) {
-      newLayout[a].map((elem) => {
-        elem.active_menu = false
-
-        if (currentLang.value == 'en') {
-          elem.name = elem.lang_en
-        } else if (currentLang.value == 'id') {
-          elem.name = elem.lang_id
-        }
-
-        // set active menu
-        if (values.meta.parentLink) {
-          if (values.meta.parentLink == elem.link) {
-            elem.active_menu = true
-          }
-        }
-
-        if (elem.children.length) {
-          elem.children.map((elemChild) => {
-            if (currentLang.value == 'en') {
-              elemChild.name = elemChild.lang_en
-            } else if (currentLang.value == 'id') {
-              elemChild.name = elemChild.lang_id
-            }
-            return elemChild
-          })
-        }
-
-        return elem
-      })
-    }
-  }
-
-  layoutItems.value = newLayout
+  setMenu();
 })
 </script>
 

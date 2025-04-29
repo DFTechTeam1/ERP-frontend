@@ -7,7 +7,6 @@ export function useAuth() {
     }
 
     function setupToken(token) {
-        console.log('token', token);
         localStorage.setItem('dfauth', token);
     }
 
