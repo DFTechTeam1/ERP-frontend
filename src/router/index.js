@@ -996,9 +996,6 @@ router.beforeEach((to, from) => {
     window.document.title = to.name;
   }
 
-  console.log("to", to);
-  console.log("from", from);
-
   if (to.path == "/auth/a/login" && localStorage.getItem("dfauth")) {
     return {
       path: "/admin/dashboard",
