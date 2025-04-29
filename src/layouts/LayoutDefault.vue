@@ -674,7 +674,13 @@ function changeLocal(lang) {
 }
 
 function setMenu() {
+  let forceClearCache = true;
+  if (forceClearCache) {
+    router.push('/');
+  }
+
   let menus = useBreakToken('menus').old; // here we just take the 'old' menu.
+  console.log('menus layout', menus)
   let newLayout = menus.map((map) => {
     if (map.type == 'regular') {
       map.childs.map((child) => {
@@ -717,10 +723,16 @@ function setMenu() {
 
 onMounted(() => {
   openMenu.value = []
-
+  // eriksaputro@dfactory.pro
   if (localStorage.getItem('lang')) {
     i18n.locale.value = localStorage.getItem('lang')
     currentLang.value = localStorage.getItem('lang')
+  }
+
+  let forceClearCache = localStorage.getItem('ccbrowser');
+  if (!forceClearCache) {
+    localStorage.removeItem('dfauth');
+    localStorage.setItem('ccbrowser', 1);
   }
 
   setMenu();
