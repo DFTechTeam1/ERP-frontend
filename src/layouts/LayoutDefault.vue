@@ -674,11 +674,6 @@ function changeLocal(lang) {
 }
 
 function setMenu() {
-  let forceClearCache = true;
-  if (forceClearCache) {
-    router.push('/');
-  }
-
   let menus = useBreakToken('menus').old; // here we just take the 'old' menu.
   console.log('menus layout', menus)
   let newLayout = menus.map((map) => {
@@ -821,6 +816,7 @@ onMounted(() => {
 });
 
 function navigate(path) {
+  console.log("path data", path);
   if (path.type == undefined) {
     store.navigateMenu(path.path);
     router.push(path.path);
