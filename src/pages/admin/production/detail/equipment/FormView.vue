@@ -107,6 +107,7 @@
                               <v-row
                                 v-for="(item, ii) in availableLine[x].items"
                                 :key="ii"
+                                :class="`detail-bundle-${x}`"
                                 :id="'detail-bundle-' + ii + '-' + x">
                                 <v-col
                                   cols="12"
@@ -137,6 +138,8 @@
                                     variant="outlined"
                                     :readonly="true">
                                   </v-text-field>
+
+                                  <input type="hidden" :value="item.inventory_item_id" :class="`inventory-item-id-${x}`">
                                 </v-col>
 
                                 <v-col
@@ -315,8 +318,20 @@ function refactorPayload(original, items) {
 }
 
 const validateData = handleSubmit(async (values) => {
+    values.equipments.map((itemData, index) => {
+      let details = [];
+      document.querySelectorAll(`.inventory-item-id-${index}`).forEach((elem) => {
+        details.push(elem.value);
+      })
+
+      itemData.inventory_ids = details;
+    });
+
     console.log('avalable', availableLine.value)
     console.log('listed', listedInventories.value);
+    console.log('values', values);
+
+    return false;
 
     // refoctor payload
     var newValues = refactorPayload(values, availableLine.value);
