@@ -22,6 +22,7 @@
     "apexcharts": "^3.48.0",
     "axios": "^1.6.8",
     "chart.js": "^4.4.9",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "core-js": "^3.34.0",
     "crypto-js": "^4.2.0",
     "filepond": "^4.31.1",

@@ -84,8 +84,17 @@ export const useDashboardStore = defineStore('dashboard', {
         },
         setProjectCalendarDetail(payload) {
             var filter = this.projectCalendarGrouping[payload]
-            
+
             this.projectCalendarDetail = filter || []
+        },
+        async getVjWorkload(param) {
+          try {
+            const resp = await axios.get(`/dashboard/getVjWorkload?month=${param.month}`);
+
+            return resp;
+          } catch (error) {
+            return error;
+          }
         }
     },
 })

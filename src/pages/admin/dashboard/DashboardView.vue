@@ -12,63 +12,63 @@
                             md="6"
                             cols="12">
                                 <div class="d-flex align-items-center"
-                                    style="gap: 10px;">
-                                    <v-avatar
-                                        class="header-account"
-                                        size="46">
-                                        <v-img
-                                        src="/user.png"
-                                        alt="user"></v-img>
-                                    </v-avatar>
-                                    <span class="greeting-text">
-                                        {{ $t('welcomeBack') }} {{ username }}!
-                                    </span>
+                                  style="gap: 10px;">
+                                  <v-avatar
+                                    class="header-account"
+                                    size="46">
+                                    <v-img
+                                    src="/user.png"
+                                    alt="user"></v-img>
+                                  </v-avatar>
+                                  <span class="greeting-text">
+                                      {{ $t('welcomeBack') }} {{ username }}!
+                                  </span>
                                 </div>
 
                                 <div class="d-flex align-items-center greeting-project">
-                                    <template v-if="loading">
-                                        <div class="wrapper-info w-50 bg-transparent">
-                                            <v-skeleton-loader type="list-item-two-line" class="bg-transparent"></v-skeleton-loader>
-                                        </div>
-                                        <div class="wrapper-info w-50 bg-transparent">
-                                            <v-skeleton-loader type="list-item-two-line" class="bg-transparent"></v-skeleton-loader>
-                                        </div>
-                                    </template>
-                                    <template v-else>
-                                        <template
-                                            v-for="(report, r) in listOfReports.left"
-                                            :key="r">
-                                            <div class="wrapper-info">
-                                                <p class="value position-relative">
-                                                    <template v-if="report.is_hide_nominal && hideNominal">
-                                                      ***********
-                                                    </template>
-                                                    <template v-else>
-                                                      {{ report.value }}
-                                                    </template>
+                                  <template v-if="loading">
+                                    <div class="wrapper-info w-50 bg-transparent">
+                                      <v-skeleton-loader type="list-item-two-line" class="bg-transparent"></v-skeleton-loader>
+                                    </div>
+                                    <div class="wrapper-info w-50 bg-transparent">
+                                      <v-skeleton-loader type="list-item-two-line" class="bg-transparent"></v-skeleton-loader>
+                                    </div>
+                                  </template>
+                                  <template v-else>
+                                      <template
+                                        v-for="(report, r) in listOfReports.left"
+                                        :key="r">
+                                        <div class="wrapper-info">
+                                            <p class="value position-relative">
+                                              <template v-if="report.is_hide_nominal && hideNominal">
+                                                ***********
+                                              </template>
+                                              <template v-else>
+                                                {{ report.value }}
+                                              </template>
 
-                                                    <template v-if="report.is_hide_nominal != undefined">
-                                                      <v-icon
-                                                        v-if="report.is_hide_nominal"
-                                                        :icon="mdiEyeOffOutline"
-                                                        class="icon-eye"
-                                                        @click.prevent="changeAvailability(report, false)"
-                                                        size="15"></v-icon>
+                                              <template v-if="report.is_hide_nominal != undefined">
+                                                <v-icon
+                                                  v-if="report.is_hide_nominal"
+                                                  :icon="mdiEyeOffOutline"
+                                                  class="icon-eye"
+                                                  @click.prevent="changeAvailability(report, false)"
+                                                  size="15"></v-icon>
 
-                                                      <v-icon
-                                                        v-if="!report.is_hide_nominal"
-                                                        :icon="mdiEyeOutline"
-                                                        class="icon-eye"
-                                                        @click.prevent="changeAvailability(report, true)"
-                                                        size="15"></v-icon>
-                                                    </template>
-                                                </p>
-                                                <p class="text">
-                                                    {{ report.text }}
-                                                </p>
-                                            </div>
-                                            <v-divider v-if="r == 0" :vertical="true" inset></v-divider>
-                                        </template>
+                                                <v-icon
+                                                  v-if="!report.is_hide_nominal"
+                                                  :icon="mdiEyeOutline"
+                                                  class="icon-eye"
+                                                  @click.prevent="changeAvailability(report, true)"
+                                                  size="15"></v-icon>
+                                              </template>
+                                            </p>
+                                            <p class="text">
+                                                {{ report.text }}
+                                            </p>
+                                        </div>
+                                        <v-divider v-if="r == 0" :vertical="true" inset></v-divider>
+                                      </template>
                                     </template>
                                 </div>
                         </v-col>
@@ -84,10 +84,14 @@
                 </template>
             </v-card>
 
-            <visual-jockey-workload class="mb-6"></visual-jockey-workload>
             <calendar-event />
           </v-col>
           <v-col cols="12" md="4">
+            <v-row>
+              <v-col cols="12">
+                <visual-jockey-workload></visual-jockey-workload>
+              </v-col>
+            </v-row>
             <template v-if="listOfReports.right">
                 <v-row>
                     <v-col
