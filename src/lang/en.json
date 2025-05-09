@@ -722,5 +722,6 @@
     "completeAndContinue": "Complete All and Continue",
     "completingTask": "Completing the task ...",
     "searchTaskName": "Search task name ...",
-    "cannotCombineModelerAndRegularEmployee": "Cannnot combine modeler with other position"
+    "cannotCombineModelerAndRegularEmployee": "Cannnot combine modeler with other position",
+    "visualJockeyWorkload": "Visual Jockey Workload"
 }
