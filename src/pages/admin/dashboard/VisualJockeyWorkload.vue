@@ -82,6 +82,7 @@ const chooseDate = (value) => {
   selectedMonth.value = moment(value.year + '-' + (parseInt(value.month) + 1) + '-01', 'YYYY-MM-DD').format('YYYY-MM');
   datePickerRef.value.closeMenu();
   menu.value = false;
+  show.value = false;
   getWorkload();
 }
 

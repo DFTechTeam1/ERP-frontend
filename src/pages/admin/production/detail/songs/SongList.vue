@@ -7,12 +7,9 @@ import SingleSongForm from './SingleSongForm.vue';
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { showNotification } from '@/compose/notification';
-import { useCheckPermission } from '@/compose/checkPermission';
 import DistributeForm from './DistributeForm.vue';
 import DetailSong from './DetailSong.vue';
 import ReportDone from './ReportDone.vue';
-import BaseRole from '@/enums/system/BaseRole';
-import { useGetRole } from '@/compose/getRole';
 
 const { t } = useI18n();
 
@@ -102,7 +99,7 @@ function closeReportForm() {
 
 function openReportForm(song) {
     showReportForm.value = true;
-    selectedReportId.value = song.uid; 
+    selectedReportId.value = song.uid;
 }
 
 async function startWork(songUid) {
@@ -128,14 +125,14 @@ async function startWork(songUid) {
                     :title="song.name"
                     :class="{
                         'border-bottom': songKey != props.songs.length - 1,
-                        'bg-blue-grey-lighten-5': song.my_own && useGetRole() != BaseRole.Root && useGetRole() != BaseRole.Director && useGetRole() != BaseRole.ProjectManagerEntertainment
+                        'bg-blue-grey-lighten-5': song.my_own
                     }">
                     <template v-slot:prepend>
                         <v-icon
                             :icon="mdiMusic"
                             size="20"></v-icon>
                     </template>
-    
+
                     <template v-slot:append>
                         <div class="d-flex align-center"
                             :style="{
@@ -234,7 +231,7 @@ async function startWork(songUid) {
                             </v-menu>
                         </div>
                     </template>
-    
+
                     <template v-slot:subtitle>
                         <div>
                             <v-chip
