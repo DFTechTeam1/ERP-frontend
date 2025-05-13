@@ -723,5 +723,6 @@
     "completingTask": "Completing the task ...",
     "searchTaskName": "Search task name ...",
     "cannotCombineModelerAndRegularEmployee": "Cannnot combine modeler with other position",
-    "visualJockeyWorkload": "Visual Jockey Workload"
+    "visualJockeyWorkload": "Visual Jockey Workload",
+    "entertainmentWorkload": "Entertainment Workload"
 }

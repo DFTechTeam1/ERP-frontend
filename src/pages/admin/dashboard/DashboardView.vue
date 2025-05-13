@@ -85,6 +85,8 @@
             </v-card>
 
             <calendar-event />
+
+            <entertainment-workload></entertainment-workload>
           </v-col>
           <v-col cols="12" md="4">
             <v-row v-if="useGetRole() == BaseRole.ProjectManagerEntertainment || useGetRole() == BaseRole.ProjectManager || useGetRole() == BaseRole.ProjectManagerAdmin || useGetRole() == BaseRole.Root">
@@ -190,6 +192,7 @@ import BaseRole from '@/enums/system/BaseRole';
 import ProjectNeedComplete from './ProjectNeedComplete.vue';
 import { useProjectStore } from '@/stores/project';
 import VisualJockeyWorkload from './VisualJockeyWorkload.vue';
+import EntertainmentWorkload from './EntertainmentWorkload.vue';
 
 const store = useDashboardStore()
 
