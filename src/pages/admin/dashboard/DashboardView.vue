@@ -86,10 +86,10 @@
 
             <calendar-event />
 
-            <entertainment-workload></entertainment-workload>
+            <entertainment-workload v-if="useGetRole() == BaseRole.ProjectManagerEntertainment || useGetRole() == BaseRole.ProjectManagerAdmin || useGetRole() == BaseRole.Root || useGetRole() == BaseRole.Director"></entertainment-workload>
           </v-col>
           <v-col cols="12" md="4">
-            <v-row v-if="useGetRole() == BaseRole.ProjectManagerEntertainment || useGetRole() == BaseRole.ProjectManager || useGetRole() == BaseRole.ProjectManagerAdmin || useGetRole() == BaseRole.Root">
+            <v-row v-if="useGetRole() == BaseRole.ProjectManagerEntertainment || useGetRole() == BaseRole.ProjectManagerAdmin || useGetRole() == BaseRole.Root || useGetRole() == BaseRole.Director">
               <v-col cols="12">
                 <visual-jockey-workload></visual-jockey-workload>
               </v-col>
