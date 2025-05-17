@@ -720,5 +720,6 @@
     "completingTask": "Menyelesaikan pekerjaan ...",
     "searchTaskName": "Cari nama tugas ...",
     "cannotCombineModelerAndRegularEmployee": "Tidak dapat menggabungkan 3D modeler dengan karyawan posisi lain",
-    "visualJockeyWorkload": "Visual Jockey Workload"
+    "visualJockeyWorkload": "Visual Jockey Workload",
+    "entertainmentWorkload": "Entertainment Workload"
 }
