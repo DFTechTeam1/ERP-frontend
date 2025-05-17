@@ -388,7 +388,6 @@ import ProjectReport from './ProjectReport.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProjectStore } from '@/stores/project';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
-import { useCheckPermission } from '@/compose/checkPermission';
 import { mdiDotsVertical, mdiHandBackLeftOutline, mdiDownloadMultiple, mdiPlus, mdiPlusBoxMultiple } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { useProjectClassStore } from '@/stores/projectClass';
@@ -552,10 +551,10 @@ onMounted(() => {
   canAddTask.value = detailProject.value ? detailProject.value.permission_list.add_task : false;
   canDeleteTask.value = detailProject.value ? detailProject.value.permission_list.delete_task : false;
 
-  if (useGetRole() == BaseRole.Entertainment || useGetRole() == BaseRole.ProjectManagerEntertainment) {
-      tab.value = 'tab-equipment-check';
+  if ((detailProject.value) && (detailProject.value.is_entertainment)) {
+    tab.value = 'tab-equipment-check';
   } else {
-      tab.value = 'tab-task';
+    tab.value = 'tab-task';
   }
 
   console.log('tab', tab.value);
