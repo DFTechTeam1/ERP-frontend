@@ -141,12 +141,12 @@
                 <template v-slot:bodytable="{ value }">
                     <tr>
                         <td>
+                            <p class="fw-bold">{{ value.project_date }}</p>
+                        </td>
+                        <td>
                             <router-link
                                 :to="'/admin/production/project/' + value.uid"
                                 style="color: #000; font-weight: bold;">{{ value.name }}</router-link>
-                        </td>
-                        <td>
-                            <p class="fw-bold">{{ value.project_date }}</p>
                         </td>
                         <td>{{ value.venue }}</td>
                         <td>
@@ -509,14 +509,15 @@ const breadcrumbs = ref([
 ]);
 const headers = ref([
     {
-        title: t('name'),
-        key: 'name',
-        align: 'start',
-        sortable: true
-    },
-    {
         title: t('date'),
         key: 'project_date',
+        align: 'start',
+        sortable: true,
+        minWidth: '150px'
+    },
+    {
+        title: t('name'),
+        key: 'name',
         align: 'start',
         sortable: true
     },

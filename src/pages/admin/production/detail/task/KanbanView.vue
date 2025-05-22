@@ -238,7 +238,7 @@
                               <p class="text-center">No Task</p>
                           </template>
                           <v-btn
-                              v-if="props.canAddTask && ((detailProject) && (!detailProject.project_is_complete) && (detailProject.status_raw))"
+                              v-if="((detailProject) && (!detailProject.project_is_complete) && (detailProject.status_raw) && (detailProject.permission_list.add_task))"
                               variant="outlined"
                               color="primary"
                               class="w-100 mt-3 mb-5"

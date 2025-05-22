@@ -731,44 +731,6 @@ onMounted(() => {
   }
 
   setMenu();
-  // var newLayout = useBreakToken('menus')
-  // for (let a in newLayout) {
-  //   if (newLayout[a].length) {
-  //     newLayout[a].map((elem) => {
-  //       elem.active_menu = false
-
-  //       if (currentLang.value == 'en') {
-  //         elem.name = elem.lang_en
-  //       } else if (currentLang.value == 'id') {
-  //         elem.name = elem.lang_id
-  //       }
-
-  //       // set active menu
-  //       if (route.meta.parentLink) {
-  //         if (route.meta.parentLink == elem.link) {
-  //           elem.active_menu = true
-  //         }
-  //       }
-
-  //       if (elem.children.length) {
-  //         elem.children.map((elemChild) => {
-  //           if (currentLang.value == 'en') {
-  //             elemChild.name = elemChild.lang_en
-  //           } else if (currentLang.value == 'id') {
-  //             elemChild.name = elemChild.lang_id
-  //           }
-  //         })
-  //       }
-
-  //       return elem;
-  //     });
-
-  //     // remove dashboard menu that intended for the new layout
-  //     newLayout[a] = newLayout[a].filter((filter) => {
-  //       return filter.new_icon != 'pi pi-chart-scatter';
-  //     });
-  //   }
-  // }
 
   initNotification()
 
@@ -816,7 +778,6 @@ onMounted(() => {
 });
 
 function navigate(path) {
-  console.log("path data", path);
   if (path.type == undefined) {
     store.navigateMenu(path.path);
     router.push(path.path);

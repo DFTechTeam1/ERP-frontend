@@ -54,10 +54,13 @@ const FilePondAvatar = VueFilePond(
     FilePondPluginImageEdit
 )
 
+import VueApexCharts from "vue3-apexcharts";
+
 export function registerComponent(app) {
 
     app.component('breadcrumbData', BreadcrumbData)
         .component('tableList', TableList)
+        .component("apexchart", VueApexCharts)
         .component('image-preview', ImagePreview)
         .component('color-picker', ColorPicker)
         .component('rounded-input', RoundedInput)

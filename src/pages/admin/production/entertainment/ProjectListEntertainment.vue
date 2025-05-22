@@ -48,15 +48,16 @@ const confirmFunction = ref('delete')
 
 const headers = ref([
     {
-        title: t('name'),
-        key: 'name',
-        align: 'start',
-        sortable: true,
-        available: true
-    },
-    {
         title: t('date'),
         key: 'project_date',
+        align: 'start',
+        sortable: true,
+        available: true,
+        minWidth: '200px'
+    },
+    {
+        title: t('name'),
+        key: 'name',
         align: 'start',
         sortable: true,
         available: true
@@ -451,7 +452,9 @@ async function doBulkDelete(payload) {
                 <tr>
                     <template v-for="(header, hKey) in headers"
                         :key="hKey">
-                        <td v-if="header.available">
+                        <td v-if="header.available" :class="{
+                            'td-date': header.key == 'project_date'
+                        }">
                             <template v-if="header.key === 'name'">
                                 <router-link
                                 :to="'/admin/production/project/' + value.uid"
@@ -644,3 +647,9 @@ async function doBulkDelete(payload) {
             @close-event="cancelFilter"></filter-project>
     </div>
 </template>
+
+<style lang="scss" scoped>
+.td-date {
+    min-width: 150px;
+}
+</style>
