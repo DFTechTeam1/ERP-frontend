@@ -724,5 +724,8 @@
     "searchTaskName": "Search task name ...",
     "cannotCombineModelerAndRegularEmployee": "Cannnot combine modeler with other position",
     "visualJockeyWorkload": "Visual Jockey Workload",
-    "entertainmentWorkload": "Entertainment Workload"
+    "entertainmentWorkload": "Entertainment Workload",
+    "cityRequired": "City is required",
+    "addCustomer": "Add Customer",
+    "customer": "Customer"
 }

@@ -25,6 +25,8 @@
                             'mb-3': errors.name
                         }"
                         :error-message="errors.name"
+                        input-type="select"
+                        :select-options="ledNameList"
                         density="compact"
 
                         ></field-input>
@@ -117,6 +119,17 @@ const props = defineProps({
     },
 })
 
+const ledNameList = ref([
+  {
+    value: 'main',
+    title: 'Main'
+  },
+  {
+    value: 'prefunction',
+    title: 'Prefunction'
+  }
+]);
+
 const emit = defineEmits(['close-event'])
 
 watch(props, (values) => {
@@ -176,6 +189,8 @@ const validateData = handleSubmit(async (values) => {
     values.total = formatTotalLed(sum.toString())
     values.totalRaw = sum.toString()
     values.textDetail = textDetail
+
+    console.log("led values", values);
 
     resetForm()
     emit('close-event', values)

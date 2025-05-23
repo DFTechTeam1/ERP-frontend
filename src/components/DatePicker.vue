@@ -5,9 +5,7 @@
             v-model="model"
             :clearable="true"
             :density="props.density"
-            :class="{
-            'new-border-form-control': props.isSolo
-            }"
+            :class="pickerClass"
             :variant=" props.isSolo ? 'solo' : 'outlined'"
             :hide-details="props.isSolo"
             :single-line="props.isSolo"
@@ -58,7 +56,13 @@
 
     const datepicker = ref(null)
 
+    const pickerClass = ref('');
+
     const props = defineProps({
+        customClass: {
+            type: String,
+            default: ''
+        },
         label: {
             type: String,
             required: true,
@@ -100,6 +104,14 @@
     onMounted(() => {
         if (model.value) {
             date.value = new Date(model.value);
+        }
+
+        if ((props) && (props.customClass)) {
+            pickerClass.value = {
+                'new-border-form-control': props.isSolo
+            };
+
+            pickerClass.value[props.customClass] = true;
         }
     })
 </script>

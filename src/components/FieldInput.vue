@@ -13,10 +13,7 @@
             :value="model"
             :type="props.fieldType"
             :density="props.density"
-            :class="{
-                'position-relative': fieldTypeValue == 'password',
-                'new-border-form-control': props.isSolo
-            }"
+            :class="textFieldClass"
             :hint="props.hint"
             :error-messages="props.errorMessage"
             v-if="props.inputType == 'text'">
@@ -74,6 +71,7 @@
             :hint="props.hint"
             :density="props.density"
             :items="props.selectOptions"
+            :class="selectFieldClass"
             @update:model-value="getChanges"
             v-if="props.inputType == 'select'">
             <!-- <template v-slot:prepend-item v-if="!inventoryTypesAll.length">
@@ -128,7 +126,7 @@
 
 <script setup>
 import { mdiAsterisk, mdiEyeCircle, mdiEyeClosed } from '@mdi/js';
-import { watch } from 'vue';
+import { onMounted, watch } from 'vue';
 import { ref } from 'vue';
 
 const model = defineModel()
@@ -140,6 +138,10 @@ const fieldTypeValue = ref('password');
 const showTogglePassword = ref(false);
 
 const props = defineProps({
+    customClass: {
+        type: String,
+        default: ''
+    },
     isClearable: {
       type: Boolean,
       default: true,
@@ -205,7 +207,23 @@ const props = defineProps({
         type: Boolean,
         default: false,
     }
-})
+});
+
+const textFieldClass = ref({
+    'position-relative': fieldTypeValue == 'password',
+    'new-border-form-control': props.isSolo,
+});
+
+const selectFieldClass = ref('');
+
+onMounted(() => {
+    if ((props) && (props.customClass != '')) {
+        textFieldClass.value[props.customClass] = true;
+
+        selectFieldClass.value = {};
+        selectFieldClass.value[props.customClass] = true;
+    }
+});
 
 watch(props, (values) => {
     fieldTypeValue.value = values.fieldType;
