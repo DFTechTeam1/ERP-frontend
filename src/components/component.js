@@ -28,6 +28,7 @@ import FilePondPluginImageTransform from 'filepond-plugin-image-transform'
 import FilePondPluginImageEdit from 'filepond-plugin-image-edit'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import VueCountdown from '@chenfengyuan/vue-countdown';
+import CurrencyInput from "./CurrencyInput.vue";
 import '@vuepic/vue-datepicker/dist/main.css'
 
 import 'filepond/dist/filepond.min.css';
@@ -74,6 +75,7 @@ export function registerComponent(app) {
         .component('date-picker', DatePicker)
         .component('file-pond-com', FilePond)
         .component('file-pond-avatar', FilePondAvatar)
+        .component('currency-input', CurrencyInput)
         .component('VueDatePicker', VueDatePicker)
         .component('ButtonSubmit', ButtonSubmit)
         .component('LoadingView', LoadingView)

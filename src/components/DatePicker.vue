@@ -42,6 +42,7 @@
 
 <script setup>
     import { mdiAsterisk } from '@mdi/js';
+import moment from 'moment';
     import { ref, onMounted } from 'vue';
     
     import { useDate } from 'vuetify/lib/framework.mjs';
@@ -87,6 +88,10 @@
         },
         maxDate: {
             type: String,
+        },
+        formatOutput: {
+            type: String,
+            default: 'default'
         }
     })
 
@@ -97,7 +102,12 @@
     }
 
     function handleDate(val) {
-        model.value = _date.format(date.value, 'year') + ', ' + _date.format(date.value, 'monthAndDate');
+        let format = _date.format(date.value, 'year') + ', ' + _date.format(date.value, 'monthAndDate');
+
+        if (props.formatOutput != 'default') {
+            format = moment(format, 'YYYY, MMMM DD').format(props.formatOutput)
+        }
+        model.value = format;
         isShowDatePicker.value = false;
     }
 

@@ -16,6 +16,10 @@ const props = defineProps({
   withDeleteButton: {
     type: Boolean,
     default: true
+  },
+  returnObject: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -63,7 +67,14 @@ function closeLedForm(payload = null) {
 
     updateTotalLed()
 
-    emit("update-led-event", total.value);
+    let returnValue = total.value;
+    if (props.returnObject) {
+      returnValue = {
+        total: total.value,
+        detail: ledSetting.value
+      };
+    }
+    emit("update-led-event", returnValue);
   }
 }
 
@@ -75,13 +86,20 @@ defineExpose({
   getValue
 })
 
-onMounted(() => {
-  if (props.data) {
-    ledSetting.value = props.data
-  }
+// onMounted(() => {
+//   if (props.data) {
+//     ledSetting.value = props.data
+//   }
 
-  console.log("ledSetting", props.data)
-})
+//   console.log("ledSetting", props.data)
+// })
+
+watch(props, (values) => {
+  console.log('values props', values);
+  if (values) {
+    ledSetting.value = values.data;
+  }
+});
 </script>
 
 <template>

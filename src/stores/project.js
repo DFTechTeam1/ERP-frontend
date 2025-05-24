@@ -1585,6 +1585,13 @@ export const useProjectStore = defineStore('project', {
           } catch (error) {
             return error;
           }
+        },
+        async checkHighSeason(payload) {
+            try {
+                return await axios.post(`production/project/checkHighSeason`, payload);
+            } catch (error) {
+                return error;
+            }
         }
     },
 })

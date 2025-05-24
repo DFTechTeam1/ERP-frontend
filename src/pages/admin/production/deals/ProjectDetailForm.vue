@@ -3,7 +3,7 @@ import { useForm } from 'vee-validate';
 import LedDetailForm from '../components/LedDetailForm.vue';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
-import { onMounted, watch } from 'vue';
+import { onMounted, watch, ref } from 'vue';
 import { useProjectStore } from '@/stores/project';
 import { useEmployeesStore } from '@/stores/employees';
 import { useProjectClassStore } from '@/stores/projectClass';
@@ -35,10 +35,12 @@ const { defineField, errors, setFieldValue, handleSubmit, values } = useForm({
         country_id: yup.string().required(t('countryRequired')),
         state_id: yup.string().required(t('stateRequired')),
         city_id: yup.string().required(t('cityRequired')),
+        city_name: yup.string().nullable(),
         venue: yup.string().required(t('venueRequired')),
         project_class_id: yup.string().required(t('classRequired')),
         collaboration: yup.string().nullable(),
         led_area: yup.string().nullable(),
+        led_detail: yup.array().nullable(),
         marketing_id: yup.array().required(t('marketingRequired')),
         note: yup.string().nullable()
     })
@@ -78,8 +80,10 @@ function chooseVenue(selectedVenue) {
     setFieldValue('venue', selectedVenue.title);
 }
 
-function updateLedArea(total) {
-  setFieldValue('led_area', total);
+function updateLedArea(params) {
+  setFieldValue('led_area', params.total);
+
+  setFieldValue('led_detail', params.detail);
 }
 
 function updateDescription() {
@@ -173,6 +177,13 @@ const validateData = handleSubmit(async (values) => {
 });
 
 const getValues = () => {
+    // get city name
+    let cityName = cities.value.filter((city) => {
+        return city.value == values.city_id;
+    });
+    cityName = cityName.length ? cityName[0].title : '';
+    setFieldValue('city_name', cityName);
+
     return values;
 }
 
@@ -211,6 +222,17 @@ watch(country_id, (values) => {
 watch(state_id, (values) => {
     initCities(values || 0)
 });
+
+watch(name, (values) => {
+    if (values.length) {
+        var portal = values
+            .replace(/ /g, "-")
+            .replace(/[^\w-]+/g, "")
+            .toLowerCase();
+
+        setFieldValue('client_portal', portal);
+    }
+})
 
 defineExpose({
     getValues
@@ -270,6 +292,7 @@ defineExpose({
         
                     <date-picker :label="t('eventDate')" v-model="project_date"
                         class="mt-8"
+                        format-output="YYYY-MM-DD"
                         custom-class="custom-input"
                         :error-message="errors.project_date"></date-picker>
         
@@ -296,6 +319,7 @@ defineExpose({
         
                     <LedDetailForm
                         @update-led-event="updateLedArea"
+                        :return-object="true"
                         ref="ledFormComponent"></LedDetailForm>
                 </v-col>
         

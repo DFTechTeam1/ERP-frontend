@@ -1,10 +1,14 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import LedDetailForm from '../components/LedDetailForm.vue';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
+import moment from 'moment';
+import { useProjectStore } from '@/stores/project';
 
 const { t } = useI18n();
+
+const store = useProjectStore();
 
 const { mobile } = useDisplay();
 
@@ -18,6 +22,18 @@ const description_quill = ref(null);
 const high_season = ref('1');
 const equipment = ref('');
 
+const mainBallroomFee = ref('0');
+const prefunctionFee = ref('0');
+const highSeasonFee = ref('0');
+const equipmentFee = ref('0');
+const subTotal = ref('0');
+const maxDiscount = ref('0');
+const total = ref('0');
+const maxPriceUp = ref('0');
+const detailData = ref([]);
+
+const fix_price = ref(0);
+
 function updateDescription() {
     // if (description_quill.value.getText().length > 1) {
     //     setFieldValue('note', description_quill.value.getHTML())
@@ -25,6 +41,37 @@ function updateDescription() {
     //     setFieldValue('note', null)
     // }
 }
+
+function setPreview(values) {
+    console.log('set previews',values);
+    projectName.value = values.name;
+    projectDate.value = moment(values.project_date).format('DD MMMM YYYY');
+    venue.value = values.venue;
+    location.value = values.city_name;
+
+    detailData.value = values.led_detail;
+
+    equipment.value = 'lasika';
+}
+
+async function checkHighSeason() {
+    const resp = await store.checkHighSeason({
+        project_date: projectDate.value
+    });
+
+    if (resp.status < 300) {
+        high_season.value = resp.data.data.is_high_season ? '1' : '0';
+    }
+}
+
+async function calculateProject() {
+    
+}
+
+defineExpose({
+    setPreview,
+    checkHighSeason
+});
 </script>
 
 <template>
@@ -102,8 +149,8 @@ function updateDescription() {
                 <div class="form-wrapper mt-3">
                     <LedDetailForm
                         :with-add-button="false"
+                        :data="detailData"
                         :with-delete-button="false"
-                        @update-led-event="updateLedArea"
                         ref="ledFormComponent"></LedDetailForm>
                 </div>
             </v-col>
@@ -148,7 +195,7 @@ function updateDescription() {
                         }">
                             <td>Main Ballroom</td>
                             <td>
-                                Rp<span>0</span>
+                                Rp<span>{{ mainBallroomFee }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -156,7 +203,7 @@ function updateDescription() {
                         }">
                             <td>Prefunction</td>
                             <td>
-                                Rp<span>100,000,000</span>
+                                Rp<span>{{ prefunctionFee }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -164,7 +211,7 @@ function updateDescription() {
                         }">
                             <td>High Season Fee</td>
                             <td>
-                                Rp<span>100,000,000</span>
+                                Rp<span>{{ highSeasonFee }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -172,7 +219,7 @@ function updateDescription() {
                         }">
                             <td>Equipment Fee</td>
                             <td>
-                                Rp<span>0</span>
+                                Rp<span>{{ equipmentFee }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -180,7 +227,7 @@ function updateDescription() {
                         }">
                             <td>Sub Total</td>
                             <td>
-                                Rp<span>100,000,000</span>
+                                Rp<span>{{ subTotal }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -188,7 +235,7 @@ function updateDescription() {
                         }">
                             <td>Max. Discount</td>
                             <td>
-                                Rp<span>100,000,000</span>
+                                Rp<span>{{ maxDiscount }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -196,26 +243,48 @@ function updateDescription() {
                         }">
                             <td>Total</td>
                             <td>
-                                Rp<span>100,000,000</span>
+                                Rp<span>{{ total }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
                             'mobile': mobile
                         }">
                             <td>Max. Price UP</td>
-                            <td>
-                                Rp<span>345,000,000</span>
+                            <td class="price-up">
+                                Rp<span>{{ maxPriceUp }}</span>
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
                 <!-- fix price -->
-                <div class="form-wrapper">
-                
-                </div>
+                <table class="w-100 table-total fix mt-10">
+                    <tbody>
+                        <tr :class="{
+                            'mobile': mobile
+                        }">
+                            <td>Fix Price</td>
+                            <td>
+                                <currency-input v-model="fix_price"
+                                    density="compact"
+                                    :is-solo="true"
+                                    custom-class="custom-input" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </v-col>
         </v-row>
+
+        <v-stepper-actions>
+            <template v-slot:next>
+                <v-btn color="primary" variant="flat" type="submit">Next</v-btn>
+            </template>
+
+            <template v-slot:prev>
+                <v-btn color="#FAFAFA" variant="flat" @click.prevent="$emit('back-event')">Previous</v-btn>
+            </template>
+        </v-stepper-actions>
     </div>
 </template>
 
@@ -250,9 +319,23 @@ function updateDescription() {
 
         .border-table {
             td {
-                border-bottom: 1px solid #000;
+                border-bottom: 1px solid #e6e6e6;
             }
         }
     }
+}
+
+.table-total.fix {
+    tbody {
+        tr {
+            td {
+                width: 50%;
+            }
+        }
+    }
+}
+
+.price-up {
+    color: #4CAF50;
 }
 </style>
