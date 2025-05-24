@@ -1,4 +1,6 @@
 <script setup>
+import { showNotification } from '@/compose/notification';
+import { useCustomerStore } from '@/stores/customer';
 import { mdiClose } from '@mdi/js';
 import { useForm } from 'vee-validate';
 import { ref, watch } from 'vue';
@@ -6,6 +8,12 @@ import { useI18n } from 'vue-i18n';
 import * as yup from 'yup';
 
 const { t } = useI18n();
+
+const store = useCustomerStore();
+
+const emit = defineEmits(['close-event']);
+
+const loading = ref(false);
 
 const props = defineProps({
     isShow: {
@@ -34,8 +42,16 @@ watch(props, (values) => {
     }
 });
 
-const validateForm = handleSubmit(async () => {
+const validateForm = handleSubmit(async (values) => {
+    loading.value = true;
+    const resp = await store.storeCustomer(values);
+    loading.value = false;
 
+    const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
+    const type = resp.status < 300 ? 'success' : 'error';
+    showNotification(message, type);
+
+    emit('close-event', true);
 });
 </script>
 
@@ -83,7 +99,7 @@ const validateForm = handleSubmit(async () => {
                         :label="t('email')"></field-input>
 
                     <div class="d-flex w-100 mt-8" :style="{ justifyContent: 'end' }">
-                        <v-btn variant="flat" color="primary" type="submit">
+                        <v-btn variant="flat" color="primary" type="submit" :disabled="loading">
                             {{ $t('save') }}
                         </v-btn>
                     </div>

@@ -727,5 +727,9 @@
     "entertainmentWorkload": "Entertainment Workload",
     "cityRequired": "City is required",
     "addCustomer": "Add Customer",
-    "customer": "Customer"
+    "customer": "Customer",
+    "eventName": "Event Name",
+    "highSeasaon": "High Season",
+    "no": "No",
+    "equipment": "Equipment"
 }

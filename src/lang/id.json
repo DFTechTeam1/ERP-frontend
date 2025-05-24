@@ -724,5 +724,8 @@
     "entertainmentWorkload": "Entertainment Workload",
     "cityRequired": "Kota harus diisi",
     "addCustomer": "Tambah Pelanggan",
-    "customer": "Pelanggan"
+    "customer": "Pelanggan",
+    "eventName": "Nama Event",
+    "highSeasaon": "High Season",
+    "no" : "No"
 }

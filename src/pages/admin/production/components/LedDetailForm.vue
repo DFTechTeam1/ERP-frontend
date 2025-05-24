@@ -8,6 +8,14 @@ const emit = defineEmits(['update-led-event']);
 const props = defineProps({
   data: {
     type: Array
+  },
+  withAddButton: {
+    type: Boolean,
+    default: true
+  },
+  withDeleteButton: {
+    type: Boolean,
+    default: true
   }
 });
 
@@ -105,6 +113,7 @@ onMounted(() => {
         </template>
         <template v-slot:append>
           <v-icon
+            v-if="props.withDeleteButton"
             :icon="mdiClose"
             @click.prevent="removeLed(l)"></v-icon>
         </template>
@@ -121,6 +130,7 @@ onMounted(() => {
     <v-btn
       class="w-100"
       variant="flat"
+      v-if="props.withAddButton"
       color="grey-lighten-3"
       @click.prevent="showLedForm">
       {{ $t('addMore') }}

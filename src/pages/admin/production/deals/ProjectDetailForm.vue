@@ -163,7 +163,6 @@ async function initMarketing() {
 
 async function getCustomer() {
     const resp = await customerStore.getCustomer();
-    console.log('resp', resp);
     if (resp.status < 300) {
         customerList.value = resp.data.data;
     }
@@ -172,6 +171,10 @@ async function getCustomer() {
 const validateData = handleSubmit(async (values) => {
     emit('next-event');
 });
+
+const getValues = () => {
+    return values;
+}
 
 const prepareData = async() => {
     loading.value = true;
@@ -189,8 +192,12 @@ const addMoreCustomer = () => {
     showCustomerForm.value = true;
 };
 
-const closeCustomerForm = () => {
+const closeCustomerForm = (isRefresh) => {
     showCustomerForm.value = false;
+
+    if (isRefresh) {
+        getCustomer();
+    }
 }
 
 onMounted(() => {
@@ -203,6 +210,10 @@ watch(country_id, (values) => {
 
 watch(state_id, (values) => {
     initCities(values || 0)
+});
+
+defineExpose({
+    getValues
 });
 </script>
 

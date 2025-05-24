@@ -15,6 +15,13 @@ export const useCustomerStore = defineStore('customer', {
             } catch (error) {
                 return error;
             }
+        },
+        async storeCustomer(payload) {
+            try {
+                return await axios.post(`/production/project/customer/add`, payload);
+            } catch (error) {
+                return error;
+            }
         }
     }
 });
