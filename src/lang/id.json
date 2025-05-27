@@ -727,5 +727,7 @@
     "customer": "Pelanggan",
     "eventName": "Nama Event",
     "highSeasaon": "High Season",
-    "no" : "No"
+    "no" : "No",
+    "equipment": "Equipment",
+    "pricingSetting": "Pricing Setting"
 }

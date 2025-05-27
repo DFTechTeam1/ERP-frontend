@@ -283,67 +283,59 @@ defineExpose({
                             </div>
                         </template>
                     </v-autocomplete>
+                </v-col>
 
+                <v-col cols="12" md="6">
                     <field-input :label="t('name')"
                         custom-class="custom-input"
-                        class="mt-8"
                         :error-message="errors.name"
                         v-model="name"></field-input>
-        
-                    <date-picker :label="t('eventDate')" v-model="project_date"
-                        class="mt-8"
-                        format-output="YYYY-MM-DD"
-                        custom-class="custom-input"
-                        :error-message="errors.project_date"></date-picker>
-        
-                    <field-input :label="t('country')" v-model="country_id"
-                        class="mt-8"
-                        custom-class="custom-input"
-                        :error-message="errors.country_id" input-type="select"
-                        :select-options="countries"></field-input>
-        
-                    <field-input :label="t('city')" v-model="city_id"
-                        :error-message="errors.city_id" input-type="select"
-                        class="mt-8"
-                        custom-class="custom-input"
-                        :select-options="cities"></field-input>
-        
-                    <field-input :label="t('collaboration')" :is-required="false" v-model="collaboration"
-                        class="mt-8"
-                        custom-class="custom-input"
-                        :error-message="errors.collaboration"></field-input>
-        
-                    <field-input :is-readonly="true" :suffix-text="'m<sup>2</sup>'" :label="t('totalLedArea')"
-                        class="mt-8"
-                        :error-message="errors.led_area" v-model="led_area"></field-input>
-        
-                    <LedDetailForm
-                        @update-led-event="updateLedArea"
-                        :return-object="true"
-                        ref="ledFormComponent"></LedDetailForm>
                 </v-col>
-        
+            </v-row>
+
+            <v-row>
                 <v-col cols="12" md="6">
                     <field-input :label="t('clientPortal')"
                         custom-class="custom-input"
                         :error-message="errors.client_portal"
                         v-model="client_portal"></field-input>
-        
+                </v-col>
+
+                <v-col cols="12" md="6">
                     <field-input :label="t('eventType')" inputType="select" :select-options="eventTypeList"
-                        class="mt-8"
                         custom-class="custom-input"
                         v-model="event_type" :error-message="errors.event_type"></field-input>
-        
+                </v-col>
+            </v-row>
+
+            <v-row>
+                <v-col cols="12" md="6">
+                    <field-input :label="t('country')" v-model="country_id"
+                        custom-class="custom-input"
+                        :error-message="errors.country_id" input-type="select"
+                        :select-options="countries"></field-input>
+                </v-col>
+
+                <v-col cols="12" md="6">
                     <field-input :label="t('state')" inputType="select" :select-options="states"
-                        class="mt-8"
                         custom-class="custom-input"
                         v-model="state_id" :error-message="errors.state_id"></field-input>
-        
+                </v-col>
+            </v-row>
+
+            <v-row>
+                <v-col cols="12" md="6">
+                    <field-input :label="t('city')" v-model="city_id"
+                        :error-message="errors.city_id" input-type="select"
+                        custom-class="custom-input"
+                        :select-options="cities"></field-input>
+                </v-col>
+
+                <v-col cols="12" md="6">
                     <field-input :label="t('venue')" id="menu-activator" v-model="venue"
-                        class="mt-8"
                         custom-class="custom-input"
                         :error-message="errors.venue"></field-input>
-        
+
                     <!-- venue autocomplete -->
                     <v-menu activator="#menu-activator">
                         <v-list>
@@ -363,18 +355,51 @@ defineExpose({
                             </template>
                         </v-list>
                     </v-menu>
-        
+                </v-col>
+            </v-row>
+
+            <v-row>
+                <v-col cols="12" md="6">
+                    <date-picker :label="t('eventDate')" v-model="project_date"
+                        format-output="YYYY-MM-DD"
+                        custom-class="custom-input"
+                        :error-message="errors.project_date"></date-picker>
+                </v-col>
+
+                <v-col cols="12" md="6">
                     <field-input :label="t('eventClass')" inputType="select" :select-options="classList"
-                        class="mt-8"
                         custom-class="custom-input"
                         v-model="project_class_id" :error-message="errors.project_class_id"></field-input>
-        
+                </v-col>
+            </v-row>
+
+            <v-row>
+                <v-col cols="12" md="6">
+                    <field-input :label="t('collaboration')" :is-required="false" v-model="collaboration"
+                        custom-class="custom-input"
+                        :error-message="errors.collaboration"></field-input>
+                </v-col>
+
+                <v-col cols="12" md="6">
                     <field-input v-model="marketing_id" :error-message="errors.marketing_id"
                         :label="t('marketing')" input-type="select" v-if="userRole != 'marketing'"
                         :is-multiple="true"
-                        class="mt-8"
                         :select-options="marketingList"></field-input>
+                </v-col>
+            </v-row>
+
+            <v-row>
+                <v-col cols="12" md="6">
+                    <field-input :is-readonly="true" :suffix-text="'m<sup>2</sup>'" :label="t('totalLedArea')"
+                        :error-message="errors.led_area" v-model="led_area"></field-input>
         
+                    <LedDetailForm
+                        @update-led-event="updateLedArea"
+                        :return-object="true"
+                        ref="ledFormComponent"></LedDetailForm>
+                </v-col>
+
+                <v-col cols="12" md="6">
                     <v-label :text="t('note')" class="mb-3"></v-label>
                     <QuillEditor
                         class="quill-note"

@@ -25,6 +25,11 @@
                 v-if="permissionKanban"
                 value="tab-kanban-board"
                 :text="t('kanbanBoard')"></v-tab>
+
+            <v-tab 
+                v-if="permissionKanban"
+                value="tab-pricing-setting"
+                :text="t('pricingSetting')"></v-tab>
         </v-tabs>
 
         <v-window
@@ -45,6 +50,9 @@
             <v-window-item value="tab-kanban-board">
                 <kanban-board />
             </v-window-item>
+            <v-window-item value="tab-pricing-setting">
+                <pricing-setting />
+            </v-window-item>
         </v-window>
     </div>
 </template>
@@ -57,6 +65,7 @@ import KanbanBoard from './items/KanbanBoard.vue';
 import GeneralView from './items/general/GeneralView.vue';
 import EmailSetting from './items/EmailSetting.vue';
 import VariableView from './items/VariableView.vue'
+import PricingSetting from './items/PricingSetting.vue';
 import { useCheckPermission } from '@/compose/checkPermission';
 import { useSettingStore } from '@/stores/setting';
 
@@ -64,7 +73,7 @@ const { t } = useI18n();
 
 const store = useSettingStore();
 
-const tab = ref('tab-general');
+const tab = ref('tab-pricing-setting');
 
 const permissionGeneral = ref(false);
 
