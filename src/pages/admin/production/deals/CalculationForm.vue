@@ -20,6 +20,7 @@ const venue = ref('Hotel Gunadharma');
 const location = ref('Surabaya');
 const description_quill = ref(null);
 const high_season = ref('1');
+const event_location = ref('');
 const equipment = ref('');
 
 const mainBallroomFee = ref('0');
@@ -156,6 +157,25 @@ defineExpose({
             </v-col>
 
             <v-col cols="12" md="6" class="mt-1">
+                <div class="form-wrapper">
+                    <label>{{ $t('eventLocation') }}</label>
+                    <v-radio-group inline
+                        v-model="event_location">
+                        <v-radio
+                            label="Surabaya"
+                            value="surabaya"></v-radio>
+                        <v-radio
+                            label="Jakarta"
+                            value="jakarta"></v-radio>
+                        <v-radio
+                            label="Jawa"
+                            value="jawa"></v-radio>
+                        <v-radio
+                            label="Luar jawa"
+                            value="luar jawa"></v-radio>
+                    </v-radio-group>
+                </div>
+
                 <div class="d-flex" :style="{
                     gap: '40px'
                 }">

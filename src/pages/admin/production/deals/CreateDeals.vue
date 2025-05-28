@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ProjectDetailForm from './ProjectDetailForm.vue';
 import CalculationForm from './CalculationForm.vue';
@@ -16,7 +16,7 @@ const items = ref([
     'Summary'
 ]);
 
-const step = ref(1);
+const step = ref(2);
 
 function nextEvent() {
     step.value += 1;
@@ -41,7 +41,15 @@ watch(step, (values) => {
             calculationFormRef.value.checkHighSeason();
         }
     }, 500);
-})
+});
+
+async function getCalculationFormula() {
+    
+}
+
+onMounted(() => {
+    getCalculationFormula();
+});
 </script>
 
 <template>
