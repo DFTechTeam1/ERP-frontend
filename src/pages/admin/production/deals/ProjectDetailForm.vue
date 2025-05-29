@@ -81,9 +81,9 @@ function chooseVenue(selectedVenue) {
 }
 
 function updateLedArea(params) {
-  setFieldValue('led_area', params.total);
+    setFieldValue('led_area', params.total);
 
-  setFieldValue('led_detail', params.detail);
+    setFieldValue('led_detail', params.detail);
 }
 
 function updateDescription() {

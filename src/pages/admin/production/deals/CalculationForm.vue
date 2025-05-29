@@ -1,14 +1,21 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import LedDetailForm from '../components/LedDetailForm.vue';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import moment from 'moment';
 import { useProjectStore } from '@/stores/project';
+import { storeToRefs } from 'pinia';
+import { computed } from 'vue';
 
 const { t } = useI18n();
 
 const store = useProjectStore();
+
+const {
+    listOfPriceGuide,
+    listAreaGuidePrice
+} = storeToRefs(store);
 
 const { mobile } = useDisplay();
 
@@ -20,17 +27,21 @@ const venue = ref('Hotel Gunadharma');
 const location = ref('Surabaya');
 const description_quill = ref(null);
 const high_season = ref('1');
-const event_location = ref('');
-const equipment = ref('');
+const event_location = ref(0);
+const equipment = ref('lasika');
+const ledArea = ref({
+    main: 56,
+    prefunction: 19.5
+});
 
-const mainBallroomFee = ref('0');
-const prefunctionFee = ref('0');
-const highSeasonFee = ref('0');
-const equipmentFee = ref('0');
-const subTotal = ref('0');
-const maxDiscount = ref('0');
-const total = ref('0');
-const maxPriceUp = ref('0');
+// const mainBallroomFee = ref('0');
+// const prefunctionFee = ref('0');
+// const highSeasonFee = ref('0');
+// const equipmentFee = ref('0');
+// const subTotal = ref('0');
+// const maxDiscount = ref('0');
+// const total = ref('0');
+// const maxPriceUp = ref('0');
 const detailData = ref([]);
 
 const fix_price = ref(0);
@@ -53,6 +64,20 @@ function setPreview(values) {
     detailData.value = values.led_detail;
 
     equipment.value = 'lasika';
+
+    // set led summary
+    let main = values.led_detail.filter((filter) => {
+        return filter.name === 'main';
+    });
+    main = main.reduce((total, item) => total + parseFloat(item.totalRaw), 0);
+
+    let prefunc = values.led_detail.filter((filter) => {
+        return filter.name === 'prefunction';
+    });
+    prefunc = prefunc.reduce((total, item) => total + parseFloat(item.totalRaw), 0);
+
+    ledArea.value.main = main;
+    ledArea.value.prefunction = prefunc;
 }
 
 async function checkHighSeason() {
@@ -69,9 +94,96 @@ async function calculateProject() {
     
 }
 
+const capitalizeFirstLetter = (val) => {
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+}
+
+const formattedArea = computed(() => {
+    let output = [];
+    for (let a in listAreaGuidePrice.value) {
+        let label = capitalizeFirstLetter(a.replace('_', ' '));
+        output.push({value: listAreaGuidePrice.value[a], title: label})
+    }
+    return output;
+});
+
+const formatPrice = (number) => {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0, // IDR typically doesn't use decimals
+    }).format(number);
+};
+
+const mainBallroomFee = computed(() => {
+    return parseFloat(ledArea.value.main) * event_location.value;
+});
+
+const prefunctionFee = computed(() => {
+    return parseFloat(ledArea.value.prefunction) * (parseFloat(event_location.value) * 0.75);
+});
+
+const highSeasonFee = computed(() => {
+    let output = 0;
+
+    if (high_season.value == 1) {
+        if (listOfPriceGuide.value.highSeason.type == 'percentage') {
+            output = (mainBallroomFee.value + prefunctionFee.value) * parseFloat(listOfPriceGuide.value.highSeason.formula) / 100;
+        } else {
+            output = mainBallroomFee.value + prefunctionFee.value + listOfPriceGuide.value.highSeason.formula;
+        }
+    }
+
+    return output;
+});
+
+const equipmentFee = computed(() => {
+    let output = 0;
+
+    if (equipment.value == 'others') {
+        if (listOfPriceGuide.value.equipment.type == 'fix') {
+            output = listOfPriceGuide.value.equipment.formula;
+        }
+    }
+
+    return output;
+});
+
+const subTotal = computed(() => {
+    let output = parseFloat(equipmentFee.value) + parseFloat(highSeasonFee.value) + parseFloat(mainBallroomFee.value) + parseFloat(prefunctionFee.value);
+
+    return output;
+});
+
+const maxDiscount = computed(() => {
+    let output = 0;
+
+    if (listOfPriceGuide.value.discount.type == 'percentage') {
+        output = subTotal.value * listOfPriceGuide.value.discount.formula / 100;
+    }
+
+    return output;
+});
+
+const total = computed(() => {
+    let output = subTotal.value - maxDiscount.value;
+
+    return output;
+});
+
+const maxPriceUp = computed(() => {
+    let output = subTotal.value * parseFloat(listOfPriceGuide.value.priceUp.formula);
+
+    return output;
+});
+
 defineExpose({
     setPreview,
     checkHighSeason
+});
+
+watch(subTotal, (values) => {
+    fix_price.value = values;
 });
 </script>
 
@@ -160,19 +272,15 @@ defineExpose({
                 <div class="form-wrapper">
                     <label>{{ $t('eventLocation') }}</label>
                     <v-radio-group inline
+                        class="mt-1"
                         v-model="event_location">
                         <v-radio
-                            label="Surabaya"
-                            value="surabaya"></v-radio>
-                        <v-radio
-                            label="Jakarta"
-                            value="jakarta"></v-radio>
-                        <v-radio
-                            label="Jawa"
-                            value="jawa"></v-radio>
-                        <v-radio
-                            label="Luar jawa"
-                            value="luar jawa"></v-radio>
+                            v-for="(area, a) in formattedArea"
+                            :key="a"
+                            :value="area.value"
+                            :label="area.title"
+                            density="compact"
+                            class="ms-3"></v-radio>
                     </v-radio-group>
                 </div>
 
@@ -183,12 +291,16 @@ defineExpose({
                         <label>{{ $t('highSeasaon') }}</label>
                         <v-radio-group inline
                             v-model="high_season"
+                            class="mt-1"
                             :disabled="true">
                             <v-radio
                                 :label="t('yes')"
+                                density="compact"
                                 value="1"></v-radio>
                             <v-radio
                                 :label="t('no')"
+                                density="compact"
+                                class="ms-2"
                                 value="0"></v-radio>
                         </v-radio-group>
                     </div>
@@ -196,12 +308,16 @@ defineExpose({
                     <div class="form-wrapper">
                         <label>{{ $t('equipment') }}</label>
                         <v-radio-group inline
+                            class="mt-1"
                             v-model="equipment">
                             <v-radio
                                 label="Lasika"
+                                density="compact"
                                 value="lasika"></v-radio>
                             <v-radio
                                 label="Others"
+                                density="compact"
+                                class="ms-2"
                                 value="others"></v-radio>
                         </v-radio-group>
                     </div>
@@ -215,7 +331,7 @@ defineExpose({
                         }">
                             <td>Main Ballroom</td>
                             <td>
-                                Rp<span>{{ mainBallroomFee }}</span>
+                                <span>{{ formatPrice(mainBallroomFee) }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -223,7 +339,7 @@ defineExpose({
                         }">
                             <td>Prefunction</td>
                             <td>
-                                Rp<span>{{ prefunctionFee }}</span>
+                                <span>{{ formatPrice(prefunctionFee) }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -231,7 +347,7 @@ defineExpose({
                         }">
                             <td>High Season Fee</td>
                             <td>
-                                Rp<span>{{ highSeasonFee }}</span>
+                                <span>{{ formatPrice(highSeasonFee) }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -239,7 +355,7 @@ defineExpose({
                         }">
                             <td>Equipment Fee</td>
                             <td>
-                                Rp<span>{{ equipmentFee }}</span>
+                                <span>{{ formatPrice(equipmentFee) }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -247,7 +363,7 @@ defineExpose({
                         }">
                             <td>Sub Total</td>
                             <td>
-                                Rp<span>{{ subTotal }}</span>
+                                <span>{{ formatPrice(subTotal) }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -255,7 +371,7 @@ defineExpose({
                         }">
                             <td>Max. Discount</td>
                             <td>
-                                Rp<span>{{ maxDiscount }}</span>
+                                <span>{{ formatPrice(maxDiscount) }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -263,7 +379,7 @@ defineExpose({
                         }">
                             <td>Total</td>
                             <td>
-                                Rp<span>{{ total }}</span>
+                                <span>{{ formatPrice(total) }}</span>
                             </td>
                         </tr>
                         <tr class="border-table" :class="{
@@ -271,7 +387,7 @@ defineExpose({
                         }">
                             <td>Max. Price UP</td>
                             <td class="price-up">
-                                Rp<span>{{ maxPriceUp }}</span>
+                                <span>{{ formatPrice(maxPriceUp) }}</span>
                             </td>
                         </tr>
                     </tbody>
@@ -285,10 +401,13 @@ defineExpose({
                         }">
                             <td>Fix Price</td>
                             <td>
-                                <currency-input v-model="fix_price"
+                                <v-text-field
                                     density="compact"
-                                    :is-solo="true"
-                                    custom-class="custom-input" />
+                                    variant="outlined"
+                                    single-line
+                                    class="custom-input"
+                                    autocomplete="off"
+                                    :value="formatPrice(fix_price)"></v-text-field>
                             </td>
                         </tr>
                     </tbody>

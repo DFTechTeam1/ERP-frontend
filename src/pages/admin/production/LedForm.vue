@@ -190,8 +190,6 @@ const validateData = handleSubmit(async (values) => {
     values.totalRaw = sum.toString()
     values.textDetail = textDetail
 
-    console.log("led values", values);
-
     resetForm()
     emit('close-event', values)
 })

@@ -74,6 +74,38 @@ export const useProjectStore = defineStore('project', {
                 status_color: 'success',
             },
         ],
+        priceGuideSettings: {
+            mainBallroom: {
+                type: "general",
+                formula: "{main_led_size}*{area_guide_price}"
+            },
+            prefunction: {
+                type: "general",
+                formula: "{prefunc_led_size}*({area_guide_price}*0.75)"
+            },
+            highSeason: {
+                type: "percentage",
+                formula: "25"
+            },
+            equipment: {
+                type: "fix",
+                formula: "2500000"
+            },
+            discount: {
+                type: "percentage",
+                formula: "10"
+            },
+            priceUp: {
+                type: "percentage",
+                formula: "1.1"
+            }
+        },
+        areaGuidePrice: {
+            surabaya: 750000,
+            jakarta: 1250000,
+            jawa: 850000,
+            luar_jawa: 950000
+        } 
     }),
     getters: {
         listProjectNeedToBeComplete: (state) => state.projectNeedToBeComplete,
@@ -97,6 +129,8 @@ export const useProjectStore = defineStore('project', {
         listOfProjectStatusses: (state) => state.projectStatusses,
         totalOfTransferTeam: (state) => state.totalTransferTeam,
         listOfTransferTeam: (state) => state.transferTeamList,
+        listOfPriceGuide: (state) => state.priceGuideSettings,
+        listAreaGuidePrice: (state) => state.areaGuidePrice
     },
     actions: {
         setFilterData(payload) {

@@ -16,7 +16,7 @@ const items = ref([
     'Summary'
 ]);
 
-const step = ref(2);
+const step = ref(3);
 
 function nextEvent() {
     step.value += 1;

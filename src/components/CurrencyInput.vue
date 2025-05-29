@@ -5,8 +5,10 @@ import { useCurrencyInput } from 'vue-currency-input';
 const props = defineProps({
     options: {
         type: Object,
-        default: {
-            currency: "IDR"
+        default: () => {
+            return {
+                currency: 'IDR'
+            }
         }
     },
     density: {

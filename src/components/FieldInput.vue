@@ -112,6 +112,8 @@
         <v-textarea
             v-if="props.inputType == 'textarea'"
             :label="props.label"
+            variant="outlined"
+            :single-line="props.isSolo"
             :error-messages="props.errorMessage"
             v-model="model"></v-textarea>
 
@@ -219,6 +221,7 @@ const selectFieldClass = ref('');
 onMounted(() => {
     if ((props) && (props.customClass != '')) {
         textFieldClass.value[props.customClass] = true;
+        console.log('textFieldClass', textFieldClass.value);
 
         selectFieldClass.value = {};
         selectFieldClass.value[props.customClass] = true;
