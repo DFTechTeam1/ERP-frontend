@@ -217,7 +217,7 @@ const router = createRouter({
         },
         {
           path: '/admin/employees',
-          name: 'Employees',
+          name: 'Employees Master',
           children: [
             {
               path: 'list',

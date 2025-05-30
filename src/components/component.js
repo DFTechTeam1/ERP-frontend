@@ -12,6 +12,7 @@ import LoadingView from './LoadingView.vue'
 import ColorPicker from './ColorPicker.vue'
 import ImportExcel from './ImportExcel.vue'
 import MasterCard from './MasterCard.vue'
+import { VFileUpload, VFileUploadItem } from 'vuetify/labs/VFileUpload'
 import ButtonGroupNavigation from './ButtonGroupNavigation.vue'
 import RoundedInput from './RoundedInput.vue'
 import vSelect from 'vue-select';
@@ -80,6 +81,8 @@ export function registerComponent(app) {
         .component('ButtonSubmit', ButtonSubmit)
         .component('LoadingView', LoadingView)
         .component(VueCountdown.name, VueCountdown)
+        .component('v-file-upload', VFileUpload)
+        .component('v-file-upload-item', VFileUploadItem)
         .component('file-picker', FilePicker)
         .component('master-card', MasterCard)
         .component('import-excel', ImportExcel);
