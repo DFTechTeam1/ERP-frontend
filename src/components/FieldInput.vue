@@ -63,6 +63,7 @@
             autocomplete="off"
             :multiple="props.isMultiple"
             v-model="model"
+            :return-object="props.isReturnObject"
             :error-messages="props.errorMessage"
             :clearable="props.isClearable"
             :disabled="props.isDisabled"
@@ -144,6 +145,10 @@ const props = defineProps({
         type: String,
         default: ''
     },
+    isReturnObject: {
+        type: Boolean,
+        default: false
+    },
     isClearable: {
       type: Boolean,
       default: true,
@@ -221,7 +226,6 @@ const selectFieldClass = ref('');
 onMounted(() => {
     if ((props) && (props.customClass != '')) {
         textFieldClass.value[props.customClass] = true;
-        console.log('textFieldClass', textFieldClass.value);
 
         selectFieldClass.value = {};
         selectFieldClass.value[props.customClass] = true;

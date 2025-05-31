@@ -733,5 +733,7 @@
     "no": "No",
     "equipment": "Equipment",
     "pricingSetting": "Pricing Setting",
-    "eventLocation": "Event Location"
+    "eventLocation": "Event Location",
+    "quotationRules": "Quotation Rules",
+    "customerRequired": "Customer is required"
 }

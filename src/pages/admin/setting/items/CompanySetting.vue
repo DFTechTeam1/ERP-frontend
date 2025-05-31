@@ -1,12 +1,9 @@
 <script setup>
 import { useSettingStore } from '@/stores/setting';
-import { mdiFile } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { useForm } from 'vee-validate';
-import { computed } from 'vue';
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import axios from "axios";
 import * as yup from 'yup';
 
 const { t } = useI18n();
@@ -28,11 +25,15 @@ const logo = ref(null);
 
 const pond = ref(null);
 
+const description_quill = ref(null);
+
 const store = useSettingStore();
 
 const { globalCompanySetting } = storeToRefs(store);
 
 const loading = ref(false);
+
+const description = ref(null);
 
 const validateData = handleSubmit(async (values) => {
     let formData = new FormData();
@@ -41,6 +42,7 @@ const validateData = handleSubmit(async (values) => {
     formData.append('company_email', values.company_email);
     formData.append('company_address', values.company_address);
     formData.append('company_logo', logo.value);
+    formData.append('quotation_rules', description.value);
     
     loading.value = true;
     const resp = await store.storeSetting(formData, 'company');
@@ -51,19 +53,21 @@ const validateData = handleSubmit(async (values) => {
     }
 });
 
-const initCompanySetting = () => {
-    console.log('globalCompanySetting', globalCompanySetting.value);
+const files = ref([]);
 
+const initCompanySetting = () => {
     if (globalCompanySetting.value) {
         globalCompanySetting.value.forEach((value) => {
             setFieldValue(value.key, value.value);
+
+            if (value.key == 'company_logo') {
+                files.value = [value.value];
+
+                console.log('files', files.value);
+            }
         })
     }
 };
-
-const files = ref([
-    'https://backend.orca.test/images/user.png'
-]);
 
 watch(globalCompanySetting, () => {
     initCompanySetting();
@@ -85,9 +89,13 @@ function updateImages() {
     }
 }
 
-onMounted(() => {
-    console.log('image', file.value);
-});
+function updateDescription() {
+    if (description_quill.value.getText().length > 1) {
+        description.value = description_quill.value.getHTML();
+    } else {
+        description.value = null;
+    }
+}
 </script>
 
 <template>
@@ -144,6 +152,17 @@ onMounted(() => {
                         :is-required="false"></field-input>
                 </div>
                 <div class="d-flex w-100 mb-5">
+                    <label for="company-name" class="w-100 align-content-center">{{ $t("quotationRules") }}</label>
+    
+                    <div class="w-100">
+                        <QuillEditor
+                            class="quill-note w-100"
+                            theme="snow"
+                            ref="description_quill"
+                            @update:content="updateDescription" />
+                    </div>
+                </div>
+                <div class="d-flex w-100 mb-5">
                     <label for="company-name" class="w-100 align-content-center">{{ $t("companyLogo") }}</label>
 
                     <div class="w-100">
@@ -151,7 +170,7 @@ onMounted(() => {
                             ref="pond"
                             class-name="my-pond"
                             label-idle="Drop files here..."
-                            allow-multiple="true"
+                            :allow-multiple="false"
                             maxFileSize="35MB"
                             v-on:addfile="updateImages"
                             v-on:removefile="updateImages"

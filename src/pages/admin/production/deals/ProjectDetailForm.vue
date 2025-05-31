@@ -42,7 +42,8 @@ const { defineField, errors, setFieldValue, handleSubmit, values } = useForm({
         led_area: yup.string().nullable(),
         led_detail: yup.array().nullable(),
         marketing_id: yup.array().required(t('marketingRequired')),
-        note: yup.string().nullable()
+        note: yup.string().nullable(),
+        customer_id: yup.string().required(t("customerRequired"))
     })
 });
 
@@ -55,6 +56,7 @@ const [state_id]= defineField('state_id');
 const [city_id]= defineField('city_id');
 const [venue]= defineField('venue');
 const [collaboration]= defineField('collaboration');
+const [customer_id]= defineField('customer_id');
 const [project_class_id]= defineField('project_class_id');
 const [led_area]= defineField('led_area');
 const [marketing_id]= defineField('marketing_id');
@@ -62,6 +64,10 @@ const [note]= defineField('note');
 
 const userRole = ref(null);
 const description_quill = ref(null);
+
+const country = ref(null);
+const state = ref(null);
+const city = ref(null);
 
 const eventTypeList = ref([]);
 const countries = ref([]);
@@ -71,6 +77,7 @@ const states = ref([]);
 const classList = ref([]);
 const marketingList = ref([]);
 const customerList = ref([]);
+const customer = ref(null);
 
 const loading = ref(false);
 
@@ -173,7 +180,25 @@ async function getCustomer() {
 }
 
 const validateData = handleSubmit(async (values) => {
-    emit('next-event');
+    console.log('values', values);
+
+    let customerData = {
+        name: customer.value.title,
+        place: city.value.title
+    };
+    let officeInformation = {};
+    let event = {
+        name: name.value,
+        projectDate: project_date.value,
+        venue: venue.value
+    };
+    let ledDetailConfig = {};
+
+    console.log('customerData', customerData);
+    console.log('officeInformation', officeInformation);
+    console.log('event', event);
+    console.log('ledConfig', ledDetailConfig);
+    // emit('next-event');
 });
 
 const getValues = () => {
@@ -223,6 +248,30 @@ watch(state_id, (values) => {
     initCities(values || 0)
 });
 
+watch(country, (values) => {
+    if (values) {
+        setFieldValue('country_id', values.value);
+    }
+});
+
+watch(state, (values) => {
+    if (values) {
+        setFieldValue('state_id', values.value);
+    }
+});
+
+watch(city, (values) => {
+    if (values) {
+        setFieldValue('city_id', values.value);
+    }
+});
+
+watch(customer, (values) => {
+    if(values) {
+        setFieldValue('customer_id', values.value);
+    }
+})
+
 watch(name, (values) => {
     if (values.length) {
         var portal = values
@@ -265,10 +314,12 @@ defineExpose({
                     <v-autocomplete
                         :items="customerList"
                         clearable
+                        v-model="customer"
                         class="custom-input"
                         autocomplete="off"
                         variant="outlined"
-                        label="Customer">
+                        label="Customer"
+                        return-object>
                         <template v-slot:append-item>
                             <div class="add-button-container">
                                 <v-list-item @click="addMoreCustomer" class="add-button">
@@ -310,8 +361,9 @@ defineExpose({
 
             <v-row>
                 <v-col cols="12" md="6">
-                    <field-input :label="t('country')" v-model="country_id"
+                    <field-input :label="t('country')" v-model="country"
                         custom-class="custom-input"
+                        :is-return-object="true"
                         :error-message="errors.country_id" input-type="select"
                         :select-options="countries"></field-input>
                 </v-col>
@@ -319,15 +371,17 @@ defineExpose({
                 <v-col cols="12" md="6">
                     <field-input :label="t('state')" inputType="select" :select-options="states"
                         custom-class="custom-input"
-                        v-model="state_id" :error-message="errors.state_id"></field-input>
+                        :is-return-object="true"
+                        v-model="state" :error-message="errors.state_id"></field-input>
                 </v-col>
             </v-row>
 
             <v-row>
                 <v-col cols="12" md="6">
-                    <field-input :label="t('city')" v-model="city_id"
+                    <field-input :label="t('city')" v-model="city"
                         :error-message="errors.city_id" input-type="select"
                         custom-class="custom-input"
+                        :is-return-object="true"
                         :select-options="cities"></field-input>
                 </v-col>
 

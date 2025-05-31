@@ -30,6 +30,7 @@ export const useProjectStore = defineStore('project', {
         forceUpdatePages: false,
         keepProjectParams: false,
         haveFilterData: false,
+        quotationPreview: null,
         teams: [
             {
                 uid: '99383',
@@ -1625,6 +1626,23 @@ export const useProjectStore = defineStore('project', {
                 return await axios.post(`production/project/checkHighSeason`, payload);
             } catch (error) {
                 return error;
+            }
+        },
+        setQuotationPreview({
+            customer,
+            officeInformation,
+            event,
+            ledDetail,
+            selectedItem,
+            rules
+        }) {
+            this.quotationPreview = {
+                customer: customer,
+                officeInformation: officeInformation,
+                event: event,
+                ledDetail: ledDetail,
+                selectedItem: selectedItem,
+                rules: rules
             }
         }
     },

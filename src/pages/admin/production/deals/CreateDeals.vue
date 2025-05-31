@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ProjectDetailForm from './ProjectDetailForm.vue';
 import CalculationForm from './CalculationForm.vue';
+import QuotationPreview from './QuotationPreview.vue';
 
 const { t } = useI18n();
 
@@ -10,13 +11,15 @@ const detailFormRef = ref(null);
 
 const calculationFormRef = ref(null);
 
+const quotationFormRef = ref(null);
+
 const items = ref([
     'Detail Event',
     'Calculation',
     'Summary'
 ]);
 
-const step = ref(3);
+const step = ref(1);
 
 function nextEvent() {
     step.value += 1;
@@ -74,6 +77,14 @@ onMounted(() => {
                 <div class="pt-4">
                     <CalculationForm
                         ref="calculationFormRef"
+                        @next-event="nextEvent"
+                        @back-event="backEvent" />
+                </div>
+            </template> 
+            <template v-slot:item.3>
+                <div class="pt-4">
+                    <QuotationPreview
+                        ref="quotationFormRef"
                         @next-event="nextEvent"
                         @back-event="backEvent" />
                 </div>

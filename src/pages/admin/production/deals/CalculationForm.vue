@@ -46,6 +46,15 @@ const detailData = ref([]);
 
 const fix_price = ref(0);
 
+const projectItems = ref([]);
+
+const availableItems = ref([
+    {name: 'LED Digital Content', id: 1},
+    {name: 'Opening Sequence Content', id: 2},
+    {name: 'Entertainment LED Concept', id: 3},
+    {name: 'Event Stationary', id: 4},
+]);
+
 function updateDescription() {
     // if (description_quill.value.getText().length > 1) {
     //     setFieldValue('note', description_quill.value.getHTML())
@@ -257,6 +266,42 @@ watch(subTotal, (values) => {
                         theme="snow"
                         ref="description_quill"
                         @update:content="updateDescription" />
+                </div>
+
+                <div class="form-wrapper mt-2">
+                    <v-label class="mb-2" text="Item"></v-label>
+
+                    <v-autocomplete
+                        v-model="projectItems"
+                        :items="availableItems"
+                        :single-line="true"
+                        color="blue-grey-lighten-2"
+                        item-title="name"
+                        item-value="name"
+                        label="Select Item"
+                        chips
+                        density="compact"
+                        variant="outlined"
+                        closable-chips
+                        multiple
+                        >
+                        <template v-slot:chip="{ props, item }">
+                            <v-chip
+                            v-bind="props"
+                            :text="item.raw.name"
+                            ></v-chip>
+                        </template>
+
+                        <template v-slot:item="{ props, item }">
+                            <v-list-item
+                            v-bind="props"
+                            :title="item.raw.name"
+                            active-color="red"
+                            :active="projectItems.includes(item.raw.name)"
+                            active-class="bg-light-blue-lighten-5"
+                            ></v-list-item>
+                        </template>
+                    </v-autocomplete>
                 </div>
 
                 <div class="form-wrapper mt-3">
