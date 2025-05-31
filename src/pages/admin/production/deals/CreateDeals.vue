@@ -4,8 +4,14 @@ import { useI18n } from 'vue-i18n';
 import ProjectDetailForm from './ProjectDetailForm.vue';
 import CalculationForm from './CalculationForm.vue';
 import QuotationPreview from './QuotationPreview.vue';
+import { useSettingStore } from '@/stores/setting';
+import { useProjectStore } from '@/stores/project';
 
 const { t } = useI18n();
+
+const settingStore = useSettingStore();
+
+const store = useProjectStore();
 
 const detailFormRef = ref(null);
 
@@ -27,8 +33,6 @@ function nextEvent() {
 
 function backEvent() {
     step.value -= 1;
-
-    console.log('step', step.value);
 }
 
 function getDetailValue() {
@@ -46,12 +50,33 @@ watch(step, (values) => {
     }, 500);
 });
 
-async function getCalculationFormula() {
-    
+function getSettingByKey({data, key}) {
+    let output = data.filter((filter) => {
+        return filter.key === key;
+    });
+
+    if (output.length) output = output[0].value;
+
+    return output;
+}
+
+async function getCompanySetting() {
+    const resp = settingStore.getSetting({code: 'company'});
+
+    if ((resp.status < 300) && (resp.data.data.length)) {
+        // store company information in quotation state
+        store.setQuotationOffice({office: {
+            name: getSettingByKey({data: resp.data.data, key: 'company_name'}),
+            address: getSettingByKey({data: resp.data.data, key: 'company_address'}),
+            phone: getSettingByKey({data: resp.data.data, key: 'company_phone'}),
+            email: getSettingByKey({data: resp.data.data, key: 'company_email'}),
+            logo: getSettingByKey({data: resp.data.data, key: 'company_logo'})
+        }})        
+    }
 }
 
 onMounted(() => {
-    getCalculationFormula();
+    getCompanySetting();
 });
 </script>
 

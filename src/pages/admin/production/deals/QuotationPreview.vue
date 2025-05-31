@@ -1,5 +1,19 @@
 <script setup>
-const rules = '<ol><li>Minimum Down Payment sebesar 50% dari total biaya yang di tagihkan, biaya tersebut tidak dapat dikembalikan.</li><li>Pembayaran melalui rekening BCA 01111123434 a/n Wesley Wiyadi / Edwin Chandra Wijaya</li></ol>';
+import { useProjectStore } from '@/stores/project';
+import { storeToRefs } from 'pinia';
+
+const store = useProjectStore();
+
+const { quotationContent } = storeToRefs(store);
+const rules = '<ol><li>Minimum Down Payment sebesar 50% dari <b>total biaya</b> yang di tagihkan, biaya tersebut tidak dapat dikembalikan.</li><li>Pembayaran melalui rekening BCA 01111123434 a/n Wesley Wiyadi / Edwin Chandra Wijaya</li></ol>';
+
+const formatPrice = (number) => {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0, // IDR typically doesn't use decimals
+    }).format(number);
+};
 </script>
 
 <template>
@@ -7,17 +21,17 @@ const rules = '<ol><li>Minimum Down Payment sebesar 50% dari total biaya yang di
         <div class="quotation-wrapper">
             <div class="col-logo">
                 <div class="logo-box">
-                    <img src="/dfactory.webp" alt="">
+                    <img :src="quotationContent.office.logo" alt="">
                 </div>
     
                 <div class="office-information">
                     <span>
-                        Kaca Piring 19 / 2nd level Surabaya - East Java
+                        {{ quotationContent.office.address }}
                     </span> <br>
                     <span>
-                        +(62) 821 1068 6655	
+                        {{ quotationContent.office.phone }}
                     </span> <br>
-                    <span>dfactory.id@gmail.com</span>
+                    <span>{{ quotationContent.office.email }}</span>
                 </div>
             </div>
             <div class="col-content">
@@ -25,15 +39,15 @@ const rules = '<ol><li>Minimum Down Payment sebesar 50% dari total biaya yang di
                     <div class="customer">
                         <p>Ditawarkan Kepada:</p>
     
-                        <p>Mr. Siever Sumilat & Ms.Angeliva Makassar Indonesia</p>
+                        <p>{{ quotationContent.customer.name }} {{ quotationContent.customer.place }}</p>
                     </div>
     
                     <div class="office">
                         <p>Ditawarkan Oleh:</p>
     
                         <p>
-                            <span>DFactory</span> <br>
-                            <span>Kaca Piring 19 / 2nd Level Surabaya, Jawa Timur Indonesia</span>
+                            <span>{{ quotationContent.office.name }}</span> <br>
+                            <span>{{ quotationContent.office.address }}</span>
                         </p>
                     </div>
     
@@ -62,17 +76,17 @@ const rules = '<ol><li>Minimum Down Payment sebesar 50% dari total biaya yang di
                         <div class="event-detail-item">
                             <span>Detail Acara</span>
                             <span>:</span>
-                            <span>The Wedding Reception of Ms. Gabrielle & Mr. Christopher</span>
+                            <span>{{ quotationContent.event.name }}</span>
                         </div>
                         <div class="event-detail-item">
                             <span>Tanggal Event</span>
                             <span>:</span>
-                            <span>22 Mei 2025</span>
+                            <span>{{ quotationContent.event.project_date }}</span>
                         </div>
                         <div class="event-detail-item">
                             <span>Venue</span>
                             <span>:</span>
-                            <span>Upperhils - Makassar</span>
+                            <span>{{ quotationContent.event.venue }}</span>
                         </div>
                     </div> <!-- end event detail -->
                 </div>
@@ -91,21 +105,34 @@ const rules = '<ol><li>Minimum Down Payment sebesar 50% dari total biaya yang di
                                         <div class="led-content">
                                             <span>LED Visual Content</span> <br>
                                             <span>Content Media Size:</span> <br>
-                                            <span class="main-led">
-                                                Main Stage: 6 * 20 m
+                                            <span class="main-led" v-if="quotationContent.event.led.main.length">
+                                                <template v-for="(main, m) in quotationContent.event.led.main"
+                                                    :key="m">
+                                                    <span>Main Stage:</span> {{ main.width }} * {{ main.height }} m <br v-if="m != quotationContent.event.led.main.length - 1">
+                                                </template>
+                                            </span>
+                                            <span class="main-led" v-if="quotationContent.event.led.prefunction.length">
+                                                <br>
+                                                <template v-for="(prefunc, p) in quotationContent.event.led.prefunction"
+                                                    :key="p">
+                                                    <span>Prefunction:</span> {{ prefunc.width }} * {{ prefunc.height }} m <br v-if="m != quotationContent.event.led.prefunction.length - 1">
+                                                </template>
                                             </span>
                                         </div>
     
                                         <div class="item-content">
                                             <p class="title">Premium LED Visual</p>
-                                            <p>1. LED DIgital Content</p>
-                                            <p>2. Opening Sequence Content</p>
-                                            <p>3. Entertainment LED Concept</p>
+                                            <p v-for="(item, i) in quotationContent.event.items" :key="i">{{ parseInt(i) + 1 }}. {{ item }}</p>
+                                        </div>
+
+                                        <div class="note-preview" v-if="quotationContent.note">
+                                            <p class="title">Note:</p>
+                                            <p>{{ quotationContent.note }}</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span>Rp 90,000,000</span>
+                                    <span>{{ formatPrice(quotationContent.event.price) }}</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -113,7 +140,7 @@ const rules = '<ol><li>Minimum Down Payment sebesar 50% dari total biaya yang di
                 </div>
     
                 <div class="quotation-rules" style="font-size: 12px; padding-left: 20px; margin-top: 20px;">
-                    <div v-html="rules"></div>
+                    <div v-html="quotationContent.rules"></div>
                 </div>
             </div>
     
@@ -299,6 +326,15 @@ const rules = '<ol><li>Minimum Down Payment sebesar 50% dari total biaya yang di
                     font-weight: bold;
                 }
             }
+        }
+    }
+
+    .note-preview {
+        font-size: 12px;
+        margin-top: 20px;
+
+        .title {
+            font-weight: bold;
         }
     }
 }

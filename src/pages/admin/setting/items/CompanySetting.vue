@@ -60,10 +60,14 @@ const initCompanySetting = () => {
         globalCompanySetting.value.forEach((value) => {
             setFieldValue(value.key, value.value);
 
-            if (value.key == 'company_logo') {
+            if (value.key == 'company_logo' && value.value) {
                 files.value = [value.value];
 
                 console.log('files', files.value);
+            }
+
+            if (value.key == 'quotation_rules' && value.value && description_quill.value) {
+                description_quill.value.setHTML(value.value);
             }
         })
     }
@@ -71,10 +75,6 @@ const initCompanySetting = () => {
 
 watch(globalCompanySetting, () => {
     initCompanySetting();
-});
-
-watch(logo, (values) => {
-    console.log('values', values);
 });
 
 function updateImages() {

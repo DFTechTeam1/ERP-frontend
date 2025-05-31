@@ -106,7 +106,43 @@ export const useProjectStore = defineStore('project', {
             jakarta: 1250000,
             jawa: 850000,
             luar_jawa: 950000
-        } 
+        },
+        quotationPart: {
+            customer: {
+                name: "Mr. Siever Sumilat & Mrs. Angeliva",
+                place: "Makassar Indonesia"
+            },
+            office: {
+                name: "DFACTORY",
+                address: "Kaca Piring 19 / 2nd Level Surabaya, Jawa Timur Indonesia",
+                phone: "+62 821 1068 6655",
+                email: "dfactory.id@gmail.com",
+                logo: "https://backend.orca.test/storage/settings/image_17486774138.webp"
+            },
+            event: {
+                name: "The Wedding Reception of Ms Gabrielle & Mr. Christopher",
+                project_date: "22 Mei 2025",
+                venue: "Upperhills - Makassar",
+                led: {
+                    main: [
+                        {width: 6, height: 20},
+                        {width: 6, height: 10}
+                    ],
+                    prefunction: [
+                        {width: 3, height: 4}
+                    ]
+                },
+                price: "110000000",
+                items: [
+                    "LED Digital Content",
+                    "Opening Sequence Content",
+                    "Entertainment LED Concept",
+                    "Event Stationary"
+                ]
+            },
+            note: null,
+            rules: '<ol><li>Minimum Down Payment sebesar 50% dari total biaya yang di tagihkan, biaya tersebut tidak dapat dikembalikan.</li><li>Pembayaran melalui rekening BCA 01111123434 a/n Wesley Wiyadi / Edwin Chandra Wijaya</li></ol>'
+        }
     }),
     getters: {
         listProjectNeedToBeComplete: (state) => state.projectNeedToBeComplete,
@@ -131,9 +167,19 @@ export const useProjectStore = defineStore('project', {
         totalOfTransferTeam: (state) => state.totalTransferTeam,
         listOfTransferTeam: (state) => state.transferTeamList,
         listOfPriceGuide: (state) => state.priceGuideSettings,
-        listAreaGuidePrice: (state) => state.areaGuidePrice
+        listAreaGuidePrice: (state) => state.areaGuidePrice,
+        quotationContent: (state) => state.quotationPart
     },
     actions: {
+        setQuotationCustomer({customer}) {
+            this.quotationPart.customer = customer;
+        },
+        setQuotationOffice({office}) {
+            this.quotationPart.office = office;
+        },
+        setQuotationEvent({event}) {
+            this.quotationPart.event = event;
+        },
         setFilterData(payload) {
           this.haveFilterData = payload;
         },

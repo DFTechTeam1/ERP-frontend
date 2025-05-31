@@ -11,6 +11,7 @@ import { useRegionStore } from '@/stores/region';
 import { mdiPlus } from '@mdi/js';
 import CustomerForm from '../customers/CustomerForm.vue';
 import { useCustomerStore } from '@/stores/customer';
+import { useDateFormatter } from '@/compose/dateFormatter';
 
 const { t } = useI18n();
 
@@ -184,21 +185,36 @@ const validateData = handleSubmit(async (values) => {
 
     let customerData = {
         name: customer.value.title,
-        place: city.value.title
+        place: city.value.title + ' ' + country.value.title
     };
-    let officeInformation = {};
+    
+    let mainLed = [];
+    let prefunc = [];
+    values.led_detail.forEach((elem) => {
+        elem.led.forEach((led) => {
+            if (elem.name == 'main') {
+                mainLed.push(led);
+            } else {
+                prefunc.push(led);
+            }
+        })
+    });
     let event = {
         name: name.value,
-        projectDate: project_date.value,
-        venue: venue.value
+        projectDate: useDateFormatter(project_date.value),
+        venue: venue.value,
+        led: {
+            main: mainLed,
+            prefunction: prefunc
+        },
+        price: 0,
+        items: [],
     };
-    let ledDetailConfig = {};
 
-    console.log('customerData', customerData);
-    console.log('officeInformation', officeInformation);
-    console.log('event', event);
-    console.log('ledConfig', ledDetailConfig);
-    // emit('next-event');
+    // custom state for quotation
+    store.setQuotationCustomer({customer: customerData});
+    store.setQuotationEvent({event: event});
+    emit('next-event');
 });
 
 const getValues = () => {
