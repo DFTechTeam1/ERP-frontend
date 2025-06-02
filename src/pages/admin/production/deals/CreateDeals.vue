@@ -6,12 +6,15 @@ import CalculationForm from './CalculationForm.vue';
 import QuotationPreview from './QuotationPreview.vue';
 import { useSettingStore } from '@/stores/setting';
 import { useProjectStore } from '@/stores/project';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 
 const settingStore = useSettingStore();
 
 const store = useProjectStore();
+
+const { quotationContent } = storeToRefs(store);
 
 const detailFormRef = ref(null);
 
@@ -48,6 +51,8 @@ watch(step, (values) => {
             calculationFormRef.value.checkHighSeason();
         }
     }, 500);
+
+    console.log('content', quotationContent.value);
 });
 
 function getSettingByKey({data, key}) {
@@ -61,8 +66,8 @@ function getSettingByKey({data, key}) {
 }
 
 async function getCompanySetting() {
-    const resp = settingStore.getSetting({code: 'company'});
-
+    const resp = await settingStore.getSetting({code: 'company'});
+    
     if ((resp.status < 300) && (resp.data.data.length)) {
         // store company information in quotation state
         store.setQuotationOffice({office: {
@@ -71,13 +76,32 @@ async function getCompanySetting() {
             phone: getSettingByKey({data: resp.data.data, key: 'company_phone'}),
             email: getSettingByKey({data: resp.data.data, key: 'company_email'}),
             logo: getSettingByKey({data: resp.data.data, key: 'company_logo'})
-        }})        
+        }});
+
+        store.setQuotationRules({rules: getSettingByKey({data: resp.data.data, key: 'quotation_rules'})});
     }
 }
 
+async function getQuotationNumber() {
+    await store.getQuotationNumber();
+}
+
+const prepareData = async () => {
+    await Promise.all([
+        getQuotationNumber(),
+        getCompanySetting()
+    ]);
+};
+
 onMounted(() => {
-    getCompanySetting();
+    prepareData();
 });
+
+const submitData = () => {
+    let projectDetail = detailFormRef.value.getPayload();
+
+    console.log('project detail', projectDetail);
+}
 </script>
 
 <template>
@@ -110,7 +134,7 @@ onMounted(() => {
                 <div class="pt-4">
                     <QuotationPreview
                         ref="quotationFormRef"
-                        @next-event="nextEvent"
+                        @next-event="submitData"
                         @back-event="backEvent" />
                 </div>
             </template> 

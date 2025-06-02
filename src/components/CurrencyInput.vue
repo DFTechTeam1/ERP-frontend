@@ -1,6 +1,8 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useCurrencyInput } from 'vue-currency-input';
+
+const emit = defineEmits(['change', 'clear-event', 'update:modelValue']);
 
 const props = defineProps({
     options: {
@@ -30,7 +32,8 @@ const props = defineProps({
     customClass: {
         type: String,
         default: ''
-    }
+    },
+    modelValue: Number
 });
 
 const fieldTypeValue = ref('text');
@@ -38,11 +41,15 @@ const fieldTypeValue = ref('text');
 const model = defineModel();
 
 const textFieldClass = ref({
-    'position-relative': fieldTypeValue == 'password',
+    'position-relative': fieldTypeValue.value == 'password',
     'new-border-form-control': props.isSolo,
 });
 
-const { inputRef } = useCurrencyInput(props.options);
+const { inputRef, setValue } = useCurrencyInput(props.options);
+
+watch(model, (values) => {
+    setValue(values);
+})
 
 onMounted(() => {
     if ((props) && (props.customClass != '')) {
@@ -62,7 +69,6 @@ onMounted(() => {
             :clearable="props.isClearable"
             @click:clear="$emit('clear-event')"
             :error-messages="props.errorMessage"
-            ref="inputRef"
-            v-model="model"></v-text-field>
+            ref="inputRef"></v-text-field>
     </div>
 </template>

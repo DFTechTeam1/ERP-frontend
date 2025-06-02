@@ -12,6 +12,8 @@ const { t } = useI18n();
 
 const store = useProjectStore();
 
+const emit = defineEmits(['next-event']);
+
 const {
     listOfPriceGuide,
     listAreaGuidePrice
@@ -26,6 +28,7 @@ const projectDate = ref('23 September 2025');
 const venue = ref('Hotel Gunadharma');
 const location = ref('Surabaya');
 const description_quill = ref(null);
+const description = ref(null);
 const high_season = ref('1');
 const event_location = ref(0);
 const equipment = ref('lasika');
@@ -46,6 +49,8 @@ const detailData = ref([]);
 
 const fix_price = ref(0);
 
+const fixPricePreview = ref(0);
+
 const projectItems = ref([]);
 
 const availableItems = ref([
@@ -56,15 +61,14 @@ const availableItems = ref([
 ]);
 
 function updateDescription() {
-    // if (description_quill.value.getText().length > 1) {
-    //     setFieldValue('note', description_quill.value.getHTML())
-    // } else {
-    //     setFieldValue('note', null)
-    // }
+    if (description_quill.value.getText().length > 1) {
+        description.value = description_quill.value.getHTML();
+    } else {
+        description.value = null;
+    }
 }
 
 function setPreview(values) {
-    console.log('set previews',values);
     projectName.value = values.name;
     projectDate.value = moment(values.project_date).format('DD MMMM YYYY');
     venue.value = values.venue;
@@ -87,6 +91,11 @@ function setPreview(values) {
 
     ledArea.value.main = main;
     ledArea.value.prefunction = prefunc;
+
+    // set location to surabaya
+    if (formattedArea.value.length) {
+        event_location.value = formattedArea.value[0].value;
+    }
 }
 
 async function checkHighSeason() {
@@ -95,12 +104,8 @@ async function checkHighSeason() {
     });
 
     if (resp.status < 300) {
-        high_season.value = resp.data.data.is_high_season ? '1' : '0';
+        high_season.value = resp.data.data.is_high_season ? '1' : '1';
     }
-}
-
-async function calculateProject() {
-    
 }
 
 const capitalizeFirstLetter = (val) => {
@@ -117,11 +122,16 @@ const formattedArea = computed(() => {
 });
 
 const formatPrice = (number) => {
-    return new Intl.NumberFormat('id-ID', {
+    const parts = new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
-        minimumFractionDigits: 0, // IDR typically doesn't use decimals
-    }).format(number);
+        minimumFractionDigits: 0
+    }).formatToParts(number);
+    
+    return parts.map(part => {
+        if (part.type !== 'currency') return part.value;
+        return '';
+    }).join('');
 };
 
 const mainBallroomFee = computed(() => {
@@ -186,13 +196,47 @@ const maxPriceUp = computed(() => {
     return output;
 });
 
+const validateData = () => {
+    // set quotation price
+    store.setQuotationPrice({price: fix_price.value});
+
+    // set note
+    store.setQuotationNote({note: description.value});
+
+    // set items
+    store.setQuotationItems({items: projectItems.value});
+
+    emit('next-event');
+};
+
+const getPayload = () => {
+    return {
+        event_location_guide: event_location.value,
+        main_ballroom: mainBallroomFee.value,
+        prefunction: prefunctionFee.value,
+        equipment_type: equipment.value,
+        high_season_fee: highSeasonFee.value,
+        equipment_fee: equipmentFee.value,
+        sub_total: subTotal.value,
+        maximum_discount: maxDiscount.value,
+        total: total.value,
+        maximum_markup_price: maxPriceUp.value,
+        fix_price: fix_price.value,
+
+        is_high_season: high_season.value,
+        items: projectItems.value,
+    }
+};
+
 defineExpose({
     setPreview,
-    checkHighSeason
+    checkHighSeason,
+    getPayload
 });
 
 watch(subTotal, (values) => {
-    fix_price.value = values;
+    console.log('values'. values);
+    fix_price.value =  values;
 });
 </script>
 
@@ -296,7 +340,6 @@ watch(subTotal, (values) => {
                             <v-list-item
                             v-bind="props"
                             :title="item.raw.name"
-                            active-color="red"
                             :active="projectItems.includes(item.raw.name)"
                             active-class="bg-light-blue-lighten-5"
                             ></v-list-item>
@@ -446,13 +489,9 @@ watch(subTotal, (values) => {
                         }">
                             <td>Fix Price</td>
                             <td>
-                                <v-text-field
+                                <currency-input :model-value="fix_price"
                                     density="compact"
-                                    variant="outlined"
-                                    single-line
-                                    class="custom-input"
-                                    autocomplete="off"
-                                    :value="formatPrice(fix_price)"></v-text-field>
+                                    custom-class="custom-input"></currency-input>
                             </td>
                         </tr>
                     </tbody>
@@ -462,7 +501,7 @@ watch(subTotal, (values) => {
 
         <v-stepper-actions>
             <template v-slot:next>
-                <v-btn color="primary" variant="flat" type="submit">Next</v-btn>
+                <v-btn color="primary" variant="flat" type="button" @click.prevent="validateData">Next</v-btn>
             </template>
 
             <template v-slot:prev>

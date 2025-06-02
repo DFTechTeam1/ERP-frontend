@@ -101,7 +101,8 @@ function updateDescription() {
 <template>
     <v-card flat border>
         <v-card-text>
-            <v-form class="px-10 mt-5" @submit="validateData">
+
+            <v-form class="px-10 mt-5 position-relative" @submit="validateData">
                 <div class="d-flex w-100 mb-5">
                     <label for="company-name" class="w-100 align-content-center">{{ $t("companyName") }}</label>
     

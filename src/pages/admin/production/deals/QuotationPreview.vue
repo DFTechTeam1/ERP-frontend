@@ -1,8 +1,12 @@
 <script setup>
 import { useProjectStore } from '@/stores/project';
+import { mdiCurrencyUsd, mdiDatabase, mdiFile } from '@mdi/js';
 import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
 
 const store = useProjectStore();
+
+const loading = ref(true);
 
 const { quotationContent } = storeToRefs(store);
 const rules = '<ol><li>Minimum Down Payment sebesar 50% dari <b>total biaya</b> yang di tagihkan, biaya tersebut tidak dapat dikembalikan.</li><li>Pembayaran melalui rekening BCA 01111123434 a/n Wesley Wiyadi / Edwin Chandra Wijaya</li></ol>';
@@ -14,6 +18,10 @@ const formatPrice = (number) => {
         minimumFractionDigits: 0, // IDR typically doesn't use decimals
     }).format(number);
 };
+
+const submitData = () => {
+    
+}
 </script>
 
 <template>
@@ -55,17 +63,25 @@ const formatPrice = (number) => {
                         <div class="numbering-item">
                             <span>Quotation No</span>
                             <span>:</span>
-                            <span>#DF01047</span>
+                            <span>
+                                {{ quotationContent.quotation_number }}
+                            </span>
                         </div>
                         <div class="numbering-item">
                             <span>Date</span>
                             <span>:</span>
-                            <span>03 May 2025</span>
+                            <span>
+                                {{ quotationContent.event.project_date }}
+                            </span>
                         </div>
                         <div class="numbering-item">
                             <span>Design Job</span>
                             <span>:</span>
-                            <span>01044</span>
+                            <span :style="{
+                                textTransform: 'uppercase'
+                            }">
+                                {{ quotationContent.event.event_class }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -115,7 +131,7 @@ const formatPrice = (number) => {
                                                 <br>
                                                 <template v-for="(prefunc, p) in quotationContent.event.led.prefunction"
                                                     :key="p">
-                                                    <span>Prefunction:</span> {{ prefunc.width }} * {{ prefunc.height }} m <br v-if="m != quotationContent.event.led.prefunction.length - 1">
+                                                    <span>Prefunction:</span> {{ prefunc.width }} * {{ prefunc.height }} m <br v-if="p != quotationContent.event.led.prefunction.length - 1">
                                                 </template>
                                             </span>
                                         </div>
@@ -127,7 +143,7 @@ const formatPrice = (number) => {
 
                                         <div class="note-preview" v-if="quotationContent.note">
                                             <p class="title">Note:</p>
-                                            <p>{{ quotationContent.note }}</p>
+                                            <p v-html="quotationContent.note"></p>
                                         </div>
                                     </div>
                                 </td>
@@ -147,7 +163,41 @@ const formatPrice = (number) => {
         </div>
         <v-stepper-actions>
             <template v-slot:next>
-                <v-btn color="primary" variant="flat" type="submit">Next</v-btn>
+                <v-menu>
+                    <template v-slot:activator="{ props }">
+                        <v-btn color="primary" :disabled="false" variant="flat" type="button" @click.prevent="submitData" v-bind="props">Save</v-btn>
+                    </template>
+
+                    <v-list>
+                        <v-list-item @click.prevent="">
+                            <template v-slot:prepend>
+                                <v-icon :icon="mdiFile" size="15"></v-icon>
+                            </template>
+
+                            <template v-slot:title>
+                                Save as Draft
+                            </template>
+                        </v-list-item>
+                        <v-list-item @click.prevent="">
+                            <template v-slot:prepend>
+                                <v-icon :icon="mdiCurrencyUsd" size="15"></v-icon>
+                            </template>
+
+                            <template v-slot:title>
+                                Save as Final
+                            </template>
+                        </v-list-item>
+                        <v-list-item @click.prevent="$emit('next-event')">
+                            <template v-slot:prepend>
+                                <v-icon :icon="mdiDatabase" size="15"></v-icon>
+                            </template>
+
+                            <template v-slot:title>
+                                Save
+                            </template>
+                        </v-list-item>
+                    </v-list>
+                </v-menu>
             </template>
 
             <template v-slot:prev>

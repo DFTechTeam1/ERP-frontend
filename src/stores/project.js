@@ -108,40 +108,12 @@ export const useProjectStore = defineStore('project', {
             luar_jawa: 950000
         },
         quotationPart: {
-            customer: {
-                name: "Mr. Siever Sumilat & Mrs. Angeliva",
-                place: "Makassar Indonesia"
-            },
-            office: {
-                name: "DFACTORY",
-                address: "Kaca Piring 19 / 2nd Level Surabaya, Jawa Timur Indonesia",
-                phone: "+62 821 1068 6655",
-                email: "dfactory.id@gmail.com",
-                logo: "https://backend.orca.test/storage/settings/image_17486774138.webp"
-            },
-            event: {
-                name: "The Wedding Reception of Ms Gabrielle & Mr. Christopher",
-                project_date: "22 Mei 2025",
-                venue: "Upperhills - Makassar",
-                led: {
-                    main: [
-                        {width: 6, height: 20},
-                        {width: 6, height: 10}
-                    ],
-                    prefunction: [
-                        {width: 3, height: 4}
-                    ]
-                },
-                price: "110000000",
-                items: [
-                    "LED Digital Content",
-                    "Opening Sequence Content",
-                    "Entertainment LED Concept",
-                    "Event Stationary"
-                ]
-            },
+            customer: {},
+            office: {},
+            event: {},
             note: null,
-            rules: '<ol><li>Minimum Down Payment sebesar 50% dari total biaya yang di tagihkan, biaya tersebut tidak dapat dikembalikan.</li><li>Pembayaran melalui rekening BCA 01111123434 a/n Wesley Wiyadi / Edwin Chandra Wijaya</li></ol>'
+            rules: '',
+            quotation_number: null
         }
     }),
     getters: {
@@ -174,8 +146,20 @@ export const useProjectStore = defineStore('project', {
         setQuotationCustomer({customer}) {
             this.quotationPart.customer = customer;
         },
+        setQuotationRules({rules}) {
+            this.quotationPart.rules = rules;
+        },
         setQuotationOffice({office}) {
             this.quotationPart.office = office;
+        },
+        setQuotationItems({items}) {
+            this.quotationPart.event.items = items;
+        },
+        setQuotationPrice({price}) {
+            this.quotationPart.event.price = price;
+        },
+        setQuotationNote({note}) {
+            this.quotationPart.note = note;
         },
         setQuotationEvent({event}) {
             this.quotationPart.event = event;
@@ -1689,6 +1673,15 @@ export const useProjectStore = defineStore('project', {
                 ledDetail: ledDetail,
                 selectedItem: selectedItem,
                 rules: rules
+            }
+        },
+        async getQuotationNumber() {
+            try {
+                const resp = await axios.get(`/production/project/getQuotationNumber`);
+
+                this.quotationPart.quotation_number = resp.data.data.number;                
+            } catch (error) {
+                return error;
             }
         }
     },

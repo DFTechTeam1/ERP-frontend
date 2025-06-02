@@ -32,19 +32,22 @@ const { defineField, errors, setFieldValue, handleSubmit, values } = useForm({
         name: yup.string().required(t('nameRequired')),
         client_portal: yup.string().required(t('clientPortalRequired')),
         project_date: yup.string().required(t('projectDateRequired')),
+        customer_id: yup.string().required(t("customerRequired")),
         event_type: yup.string().required(t('eventTypeRequired')),
+        venue: yup.string().required(t('venueRequired')),
+        collaboration: yup.string().nullable(),
+        note: yup.string().nullable(),
+        led_area: yup.string().nullable(),
+        led_detail: yup.array().nullable(),
         country_id: yup.string().required(t('countryRequired')),
         state_id: yup.string().required(t('stateRequired')),
         city_id: yup.string().required(t('cityRequired')),
-        city_name: yup.string().nullable(),
-        venue: yup.string().required(t('venueRequired')),
         project_class_id: yup.string().required(t('classRequired')),
-        collaboration: yup.string().nullable(),
-        led_area: yup.string().nullable(),
-        led_detail: yup.array().nullable(),
+        longitude: yup.string().nullable(),
+        latitude: yup.string().nullable(),
+
+        city_name: yup.string().nullable(),
         marketing_id: yup.array().required(t('marketingRequired')),
-        note: yup.string().nullable(),
-        customer_id: yup.string().required(t("customerRequired"))
     })
 });
 
@@ -79,6 +82,8 @@ const classList = ref([]);
 const marketingList = ref([]);
 const customerList = ref([]);
 const customer = ref(null);
+
+const projectClass = ref(null);
 
 const loading = ref(false);
 
@@ -181,8 +186,6 @@ async function getCustomer() {
 }
 
 const validateData = handleSubmit(async (values) => {
-    console.log('values', values);
-
     let customerData = {
         name: customer.value.title,
         place: city.value.title + ' ' + country.value.title
@@ -201,12 +204,13 @@ const validateData = handleSubmit(async (values) => {
     });
     let event = {
         name: name.value,
-        projectDate: useDateFormatter(project_date.value),
+        project_date: useDateFormatter(project_date.value),
         venue: venue.value,
         led: {
             main: mainLed,
             prefunction: prefunc
         },
+        event_class: projectClass.value.title,
         price: 0,
         items: [],
     };
@@ -270,6 +274,14 @@ watch(country, (values) => {
     }
 });
 
+watch(projectClass, (values) => {
+    if (values) {
+        setFieldValue('project_class_id', values.value);
+    } else {
+        setFieldValue('project_class_id', '');
+    }
+})
+
 watch(state, (values) => {
     if (values) {
         setFieldValue('state_id', values.value);
@@ -299,9 +311,17 @@ watch(name, (values) => {
     }
 })
 
+const getPayload = () => {
+    let payload = values;
+
+    return payload;
+};
+
 defineExpose({
-    getValues
+    getValues,
+    getPayload
 });
+
 </script>
 
 <template>
@@ -439,7 +459,8 @@ defineExpose({
                 <v-col cols="12" md="6">
                     <field-input :label="t('eventClass')" inputType="select" :select-options="classList"
                         custom-class="custom-input"
-                        v-model="project_class_id" :error-message="errors.project_class_id"></field-input>
+                        :is-return-object="true"
+                        v-model="projectClass" :error-message="errors.project_class_id"></field-input>
                 </v-col>
             </v-row>
 
