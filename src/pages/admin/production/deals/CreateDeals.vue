@@ -7,6 +7,7 @@ import QuotationPreview from './QuotationPreview.vue';
 import { useSettingStore } from '@/stores/setting';
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
+import { showNotification } from '@/compose/notification';
 
 const { t } = useI18n();
 
@@ -44,15 +45,13 @@ function getDetailValue() {
     return values;
 }
 
-watch(step, (values) => {
+watch(step, (values, old) => {
     setTimeout(() => {
-        if (values && step.value == 2) {
+        if (values && step.value == 2 && old != 3) {
             calculationFormRef.value.setPreview(detailFormRef.value.getValues());
             calculationFormRef.value.checkHighSeason();
         }
     }, 500);
-
-    console.log('content', quotationContent.value);
 });
 
 function getSettingByKey({data, key}) {
@@ -86,10 +85,15 @@ async function getQuotationNumber() {
     await store.getQuotationNumber();
 }
 
+async function getQuotationItems() {
+    await store.getQuotationItems();
+}
+
 const prepareData = async () => {
     await Promise.all([
         getQuotationNumber(),
-        getCompanySetting()
+        getCompanySetting(),
+        getQuotationItems()
     ]);
 };
 
@@ -97,10 +101,42 @@ onMounted(() => {
     prepareData();
 });
 
-const submitData = () => {
-    let projectDetail = detailFormRef.value.getPayload();
+const submitData = async (payload) => {
+    let type = payload.type;
 
-    console.log('project detail', projectDetail);
+    let projectDetail = detailFormRef.value.getPayload();
+    let quotationDetail = calculationFormRef.value.getPayload();
+    
+    // modify status
+    let status = 1;
+    let requestType = type;
+    if (type === 'draft') {
+        status = 0;
+    }
+
+    let completePayload = {
+        ...projectDetail,
+        ...quotationDetail
+    }
+
+    completePayload.quotation.is_final = type == 'final' ? 1 : 0;
+
+    completePayload.status = status;
+    completePayload.request_type = requestType;
+    completePayload.equipment_type = completePayload.quotation.equipment_type;
+    completePayload.is_high_season = completePayload.quotation.is_high_season;
+
+    console.log('project detail', completePayload);
+
+    quotationFormRef.value.setLoading(true);
+    const resp = await store.storeProjectDeal(completePayload);
+    quotationFormRef.value.setLoading(false);
+
+    if (resp.status < 300) {
+        showNotification(resp.data.message);
+    } else {
+        showNotification(resp.response.data.message, 'error');
+    }
 }
 </script>
 

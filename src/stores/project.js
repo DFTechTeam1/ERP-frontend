@@ -113,8 +113,11 @@ export const useProjectStore = defineStore('project', {
             event: {},
             note: null,
             rules: '',
-            quotation_number: null
-        }
+            quotation_number: null,
+            equipment_type: null,
+            event_location: null
+        },
+        quotationItems: []
     }),
     getters: {
         listProjectNeedToBeComplete: (state) => state.projectNeedToBeComplete,
@@ -140,9 +143,16 @@ export const useProjectStore = defineStore('project', {
         listOfTransferTeam: (state) => state.transferTeamList,
         listOfPriceGuide: (state) => state.priceGuideSettings,
         listAreaGuidePrice: (state) => state.areaGuidePrice,
-        quotationContent: (state) => state.quotationPart
+        quotationContent: (state) => state.quotationPart,
+        listOfQuotationItems: (state) => state.quotationItems
     },
     actions: {
+        setQuotationEquipmentType({type}) {
+            this.quotationPart.equipment_type = type;
+        },
+        setQuotationEventLocation({location}) {
+            this.quotationPart.event_location = location;
+        },
         setQuotationCustomer({customer}) {
             this.quotationPart.customer = customer;
         },
@@ -152,8 +162,9 @@ export const useProjectStore = defineStore('project', {
         setQuotationOffice({office}) {
             this.quotationPart.office = office;
         },
-        setQuotationItems({items}) {
+        setQuotationItems({items, itemPreviews}) {
             this.quotationPart.event.items = items;
+            this.quotationPart.event.itemPreviews = itemPreviews;
         },
         setQuotationPrice({price}) {
             this.quotationPart.event.price = price;
@@ -1680,6 +1691,24 @@ export const useProjectStore = defineStore('project', {
                 const resp = await axios.get(`/production/project/getQuotationNumber`);
 
                 this.quotationPart.quotation_number = resp.data.data.number;                
+            } catch (error) {
+                return error;
+            }
+        },
+        async storeProjectDeal(payload) {
+            try {
+                return await axios.post(`production/project/deals`, payload);
+            } catch (error) {
+                return error;
+            }
+        },
+        async getQuotationItems() {
+            try {
+                const resp = await axios.get(`/production/quotations?all=1`);
+
+                this.quotationItems = resp.data.data;
+                
+                return resp;
             } catch (error) {
                 return error;
             }

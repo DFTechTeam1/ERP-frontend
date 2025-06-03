@@ -59,6 +59,7 @@ const [country_id]= defineField('country_id');
 const [state_id]= defineField('state_id');
 const [city_id]= defineField('city_id');
 const [venue]= defineField('venue');
+const [led_detail] = defineField('led_detail');
 const [collaboration]= defineField('collaboration');
 const [customer_id]= defineField('customer_id');
 const [project_class_id]= defineField('project_class_id');
@@ -218,6 +219,7 @@ const validateData = handleSubmit(async (values) => {
     // custom state for quotation
     store.setQuotationCustomer({customer: customerData});
     store.setQuotationEvent({event: event});
+
     emit('next-event');
 });
 
@@ -311,8 +313,27 @@ watch(name, (values) => {
     }
 })
 
+// set payload for that used to send to backend
 const getPayload = () => {
-    let payload = values;
+    let payload = {
+        name: name.value,
+        project_date: project_date.value,
+        customer_id: customer_id.value,
+        event_type: event_type.value,
+        venue: venue.value,
+        collaboration: collaboration.value,
+        note: note.value == undefined ? null : note.value,
+        led_area: led_area.value,
+        led_detail: led_detail.value,
+        country_id: country_id.value,
+        state_id: state_id.value,
+        city_id: city_id.value,
+        project_class_id: project_class_id.value,
+        longitude: null,
+        latitude: null,
+        client_portal: client_portal.value,
+        marketing_id: marketing_id.value
+    };
 
     return payload;
 };

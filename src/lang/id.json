@@ -730,5 +730,10 @@
     "no" : "No",
     "equipment": "Equipment",
     "pricingSetting": "Pricing Setting",
-    "eventLocation": "Lokasi Event"
+    "eventLocation": "Lokasi Event",
+    "quotationItemRequired": "Quotation item harus diisi",
+    "projectDeals": "Proyeksi Event",
+    "EO": "EO",
+    "DP": "DP",
+    "remainingPayment": "Sisa Pembayaran"
 }

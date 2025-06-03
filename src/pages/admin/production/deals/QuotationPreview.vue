@@ -6,10 +6,11 @@ import { ref } from 'vue';
 
 const store = useProjectStore();
 
-const loading = ref(true);
+const emit = defineEmits(['next-event']);
+
+const loading = ref(false);
 
 const { quotationContent } = storeToRefs(store);
-const rules = '<ol><li>Minimum Down Payment sebesar 50% dari <b>total biaya</b> yang di tagihkan, biaya tersebut tidak dapat dikembalikan.</li><li>Pembayaran melalui rekening BCA 01111123434 a/n Wesley Wiyadi / Edwin Chandra Wijaya</li></ol>';
 
 const formatPrice = (number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -19,9 +20,17 @@ const formatPrice = (number) => {
     }).format(number);
 };
 
-const submitData = () => {
-    
+const submitProject = (type) => {
+    emit('next-event', {type: type});
 }
+
+const setLoading = (type) => {
+    loading.value = type;
+};
+
+defineExpose({
+    setLoading
+})
 </script>
 
 <template>
@@ -121,13 +130,13 @@ const submitData = () => {
                                         <div class="led-content">
                                             <span>LED Visual Content</span> <br>
                                             <span>Content Media Size:</span> <br>
-                                            <span class="main-led" v-if="quotationContent.event.led.main.length">
+                                            <span class="main-led" v-if="(quotationContent.event) && (quotationContent.event.led) && (quotationContent.event.led.main.length)">
                                                 <template v-for="(main, m) in quotationContent.event.led.main"
                                                     :key="m">
                                                     <span>Main Stage:</span> {{ main.width }} * {{ main.height }} m <br v-if="m != quotationContent.event.led.main.length - 1">
                                                 </template>
                                             </span>
-                                            <span class="main-led" v-if="quotationContent.event.led.prefunction.length">
+                                            <span class="main-led" v-if="(quotationContent.event) && (quotationContent.event.led) && (quotationContent.event.led.prefunction.length)">
                                                 <br>
                                                 <template v-for="(prefunc, p) in quotationContent.event.led.prefunction"
                                                     :key="p">
@@ -138,7 +147,7 @@ const submitData = () => {
     
                                         <div class="item-content">
                                             <p class="title">Premium LED Visual</p>
-                                            <p v-for="(item, i) in quotationContent.event.items" :key="i">{{ parseInt(i) + 1 }}. {{ item }}</p>
+                                            <p v-for="(item, i) in quotationContent.event.itemPreviews" :key="i">{{ parseInt(i) + 1 }}. {{ item }}</p>
                                         </div>
 
                                         <div class="note-preview" v-if="quotationContent.note">
@@ -165,11 +174,11 @@ const submitData = () => {
             <template v-slot:next>
                 <v-menu>
                     <template v-slot:activator="{ props }">
-                        <v-btn color="primary" :disabled="false" variant="flat" type="button" @click.prevent="submitData" v-bind="props">Save</v-btn>
+                        <v-btn color="primary" :disabled="loading" variant="flat" type="button" v-bind="props">Save</v-btn>
                     </template>
 
-                    <v-list>
-                        <v-list-item @click.prevent="">
+                    <v-list :disabled="loading">
+                        <v-list-item @click.prevent="submitProject('draft')">
                             <template v-slot:prepend>
                                 <v-icon :icon="mdiFile" size="15"></v-icon>
                             </template>
@@ -178,7 +187,7 @@ const submitData = () => {
                                 Save as Draft
                             </template>
                         </v-list-item>
-                        <v-list-item @click.prevent="">
+                        <v-list-item @click.prevent="submitProject('final')">
                             <template v-slot:prepend>
                                 <v-icon :icon="mdiCurrencyUsd" size="15"></v-icon>
                             </template>
@@ -187,7 +196,16 @@ const submitData = () => {
                                 Save as Final
                             </template>
                         </v-list-item>
-                        <v-list-item @click.prevent="$emit('next-event')">
+                        <v-list-item @click.prevent="submitProject('save_and_download')">
+                            <template v-slot:prepend>
+                                <v-icon :icon="mdiDatabase" size="15"></v-icon>
+                            </template>
+
+                            <template v-slot:title>
+                                Save and Download Quotation
+                            </template>
+                        </v-list-item>
+                        <v-list-item @click.prevent="submitProject('save')">
                             <template v-slot:prepend>
                                 <v-icon :icon="mdiDatabase" size="15"></v-icon>
                             </template>

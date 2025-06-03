@@ -16,8 +16,12 @@ const emit = defineEmits(['next-event']);
 
 const {
     listOfPriceGuide,
-    listAreaGuidePrice
+    listAreaGuidePrice,
+    quotationContent,
+    listOfQuotationItems
 } = storeToRefs(store);
+
+const errorProjectItem = ref(null);
 
 const { mobile } = useDisplay();
 
@@ -53,12 +57,9 @@ const fixPricePreview = ref(0);
 
 const projectItems = ref([]);
 
-const availableItems = ref([
-    {name: 'LED Digital Content', id: 1},
-    {name: 'Opening Sequence Content', id: 2},
-    {name: 'Entertainment LED Concept', id: 3},
-    {name: 'Event Stationary', id: 4},
-]);
+const projectItemData = ref([]);
+
+const projectItemPreviews = ref([]);
 
 function updateDescription() {
     if (description_quill.value.getText().length > 1) {
@@ -76,7 +77,7 @@ function setPreview(values) {
 
     detailData.value = values.led_detail;
 
-    equipment.value = 'lasika';
+    equipment.value = quotationContent.value.equipment_type ? quotationContent.value.equipment_type : 'lasika';
 
     // set led summary
     let main = values.led_detail.filter((filter) => {
@@ -94,7 +95,7 @@ function setPreview(values) {
 
     // set location to surabaya
     if (formattedArea.value.length) {
-        event_location.value = formattedArea.value[0].value;
+        event_location.value = quotationContent.value.event_location ? quotationContent.value.event_location : formattedArea.value[0].value;
     }
 }
 
@@ -197,6 +198,17 @@ const maxPriceUp = computed(() => {
 });
 
 const validateData = () => {
+    if (!projectItems.value.length) {
+        errorProjectItem.value = t('quotationItemRequired')
+        return;
+    } else {
+        errorProjectItem.value = null;
+    }
+
+    store.setQuotationEquipmentType({type: equipment.value});
+
+    store.setQuotationEventLocation({location: event_location.value})
+    
     // set quotation price
     store.setQuotationPrice({price: fix_price.value});
 
@@ -204,27 +216,31 @@ const validateData = () => {
     store.setQuotationNote({note: description.value});
 
     // set items
-    store.setQuotationItems({items: projectItems.value});
+    store.setQuotationItems({items: projectItems.value, itemPreviews: projectItemPreviews.value});
 
     emit('next-event');
 };
 
 const getPayload = () => {
     return {
-        event_location_guide: event_location.value,
-        main_ballroom: mainBallroomFee.value,
-        prefunction: prefunctionFee.value,
-        equipment_type: equipment.value,
-        high_season_fee: highSeasonFee.value,
-        equipment_fee: equipmentFee.value,
-        sub_total: subTotal.value,
-        maximum_discount: maxDiscount.value,
-        total: total.value,
-        maximum_markup_price: maxPriceUp.value,
-        fix_price: fix_price.value,
-
-        is_high_season: high_season.value,
-        items: projectItems.value,
+        quotation: {
+            quotation_id: quotationContent.value.quotation_number,
+            is_final: '',
+            event_location_guide: event_location.value,
+            main_ballroom: mainBallroomFee.value,
+            prefunction: prefunctionFee.value,
+            high_season_fee: highSeasonFee.value,
+            equipment_fee: equipmentFee.value,
+            sub_total: subTotal.value,
+            maximum_discount: maxDiscount.value,
+            total: total.value,
+            maximum_markup_price: maxPriceUp.value,
+            fix_price: fix_price.value,
+            is_high_season: high_season.value,
+            equipment_type: equipment.value,
+            items: projectItems.value,
+            description: description.value
+        },
     }
 };
 
@@ -238,6 +254,26 @@ watch(subTotal, (values) => {
     console.log('values'. values);
     fix_price.value =  values;
 });
+
+watch(projectItemData, (values) => {
+    console.log('items object', values);
+    if (values.length) {
+        let duplicateData = [...values];
+        projectItems.value = duplicateData.map((mapping) => {
+            return mapping.value;
+        });
+        duplicateData = [...values];
+        projectItemPreviews.value = duplicateData.map((mapping) => {
+            return mapping.title;
+        });
+    } else {
+        projectItems.value = [];
+        projectItemPreviews.value = [];
+    }
+
+    console.log('projectItemPreviews', projectItemPreviews.value);
+
+})
 </script>
 
 <template>
@@ -316,13 +352,15 @@ watch(subTotal, (values) => {
                     <v-label class="mb-2" text="Item"></v-label>
 
                     <v-autocomplete
-                        v-model="projectItems"
-                        :items="availableItems"
+                        v-model="projectItemData"
+                        :items="listOfQuotationItems"
                         :single-line="true"
                         color="blue-grey-lighten-2"
-                        item-title="name"
-                        item-value="name"
+                        :return-object="true"
+                        item-title="title"
+                        item-value="value"
                         label="Select Item"
+                        :error-messages="errorProjectItem"
                         chips
                         density="compact"
                         variant="outlined"
@@ -339,8 +377,8 @@ watch(subTotal, (values) => {
                         <template v-slot:item="{ props, item }">
                             <v-list-item
                             v-bind="props"
-                            :title="item.raw.name"
-                            :active="projectItems.includes(item.raw.name)"
+                            :title="item.raw.title"
+                            :active="projectItems.includes(item.raw.value)"
                             active-class="bg-light-blue-lighten-5"
                             ></v-list-item>
                         </template>
@@ -489,7 +527,7 @@ watch(subTotal, (values) => {
                         }">
                             <td>Fix Price</td>
                             <td>
-                                <currency-input :model-value="fix_price"
+                                <currency-input v-model="fix_price"
                                     density="compact"
                                     custom-class="custom-input"></currency-input>
                             </td>
