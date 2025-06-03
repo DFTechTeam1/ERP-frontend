@@ -8,8 +8,11 @@ import { useSettingStore } from '@/stores/setting';
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { showNotification } from '@/compose/notification';
+import { useRouter } from 'vue-router';
 
 const { t } = useI18n();
+
+const router = useRouter();
 
 const settingStore = useSettingStore();
 
@@ -29,7 +32,7 @@ const items = ref([
     'Summary'
 ]);
 
-const step = ref(1);
+const step = ref(2);
 
 function nextEvent() {
     step.value += 1;
@@ -134,6 +137,7 @@ const submitData = async (payload) => {
 
     if (resp.status < 300) {
         showNotification(resp.data.message);
+        router.push(`/admin/deals`);
     } else {
         showNotification(resp.response.data.message, 'error');
     }

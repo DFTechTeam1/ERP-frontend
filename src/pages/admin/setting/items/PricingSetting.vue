@@ -1,90 +1,94 @@
 <script setup>
 import { ref } from 'vue';
-import PricingSettingForm from './PricingSettingForm.vue';
+import { useI18n } from 'vue-i18n';
+import InputGroup from './components/forms/InputGroup.vue';
 
-const headers = ref([
+const { t } = useI18n();
+
+const types = ref([
     {
-        title: 'Name',
-        key: 'name',
-        align: 'start',
-        sortable: true
+        title: 'Percentage',
+        value: 'percentage'
     },
     {
-        title: 'Country',
-        key: 'country',
-        align: 'start',
-        sortable: true,
-        maxWidth: '180px'
-    },
-    {
-        title: 'State',
-        key: 'state',
-        align: 'start',
-        sortable: true,
-        maxWidth: '180px'
-    },
-    {
-        title: 'City',
-        key: 'city',
-        align: 'start',
-        sortable: true,
-        maxWidth: '200px'
-    },
-    {
-        title: 'Price',
-        key: 'price',
-        align: 'start',
-        sortable: true,
-        maxWidth: '180px'
-    },
+        title: 'Fixed',
+        value: 'fixed'
+    }
 ]);
 
-const items = ref([
-    {
-        id: 1,
-        name: 'Surabaya',
-        country: 'Indonesia',
-        state: 'Jawa Timur',
-        city: 'Surabaya',
-        price: 'Rp7,500,000'
-    },
-    {
-        id: 2,
-        name: 'Jakarta',
-        country: 'Indonesia',
-        state: 'DKI Jakarta',
-        city: 'Jakarta Timur, Jakarta Pusat, Jakarta Barat, Jakarta Utara, Jakarta Selatan',
-        price: 'Rp7,500,000'
-    },
-    {
-        id: 3,
-        name: 'Luar Jawa',
-        country: 'Indonesia, Other than Indonesia',
-        state: 'Other than jakarta, surabaya and jawa',
-        city: 'Other than jakarta, surabaya and jawa',
-        price: 'Rp7,500,000'
-    },
-]);
-const totalItems = ref(0);
-const loading = ref(false);
-const itemsPerPage = ref(10);
-const isHaveFilterData = ref(false);
-
-const showForm = ref(false);
+const mainBallroomType = ref();
 </script>
 
 <template>
-    <div>
-        <pricing-setting-form :is-show="showForm"
-            @close-event="showForm = false" />
-        <table-list
-            :headers="headers"
-            :items="items"
-            :totalItems="totalItems"
-            :loading="loading"
-            :itemsPerPage="itemsPerPage"
-            :has-filter="false"
-            :showClearFilter="isHaveFilterData"
-            @add-data-event="showForm = true"></table-list>
-    </div>
+    <v-card flat border>
+        <v-card-text>
+            <v-form class="px-10 mt-5 position-relative">
+                <input-group
+                    :option-label="t('type')"
+                    value-label="2,000,000"
+                    :is-solo="true"
+                    
+                    :show-append-inner="true"
+                    :show-prepend-inner="true">
+                    <template v-slot:appendItem>
+                        <span></span>
+                    </template>
+                </input-group>
+                <!-- <div class="d-flex w-100 mb-5">
+                    <label for="company-name" class="w-100 align-content-center">{{ $t("mainBallroomFee") }}</label>
+    
+                    <div class="d-flex align-center w-100">
+                        <v-autocomplete
+                            label="Type"
+                            :is-solo="true"
+                            class="custom-input"
+                            v-model="mainBallroomType"
+                            :style="{
+                                width: '35%'
+                            }"
+                            :single-line="true"
+                            variant="solo-filled"
+                            density="compact"
+                            :items="types"></v-autocomplete>
+
+                        <v-text-field
+                            label="Amount"
+                            :is-solo="true"
+                            :single-line="true"
+                            :style="{
+                                width: '65%'
+                            }"
+                            class="custom-input"
+                            variant="solo"
+                            density="compact ">
+                            <template v-slot:append-inner v-if="mainBallroomType == 'percentage'">
+                                <span>
+                                    %
+                                </span>
+                            </template>
+                            <template v-slot:prepend-inner v-if="mainBallroomType == 'fixed'">
+                                <span>
+                                    Rp
+                                </span>
+                            </template>
+                        </v-text-field>
+                    </div>
+                </div> -->
+            </v-form>
+        </v-card-text>
+    </v-card>
 </template>
+
+<style lang="scss" scoped>
+.select-group {
+    padding: 8px 12px;
+    border: 1px solid #e6e6e6;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+
+    &:focus {
+        outline: none;
+        border: 1px solid #e6e6e6;
+    }
+}
+</style>

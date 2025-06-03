@@ -11,6 +11,7 @@ import ImagePreview from './ImagePreview.vue'
 import LoadingView from './LoadingView.vue'
 import ColorPicker from './ColorPicker.vue'
 import ImportExcel from './ImportExcel.vue'
+import DividerText from "./DividerText.vue";
 import MasterCard from './MasterCard.vue'
 import { VFileUpload, VFileUploadItem } from 'vuetify/labs/VFileUpload'
 import ButtonGroupNavigation from './ButtonGroupNavigation.vue'
@@ -85,5 +86,6 @@ export function registerComponent(app) {
         .component('v-file-upload-item', VFileUploadItem)
         .component('file-picker', FilePicker)
         .component('master-card', MasterCard)
+        .component('divider-text', DividerText)
         .component('import-excel', ImportExcel);
 }

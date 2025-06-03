@@ -105,7 +105,7 @@ async function checkHighSeason() {
     });
 
     if (resp.status < 300) {
-        high_season.value = resp.data.data.is_high_season ? '1' : '1';
+        high_season.value = resp.data.data.is_high_season ? '1' : '0';
     }
 }
 
@@ -503,7 +503,9 @@ watch(projectItemData, (values) => {
                         <tr class="border-table" :class="{
                             'mobile': mobile
                         }">
-                            <td>Total</td>
+                            <td>Total <span :style="{
+                                fontWeight: 'bold'
+                            }">(after discount)</span></td>
                             <td>
                                 <span>{{ formatPrice(total) }}</span>
                             </td>
