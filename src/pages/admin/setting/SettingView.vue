@@ -91,7 +91,7 @@ const { t } = useI18n();
 
 const store = useSettingStore();
 
-const tab = ref('tab-company');
+const tab = ref('tab-pricing-setting');
 
 const permissionGeneral = ref(false);
 

@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import InputGroup from './components/forms/InputGroup.vue';
+import InputGroup from './components/forms/PriceInputGroup.vue';
 
 const { t } = useI18n();
 
@@ -16,64 +16,209 @@ const types = ref([
     }
 ]);
 
-const mainBallroomType = ref();
+const guides = ref([
+    {
+        area: "Surabaya",
+        settings: [
+            {
+                name: "Main Ballroom Fee",
+                type: "fixed",
+                value: 0,
+                raw: 0
+            },
+            {
+                name: "Prefunction Fee",
+                type: "fixed",
+                value: 0,
+                raw: 0
+            },
+            {
+                name: "Max Discount",
+                type: "percentage",
+                value: 0,
+                raw: 0
+            }
+        ]
+    },
+    {
+        area: "Jakarta",
+        settings: [
+            {
+                name: "Main Ballroom Fee",
+                type: "fixed",
+                value: 0,
+                raw: 0
+            },
+            {
+                name: "Prefunction Fee",
+                type: "fixed",
+                value: 0,
+                raw: 0
+            },
+            {
+                name: "Max Discount",
+                type: "percentage",
+                value: 0,
+                raw: 0
+            }
+        ]
+    },
+    {
+        area: "Jawa",
+        settings: [
+            {
+                name: "Main Ballroom Fee",
+                type: "fixed",
+                value: 0,
+                raw: 0
+            },
+            {
+                name: "Prefunction Fee",
+                type: "fixed",
+                value: 0,
+                raw: 0
+            },
+            {
+                name: "Max Discount",
+                type: "percentage",
+                value: 0,
+                raw: 0
+            }
+        ]
+    },
+    {
+        area: "Luar Jawa",
+        settings: [
+            {
+                name: "Main Ballroom Fee",
+                type: "fixed",
+                value: 0,
+                raw: 0
+            },
+            {
+                name: "Prefunction Fee",
+                type: "fixed",
+                value: 0,
+                raw: 0
+            },
+            {
+                name: "Max Discount",
+                type: "percentage",
+                value: 0,
+                raw: 0
+            }
+        ]
+    }
+]);
+
+const equipmentSetting = ref([
+    {
+        name: "Lasika",
+        type: "fixed",
+        value: 0
+    },
+    {
+        name: "Others",
+        type: "fixed",
+        value: 0
+    }
+]);
+
+const price_up_type = ref('percentage');
+const price_up_value = ref(0);
+
+const validateData = () => {
+    let payload = {
+        area: guides.value,
+        equipment: equipmentSetting.value,
+        price_up: {
+            type: price_up_type.value,
+            value: price_up_value.value
+        }
+    };
+    console.log('guides', payload);
+};
 </script>
 
 <template>
     <v-card flat border>
         <v-card-text>
-            <v-form class="px-10 mt-5 position-relative">
+            <divider-text text="Pricing Guide Based on Area" />
+
+            <v-form class="px-10 mt-5 position-relative"
+                @submit.prevent="validateData">
+                <div class="area-item"
+                    v-for="(guide, g) in guides"
+                    :key="g">
+                    <p class="title">{{ guide.area }}</p>
+                    <template v-for="(item, i) in guide.settings">
+                        <input-group
+                            :is-solo="true"
+                            :option-label="item.name"
+                            :value-label="t('type')"
+                            :type-options="types"
+                            :show-prepend-inner="true"
+                            :show-append-inner="true"
+                            v-model:option="item.type"
+                            v-model:value="item.value">
+                            <template v-slot:append-item>
+                                <span v-if="item.type == 'percentage'">%</span>
+                            </template>
+                            <template v-slot:prepend-item>
+                                <span v-if="item.type == 'fixed'">Rp</span>
+                            </template>
+                        </input-group>
+                    </template>
+                </div>
+
+                <divider-text text="Equipment Fee" />
+
+                <div class="area-item"
+                    v-for="(equipment, e) in equipmentSetting"
+                    :key="e">
+                    <p class="title">{{ equipment.name }}</p>
+                    <input-group
+                        :is-solo="true"
+                        :option-label="t('fee')"
+                        :value-label="t('type')"
+                        :type-options="types"
+                        :show-prepend-inner="true"
+                        :show-append-inner="true"
+                        v-model:option="equipment.type"
+                        v-model:value="equipment.value">
+                        <template v-slot:append-item>
+                            <span v-if="equipment.type == 'percentage'">%</span>
+                        </template>
+                        <template v-slot:prepend-item>
+                            <span v-if="equipment.type == 'fixed'">Rp</span>
+                        </template>
+                    </input-group>
+                </div>
+
+                <divider-text :text="t('maximumPriceUp')" />
+
                 <input-group
-                    :option-label="t('type')"
-                    value-label="2,000,000"
                     :is-solo="true"
-                    
+                    :option-label="t('maximumPriceUp')"
+                    :value-label="t('type')"
+                    :type-options="types"
+                    :show-prepend-inner="true"
                     :show-append-inner="true"
-                    :show-prepend-inner="true">
-                    <template v-slot:appendItem>
-                        <span></span>
+                    v-model:option="price_up_type"
+                    v-model:value="price_up_value">
+                    <template v-slot:append-item>
+                        <span v-if="price_up_type == 'percentage'">%</span>
+                    </template>
+                    <template v-slot:prepend-item>
+                        <span v-if="price_up_type == 'fixed'">Rp</span>
                     </template>
                 </input-group>
-                <!-- <div class="d-flex w-100 mb-5">
-                    <label for="company-name" class="w-100 align-content-center">{{ $t("mainBallroomFee") }}</label>
-    
-                    <div class="d-flex align-center w-100">
-                        <v-autocomplete
-                            label="Type"
-                            :is-solo="true"
-                            class="custom-input"
-                            v-model="mainBallroomType"
-                            :style="{
-                                width: '35%'
-                            }"
-                            :single-line="true"
-                            variant="solo-filled"
-                            density="compact"
-                            :items="types"></v-autocomplete>
 
-                        <v-text-field
-                            label="Amount"
-                            :is-solo="true"
-                            :single-line="true"
-                            :style="{
-                                width: '65%'
-                            }"
-                            class="custom-input"
-                            variant="solo"
-                            density="compact ">
-                            <template v-slot:append-inner v-if="mainBallroomType == 'percentage'">
-                                <span>
-                                    %
-                                </span>
-                            </template>
-                            <template v-slot:prepend-inner v-if="mainBallroomType == 'fixed'">
-                                <span>
-                                    Rp
-                                </span>
-                            </template>
-                        </v-text-field>
-                    </div>
-                </div> -->
+                <div class="d-flex items-center justify-end mt-5">
+                    <v-btn variant="flat" color="primary" type="submit">
+                        Save
+                    </v-btn>
+                </div>
             </v-form>
         </v-card-text>
     </v-card>
@@ -89,6 +234,20 @@ const mainBallroomType = ref();
     &:focus {
         outline: none;
         border: 1px solid #e6e6e6;
+    }
+}
+
+.area-item {
+    padding: 14px;
+    box-shadow: 0px 0px 15px 2px #DEDEDE;
+    border-radius: 6px;
+    margin-bottom: 14px;
+
+    .title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #757575;
+        margin-bottom: 20px;
     }
 }
 </style>

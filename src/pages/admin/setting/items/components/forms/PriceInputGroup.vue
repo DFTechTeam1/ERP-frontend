@@ -1,6 +1,7 @@
 <script setup>
-import { T } from 'unplugin-vue-router/options-ChnxZdan';
 import { ref } from 'vue';
+
+defineEmits(['on-blur', 'on-focus']);
 
 const props = defineProps({
     optionLabel: String,
@@ -16,23 +17,24 @@ const props = defineProps({
     showPrependInner: {
         type: Boolean,
         default: false
+    },
+    typeOptions: {
+        type: Array,
+        default: []
     }
 });
 
-const modelOption = ref();
+const modelOption = defineModel('option');
 
-const modelValue = ref();
+const modelValue = defineModel('value');
 
-const getValue = () => {
-    return {
-        option: modelOption.value,
-        value: modelValue.value
-    };
-};
+const formatPrice = () => {
+    modelValue.value = parseFloat(modelValue.value).toLocaleString();
+}
 
-defineExpose({
-    getValue
-})
+const normalizePrice = () => {
+    modelValue.value = modelValue.value.toString().replaceAll(',', '');
+}
 </script>
 
 <template>
@@ -51,10 +53,10 @@ defineExpose({
                 :single-line="true"
                 variant="solo-filled"
                 density="compact"
-                :items="types"></v-autocomplete>
+                :items="typeOptions"></v-autocomplete>
 
             <v-text-field
-                :label="t('valueLabel')"
+                :label="props.valueLabel"
                 :is-solo="props.isSolo"
                 :single-line="true"
                 :style="{
@@ -63,12 +65,14 @@ defineExpose({
                 class="custom-input"
                 variant="solo"
                 v-model="modelValue"
-                density="compact ">
+                density="compact"
+                @blur="formatPrice"
+                @focus="normalizePrice">
                 <template v-slot:append-inner v-if="props.showAppendInner">
-                    <slot name="appendItem"></slot>
+                    <slot name="append-item"></slot>
                 </template>
                 <template v-slot:prepend-inner v-if="props.showPrependInner">
-                    <slot name="prependItem"></slot>
+                    <slot name="prepend-item"></slot>
                 </template>
             </v-text-field>
         </div>

@@ -741,5 +741,10 @@
     "EO": "EO",
     "DP": "DP",
     "remainingPayment": "Remaining Payment",
-    "mainBallroomFee": "Main Ballroom Fee"
+    "mainBallroomFee": "Main Ballroom Fee",
+    "perfunctionFee": "Prefunction Fee",
+    "maxDiscount": "Max Discount",
+    "equipmentFee": "Equipment Fee",
+    "fee": "Fee",
+    "maximumPriceUp": "Maximum Price Up"
 }
