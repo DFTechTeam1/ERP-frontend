@@ -6,6 +6,10 @@ defineEmits(['on-blur', 'on-focus']);
 const props = defineProps({
     optionLabel: String,
     valueLabel: String,
+    onlyPrice: {
+        type: Boolean,
+        default: false,
+    },
     isSolo: {
         type: Boolean,
         default: false
@@ -21,6 +25,10 @@ const props = defineProps({
     typeOptions: {
         type: Array,
         default: []
+    },
+    customLabel: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -39,7 +47,8 @@ const normalizePrice = () => {
 
 <template>
     <div class="d-flex w-100 mb-5">
-        <label for="company-name" class="w-100 align-content-center">{{ props.optionLabel }}</label>
+        <slot name="label-data" v-if="props.customLabel"></slot>
+        <label v-else for="company-name" class="w-100 align-content-center">{{ props.optionLabel }}</label>
 
         <div class="d-flex align-center w-100">
             <v-autocomplete
@@ -51,6 +60,7 @@ const normalizePrice = () => {
                     width: '35%'
                 }"
                 :single-line="true"
+                v-if="!props.onlyPrice"
                 variant="solo-filled"
                 density="compact"
                 :items="typeOptions"></v-autocomplete>

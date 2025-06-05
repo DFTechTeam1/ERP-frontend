@@ -2,6 +2,8 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import InputGroup from './components/forms/PriceInputGroup.vue';
+import { mdiHelpCircle } from '@mdi/js';
+import { computed } from 'vue';
 
 const { t } = useI18n();
 
@@ -16,6 +18,20 @@ const types = ref([
     }
 ]);
 
+const fixedType = ref([
+    {
+        title: 'Fixed',
+        value: 'fixed'
+    }
+]);
+
+const percentageType = ref([
+    {
+        title: 'Percentage',
+        value: 'percentage'
+    },
+]);
+
 const guides = ref([
     {
         area: "Surabaya",
@@ -24,19 +40,25 @@ const guides = ref([
                 name: "Main Ballroom Fee",
                 type: "fixed",
                 value: 0,
-                raw: 0
+                fixType: 'fixed'
             },
             {
                 name: "Prefunction Fee",
                 type: "fixed",
                 value: 0,
-                raw: 0
+                fixType: 'fixed'
             },
+            // {
+            //     name: "Prefunction Divisor Nominal",
+            //     type: "percentage",
+            //     value: 0,
+            //     fixType: 'percentage'
+            // },
             {
                 name: "Max Discount",
                 type: "percentage",
                 value: 0,
-                raw: 0
+                fixType: 'flexible'
             }
         ]
     },
@@ -47,19 +69,25 @@ const guides = ref([
                 name: "Main Ballroom Fee",
                 type: "fixed",
                 value: 0,
-                raw: 0
+                fixType: 'fixed'
             },
             {
                 name: "Prefunction Fee",
                 type: "fixed",
                 value: 0,
-                raw: 0
+                fixType: 'fixed'
             },
+            // {
+            //     name: "Prefunction Divisor Nominal",
+            //     type: "percentage",
+            //     value: 0,
+            //     fixType: 'percentage'
+            // },
             {
                 name: "Max Discount",
                 type: "percentage",
                 value: 0,
-                raw: 0
+                fixType: 'flexible'
             }
         ]
     },
@@ -70,19 +98,25 @@ const guides = ref([
                 name: "Main Ballroom Fee",
                 type: "fixed",
                 value: 0,
-                raw: 0
+                fixType: 'fixed'
             },
             {
                 name: "Prefunction Fee",
                 type: "fixed",
                 value: 0,
-                raw: 0
+                fixType: 'fixed'
             },
+            // {
+            //     name: "Prefunction Divisor Nominal",
+            //     type: "percentage",
+            //     value: 0,
+            //     fixType: 'percentage'
+            // },
             {
                 name: "Max Discount",
                 type: "percentage",
                 value: 0,
-                raw: 0
+                fixType: 'flexible'
             }
         ]
     },
@@ -93,19 +127,25 @@ const guides = ref([
                 name: "Main Ballroom Fee",
                 type: "fixed",
                 value: 0,
-                raw: 0
+                fixType: 'fixed'
             },
             {
                 name: "Prefunction Fee",
                 type: "fixed",
                 value: 0,
-                raw: 0
+                fixType: 'fixed'
             },
+            // {
+            //     name: "Prefunction Divisor Nominal",
+            //     type: "percentage",
+            //     value: 0,
+            //     fixType: 'percentage'
+            // },
             {
                 name: "Max Discount",
                 type: "percentage",
                 value: 0,
-                raw: 0
+                fixType: 'flexible'
             }
         ]
     }
@@ -126,6 +166,8 @@ const equipmentSetting = ref([
 
 const price_up_type = ref('percentage');
 const price_up_value = ref(0);
+const prefunction_percentage = ref(0);
+const minimum_price = ref(0);
 
 const validateData = () => {
     let payload = {
@@ -134,10 +176,24 @@ const validateData = () => {
         price_up: {
             type: price_up_type.value,
             value: price_up_value.value
-        }
+        },
+        prefunction_percentage: prefunction_percentage.value,
+        minimum_price: minimum_price.value
     };
     console.log('guides', payload);
 };
+
+const defineType = (type) => {
+    let output = types.value;
+
+    if (type == 'fixed') {
+        output = fixedType.value;
+    } else if (type == 'percentage') {
+        output = percentageType.value;
+    }
+
+    return output;
+}
 </script>
 
 <template>
@@ -156,7 +212,7 @@ const validateData = () => {
                             :is-solo="true"
                             :option-label="item.name"
                             :value-label="t('type')"
-                            :type-options="types"
+                            :type-options="defineType(item.fixType)"
                             :show-prepend-inner="true"
                             :show-append-inner="true"
                             v-model:option="item.type"
@@ -167,8 +223,30 @@ const validateData = () => {
                             <template v-slot:prepend-item>
                                 <span v-if="item.type == 'fixed'">Rp</span>
                             </template>
+
+                            <!-- <template v-slot:label-data>
+                                <label class="w-100 align-content-center">
+                                    <span>{{ item.name }}</span>
+                                    <span style="font-size: 9px; margin-left: 4px;" class="pointer">
+                                        <v-icon :icon="mdiHelpCircle"></v-icon>
+
+                                        <v-tooltip
+                                            activator="parent">
+                                            <div class="preview-formula mt-5 mb-10 d-flex items-center justify-center">
+                                                <p>
+                                                    <i>
+                                                        {Main Ballroom Area} * {{ item.value }}
+                                                    </i>
+                                                </p>
+                                            </div>
+                                        </v-tooltip>
+                                    </span>
+                                </label>
+                            </template> -->
                         </input-group>
+
                     </template>
+
                 </div>
 
                 <divider-text text="Equipment Fee" />
@@ -181,7 +259,7 @@ const validateData = () => {
                         :is-solo="true"
                         :option-label="t('fee')"
                         :value-label="t('type')"
-                        :type-options="types"
+                        :type-options="fixedType"
                         :show-prepend-inner="true"
                         :show-append-inner="true"
                         v-model:option="equipment.type"
@@ -195,7 +273,7 @@ const validateData = () => {
                     </input-group>
                 </div>
 
-                <divider-text :text="t('maximumPriceUp')" />
+                <divider-text :text="t('others')" />
 
                 <input-group
                     :is-solo="true"
@@ -211,6 +289,28 @@ const validateData = () => {
                     </template>
                     <template v-slot:prepend-item>
                         <span v-if="price_up_type == 'fixed'">Rp</span>
+                    </template>
+                </input-group>
+
+                <input-group
+                    :is-solo="true"
+                    :option-label="t('prefunctionPercentage')"
+                    :show-append-inner="true"
+                    :only-price="true"
+                    v-model:value="prefunction_percentage">
+                    <template v-slot:append-item>
+                        <span>%</span>
+                    </template>
+                </input-group>
+
+                <input-group
+                    :is-solo="true"
+                    :option-label="t('minimumPrice')"
+                    :show-prepend-inner="true"
+                    :only-price="true"
+                    v-model:value="minimum_price">
+                    <template v-slot:prepend-item>
+                        <span>Rp</span>
                     </template>
                 </input-group>
 

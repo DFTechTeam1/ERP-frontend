@@ -746,5 +746,8 @@
     "maxDiscount": "Max Discount",
     "equipmentFee": "Equipment Fee",
     "fee": "Fee",
-    "maximumPriceUp": "Maximum Price Up"
+    "maximumPriceUp": "Maximum Price Up",
+    "others": "Others",
+    "prefunctionPercentage": "Prefunction Percentage",
+    "minimumPrice": "Minimum Price"
 }

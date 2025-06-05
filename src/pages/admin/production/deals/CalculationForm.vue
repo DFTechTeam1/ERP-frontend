@@ -18,7 +18,8 @@ const {
     listOfPriceGuide,
     listAreaGuidePrice,
     quotationContent,
-    listOfQuotationItems
+    listOfQuotationItems,
+    guideOfPriceCalculation
 } = storeToRefs(store);
 
 const errorProjectItem = ref(null);
@@ -37,18 +38,10 @@ const high_season = ref('1');
 const event_location = ref(0);
 const equipment = ref('lasika');
 const ledArea = ref({
-    main: 56,
-    prefunction: 19.5
+    main: 50,
+    prefunction: 10
 });
 
-// const mainBallroomFee = ref('0');
-// const prefunctionFee = ref('0');
-// const highSeasonFee = ref('0');
-// const equipmentFee = ref('0');
-// const subTotal = ref('0');
-// const maxDiscount = ref('0');
-// const total = ref('0');
-// const maxPriceUp = ref('0');
 const detailData = ref([]);
 
 const fix_price = ref(0);
@@ -136,21 +129,38 @@ const formatPrice = (number) => {
 };
 
 const mainBallroomFee = computed(() => {
-    return parseFloat(ledArea.value.main) * event_location.value;
+    let output = 0;
+    if (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined) {
+        if (guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.fixed) {
+            output = eval(guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.fixed.replaceAll("{total_led}", ledArea.value.main));
+        } else if (guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.percentage) {
+            output = eval(guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.percentage.replaceAll("{total_led}", ledArea.value.main));
+        }
+    }
+    return output;
 });
 
 const prefunctionFee = computed(() => {
-    return parseFloat(ledArea.value.prefunction) * (parseFloat(event_location.value) * 0.75);
+    let output = 0;
+    if (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined) {
+        if (guideOfPriceCalculation.value.areaGuide[event_location.value].prefunction.fixed) {
+            output = eval(guideOfPriceCalculation.value.areaGuide[event_location.value].prefunction.fixed.replaceAll("{total_led}", ledArea.value.prefunction));
+        } else if (guideOfPriceCalculation.value.areaGuide[event_location.value].prefunction.percentage) {
+            output = eval(guideOfPriceCalculation.value.areaGuide[event_location.value].prefunction.percentage.replaceAll("{total_led}", ledArea.value.prefunction));
+        }
+    }
+
+    return output;
 });
 
 const highSeasonFee = computed(() => {
     let output = 0;
 
     if (high_season.value == 1) {
-        if (listOfPriceGuide.value.highSeason.type == 'percentage') {
-            output = (mainBallroomFee.value + prefunctionFee.value) * parseFloat(listOfPriceGuide.value.highSeason.formula) / 100;
-        } else {
-            output = mainBallroomFee.value + prefunctionFee.value + listOfPriceGuide.value.highSeason.formula;
+        if (guideOfPriceCalculation.value.highSeason.percentage) {
+            output = eval(guideOfPriceCalculation.value.highSeason.percentage.replaceAll("{main_ballroom_price}", mainBallroomFee.value).replaceAll("{prefunction_price}", prefunctionFee.value));
+        } else if (guideOfPriceCalculation.value.highSeason.fixed) {
+            output = eval(guideOfPriceCalculation.value.highSeason.fixed.replaceAll("{main_ballroom_price}", mainBallroomFee.value).replaceAll("{prefunction_price}", prefunctionFee.value));
         }
     }
 
@@ -160,10 +170,8 @@ const highSeasonFee = computed(() => {
 const equipmentFee = computed(() => {
     let output = 0;
 
-    if (equipment.value == 'others') {
-        if (listOfPriceGuide.value.equipment.type == 'fix') {
-            output = listOfPriceGuide.value.equipment.formula;
-        }
+    if (guideOfPriceCalculation.value.equipment[equipment.value] != undefined) {
+        output = parseFloat(guideOfPriceCalculation.value.equipment[equipment.value]);
     }
 
     return output;
@@ -178,8 +186,24 @@ const subTotal = computed(() => {
 const maxDiscount = computed(() => {
     let output = 0;
 
-    if (listOfPriceGuide.value.discount.type == 'percentage') {
-        output = subTotal.value * listOfPriceGuide.value.discount.formula / 100;
+    if (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined) {
+        if (guideOfPriceCalculation.value.areaGuide[event_location.value].discount.percentage) {
+            output = eval(
+                guideOfPriceCalculation.value.areaGuide[event_location.value].discount.percentage
+                    .replaceAll("{main_ballroom_price}", mainBallroomFee.value)
+                    .replaceAll("{prefunction_price}", prefunctionFee.value)
+                    .replaceAll("{high_season_price}", highSeasonFee.value)
+                    .replaceAll("{equipment_price}", equipmentFee.value)
+            );
+        } else {
+            output = eval(
+                guideOfPriceCalculation.value.areaGuide[event_location.value].discount.fixed
+                    .replaceAll("{main_ballroom_price}", mainBallroomFee.value)
+                    .replaceAll("{prefunction_price}", prefunctionFee.value)
+                    .replaceAll("{high_season_price}", highSeasonFee.value)
+                    .replaceAll("{equipment_price}", equipmentFee.value)
+            );
+        }
     }
 
     return output;
@@ -401,12 +425,14 @@ watch(projectItemData, (values) => {
                         class="mt-1"
                         v-model="event_location">
                         <v-radio
-                            v-for="(area, a) in formattedArea"
+                            v-for="(area, a) in guideOfPriceCalculation.area"
                             :key="a"
                             :value="area.value"
                             :label="area.title"
                             density="compact"
-                            class="ms-3"></v-radio>
+                            :class="{
+                                'ms-3': a > 0
+                            }"></v-radio>
                     </v-radio-group>
                 </div>
 
@@ -436,15 +462,16 @@ watch(projectItemData, (values) => {
                         <v-radio-group inline
                             class="mt-1"
                             v-model="equipment">
-                            <v-radio
-                                label="Lasika"
-                                density="compact"
-                                value="lasika"></v-radio>
-                            <v-radio
-                                label="Others"
-                                density="compact"
-                                class="ms-2"
-                                value="others"></v-radio>
+                            <template v-for="(type, t) in guideOfPriceCalculation.equipmentList"
+                                :key="t">
+                                <v-radio
+                                    :label="type.title"
+                                    density="compact"
+                                    :class="{
+                                        'ms-2': t > 0
+                                    }"
+                                    :value="type.value"></v-radio>
+                            </template>
                         </v-radio-group>
                     </div>
                 </div>
@@ -452,7 +479,7 @@ watch(projectItemData, (values) => {
                 <!-- total -->
                 <table class="w-100 table-total">
                     <tbody>
-                        <tr class="border-table" :class="{
+                        <tr class="border-table bg-grey-lighten-4" :class="{
                             'mobile': mobile
                         }">
                             <td>Main Ballroom</td>
@@ -460,7 +487,7 @@ watch(projectItemData, (values) => {
                                 <span>{{ formatPrice(mainBallroomFee) }}</span>
                             </td>
                         </tr>
-                        <tr class="border-table" :class="{
+                        <tr class="border-table bg-grey-lighten-4" :class="{
                             'mobile': mobile
                         }">
                             <td>Prefunction</td>
@@ -468,7 +495,7 @@ watch(projectItemData, (values) => {
                                 <span>{{ formatPrice(prefunctionFee) }}</span>
                             </td>
                         </tr>
-                        <tr class="border-table" :class="{
+                        <tr class="border-table bg-grey-lighten-4" :class="{
                             'mobile': mobile
                         }">
                             <td>High Season Fee</td>
@@ -476,7 +503,7 @@ watch(projectItemData, (values) => {
                                 <span>{{ formatPrice(highSeasonFee) }}</span>
                             </td>
                         </tr>
-                        <tr class="border-table" :class="{
+                        <tr class="border-table bg-grey-lighten-4" :class="{
                             'mobile': mobile
                         }">
                             <td>Equipment Fee</td>
@@ -484,7 +511,7 @@ watch(projectItemData, (values) => {
                                 <span>{{ formatPrice(equipmentFee) }}</span>
                             </td>
                         </tr>
-                        <tr class="border-table" :class="{
+                        <tr class="border-table bg-teal-lighten-2" :class="{
                             'mobile': mobile
                         }">
                             <td>Sub Total</td>
@@ -492,15 +519,15 @@ watch(projectItemData, (values) => {
                                 <span>{{ formatPrice(subTotal) }}</span>
                             </td>
                         </tr>
-                        <tr class="border-table" :class="{
+                        <!-- <tr class="border-table" :class="{
                             'mobile': mobile
                         }">
                             <td>Max. Discount</td>
                             <td>
                                 <span>{{ formatPrice(maxDiscount) }}</span>
                             </td>
-                        </tr>
-                        <tr class="border-table" :class="{
+                        </tr> -->
+                        <tr class="border-table bg-yellow-lighten-3" :class="{
                             'mobile': mobile
                         }">
                             <td>Total <span :style="{
@@ -510,7 +537,7 @@ watch(projectItemData, (values) => {
                                 <span>{{ formatPrice(total) }}</span>
                             </td>
                         </tr>
-                        <tr class="border-table" :class="{
+                        <tr class="border-table bg-green-lighten-3" :class="{
                             'mobile': mobile
                         }">
                             <td>Max. Price UP</td>
@@ -553,6 +580,8 @@ watch(projectItemData, (values) => {
 
 <style lang="scss" scoped>
 .table-total {
+    border-collapse: collapse;
+
     tbody {
         font-size: 13px;
 
@@ -596,9 +625,5 @@ watch(projectItemData, (values) => {
             }
         }
     }
-}
-
-.price-up {
-    color: #4CAF50;
 }
 </style>
