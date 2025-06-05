@@ -514,7 +514,7 @@ watch(projectItemData, (values) => {
                         <tr class="border-table bg-teal-lighten-2" :class="{
                             'mobile': mobile
                         }">
-                            <td>Sub Total</td>
+                            <td>Normal Price</td>
                             <td>
                                 <span>{{ formatPrice(subTotal) }}</span>
                             </td>
@@ -530,9 +530,7 @@ watch(projectItemData, (values) => {
                         <tr class="border-table bg-yellow-lighten-3" :class="{
                             'mobile': mobile
                         }">
-                            <td>Total <span :style="{
-                                fontWeight: 'bold'
-                            }">(after discount)</span></td>
+                            <td>Max. Discount Price</td>
                             <td>
                                 <span>{{ formatPrice(total) }}</span>
                             </td>
