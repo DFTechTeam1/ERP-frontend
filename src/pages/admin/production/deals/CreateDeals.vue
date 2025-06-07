@@ -92,11 +92,16 @@ async function getQuotationItems() {
     await store.getQuotationItems();
 }
 
+async function getCalculation() {
+    await store.getCalculation();
+}
+
 const prepareData = async () => {
     await Promise.all([
         getQuotationNumber(),
         getCompanySetting(),
-        getQuotationItems()
+        getQuotationItems(),
+        getCalculation()
     ]);
 };
 

@@ -34,12 +34,12 @@ const venue = ref('Hotel Gunadharma');
 const location = ref('Surabaya');
 const description_quill = ref(null);
 const description = ref(null);
-const high_season = ref('1');
-const event_location = ref(0);
+const high_season = ref('0');
+const event_location = ref();
 const equipment = ref('lasika');
 const ledArea = ref({
-    main: 50,
-    prefunction: 10
+    main: 40,
+    prefunction: 0
 });
 
 const detailData = ref([]);
@@ -130,7 +130,7 @@ const formatPrice = (number) => {
 
 const mainBallroomFee = computed(() => {
     let output = 0;
-    if (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined) {
+    if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined)) {
         if (guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.fixed) {
             output = eval(guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.fixed.replaceAll("{total_led}", ledArea.value.main));
         } else if (guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.percentage) {
@@ -142,7 +142,7 @@ const mainBallroomFee = computed(() => {
 
 const prefunctionFee = computed(() => {
     let output = 0;
-    if (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined) {
+    if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined)) {
         if (guideOfPriceCalculation.value.areaGuide[event_location.value].prefunction.fixed) {
             output = eval(guideOfPriceCalculation.value.areaGuide[event_location.value].prefunction.fixed.replaceAll("{total_led}", ledArea.value.prefunction));
         } else if (guideOfPriceCalculation.value.areaGuide[event_location.value].prefunction.percentage) {
@@ -157,9 +157,9 @@ const highSeasonFee = computed(() => {
     let output = 0;
 
     if (high_season.value == 1) {
-        if (guideOfPriceCalculation.value.highSeason.percentage) {
+        if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.highSeason.percentage)) {
             output = eval(guideOfPriceCalculation.value.highSeason.percentage.replaceAll("{main_ballroom_price}", mainBallroomFee.value).replaceAll("{prefunction_price}", prefunctionFee.value));
-        } else if (guideOfPriceCalculation.value.highSeason.fixed) {
+        } else if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.highSeason.fixed)) {
             output = eval(guideOfPriceCalculation.value.highSeason.fixed.replaceAll("{main_ballroom_price}", mainBallroomFee.value).replaceAll("{prefunction_price}", prefunctionFee.value));
         }
     }
@@ -170,7 +170,7 @@ const highSeasonFee = computed(() => {
 const equipmentFee = computed(() => {
     let output = 0;
 
-    if (guideOfPriceCalculation.value.equipment[equipment.value] != undefined) {
+    if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.equipment[equipment.value] != undefined)) {
         output = parseFloat(guideOfPriceCalculation.value.equipment[equipment.value]);
     }
 
@@ -179,6 +179,9 @@ const equipmentFee = computed(() => {
 
 const subTotal = computed(() => {
     let output = parseFloat(equipmentFee.value) + parseFloat(highSeasonFee.value) + parseFloat(mainBallroomFee.value) + parseFloat(prefunctionFee.value);
+    if ((guideOfPriceCalculation.value) && (output < guideOfPriceCalculation.value.minimum_price)) {
+        output = guideOfPriceCalculation.value.minimum_price;
+    }
 
     return output;
 });
@@ -186,24 +189,49 @@ const subTotal = computed(() => {
 const maxDiscount = computed(() => {
     let output = 0;
 
-    if (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined) {
-        if (guideOfPriceCalculation.value.areaGuide[event_location.value].discount.percentage) {
-            output = eval(
-                guideOfPriceCalculation.value.areaGuide[event_location.value].discount.percentage
-                    .replaceAll("{main_ballroom_price}", mainBallroomFee.value)
-                    .replaceAll("{prefunction_price}", prefunctionFee.value)
-                    .replaceAll("{high_season_price}", highSeasonFee.value)
-                    .replaceAll("{equipment_price}", equipmentFee.value)
-            );
+    if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined)) {
+        if (subTotal.value <= guideOfPriceCalculation.value.minimum_price) {
+            console.log('subTotal.value', subTotal.value);
+            output = guideOfPriceCalculation.value.minimum_price
         } else {
-            output = eval(
-                guideOfPriceCalculation.value.areaGuide[event_location.value].discount.fixed
-                    .replaceAll("{main_ballroom_price}", mainBallroomFee.value)
-                    .replaceAll("{prefunction_price}", prefunctionFee.value)
-                    .replaceAll("{high_season_price}", highSeasonFee.value)
-                    .replaceAll("{equipment_price}", equipmentFee.value)
-            );
+            if (guideOfPriceCalculation.value.areaGuide[event_location.value].discount.percentage) {
+                output = eval(
+                    guideOfPriceCalculation.value.areaGuide[event_location.value].discount.percentage
+                        .replaceAll("{main_ballroom_price}", mainBallroomFee.value)
+                        .replaceAll("{prefunction_price}", prefunctionFee.value)
+                        .replaceAll("{high_season_price}", highSeasonFee.value)
+                        .replaceAll("{equipment_price}", equipmentFee.value)
+                );
+            } else {
+                output = eval(
+                    guideOfPriceCalculation.value.areaGuide[event_location.value].discount.fixed
+                        .replaceAll("{main_ballroom_price}", mainBallroomFee.value)
+                        .replaceAll("{prefunction_price}", prefunctionFee.value)
+                        .replaceAll("{high_season_price}", highSeasonFee.value)
+                        .replaceAll("{equipment_price}", equipmentFee.value)
+                );
+            }
         }
+    }
+
+    return output;
+});
+
+const areas = computed(() => {
+    let output = [];
+
+    if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.area)) {
+        output = guideOfPriceCalculation.value.area;
+    }
+
+    return output;
+});
+
+const equipmentList = computed(() => {
+    let output = [];
+
+    if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.equipmentList)) {
+        output = guideOfPriceCalculation.value.equipmentList;
     }
 
     return output;
@@ -211,6 +239,9 @@ const maxDiscount = computed(() => {
 
 const total = computed(() => {
     let output = subTotal.value - maxDiscount.value;
+    if ((guideOfPriceCalculation.value) && (maxDiscount.value <= guideOfPriceCalculation.value.minimum_price)) {
+        output = guideOfPriceCalculation.value.minimum_price
+    }
 
     return output;
 });
@@ -425,7 +456,7 @@ watch(projectItemData, (values) => {
                         class="mt-1"
                         v-model="event_location">
                         <v-radio
-                            v-for="(area, a) in guideOfPriceCalculation.area"
+                            v-for="(area, a) in areas"
                             :key="a"
                             :value="area.value"
                             :label="area.title"
@@ -462,7 +493,7 @@ watch(projectItemData, (values) => {
                         <v-radio-group inline
                             class="mt-1"
                             v-model="equipment">
-                            <template v-for="(type, t) in guideOfPriceCalculation.equipmentList"
+                            <template v-for="(type, t) in equipmentList"
                                 :key="t">
                                 <v-radio
                                     :label="type.title"
@@ -567,6 +598,7 @@ watch(projectItemData, (values) => {
         <v-stepper-actions>
             <template v-slot:next>
                 <v-btn color="primary" variant="flat" type="button" @click.prevent="validateData">Next</v-btn>
+                <v-btn color="primary" variant="flat" type="button" @click.prevent="sendTesting">Testing</v-btn>
             </template>
 
             <template v-slot:prev>
