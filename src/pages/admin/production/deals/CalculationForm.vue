@@ -598,7 +598,6 @@ watch(projectItemData, (values) => {
         <v-stepper-actions>
             <template v-slot:next>
                 <v-btn color="primary" variant="flat" type="button" @click.prevent="validateData">Next</v-btn>
-                <v-btn color="primary" variant="flat" type="button" @click.prevent="sendTesting">Testing</v-btn>
             </template>
 
             <template v-slot:prev>

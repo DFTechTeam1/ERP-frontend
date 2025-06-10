@@ -16,6 +16,19 @@ const router = useRouter();
 
 const settingStore = useSettingStore();
 
+const breadcrumbs = ref([
+    {
+        title: t('projectDeals'),
+        disabled: false,
+        href: '/admin/deals',
+    },
+    {
+        title: t('create'),
+        disabled: true,
+        href: 'breadcrumbs_inventory',
+    },
+]);
+
 const store = useProjectStore();
 
 const { quotationContent } = storeToRefs(store);
@@ -32,7 +45,7 @@ const items = ref([
     'Summary'
 ]);
 
-const step = ref(2);
+const step = ref(1);
 
 function nextEvent() {
     step.value += 1;
@@ -151,6 +164,10 @@ const submitData = async (payload) => {
 
 <template>
     <div>
+        <breadcrumb-data
+            :title="$t('projectDeals')"
+            :breadcrumbs="breadcrumbs"></breadcrumb-data>
+
         <v-stepper
             non-linear
             v-model="step"
