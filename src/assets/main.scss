@@ -129,6 +129,15 @@ table thead th {
     }
 }
 
+.custom-input .v-input__details {
+    display: none;
+    transition: all 1s;
+}
+
+.custom-input.v-input--error .v-input__details {
+    display: flex !important;
+}
+
 .main-content-drawer {
     padding: 15px $padding-main-right 15px $padding-main-left;
 }

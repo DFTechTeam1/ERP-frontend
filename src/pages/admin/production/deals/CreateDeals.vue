@@ -208,15 +208,6 @@ const submitData = async (payload) => {
 .deals-stepper .v-window {
     box-shadow: none;
 }
-
-.custom-input .v-input__details {
-    display: none;
-    transition: all 1s;
-}
-
-.custom-input.v-input--error .v-input__details {
-    display: flex !important;
-}
 </style>
 
 <style lang="scss" scoped></style>

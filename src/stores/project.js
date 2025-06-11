@@ -118,7 +118,8 @@ export const useProjectStore = defineStore('project', {
             event_location: null
         },
         quotationItems: [],
-        priceCalculation: null
+        priceCalculation: null,
+        quotationUrl: null
         // priceCalculation: {
         //     area: [
         //         {
@@ -248,7 +249,8 @@ export const useProjectStore = defineStore('project', {
         listAreaGuidePrice: (state) => state.areaGuidePrice,
         quotationContent: (state) => state.quotationPart,
         listOfQuotationItems: (state) => state.quotationItems,
-        guideOfPriceCalculation: (state) => state.priceCalculation
+        guideOfPriceCalculation: (state) => state.priceCalculation,
+        linkOfQuotationUrl: (state) => state.quotationUrl
     },
     actions: {
         setQuotationEquipmentType({type}) {
@@ -350,7 +352,7 @@ export const useProjectStore = defineStore('project', {
                 notify({
                     title: 'Success',
                     text: resp.data.message,
-                    type: 'success',
+                    type: 'success', 
                 });
 
                 return resp;
@@ -1801,7 +1803,11 @@ export const useProjectStore = defineStore('project', {
         },
         async storeProjectDeal(payload) {
             try {
-                return await axios.post(`production/project/deals`, payload);
+                const resp = await axios.post(`production/project/deals`, payload);
+
+                this.quotationUrl = resp.data.data.url;
+
+                return resp;
             } catch (error) {
                 return error;
             }
@@ -1827,6 +1833,9 @@ export const useProjectStore = defineStore('project', {
             } catch (error) {
                 return error;
             }
+        },
+        resetQuotationUrl() {
+            this.quotationUrl = null;
         }
     },
 })

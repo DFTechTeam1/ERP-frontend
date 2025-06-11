@@ -749,5 +749,9 @@
     "maximumPriceUp": "Maximum Price Up",
     "others": "Others",
     "prefunctionPercentage": "Prefunction Percentage",
-    "minimumPrice": "Minimum Price"
+    "minimumPrice": "Minimum Price",
+    "makePayment": "Make Payment",
+    "paymentAmountRequired": "Payment amount is required",
+    "paymentDate": "Payment Date",
+    "statusPayment": "Status Payment"
 }

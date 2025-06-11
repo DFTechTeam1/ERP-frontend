@@ -1,4 +1,5 @@
 <script setup>
+import { mdiAsterisk } from '@mdi/js';
 import { onMounted, ref, watch } from 'vue';
 import { useCurrencyInput } from 'vue-currency-input';
 
@@ -12,6 +13,10 @@ const props = defineProps({
                 currency: 'IDR'
             }
         }
+    },
+    isRequired: {
+        type: Boolean,
+        default: true
     },
     density: {
         type: String,
@@ -30,6 +35,10 @@ const props = defineProps({
         default: '',
     },
     customClass: {
+        type: String,
+        default: ''
+    },
+    label: {
         type: String,
         default: ''
     },
@@ -67,8 +76,18 @@ onMounted(() => {
             autocomplete="off"
             :class="textFieldClass"
             :clearable="props.isClearable"
+            :label="props.label"
             @click:clear="$emit('clear-event')"
             :error-messages="props.errorMessage"
-            ref="inputRef"></v-text-field>
+            ref="inputRef">
+            <template v-slot:label>
+                {{ props.label }}
+                <v-icon
+                    :icon="mdiAsterisk"
+                    size="8"
+                    v-if="props.isRequired"
+                    color="red"></v-icon>
+            </template>
+        </v-text-field>
     </div>
 </template>

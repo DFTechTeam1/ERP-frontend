@@ -115,6 +115,7 @@
             :label="props.label"
             variant="outlined"
             :single-line="props.isSolo"
+            :rows="props.row"
             :error-messages="props.errorMessage"
             v-model="model"></v-textarea>
 
@@ -144,6 +145,10 @@ const props = defineProps({
     customClass: {
         type: String,
         default: ''
+    },
+    row: {
+        type: Number,
+        default: 5
     },
     isReturnObject: {
         type: Boolean,
