@@ -44,6 +44,12 @@ const headers = ref([
         minWidth: '150px'
     },
     {
+        title: t('statusProject'),
+        key: 'status_project',
+        align: 'start',
+        sortable: true
+    },
+    {
         title: t('statusPayment'),
         key: 'status',
         align: 'start',
@@ -192,6 +198,10 @@ onMounted(() => {
             @add-data-event="createDeal">
             <template v-slot:status="{ value }">
                 <v-chip :color="value.status_payment_color" size="small" density="compact">{{ value.status_payment }}</v-chip>
+            </template>
+
+            <template v-slot:status_project="{ value }">
+                <v-chip :color="value.status_project_color" size="small" density="compact">{{ value.status_project }}</v-chip>
             </template>
 
             <template v-slot:action="{ value, items }">

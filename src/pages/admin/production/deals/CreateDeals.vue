@@ -133,6 +133,8 @@ const submitData = async (payload) => {
     let requestType = type;
     if (type === 'draft') {
         status = 0;
+    } else if (type === 'save_and_download' || type === 'save') {
+        status = 2;
     }
 
     let completePayload = {

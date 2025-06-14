@@ -137,6 +137,10 @@
           <slot name="status" :value="item"></slot>
         </template>
 
+        <template v-slot:item.status_project="{ item }" v-if="props.customStatus">
+          <slot name="status_project" :value="item"></slot>
+        </template>
+
         <template v-slot:item="{ item }" v-if="props.fullCustomBody">
           <slot name="bodytable" :value="item" :selecteddata="selected"></slot>
         </template>

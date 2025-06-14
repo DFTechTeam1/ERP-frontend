@@ -44,8 +44,6 @@ const ledArea = ref({
 
 const detailData = ref([]);
 
-const fix_price = ref(0);
-
 const fixPricePreview = ref(0);
 
 const projectItems = ref([]);
@@ -183,15 +181,17 @@ const subTotal = computed(() => {
         output = guideOfPriceCalculation.value.minimum_price;
     }
 
+    console.log('sub total', output);
     return output;
 });
+
+const fix_price = ref(subTotal.value);
 
 const maxDiscount = computed(() => {
     let output = 0;
 
     if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined)) {
         if (subTotal.value <= guideOfPriceCalculation.value.minimum_price) {
-            console.log('subTotal.value', subTotal.value);
             output = guideOfPriceCalculation.value.minimum_price
         } else {
             if (guideOfPriceCalculation.value.areaGuide[event_location.value].discount.percentage) {
@@ -311,7 +311,6 @@ watch(subTotal, (values) => {
 });
 
 watch(projectItemData, (values) => {
-    console.log('items object', values);
     if (values.length) {
         let duplicateData = [...values];
         projectItems.value = duplicateData.map((mapping) => {
@@ -454,6 +453,7 @@ watch(projectItemData, (values) => {
                     <label>{{ $t('eventLocation') }}</label>
                     <v-radio-group inline
                         class="mt-1"
+                        v-if="areas.length"
                         v-model="event_location">
                         <v-radio
                             v-for="(area, a) in areas"

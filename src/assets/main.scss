@@ -291,3 +291,15 @@ table thead th {
     background: #555; /* Darker gray */
   }
   
+  .currecy-input-elem {
+    line-height: 1.5;
+    border: 1px solid #e6e6e6;
+    
+    &:focus {
+        outline: none;
+        border: 1px solid #e6e6e6;
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 4px;
+    }
+  }

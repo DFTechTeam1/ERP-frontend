@@ -753,5 +753,6 @@
     "makePayment": "Make Payment",
     "paymentAmountRequired": "Payment amount is required",
     "paymentDate": "Payment Date",
-    "statusPayment": "Status Payment"
+    "statusPayment": "Status Payment",
+    "statusProject": "Status Project"
 }

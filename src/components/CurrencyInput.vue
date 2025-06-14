@@ -56,9 +56,13 @@ const textFieldClass = ref({
 
 const { inputRef, setValue } = useCurrencyInput(props.options);
 
-watch(model, (values) => {
-    setValue(values);
-})
+watch(
+    () => props.modelValue,
+    (values) => {
+        console.log('model value', values);
+        setValue(values);
+    }
+);
 
 onMounted(() => {
     if ((props) && (props.customClass != '')) {
@@ -69,7 +73,7 @@ onMounted(() => {
 
 <template>
     <div>
-        <v-text-field
+        <!-- <v-text-field
             :density="props.density"
             :variant=" props.isSolo ? 'solo' : 'outlined'"
             :single-line="props.isSolo"
@@ -88,6 +92,7 @@ onMounted(() => {
                     v-if="props.isRequired"
                     color="red"></v-icon>
             </template>
-        </v-text-field>
+        </v-text-field> -->
+        <input type="text" ref="inputRef" class="currecy-input-elem">
     </div>
 </template>
