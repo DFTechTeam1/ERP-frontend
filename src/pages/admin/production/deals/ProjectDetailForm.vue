@@ -310,6 +310,8 @@ watch(name, (values) => {
             .toLowerCase();
 
         setFieldValue('client_portal', portal);
+    } else {
+        setFieldValue('client_portal', '');
     }
 })
 

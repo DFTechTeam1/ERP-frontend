@@ -145,8 +145,8 @@
           <slot name="bodytable" :value="item" :selecteddata="selected"></slot>
         </template>
 
-        <template v-slot:item.uid="{ value }" v-if="!props.fullCustomBody">
-          <slot name="action" :value="value" :items="itemsTable"></slot>
+        <template v-slot:item.uid="{ item }" v-if="!props.fullCustomBody">
+          <slot name="action" :value="item" :items="itemsTable"></slot>
 
         </template>
 

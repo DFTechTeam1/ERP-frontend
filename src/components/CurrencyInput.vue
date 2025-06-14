@@ -56,11 +56,13 @@ const textFieldClass = ref({
 
 const { inputRef, setValue } = useCurrencyInput(props.options);
 
+const valuePrice = ref(0);
+
 watch(
     () => props.modelValue,
     (values) => {
-        console.log('model value', values);
         setValue(values);
+        valuePrice.value = values;
     }
 );
 
@@ -73,11 +75,12 @@ onMounted(() => {
 
 <template>
     <div>
-        <!-- <v-text-field
+        <v-text-field
             :density="props.density"
             :variant=" props.isSolo ? 'solo' : 'outlined'"
             :single-line="props.isSolo"
             autocomplete="off"
+            v-model="valuePrice"
             :class="textFieldClass"
             :clearable="props.isClearable"
             :label="props.label"
@@ -92,7 +95,7 @@ onMounted(() => {
                     v-if="props.isRequired"
                     color="red"></v-icon>
             </template>
-        </v-text-field> -->
-        <input type="text" ref="inputRef" class="currecy-input-elem">
+        </v-text-field>
+        <!-- <input type="text" ref="inputRef" class="currecy-input-elem"> -->
     </div>
 </template>

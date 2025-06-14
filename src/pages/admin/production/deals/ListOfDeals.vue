@@ -1,12 +1,13 @@
 <script setup>
 import { useProjectStore } from '@/stores/project';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiCogOutline, mdiDownload, mdiEyeCircle, mdiInvoice } from '@mdi/js';
+import { mdiCheckDecagram, mdiCogOutline, mdiDownload, mdiEyeCircle, mdiInvoice, mdiLogin } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import PaymentDialog from './components/PaymentDialog.vue';
+import { showNotification } from '@/compose/notification';
 
 const { t } = useI18n();
 
@@ -115,7 +116,13 @@ const headers = ref([
 
 const loading = ref(false);
 
+const showConfirm = ref(false);
+
+const finalIds = ref(null);
+
 const showPaymentDialog = ref(false);
+
+const selectedPaymentDeal = ref(null);
 
 const selectedRemainingBills = ref(0);
 
@@ -128,6 +135,7 @@ const downloadQuotation = (encryptedQuotationId) => {
 };
 
 const openPaymentDialog = (encryptedQuotationId) => {
+    selectedPaymentDeal.value = listOfProjectDeals.value.find((item) => item.uid === encryptedQuotationId);
     showPaymentDialog.value = true;
 };
 
@@ -162,6 +170,36 @@ const paymentDialogClosed = (uid) => {
     showPaymentDialog.value = false;
 }
 
+const publishProject = async (projectDealId, type) => {
+    const resp = await storeDeal.publishProject({projectDealId: projectDealId, type: type});
+
+    if (resp.status < 300) {
+        showNotification(resp.data.message);
+        initProjectDeals();
+    } else {
+        showNotification(resp.response.data.message, 'error');
+    }
+};
+
+const makeFinal = (projectDealId) => {
+    finalIds.value = [projectDealId];
+    showConfirm.value = true;
+};
+
+const doFinal = async (deleteIds) => {
+    loading.value = true;
+    const resp = await storeDeal.publishProject({projectDealId: deleteIds[0], type: 'publish_final'});
+    loading.value = false;
+
+    if (resp.status < 300) {
+        showNotification(resp.data.message);
+        initProjectDeals();
+        showConfirm.value = false;
+    } else {
+        showNotification(resp.response.data.message, 'error');
+    }
+};
+
 onMounted(() => {
     if (linkOfQuotationUrl.value) {
         // duplicate in variable
@@ -173,7 +211,7 @@ onMounted(() => {
         // redirect
         window.open(url, '__blank');
     }
-})
+});
 </script>
 
 <template>
@@ -184,6 +222,7 @@ onMounted(() => {
 
         <PaymentDialog :is-show="showPaymentDialog"
             :remaining-bills="selectedRemainingBills"
+            :deal="selectedPaymentDeal"
             @close-event="paymentDialogClosed" />
 
         <table-list
@@ -213,7 +252,8 @@ onMounted(() => {
                     </template>
 
                     <v-list>
-                        <v-list-item class="pointer" @click.prevent="">
+                        <v-list-item class="pointer" @click.prevent=""
+                            v-if="!value.can_publish_project">
                             <template v-slot:title>
                                 <div class="d-flex align-center"
                                     style="gap: 8px; font-size: 12px;">
@@ -226,7 +266,8 @@ onMounted(() => {
                             </template>
                         </v-list-item>
 
-                        <v-list-item class="pointer" @click.prevent="downloadQuotation(value)">
+                        <v-list-item class="pointer" @click.prevent="downloadQuotation(value.uid)"
+                            v-if="!value.can_publish_project">
                             <template v-slot:title>
                                 <div class="d-flex align-center"
                                     style="gap: 8px; font-size: 12px;">
@@ -238,14 +279,53 @@ onMounted(() => {
                             </template>
                         </v-list-item>
 
-                        <v-list-item class="pointer" @click.prevent="openPaymentDialog(value)">
+                        <v-list-item class="pointer" @click.prevent="makeFinal(value.uid)"
+                            v-if="value.can_make_final">
+                            <template v-slot:title>
+                                <div class="d-flex align-center"
+                                    style="gap: 8px; font-size: 12px;">
+                                    <v-icon
+                                        :icon="mdiCheckDecagram"
+                                        size="13"></v-icon>
+                                    <span>Make as Final</span>
+                                </div>
+                            </template>
+                        </v-list-item>
+
+                        <v-list-item class="pointer" @click.prevent="publishProject(value.uid, 'publish_final')"
+                            v-if="value.can_publish_project">
+                            <template v-slot:title>
+                                <div class="d-flex align-center"
+                                    style="gap: 8px; font-size: 12px;">
+                                    <v-icon
+                                        :icon="mdiCheckDecagram"
+                                        size="13"></v-icon>
+                                    <span>Publish as Final</span>
+                                </div>
+                            </template>
+                        </v-list-item>
+
+                        <v-list-item class="pointer" @click.prevent="publishProject(value.uid, 'publish')"
+                            v-if="value.can_publish_project">
+                            <template v-slot:title>
+                                <div class="d-flex align-center"
+                                    style="gap: 8px; font-size: 12px;">
+                                    <v-icon
+                                        :icon="mdiLogin"
+                                        size="13"></v-icon>
+                                    <span>Publish</span>
+                                </div>
+                            </template>
+                        </v-list-item>
+
+                        <v-list-item class="pointer" @click.prevent="openPaymentDialog(value.uid)"
+                            v-if="value.can_make_payment">
                             <template v-slot:title>
                                 <div class="d-flex align-center"
                                     style="gap: 8px; font-size: 12px;">
                                     <v-icon
                                         :icon="mdiInvoice"
                                         size="13"></v-icon>
-
                                     <span>Make Payment</span>
                                 </div>
                             </template>
@@ -271,5 +351,13 @@ onMounted(() => {
                 </v-menu>
             </template>
         </table-list>
+
+        <confirmation-modal 
+            title="Make final"
+            text="Are you sure to make this quotation as final?"
+            :laoding="loading"
+            :show-confirm="showConfirm"
+            :delete-ids="finalIds"
+            @action-bulk-submit="doFinal" />
     </div>
 </template>

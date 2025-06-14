@@ -41,6 +41,15 @@ export const useProjectDealStore = defineStore('projectDeal', {
             } catch (error) {
                 return error;
             }
+        },
+        async publishProject({projectDealId, type}) {
+            try {
+                const resp = await axios.get(`/production/project/deals/publish/${projectDealId}/${type}`);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
         }
     }
 });

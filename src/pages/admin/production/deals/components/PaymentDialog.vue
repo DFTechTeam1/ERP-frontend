@@ -9,6 +9,10 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
+    deal: {
+        type: Object,
+        default: () => ({})
+    },
     remainingBills: {
         default: 0
     }
@@ -43,7 +47,7 @@ watch(props, (values) => {
             </v-card-item>
 
             <v-card-text>
-                <make-payment-form :selected-remaining-bills="props.remainingBills" />
+                <make-payment-form :deal="props.deal" :selected-remaining-bills="props.remainingBills" />
             </v-card-text>
         </master-card>     
     </v-dialog>

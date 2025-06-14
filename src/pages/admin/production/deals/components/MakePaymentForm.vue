@@ -1,25 +1,36 @@
 <script setup>
+import { formatPrice } from '@/compose/formatPrice';
 import { mdiAsterisk } from '@mdi/js';
 import { useForm } from 'vee-validate';
+import { computed } from 'vue';
 import { watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as yup from 'yup';
 
 const { t } = useI18n();
 
-const { defineField, errors } = useForm({
+const { defineField, errors, handleSubmit, setFieldValue } = useForm({
     validationSchema: yup.object({
-        project_date: yup.string().required(t('dateRequired')),
-        fix_price: yup.string().required(t('paymentAmountRequired'))
+        payment_amount: yup.string().required(t('paymentAmountRequired')),
+        transaction_date: yup.string().required(t('dateRequired')),
+        note: yup.string().nullable(),
+        references: yup.string().nullable(),
+        images: yup.array()
     })
 });
 
-const [project_date] = defineField('project_date');
-const [fix_price] = defineField('fix_price');
+const [transaction_date] = defineField('transaction_date');
+const [payment_amount] = defineField('payment_amount');
+const [note] = defineField('note');
+const [reference] = defineField('reference');
 
 const props = defineProps({
     selectedRemainingBills: {
         default: 0
+    },
+    deal: {
+        type: Object,
+        default: () => ({})
     }
 });
 
@@ -27,45 +38,62 @@ const pond = ref(null);
 
 const myFiles = ref([]);
 
-const remainingBills = ref(0);
+const remainingBills = computed(() => {
+    let output = 0;
+    if (props.deal) {
+        output = props.deal.remaining_payment_raw;
+
+        if (payment_amount.value) {
+            output = props.deal.remaining_payment_raw - payment_amount.value;
+        }
+    }
+    return output;;
+});
 
 function handleFilePondInit() {
   // example of instance method call on pond reference
   pond.value;
 }
 
-watch(props, (values) => {
-    if (values) {
-        remainingBills.value = values.selectedRemainingBills
-    }
+function updateImageValue() {
+    var _value = pond.value ? pond.value.getFile().file : '';
+    console.log('file', _value);
+    setFieldValue('images', [{image: _value}]);
+}
+
+const validateData = handleSubmit(async(values) => {
+    console.log('values', values);
+    let formData = new FormData();
 });
 </script>
 
 <template>
-    <v-form>
+    <v-form @submit.prevent="validateData">
         <v-row>
             <v-col cols="12" md="6" class="pb-0 pt-2">
-                <currency-input v-model="fix_price"
+                <currency-input v-model="payment_amount"
                     density="compact"
                     class="custom-input"
                     label="Payment Amount"></currency-input>
             </v-col>
             <v-col cols="12" md="6" class="pb-0 pt-2">
-                <date-picker :label="t('paymentDate')" v-model="project_date"
+                <date-picker :label="t('paymentDate')" v-model="transaction_date"
                     density="compact"
-                    :error-message="errors.project_date"></date-picker>
+                    :error-message="errors.transaction_date"></date-picker>
             </v-col>
             <v-col cols="12" md="6" class="pb-0 pt-2">
                 <v-label>Note</v-label>
                 <field-input
                     input-type="textarea"
                     :row="3"
+                    v-model="note"
                     :is-solo="true"
                     :label="t('note')"></field-input>
             </v-col>
             <v-col cols="12" md="6" class="pb-0 pt-2">
                 <field-input
                     :label="t('references')"
+                    v-model="reference"
                     :is-required="false"
                     density="compact"
                     class="custom-input"></field-input>
@@ -79,7 +107,7 @@ watch(props, (values) => {
                     <p :style="{
                         fontSize: '12px',
                         fontWeight: 'bold'
-                    }">Rp{{ remainingBills }}</p>
+                    }">Rp{{ props.deal ? formatPrice(remainingBills) : 0 }}</p>
                 </div>
             </v-col>
             <v-col cols="12" md="6" class="pb-0 pt-2">
@@ -99,7 +127,12 @@ watch(props, (values) => {
                     accepted-file-types="image/jpeg, image/png"
                     v-bind:files="myFiles"
                     v-on:init="handleFilePondInit"
+                    v-on:addfile="updateImageValue"
                 ></file-pond-com>
+            </v-col>
+
+            <v-col cols="12">
+                <v-btn color="primary" type="submit" class="mt-5">Add Payment</v-btn>
             </v-col>
         </v-row>
     </v-form>
