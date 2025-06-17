@@ -5,11 +5,13 @@ export const useProjectDealStore = defineStore('projectDeal', {
     state: () => ({
         totalProjectDeals: 0,
         projectDeals: [],
-        projectDealParams: {}
+        projectDealParams: {},
+        detailProjectDeal: {}
     }),
     getters: {
         listOfProjectDeals: (state) => state.projectDeals,
-        totalOfProjectDeals: (state) => state.totalProjectDeals
+        totalOfProjectDeals: (state) => state.totalProjectDeals,
+        detailOfProjectDeal: (state) => state.detailProjectDeal
     },
     actions: {
         setProjectParams(payload) {
@@ -45,6 +47,17 @@ export const useProjectDealStore = defineStore('projectDeal', {
         async publishProject({projectDealId, type}) {
             try {
                 const resp = await axios.get(`/production/project/deals/publish/${projectDealId}/${type}`);
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async getProjectDetail({projectUid}) {
+            try {
+                const resp = await axios.get(`/production/project/deals/${projectUid}`);
+
+                this.detailProjectDeal = resp.data.data;
 
                 return resp;
             } catch (error) {

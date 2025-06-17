@@ -8,6 +8,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import PaymentDialog from './components/PaymentDialog.vue';
 import { showNotification } from '@/compose/notification';
+import { useCheckPermission } from '@/compose/checkPermission';
 
 const { t } = useI18n();
 
@@ -120,6 +121,8 @@ const showConfirm = ref(false);
 
 const finalIds = ref(null);
 
+const canCreateDeal = useCheckPermission('create_deals');
+
 const showPaymentDialog = ref(false);
 
 const selectedPaymentDeal = ref(null);
@@ -138,6 +141,10 @@ const openPaymentDialog = (encryptedQuotationId) => {
     selectedPaymentDeal.value = listOfProjectDeals.value.find((item) => item.uid === encryptedQuotationId);
     showPaymentDialog.value = true;
 };
+
+const detailDeal = (uid) => {
+    router.push(`/admin/deals/${uid}`);
+}
 
 const initProjectDeals = async(payload = '') => {
     if (payload === '') {
@@ -226,6 +233,7 @@ onMounted(() => {
             @close-event="paymentDialogClosed" />
 
         <table-list
+            :is-sticky-action="true"
             :headers="headers"
             :items-per-page="itemsPerPage"
             :total-items="totalOfProjectDeals"
@@ -234,6 +242,7 @@ onMounted(() => {
             :items="listOfProjectDeals"
             :custom-status="true"
             @table-event="initProjectDeals"
+            :allowed-create-button="canCreateDeal"
             @add-data-event="createDeal">
             <template v-slot:status="{ value }">
                 <v-chip :color="value.status_payment_color" size="small" density="compact">{{ value.status_payment }}</v-chip>
@@ -331,20 +340,15 @@ onMounted(() => {
                             </template>
                         </v-list-item>
 
-                        <v-list-item
-                            class="pointer">
+                        <v-list-item class="pointer" @click.prevent="detailDeal(value.uid)">
                             <template v-slot:title>
-                                <router-link
-                                    :to="'/admin/deals/create'">
-                                    <div
-                                        class="d-flex align-center"
-                                        style="gap: 8px; font-size: 12px;">
-                                        <v-icon
+                                <div class="d-flex align-center"
+                                    style="gap: 8px; font-size: 12px;">
+                                    <v-icon
                                         :icon="mdiEyeCircle"
                                         size="13"></v-icon>
-                                        {{ $t('detail') }}
-                                    </div>
-                                </router-link>
+                                    <span>{{ t('detail') }}</span>
+                                </div>
                             </template>
                         </v-list-item>
                     </v-list>
