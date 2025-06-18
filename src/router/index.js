@@ -215,6 +215,7 @@ const router = createRouter({
           component: CreateDeals,
           meta: {
             requiresAuth: true,
+            parentLink: '/admin/deals'
           }
         },
         {
@@ -223,6 +224,7 @@ const router = createRouter({
           component: ListOfDeals,
           meta: {
             requiresAuth: true,
+            parentLink: '/admin/deals'
           }
         },
         {
@@ -231,6 +233,7 @@ const router = createRouter({
           component: DetailDeals,
           meta: {
             requiresAuth: true,
+            parentLink: '/admin/deals'
           }
         },
         {

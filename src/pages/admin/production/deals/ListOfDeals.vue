@@ -165,16 +165,12 @@ const initProjectDeals = async(payload = '') => {
     itemsPerPage.value = parseInt(payload.itemsPerPage || 10);
 };
 
-const paymentDialogClosed = (uid) => {
-    const filter = listOfProjectDeals.value.filter((item) => {
-        return item.uid === uid;
-    });
-
-    if (filter.length) {
-        selectedRemainingBills.value = filter[0].remaining_payment;
-    }
-
+const paymentDialogClosed = (isRefresh) => {
     showPaymentDialog.value = false;
+
+    if (isRefresh) {
+        initProjectDeals();
+    }
 }
 
 const publishProject = async (projectDealId, type) => {
@@ -275,7 +271,7 @@ onMounted(() => {
                             </template>
                         </v-list-item>
 
-                        <v-list-item class="pointer" @click.prevent="downloadQuotation(value.uid)"
+                        <v-list-item class="pointer" @click.prevent="downloadQuotation(value.latest_quotation_id)"
                             v-if="!value.can_publish_project">
                             <template v-slot:title>
                                 <div class="d-flex align-center"

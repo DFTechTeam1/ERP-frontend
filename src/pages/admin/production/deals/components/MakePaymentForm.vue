@@ -1,6 +1,9 @@
 <script setup>
 import { formatPrice } from '@/compose/formatPrice';
+import { showNotification } from '@/compose/notification';
+import { useFinanceStore } from '@/stores/finance';
 import { mdiAsterisk } from '@mdi/js';
+import moment from 'moment';
 import { useForm } from 'vee-validate';
 import { computed } from 'vue';
 import { watch } from 'vue';
@@ -16,13 +19,20 @@ const { defineField, errors, handleSubmit, setFieldValue } = useForm({
         note: yup.string().nullable(),
         references: yup.string().nullable(),
         images: yup.array()
-    })
+    }),
+    initialValues: {
+        transaction_date: moment().format('YYYY, MMMM DD')
+    }
 });
 
 const [transaction_date] = defineField('transaction_date');
 const [payment_amount] = defineField('payment_amount');
 const [note] = defineField('note');
 const [reference] = defineField('reference');
+
+const store = useFinanceStore();
+
+const emit = defineEmits(['on-submit']);
 
 const props = defineProps({
     selectedRemainingBills: {
@@ -35,6 +45,8 @@ const props = defineProps({
 });
 
 const pond = ref(null);
+
+const loading = ref(false);
 
 const myFiles = ref([]);
 
@@ -62,8 +74,26 @@ function updateImageValue() {
 }
 
 const validateData = handleSubmit(async(values) => {
-    console.log('values', values);
+    let transactionDate = moment(values.transaction_date, 'YYYY, MMMM DD').format('YYYY-MM-DD');
     let formData = new FormData();
+
+    formData.append('payment_amount', values.payment_amount);
+    formData.append('transaction_date', transactionDate);
+    formData.append('note', values.note);
+    formData.append('reference', values.reference);
+    for (let a = 0; a < values.images.length; a++) {
+        formData.append(`images[${a}][image]`, values.images[a].image);
+    }
+
+    loading.value = true;
+    const resp = await store.createTransaction({payload: formData, quotationId: props.deal.latest_quotation_id});
+    loading.value = false;
+
+    const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
+    const type = resp.status < 300 ? 'success' : 'error';
+    showNotification(message, type);
+
+    emit('on-submit', {isSuccess: resp.status < 300 ? true : false});
 });
 </script>
 
@@ -73,6 +103,7 @@ const validateData = handleSubmit(async(values) => {
             <v-col cols="12" md="6" class="pb-0 pt-2">
                 <currency-input v-model="payment_amount"
                     density="compact"
+                    :error-message="errors.payment_amount"
                     class="custom-input"
                     label="Payment Amount"></currency-input>
             </v-col>
@@ -132,7 +163,10 @@ const validateData = handleSubmit(async(values) => {
             </v-col>
 
             <v-col cols="12">
-                <v-btn color="primary" type="submit" class="mt-5">Add Payment</v-btn>
+                <v-btn color="primary" 
+                    type="submit"
+                    class="mt-5"
+                    :disabled="loading">Add Payment</v-btn>
             </v-col>
         </v-row>
     </v-form>

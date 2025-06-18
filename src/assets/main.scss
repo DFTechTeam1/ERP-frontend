@@ -138,6 +138,10 @@ table thead th {
     display: flex !important;
 }
 
+.custom-input .v-input--error .v-input__details {
+    display: flex !important;
+}
+
 .main-content-drawer {
     padding: 15px $padding-main-right 15px $padding-main-left;
 }

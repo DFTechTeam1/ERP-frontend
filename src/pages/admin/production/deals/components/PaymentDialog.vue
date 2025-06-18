@@ -18,7 +18,7 @@ const props = defineProps({
     }
 });
 
-defineEmits(['close-event']);
+const emit = defineEmits(['close-event']);
 
 const show = ref(false);
 
@@ -27,6 +27,12 @@ watch(props, (values) => {
         show.value = values.isShow;
     }
 });
+
+const submitPayment = (payload) => {
+    if (payload.isSuccess) {
+        emit('close-event', true);
+    }
+}
 </script>
 
 <template>
@@ -47,7 +53,10 @@ watch(props, (values) => {
             </v-card-item>
 
             <v-card-text>
-                <make-payment-form :deal="props.deal" :selected-remaining-bills="props.remainingBills" />
+                <make-payment-form 
+                    :deal="props.deal"
+                    @on-submit="submitPayment"
+                    :selected-remaining-bills="props.remainingBills" />
             </v-card-text>
         </master-card>     
     </v-dialog>
