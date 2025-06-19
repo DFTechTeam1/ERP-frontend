@@ -66,6 +66,9 @@
             :return-object="props.isReturnObject"
             :error-messages="props.errorMessage"
             :clearable="props.isClearable"
+            :item-value="props.itemValue"
+            :item-title="props.itemTitle"
+            item-title="title"
             :disabled="props.isDisabled"
             variant="outlined"
             :single-line="props.isSolo"
@@ -142,6 +145,14 @@ const fieldTypeValue = ref('password');
 const showTogglePassword = ref(false);
 
 const props = defineProps({
+    itemValue: {
+        type: String,
+        default: 'value'
+    },
+    itemTitle: {
+        type: String,
+        default: 'title'
+    },
     customClass: {
         type: String,
         default: ''

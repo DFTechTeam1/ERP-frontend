@@ -228,6 +228,15 @@ const router = createRouter({
           }
         },
         {
+          path: '/admin/deals/:id/edit',
+          name: "Edit Deal",
+          component: CreateDeals,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/deals'
+          }
+        },
+        {
           path: '/admin/deals/:id',
           name: "Detail Deals",
           component: DetailDeals,

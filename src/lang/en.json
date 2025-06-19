@@ -754,5 +754,10 @@
     "paymentAmountRequired": "Payment amount is required",
     "paymentDate": "Payment Date",
     "statusPayment": "Status Payment",
-    "statusProject": "Status Project"
+    "statusProject": "Status Project",
+    "downloadInvoice": "Download Invoice",
+    "downloadQuotation": "Download Quotation",
+    "makeAsFinal": "Make as Final",
+    "publishAsFinal": "Publish as Final",
+    "publish": "Publish"
 }

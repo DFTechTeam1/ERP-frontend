@@ -53,9 +53,11 @@ export const useProjectDealStore = defineStore('projectDeal', {
                 return error;
             }
         },
-        async getProjectDetail({projectUid}) {
+        async getProjectDetail({projectUid, payload = {}} = {projectUid, payload: {}}) {
             try {
-                const resp = await axios.get(`/production/project/deals/${projectUid}`);
+                const resp = await axios.get(`/production/project/deals/${projectUid}`, {
+                    params: payload
+                });
 
                 this.detailProjectDeal = resp.data.data;
 
@@ -63,6 +65,9 @@ export const useProjectDealStore = defineStore('projectDeal', {
             } catch (error) {
                 return error;
             }
+        },
+        setProjectDealDetailState({value}) {
+            this.detailProjectDeal = value;
         }
     }
 });

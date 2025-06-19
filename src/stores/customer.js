@@ -11,7 +11,11 @@ export const useCustomerStore = defineStore('customer', {
     actions: {
         async getCustomer() {
             try {
-                return await axios.get(`/production/project/customer/list`);
+                const resp = await axios.get(`/production/project/customer/list`);
+
+                this.allCustomer = resp.data.data;
+
+                return resp;
             } catch (error) {
                 return error;
             }

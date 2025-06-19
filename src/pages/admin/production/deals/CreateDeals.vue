@@ -8,11 +8,17 @@ import { useSettingStore } from '@/stores/setting';
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { showNotification } from '@/compose/notification';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { useProjectDealStore } from '@/stores/projectDeal';
+import { useProjectClassStore } from '@/stores/projectClass';
+import { useRegionStore } from '@/stores/region';
+import { useCustomerStore } from '@/stores/customer';
 
 const { t } = useI18n();
 
 const router = useRouter();
+
+const route = useRoute();
 
 const settingStore = useSettingStore();
 
@@ -31,7 +37,17 @@ const breadcrumbs = ref([
 
 const store = useProjectStore();
 
-const { quotationContent } = storeToRefs(store);
+const regionStore = useRegionStore();
+
+const customerStore = useCustomerStore();
+
+const storeDeal = useProjectDealStore();
+
+const storeProjectClass = useProjectClassStore();
+
+const {
+    detailOfProjectDeal
+} = storeToRefs(storeDeal);
 
 const detailFormRef = ref(null);
 
@@ -46,6 +62,8 @@ const items = ref([
 ]);
 
 const step = ref(1);
+
+const loading = ref(false);
 
 function nextEvent() {
     step.value += 1;
@@ -109,16 +127,51 @@ async function getCalculation() {
     await store.getCalculation();
 }
 
+const getDetail = async () => {
+    await storeDeal.getProjectDetail({projectUid: route.params.id, payload: {edit: 1}});
+};
+
+async function initEventType() {
+    await store.initEventTypes();
+}
+
+async function initClassList() {
+    await storeProjectClass.getAll();
+}
+
+async function initMarketing() {
+    await store.getProjectMarketings();
+}
+
+async function initCountries() {
+    await regionStore.initCountries();
+}
+
+async function getCustomer() {
+    await customerStore.getCustomer();
+}
+
 const prepareData = async () => {
+    loading.value = true;
     await Promise.all([
         getQuotationNumber(),
         getCompanySetting(),
         getQuotationItems(),
-        getCalculation()
+        getCalculation(),
+        initEventType(),
+        initClassList(),
+        initMarketing(),
+        initCountries(),
+        getCustomer(),
+        getDetail(),
     ]);
+    loading.value = false;
 };
 
 onMounted(() => {
+    // set detail project to null
+    storeDeal.setProjectDealDetailState({value: {}});
+
     prepareData();
 });
 
@@ -170,7 +223,38 @@ const submitData = async (payload) => {
             :title="$t('projectDeals')"
             :breadcrumbs="breadcrumbs"></breadcrumb-data>
 
+        <master-card v-if="loading">
+            <v-card-text>
+                <v-row>
+                    <v-col cols="4">
+                        <div class="d-flex justify-center">
+                            <v-skeleton-loader type="avatar"></v-skeleton-loader>
+                        </div>
+                    </v-col>
+                    <v-col cols="4">
+                        <div class="d-flex justify-center">
+                            <v-skeleton-loader type="avatar"></v-skeleton-loader>
+                        </div>
+                    </v-col>
+                    <v-col cols="4">
+                        <div class="d-flex justify-center">
+                            <v-skeleton-loader type="avatar"></v-skeleton-loader>
+                        </div>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <template v-for="item in 8"
+                        :key="item">
+                        <v-col cols="12" md="6">
+                            <v-skeleton-loader type="ossein" height="50" width="100%"></v-skeleton-loader>
+                        </v-col>
+                    </template>
+                </v-row>
+            </v-card-text>
+        </master-card>
+
         <v-stepper
+            v-else
             non-linear
             v-model="step"
             alt-labels

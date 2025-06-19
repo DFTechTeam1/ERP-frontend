@@ -12,12 +12,16 @@ import { mdiPlus } from '@mdi/js';
 import CustomerForm from '../customers/CustomerForm.vue';
 import { useCustomerStore } from '@/stores/customer';
 import { useDateFormatter } from '@/compose/dateFormatter';
+import { useProjectDealStore } from '@/stores/projectDeal';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 
 const emit = defineEmits(['next-event']);
 
 const store = useProjectStore();
+
+const storeDeal = useProjectDealStore();
 
 const customerStore = useCustomerStore();
 
@@ -27,7 +31,30 @@ const storeProjectClass = useProjectClassStore();
 
 const regionStore = useRegionStore();
 
-const { defineField, errors, setFieldValue, handleSubmit, values } = useForm({
+const {
+    detailOfProjectDeal
+} = storeToRefs(storeDeal);
+
+const {
+    listOfEventTypes,
+    listOfMarketings
+} = storeToRefs(store);
+
+const {
+    listOfAllClasses
+} = storeToRefs(storeProjectClass);
+
+const {
+    listOfWorldCountries,
+    listOfWorldStates,
+    listOfWorldCities
+} = storeToRefs(regionStore);
+
+const {
+    listOfAllCustomer
+} = storeToRefs(customerStore);
+
+const { defineField, errors, setFieldValue, handleSubmit, values, setValues } = useForm({
     validationSchema: yup.object({
         name: yup.string().required(t('nameRequired')),
         client_portal: yup.string().required(t('clientPortalRequired')),
@@ -71,22 +98,18 @@ const userRole = ref(null);
 const description_quill = ref(null);
 
 const country = ref(null);
-const state = ref(null);
 const city = ref(null);
 
-const eventTypeList = ref([]);
-const countries = ref([]);
 const venueList = ref([]);
-const cities = ref([]);
-const states = ref([]);
-const classList = ref([]);
-const marketingList = ref([]);
 const customerList = ref([]);
 const customer = ref(null);
+const marketingLists = ref([]);
 
 const projectClass = ref(null);
 
 const loading = ref(false);
+
+const currentLedDetail = ref(null);
 
 const showCustomerForm = ref(false);
 
@@ -108,74 +131,22 @@ function updateDescription() {
     }
 }
 
-async function initEventType() {
-    const resp = await store.initEventTypes();
-
-    if (resp.status < 300) {
-        eventTypeList.value = resp.data.data;
-    }
-}
-
-async function initClassList() {
-    const resp = await storeProjectClass.getAll();
-
-    if (resp.status < 300) {
-        classList.value = resp.data.data.map((elem) => {
-            return {
-                title: elem.name,
-                value: elem.id,
-            }
-        });
-    }
-}
-
-async function initCountries() {
-    const resp = await regionStore.initCountries()
-
-    if (resp.status < 300) {
-        countries.value = resp.data.data
-    } else {
-        countries.value = []
-    }
-}
-
 async function initStates(countryCode) {
     setFieldValue('state_id', null)
-    const resp = await regionStore.initStates(countryCode)
+    await regionStore.initStates(countryCode);
 
-    if (resp.status < 300) {
-        states.value = resp.data.data
-    } else {
-        states.value = []
+    if (detailOfProjectDeal.value) {
+        setFieldValue('state_id', detailOfProjectDeal.value.state_id);
     }
 }
 
 async function initCities(stateId) {
     setFieldValue('city_id', null)
 
-    const resp = await regionStore.initCities(stateId)
+    await regionStore.initCities(stateId);
 
-    if (resp.status < 300) {
-        cities.value = resp.data.data
-    } else {
-        cities.value = []
-    }
-}
-
-async function initMarketing() {
-    const resp = await store.getProjectMarketings()
-
-    if (resp.status < 300) {
-        marketingList.value = resp.data.data.map((elem) => {
-            if (elem.selected) {
-                setFieldValue('marketing_id', [elem.uid])
-            }
-
-            return {
-                title: elem.name,
-                value: elem.uid,
-            }
-        })
+    if (detailOfProjectDeal.value) {
+        setFieldValue('city_id', detailOfProjectDeal.value.city_id);
     }
 }
 
@@ -187,9 +158,18 @@ async function getCustomer() {
 }
 
 const validateData = handleSubmit(async (values) => {
+    let selectedCustomer = listOfAllCustomer.value.filter((customer) => {
+        return customer.value == values.customer_id;
+    });
+    let selectedCity = listOfWorldCities.value.filter((city) => {
+        return city.value == values.city_id;
+    });
+    let selectedCountry = listOfWorldCountries.value.filter((country) => {
+        return country.value == values.city_id;
+    });
     let customerData = {
-        name: customer.value.title,
-        place: city.value.title + ' ' + country.value.title
+        name: selectedCustomer[0].title,
+        place: selectedCity[0].title + ' ' + selectedCountry.title
     };
     
     let mainLed = [];
@@ -203,6 +183,10 @@ const validateData = handleSubmit(async (values) => {
             }
         })
     });
+
+    let selectedProjectClass = listOfAllClasses.value.map((classData) => {
+        return classData.value == values.project_class_id;
+    });
     let event = {
         name: name.value,
         project_date: useDateFormatter(project_date.value),
@@ -211,7 +195,7 @@ const validateData = handleSubmit(async (values) => {
             main: mainLed,
             prefunction: prefunc
         },
-        event_class: projectClass.value.title,
+        event_class: selectedProjectClass[0].title,
         price: 0,
         items: [],
     };
@@ -225,25 +209,13 @@ const validateData = handleSubmit(async (values) => {
 
 const getValues = () => {
     // get city name
-    let cityName = cities.value.filter((city) => {
-        return city.value == values.city_id;
+    let cityName = listOfWorldCities.value.filter((filter) => {
+        return filter.value == city_id.value
     });
     cityName = cityName.length ? cityName[0].title : '';
     setFieldValue('city_name', cityName);
 
     return values;
-}
-
-const prepareData = async() => {
-    loading.value = true;
-    await Promise.all([
-        initEventType(),
-        initClassList(),
-        initMarketing(),
-        initCountries(),
-        getCustomer()
-    ]);
-    loading.value = false;
 }
 
 const addMoreCustomer = () => {
@@ -258,22 +230,12 @@ const closeCustomerForm = (isRefresh) => {
     }
 }
 
-onMounted(() => {
-    prepareData();
-});
-
 watch(country_id, (values) => {
     initStates(values || 0)
 });
 
 watch(state_id, (values) => {
     initCities(values || 0)
-});
-
-watch(country, (values) => {
-    if (values) {
-        setFieldValue('country_id', values.value);
-    }
 });
 
 watch(projectClass, (values) => {
@@ -283,18 +245,6 @@ watch(projectClass, (values) => {
         setFieldValue('project_class_id', '');
     }
 })
-
-watch(state, (values) => {
-    if (values) {
-        setFieldValue('state_id', values.value);
-    }
-});
-
-watch(city, (values) => {
-    if (values) {
-        setFieldValue('city_id', values.value);
-    }
-});
 
 watch(customer, (values) => {
     if(values) {
@@ -345,6 +295,30 @@ defineExpose({
     getPayload
 });
 
+onMounted(() => {
+    if (Object.keys(detailOfProjectDeal.value).length) {
+        console.log('value', detailOfProjectDeal.value);
+        currentLedDetail.value = detailOfProjectDeal.value.led_detail;
+        setValues({
+            name: detailOfProjectDeal.value.name,
+            customer_id: detailOfProjectDeal.value.customer_id,
+            event_type: detailOfProjectDeal.value.event_type,
+            country_id: detailOfProjectDeal.value.country_id,
+            venue: detailOfProjectDeal.value.venue,
+            project_date: detailOfProjectDeal.value.project_date,
+            project_class_id: detailOfProjectDeal.value.project_class_id,
+            collaboration: detailOfProjectDeal.value.collaboration,
+            note: detailOfProjectDeal.value.note,
+            led_area: detailOfProjectDeal.value.led_area,
+            led_detail: detailOfProjectDeal.value.led_detail,
+        });
+
+        let marketingIds = detailOfProjectDeal.value.marketings.map((marketing) => {
+            return marketing.employee.uid;
+        });
+        setFieldValue('marketing_id', marketingIds);
+    }
+})
 </script>
 
 <template>
@@ -371,14 +345,14 @@ defineExpose({
                     <CustomerForm :is-show="showCustomerForm" @close-event="closeCustomerForm" />
 
                     <v-autocomplete
-                        :items="customerList"
+                        :items="listOfAllCustomer"
                         clearable
-                        v-model="customer"
+                        v-model="customer_id"
                         class="custom-input"
                         autocomplete="off"
                         variant="outlined"
                         label="Customer"
-                        return-object>
+                        item-value="value">
                         <template v-slot:append-item>
                             <div class="add-button-container">
                                 <v-list-item @click="addMoreCustomer" class="add-button">
@@ -412,7 +386,7 @@ defineExpose({
                 </v-col>
 
                 <v-col cols="12" md="6">
-                    <field-input :label="t('eventType')" inputType="select" :select-options="eventTypeList"
+                    <field-input :label="t('eventType')" inputType="select" :select-options="listOfEventTypes"
                         custom-class="custom-input"
                         v-model="event_type" :error-message="errors.event_type"></field-input>
                 </v-col>
@@ -420,28 +394,30 @@ defineExpose({
 
             <v-row>
                 <v-col cols="12" md="6">
-                    <field-input :label="t('country')" v-model="country"
+                    <field-input :label="t('country')" v-model="country_id"
                         custom-class="custom-input"
-                        :is-return-object="true"
+                        item-value="value"
                         :error-message="errors.country_id" input-type="select"
-                        :select-options="countries"></field-input>
+                        :select-options="listOfWorldCountries"></field-input>
                 </v-col>
 
                 <v-col cols="12" md="6">
-                    <field-input :label="t('state')" inputType="select" :select-options="states"
+                    <field-input :label="t('state')"
+                        inputType="select"
+                        item-value="value"
+                        :select-options="listOfWorldStates"
                         custom-class="custom-input"
-                        :is-return-object="true"
-                        v-model="state" :error-message="errors.state_id"></field-input>
+                        v-model="state_id" :error-message="errors.state_id"></field-input>
                 </v-col>
             </v-row>
 
             <v-row>
                 <v-col cols="12" md="6">
-                    <field-input :label="t('city')" v-model="city"
+                    <field-input :label="t('city')" v-model="city_id"
                         :error-message="errors.city_id" input-type="select"
                         custom-class="custom-input"
-                        :is-return-object="true"
-                        :select-options="cities"></field-input>
+                        item-value="value"
+                        :select-options="listOfWorldCities"></field-input>
                 </v-col>
 
                 <v-col cols="12" md="6">
@@ -473,17 +449,20 @@ defineExpose({
 
             <v-row>
                 <v-col cols="12" md="6">
-                    <date-picker :label="t('eventDate')" v-model="project_date"
+                    <date-picker :label="t('eventDate')"
+                        v-model="project_date"
                         format-output="YYYY-MM-DD"
                         custom-class="custom-input"
                         :error-message="errors.project_date"></date-picker>
                 </v-col>
 
                 <v-col cols="12" md="6">
-                    <field-input :label="t('eventClass')" inputType="select" :select-options="classList"
+                    <field-input :label="t('eventClass')"
+                        inputType="select"
+                        :select-options="listOfAllClasses"
                         custom-class="custom-input"
-                        :is-return-object="true"
-                        v-model="projectClass" :error-message="errors.project_class_id"></field-input>
+                        input-value="value"
+                        v-model="project_class_id" :error-message="errors.project_class_id"></field-input>
                 </v-col>
             </v-row>
 
@@ -496,9 +475,13 @@ defineExpose({
 
                 <v-col cols="12" md="6">
                     <field-input v-model="marketing_id" :error-message="errors.marketing_id"
-                        :label="t('marketing')" input-type="select" v-if="userRole != 'marketing'"
+                        :label="t('marketing')"
+                        input-type="select"
+                        v-if="userRole != 'marketing'"
+                        item-value="uid"
+                        item-title="name"
                         :is-multiple="true"
-                        :select-options="marketingList"></field-input>
+                        :select-options="listOfMarketings"></field-input>
                 </v-col>
             </v-row>
 
@@ -508,6 +491,7 @@ defineExpose({
                         :error-message="errors.led_area" v-model="led_area"></field-input>
         
                     <LedDetailForm
+                        :data="currentLedDetail"
                         @update-led-event="updateLedArea"
                         :return-object="true"
                         ref="ledFormComponent"></LedDetailForm>

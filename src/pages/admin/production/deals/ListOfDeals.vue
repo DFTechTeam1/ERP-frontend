@@ -1,7 +1,7 @@
 <script setup>
 import { useProjectStore } from '@/stores/project';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiCheckDecagram, mdiCogOutline, mdiDownload, mdiEyeCircle, mdiInvoice, mdiLogin } from '@mdi/js';
+import { mdiCheckDecagram, mdiCogOutline, mdiDownload, mdiEyeCircle, mdiInvoice, mdiLogin, mdiPencilOutline } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -146,6 +146,10 @@ const detailDeal = (uid) => {
     router.push(`/admin/deals/${uid}`);
 }
 
+const editDeal = (uid) => {
+    router.push(`/admin/deals/${uid}/edit`);
+};
+
 const initProjectDeals = async(payload = '') => {
     if (payload === '') {
         payload = {page: 1, itemsPerPage: 10}
@@ -266,7 +270,7 @@ onMounted(() => {
                                         :icon="mdiDownload"
                                         size="13"></v-icon>
 
-                                    <span>Download Invoice</span>
+                                    <span>{{ $t('downloadInvoice') }}</span>
                                 </div>
                             </template>
                         </v-list-item>
@@ -279,7 +283,7 @@ onMounted(() => {
                                     <v-icon
                                         :icon="mdiDownload"
                                         size="13"></v-icon>
-                                    <span>Download Quotation</span>
+                                    <span>{{ $t('downloadQuotation') }}</span>
                                 </div>
                             </template>
                         </v-list-item>
@@ -292,7 +296,7 @@ onMounted(() => {
                                     <v-icon
                                         :icon="mdiCheckDecagram"
                                         size="13"></v-icon>
-                                    <span>Make as Final</span>
+                                    <span>{{ $t('makeAsFinal') }}</span>
                                 </div>
                             </template>
                         </v-list-item>
@@ -305,7 +309,7 @@ onMounted(() => {
                                     <v-icon
                                         :icon="mdiCheckDecagram"
                                         size="13"></v-icon>
-                                    <span>Publish as Final</span>
+                                    <span>{{ $t('publishAsFinal') }}</span>
                                 </div>
                             </template>
                         </v-list-item>
@@ -318,7 +322,7 @@ onMounted(() => {
                                     <v-icon
                                         :icon="mdiLogin"
                                         size="13"></v-icon>
-                                    <span>Publish</span>
+                                    <span>{{ $t('publish') }}</span>
                                 </div>
                             </template>
                         </v-list-item>
@@ -331,7 +335,7 @@ onMounted(() => {
                                     <v-icon
                                         :icon="mdiInvoice"
                                         size="13"></v-icon>
-                                    <span>Make Payment</span>
+                                    <span>{{ $t("makePayment") }}</span>
                                 </div>
                             </template>
                         </v-list-item>
@@ -344,6 +348,18 @@ onMounted(() => {
                                         :icon="mdiEyeCircle"
                                         size="13"></v-icon>
                                     <span>{{ t('detail') }}</span>
+                                </div>
+                            </template>
+                        </v-list-item>
+
+                        <v-list-item class="pointer" @click.prevent="editDeal(value.uid)">
+                            <template v-slot:title>
+                                <div class="d-flex align-center"
+                                    style="gap: 8px; font-size: 12px;">
+                                    <v-icon
+                                        :icon="mdiPencilOutline"
+                                        size="13"></v-icon>
+                                    <span>{{ t('edit') }}</span>
                                 </div>
                             </template>
                         </v-list-item>

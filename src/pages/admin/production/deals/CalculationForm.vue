@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import LedDetailForm from '../components/LedDetailForm.vue';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
@@ -7,10 +7,13 @@ import moment from 'moment';
 import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
+import { useProjectDealStore } from '@/stores/projectDeal';
 
 const { t } = useI18n();
 
 const store = useProjectStore();
+
+const storeDeal = useProjectDealStore();
 
 const emit = defineEmits(['next-event']);
 
@@ -21,6 +24,10 @@ const {
     listOfQuotationItems,
     guideOfPriceCalculation
 } = storeToRefs(store);
+
+const {
+    detailOfProjectDeal
+} = storeToRefs(storeDeal);
 
 const errorProjectItem = ref(null);
 
@@ -68,7 +75,11 @@ function setPreview(values) {
 
     detailData.value = values.led_detail;
 
-    equipment.value = quotationContent.value.equipment_type ? quotationContent.value.equipment_type : 'lasika';
+    if (detailOfProjectDeal.value) {
+        equipment.value = detailOfProjectDeal.value.equipment_type;
+    } else {
+        equipment.value = quotationContent.value.equipment_type ? quotationContent.value.equipment_type : 'lasika';
+    }
 
     // set led summary
     let main = values.led_detail.filter((filter) => {
@@ -88,6 +99,13 @@ function setPreview(values) {
     if (formattedArea.value.length) {
         event_location.value = quotationContent.value.event_location ? quotationContent.value.event_location : formattedArea.value[0].value;
     }
+
+    if (detailOfProjectDeal.value) {
+        event_location.value = detailOfProjectDeal.value.latest_quotation.event_location_guide;
+
+        // set items
+        projectItemData.value = detailOfProjectDeal.value.quotation_items;
+    }
 }
 
 async function checkHighSeason() {
@@ -97,6 +115,10 @@ async function checkHighSeason() {
 
     if (resp.status < 300) {
         high_season.value = resp.data.data.is_high_season ? '1' : '0';
+    }
+
+    if (detailOfProjectDeal.value) {
+        high_season.value = detailOfProjectDeal.value.latest_quotation.is_high_season.toString()
     }
 }
 
@@ -181,7 +203,6 @@ const subTotal = computed(() => {
         output = guideOfPriceCalculation.value.minimum_price;
     }
 
-    console.log('sub total', output);
     return output;
 });
 
@@ -306,7 +327,6 @@ defineExpose({
 });
 
 watch(subTotal, (values) => {
-    console.log('values'. values);
     fix_price.value =  values;
 });
 
@@ -324,10 +344,7 @@ watch(projectItemData, (values) => {
         projectItems.value = [];
         projectItemPreviews.value = [];
     }
-
-    console.log('projectItemPreviews', projectItemPreviews.value);
-
-})
+});
 </script>
 
 <template>

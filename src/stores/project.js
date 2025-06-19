@@ -119,111 +119,13 @@ export const useProjectStore = defineStore('project', {
         },
         quotationItems: [],
         priceCalculation: null,
-        quotationUrl: null
-        // priceCalculation: {
-        //     area: [
-        //         {
-        //             title: "Surabaya",
-        //             value: "surabaya"
-        //         },
-        //         {
-        //             title: "Jakarta",
-        //             value: "jakarta"
-        //         },
-        //         {
-        //             title: "Jawa",
-        //             value: "jawa"
-        //         },
-        //         {
-        //             title: "Luar Jawa",
-        //             value: "luar_jawa"
-        //         }
-        //     ],
-        //     areaGuide: {
-        //         surabaya: {
-        //             mainBallroom: {
-        //                 fixed: "{total_led}*750000",
-        //                 percentage: null
-        //             },
-        //             prefunction: {
-        //                 fixed: "{total_led}*(750000*75/100)",
-        //                 percentage: null
-        //             },
-        //             discount: {
-        //                 percentage: "({main_ballroom_price}+{prefunction_price}+{high_season_price}+{equipment_price})*10/100",
-        //                 fixed: null
-        //             }
-        //         },
-        //         jakarta: {
-        //             mainBallroom: {
-        //                 fixed: "{total_led}*1250000",
-        //                 percentage: null
-        //             },
-        //             prefunction: {
-        //                 fixed: "{total_led}*(1250000*75/100)",
-        //                 percentage: null
-        //             },
-        //             discount: {
-        //                 percentage: "({main_ballroom_price}+{prefunction_price}+{high_season_price}+{equipment_price})*10/100",
-        //                 fixed: null
-        //             }
-        //         },
-        //         jawa: {
-        //             mainBallroom: {
-        //                 fixed: "{total_led}*500000",
-        //                 percentage: null
-        //             },
-        //             prefunction: {
-        //                 fixed: "{total_led}*(500000*75/100)",
-        //                 percentage: null
-        //             },
-        //             discount: {
-        //                 percentage: "({main_ballroom_price}+{prefunction_price}+{high_season_price}+{equipment_price})*10/100",
-        //                 fixed: null
-        //             }
-        //         },
-        //         luar_jawa: {
-        //             mainBallroom: {
-        //                 fixed: "{total_led}*1000000",
-        //                 percentage: null
-        //             },
-        //             prefunction: {
-        //                 fixed: "{total_led}*(1000000*75/100)",
-        //                 percentage: null
-        //             },
-        //             discount: {
-        //                 percentage: "({main_ballroom_price}+{prefunction_price}+{high_season_price}+{equipment_price})*10/100",
-        //                 fixed: null
-        //             }
-        //         },
-        //     },
-        //     highSeason: {
-        //         percentage: "({main_ballroom_price}+{prefunction_price})*25/100",
-        //         fixed: null
-        //     },
-        //     equipment: {
-        //         lasika: 0,
-        //         others: "2500000"
-                
-        //     },
-        //     equipmentList: [
-        //         {
-        //             title: "Lasika",
-        //             value: "lasika"
-        //         },
-        //         {
-        //             title: "Others",
-        //             value: "others"
-        //         }
-        //     ],
-        //     markup: {
-        //         percentage: "{(main_ballroom_price+prefunction_price)*11/100}",
-        //         fixed: null
-        //     },
-        //     minimum_price: "35000000"
-        // }
+        quotationUrl: null,
+        eventTypes: [],
+        marketings: []
     }),
     getters: {
+        listOfMarketings: (state) => state.marketings,
+        listOfEventTypes: (state) => state.eventTypes,
         listProjectNeedToBeComplete: (state) => state.projectNeedToBeComplete,
         listOfDetailEntertainmentWorkload: (state) => state.detailEntertainmentWorkload,
         isHaveFilterData: (state) => state.haveFilterData,
@@ -449,6 +351,8 @@ export const useProjectStore = defineStore('project', {
         async initEventTypes() {
             try {
                 const resp = await axios.get('/production/eventTypes');
+
+                this.eventTypes = resp.data.data;
 
                 return resp;
             } catch (error) {
@@ -907,6 +811,8 @@ export const useProjectStore = defineStore('project', {
         async getProjectMarketings() {
             try {
                 const resp = await axios.get('/production/project/marketings')
+
+                this.marketings = resp.data.data;
 
                 return resp
             } catch(e) {
