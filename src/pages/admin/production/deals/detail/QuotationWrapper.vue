@@ -1,5 +1,4 @@
 <script setup>
-import { mdiDownload } from '@mdi/js';
 import QuotationPreviewDetail from '@/components/QuotationPreviewDetail.vue';
 import QuotationList from './QuotationList.vue';
 import { ref } from 'vue';
@@ -12,31 +11,15 @@ const { detailOfProjectDeal } = storeToRefs(store);
 
 const emit = defineEmits(['handling-event']);
 
-const quotationList = ref([
-    {
-        id: 1,
-        quotation_number: "#DF01095",
-        name: "Wedding Anniv Mr Budi Mrs The Lee Lee",
-        venue: "Ballroom Arilla, Makassar",
-        price: 120000000,
-        is_final: false
-    },
-    {
-        id: 2,
-        quotation_number: "#DF01096",
-        name: "Wedding Anniv Mr Budi Mrs The Lee Lee",
-        venue: "Ballroom Arilla, Makassar",
-        price: 100000000,
-        is_final: true
-    },
-]);
-
 const showPreviewQuotation = ref(false);
 
 const selectedQuotation = ref({});
 
+const selectedQuotationUid = ref(null);
+
 const detailQuotation = (uid) => {
     selectedQuotation.value = detailOfProjectDeal.value.quotations.filter(filter => filter.id === uid)[0].detail;
+    selectedQuotationUid.value = detailOfProjectDeal.value.quotations.filter(filter => filter.id === uid)[0].quotation_id;
 
     console.log('selectedQuotation.value', selectedQuotation.value);
 
@@ -53,8 +36,13 @@ const backToQuotationList = () => {
     showPreviewQuotation.value = false;
 }
 
+const downloadQuotation = () => {
+    window.open(import.meta.env.VITE_BACKEND + `/quotations/download/${selectedQuotationUid.value}/download`, '__blank');
+}
+
 defineExpose({
-    backToQuotationList
+    backToQuotationList,
+    downloadQuotation
 });
 </script>
 

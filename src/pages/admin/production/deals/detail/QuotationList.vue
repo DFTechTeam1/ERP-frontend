@@ -1,22 +1,21 @@
 <script setup>
 import { formatPrice } from '@/compose/formatPrice';
-import { mdiDownload } from '@mdi/js';
+import { useDisplay } from 'vuetify';
+
+const { mobile } = useDisplay();
 
 const props = defineProps({
     project: Object
 });
 
 defineEmits(['click-event']);
-
-const downloadQuotation = (projectId) => {
-    alert(projectId);
-};
 </script>
 
 <template>
     <div class="quotation-item pointer"
         :class="{
-            'is-final': project.is_final
+            'is-final': project.is_final,
+            'is-mobile': mobile
         }"
         @click.prevent="$emit('click-event', project.id)">
         <div class="main-info">
@@ -30,10 +29,10 @@ const downloadQuotation = (projectId) => {
         </div>
         <div class="main-action">
             <div class="action-wrapper">
-                <p class="price">{{ formatPrice(project.price) }}</p>
-
-                <v-icon :icon="mdiDownload" size="16" class="pointer"
-                    @click.prevent="downloadQuotation(project.id)"></v-icon>
+                <p class="price"
+                    :class="{
+                        'mt-1': mobile
+                    }">{{ formatPrice(project.price) }}</p>
             </div>
         </div>
     </div>
@@ -42,6 +41,10 @@ const downloadQuotation = (projectId) => {
 <style lang="scss" scoped>
 .is-final {
     box-shadow: 0px 0px 5px 0 #43A047 !important;
+}
+
+.quotation-item.is-mobile {
+    display: block !important;
 }
 
 .quotation-item {

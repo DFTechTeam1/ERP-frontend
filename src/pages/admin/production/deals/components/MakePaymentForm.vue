@@ -79,10 +79,12 @@ const validateData = handleSubmit(async(values) => {
 
     formData.append('payment_amount', values.payment_amount);
     formData.append('transaction_date', transactionDate);
-    formData.append('note', values.note);
-    formData.append('reference', values.reference);
-    for (let a = 0; a < values.images.length; a++) {
-        formData.append(`images[${a}][image]`, values.images[a].image);
+    formData.append('note', values.note == undefined ? '' : values.note);
+    formData.append('reference', values.reference == undefined ? '' : values.reference);
+    if ((values.images) && (values.images.length)) {
+        for (let a = 0; a < values.images.length; a++) {
+            formData.append(`images[${a}][image]`, values.images[a].image);
+        }
     }
 
     loading.value = true;

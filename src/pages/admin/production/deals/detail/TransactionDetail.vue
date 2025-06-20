@@ -4,6 +4,7 @@ import { useProjectDealStore } from '@/stores/projectDeal';
 import { mdiDownload, mdiMailbox, mdiPhoneOutline, mdiPrinterOutline, mdiShareVariant } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
+import MakePaymentForm from '../components/MakePaymentForm.vue';
 
 const store = useProjectDealStore();
 
@@ -15,11 +16,22 @@ const headers = ref([
     { title: 'Amount', align: 'end', key: 'amount', sortable: false },
 ]);
 
+const headerTransactions = ref([
+    { title: 'Date', align: 'start', key: 'transaction_date_raw', sortable: false },
+    { title: 'Description', align: 'start', key: 'description', sortable: false },
+    { title: 'Reference', align: 'start', key: 'reference', sortable: false },
+    { title: 'Amount', align: 'start', key: 'payment_amount', sortable: false },
+]);
+
 const items = ref([
     { id: 1, product: "Main Stage", description: '10 x 10 m', amount: 'Rp200,000,000' },
     { id: 2, product: "Prefunction", description: '10 x 10 m', amount: 'Rp200,000,000' },
     { id: 3, product: "Equipment", description: '10 x 10 m', amount: 'Rp2,500,000' },
 ]);
+
+const previewQuotation = ({uid, type}) => {
+    window.open(import.meta.env.VITE_BACKEND + `/quotations/download/${uid}/${type}`);
+};
 </script>
 
 <template>
@@ -34,8 +46,6 @@ const items = ref([
             </v-row>
         </template>
         <template v-else>
-            <p class="title">Detail Invoice</p>
-
             <div class="transaction-box">
                 <div class="transaction-box__status">
                     <p class="status">Partial</p>
@@ -50,11 +60,11 @@ const items = ref([
                             </template>
 
                             <v-list>
-                                <v-list-item @click.prevent=""
+                                <v-list-item @click.prevent="previewQuotation({uid: detailOfProjectDeal.final_quotation.quotation_id, type: 'download'})"
                                     :prepend-icon="mdiDownload">
                                     <v-list-item-title>Download Quotation</v-list-item-title>
                                 </v-list-item>
-                                <v-list-item @click.prevent=""
+                                <v-list-item @click.prevent="previewQuotation({uid: detailOfProjectDeal.final_quotation.quotation_id, type: 'stream'})"
                                     :prepend-icon="mdiPrinterOutline">
                                     <v-list-item-title>Quotation</v-list-item-title>
                                 </v-list-item>
@@ -145,7 +155,8 @@ const items = ref([
                                 <div class="right">Rp{{ formatPrice(detailOfProjectDeal.final_quotation.fix_price) }}</div>
                             </div>
                             <div class="transaction-box__product__body transaction"
-                                v-for="(trx, t) in detailOfProjectDeal.transactions">
+                                v-for="(trx, t) in detailOfProjectDeal.transactions"
+                                :key="t">
                                 <div class="left">Payment {{ trx.transaction_date_raw }}</div>
                                 <div class="right">Rp{{ formatPrice(trx.payment_amount) }}</div>
                             </div>
@@ -155,6 +166,45 @@ const items = ref([
                             </div>
                         </v-col>
                     </v-row>
+                </div>
+            </div>
+
+            <div class="transaction-box">
+                <div class="transaction-box__status">
+                    <p class="status" :style="{
+                        color: '#000'
+                    }">Receive Payment</p>
+                </div>
+
+                <div class="transaction-box__customer">
+                    <make-payment-form
+                        :deal="detailOfProjectDeal"
+                        @on-submit="$emit('update-transaction')"
+                        :selected-remaining-bills="detailOfProjectDeal.remaining_payment_raw" />
+                </div>
+            </div>
+
+            <div class="transaction-box">
+                <div class="transaction-box__status">
+                    <p class="status" :style="{
+                        color: '#000'
+                    }">Transactions</p>
+                </div>
+
+                <div class="transaction-box__product">
+                    <v-data-table-virtual
+                        :headers="headerTransactions"
+                        :items="detailOfProjectDeal.transactions"
+                        class="product-item"
+                        fixed-header>
+                        <template v-slot:item.description="{ item }">
+                            <span v-html="item.description"></span>
+                        </template>
+
+                        <template v-slot:item.payment_amount="{ item }">
+                            Rp{{ formatPrice(item.payment_amount) }}
+                        </template>
+                    </v-data-table-virtual>
                 </div>
             </div>
         </template>

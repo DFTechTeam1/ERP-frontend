@@ -14,12 +14,16 @@ import { useCustomerStore } from '@/stores/customer';
 import { useDateFormatter } from '@/compose/dateFormatter';
 import { useProjectDealStore } from '@/stores/projectDeal';
 import { storeToRefs } from 'pinia';
+import { useRoute } from 'vue-router';
+import { useBreakToken } from '@/compose/breakToken';
 
 const { t } = useI18n();
 
 const emit = defineEmits(['next-event']);
 
 const store = useProjectStore();
+
+const route = useRoute();
 
 const storeDeal = useProjectDealStore();
 
@@ -64,7 +68,7 @@ const { defineField, errors, setFieldValue, handleSubmit, values, setValues } = 
         venue: yup.string().required(t('venueRequired')),
         collaboration: yup.string().nullable(),
         note: yup.string().nullable(),
-        led_area: yup.string().nullable(),
+        led_area: yup.string().required(t('ledRequired')),
         led_detail: yup.array().nullable(),
         country_id: yup.string().required(t('countryRequired')),
         state_id: yup.string().required(t('stateRequired')),
@@ -106,6 +110,8 @@ const customer = ref(null);
 const marketingLists = ref([]);
 
 const projectClass = ref(null);
+
+const disableGeneralInformation = ref(route.params.type ? true : false);
 
 const loading = ref(false);
 
@@ -158,6 +164,7 @@ async function getCustomer() {
 }
 
 const validateData = handleSubmit(async (values) => {
+    console.log('values all', values);
     let selectedCustomer = listOfAllCustomer.value.filter((customer) => {
         return customer.value == values.customer_id;
     });
@@ -184,9 +191,10 @@ const validateData = handleSubmit(async (values) => {
         })
     });
 
-    let selectedProjectClass = listOfAllClasses.value.map((classData) => {
+    let selectedProjectClass = listOfAllClasses.value.filter((classData) => {
         return classData.value == values.project_class_id;
     });
+    console.log('selectedProjectClass', selectedProjectClass);
     let event = {
         name: name.value,
         project_date: useDateFormatter(project_date.value),
@@ -297,8 +305,7 @@ defineExpose({
 
 onMounted(() => {
     if (Object.keys(detailOfProjectDeal.value).length) {
-        console.log('value', detailOfProjectDeal.value);
-        currentLedDetail.value = detailOfProjectDeal.value.led_detail;
+        console.log('detailOfProjectDeal', detailOfProjectDeal.value);
         setValues({
             name: detailOfProjectDeal.value.name,
             customer_id: detailOfProjectDeal.value.customer_id,
@@ -312,11 +319,25 @@ onMounted(() => {
             led_area: detailOfProjectDeal.value.led_area,
             led_detail: detailOfProjectDeal.value.led_detail,
         });
+        
+        currentLedDetail.value = detailOfProjectDeal.value.led_detail;
 
         let marketingIds = detailOfProjectDeal.value.marketings.map((marketing) => {
             return marketing.employee.uid;
         });
         setFieldValue('marketing_id', marketingIds);
+
+        // set quotation number manually
+        if (route.params.id && !route.params.type) store.setQuotationNumber({number: detailOfProjectDeal.value.latest_quotation.quotation_id});
+    } else {
+        const user = useBreakToken('user');
+
+        let searchMarketing = listOfMarketings.value.filter((filter) => {
+            return filter.uid == user.employee.uid;
+        });
+        if (searchMarketing.length) {
+            setFieldValue('marketing_id', [user.employee.uid]);
+        }
     }
 })
 </script>
@@ -351,6 +372,7 @@ onMounted(() => {
                         class="custom-input"
                         autocomplete="off"
                         variant="outlined"
+                        :disabled="disableGeneralInformation"
                         label="Customer"
                         item-value="value">
                         <template v-slot:append-item>
@@ -373,6 +395,7 @@ onMounted(() => {
                     <field-input :label="t('name')"
                         custom-class="custom-input"
                         :error-message="errors.name"
+                        :is-disabled="disableGeneralInformation"
                         v-model="name"></field-input>
                 </v-col>
             </v-row>
@@ -382,12 +405,14 @@ onMounted(() => {
                     <field-input :label="t('clientPortal')"
                         custom-class="custom-input"
                         :error-message="errors.client_portal"
+                        :is-disabled="disableGeneralInformation"
                         v-model="client_portal"></field-input>
                 </v-col>
 
                 <v-col cols="12" md="6">
                     <field-input :label="t('eventType')" inputType="select" :select-options="listOfEventTypes"
                         custom-class="custom-input"
+                        :is-disabled="disableGeneralInformation"
                         v-model="event_type" :error-message="errors.event_type"></field-input>
                 </v-col>
             </v-row>
@@ -396,6 +421,7 @@ onMounted(() => {
                 <v-col cols="12" md="6">
                     <field-input :label="t('country')" v-model="country_id"
                         custom-class="custom-input"
+                        :is-disabled="disableGeneralInformation"
                         item-value="value"
                         :error-message="errors.country_id" input-type="select"
                         :select-options="listOfWorldCountries"></field-input>
@@ -406,6 +432,7 @@ onMounted(() => {
                         inputType="select"
                         item-value="value"
                         :select-options="listOfWorldStates"
+                        :is-disabled="disableGeneralInformation"
                         custom-class="custom-input"
                         v-model="state_id" :error-message="errors.state_id"></field-input>
                 </v-col>
@@ -417,12 +444,14 @@ onMounted(() => {
                         :error-message="errors.city_id" input-type="select"
                         custom-class="custom-input"
                         item-value="value"
+                        :is-disabled="disableGeneralInformation"
                         :select-options="listOfWorldCities"></field-input>
                 </v-col>
 
                 <v-col cols="12" md="6">
                     <field-input :label="t('venue')" id="menu-activator" v-model="venue"
                         custom-class="custom-input"
+                        :is-disabled="disableGeneralInformation"
                         :error-message="errors.venue"></field-input>
 
                     <!-- venue autocomplete -->
@@ -453,6 +482,7 @@ onMounted(() => {
                         v-model="project_date"
                         format-output="YYYY-MM-DD"
                         custom-class="custom-input"
+                        :is-disabled="disableGeneralInformation"
                         :error-message="errors.project_date"></date-picker>
                 </v-col>
 
@@ -462,6 +492,7 @@ onMounted(() => {
                         :select-options="listOfAllClasses"
                         custom-class="custom-input"
                         input-value="value"
+                        :is-disabled="disableGeneralInformation"
                         v-model="project_class_id" :error-message="errors.project_class_id"></field-input>
                 </v-col>
             </v-row>
@@ -470,6 +501,7 @@ onMounted(() => {
                 <v-col cols="12" md="6">
                     <field-input :label="t('collaboration')" :is-required="false" v-model="collaboration"
                         custom-class="custom-input"
+                        :is-disabled="disableGeneralInformation"
                         :error-message="errors.collaboration"></field-input>
                 </v-col>
 
@@ -480,6 +512,7 @@ onMounted(() => {
                         v-if="userRole != 'marketing'"
                         item-value="uid"
                         item-title="name"
+                        :is-disabled="disableGeneralInformation"
                         :is-multiple="true"
                         :select-options="listOfMarketings"></field-input>
                 </v-col>
@@ -488,9 +521,12 @@ onMounted(() => {
             <v-row>
                 <v-col cols="12" md="6">
                     <field-input :is-readonly="true" :suffix-text="'m<sup>2</sup>'" :label="t('totalLedArea')"
+                        :is-clearable="false"
                         :error-message="errors.led_area" v-model="led_area"></field-input>
         
                     <LedDetailForm
+                        :with-add-button="!route.params.type"
+                        :with-delete-button="!route.params.type"
                         :data="currentLedDetail"
                         @update-led-event="updateLedArea"
                         :return-object="true"

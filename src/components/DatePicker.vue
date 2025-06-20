@@ -9,6 +9,7 @@
             :variant=" props.isSolo ? 'solo' : 'outlined'"
             :hide-details="props.isSolo"
             :single-line="props.isSolo"
+            :disabled="props.isDisabled"
             :error-messages="props.errorMessage"
             @click:control="showDatePicker">
 
@@ -71,6 +72,10 @@ import moment from 'moment';
         isRequired: {
             type: Boolean,
             default: true,
+        },
+        isDisabled: {
+            type: Boolean,
+            default: false,
         },
         isSolo: {
             type: Boolean,

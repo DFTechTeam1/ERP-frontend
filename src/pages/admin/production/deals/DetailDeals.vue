@@ -5,13 +5,24 @@ import TransactionDetail from './detail/TransactionDetail.vue';
 import QuotationList from './detail/QuotationList.vue';
 import QuotationWrapper from './detail/QuotationWrapper.vue';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { mdiDownload } from '@mdi/js';
+import { useDisplay } from 'vuetify';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 
+const { mobile } = useDisplay();
+
 const store = useProjectDealStore();
 
+const {
+    detailOfProjectDeal
+} = storeToRefs(store);
+
 const route = useRoute();
+
+const router = useRouter();
 
 const breadcrumbs = ref([
     {
@@ -55,13 +66,29 @@ const back = () => {
     }
 };
 
+const downloadQuotation = () => {
+    if (targetBackButton.value) {
+        quotationWrapperRef.value.downloadQuotation();
+    }
+};
+
+const addMoreQuotation = () => {
+    router.push(`/admin/deals/${route.params.id}/edit/quotations`);
+}
+
 const getDetail = async () => {
     loading.value = true;
     await store.getProjectDetail({projectUid: route.params.id});
     loading.value = false;
+    console.log('detail detail', detailOfProjectDeal.value)
 };
 
+const updateTranscation = () => {
+    getDetail();
+}
+
 onMounted(() => {
+    store.setProjectDealDetailState({value: {}});
     getDetail();
 });
 </script>
@@ -98,12 +125,40 @@ onMounted(() => {
                 </template>
 
                 <template v-else>
-                    <v-btn density="compact"
-                        color="primary"
-                        class="btn-overflow pointer"
-                        v-if="tab === 'quotations' && showBackButton"
-                        type="button"
-                        @click.prevent="back">Back</v-btn>
+                    <div class="btn-overflow"
+                        :class="{
+                            'is-mobile': mobile
+                        }">
+                        <v-btn density="compact"
+                            color="primary"
+                            class="pointer"
+                            v-if="tab === 'quotations' && showBackButton"
+                            type="button"
+                            @click.prevent="back">Back</v-btn>
+                        <v-btn density="compact"
+                            class="pointer"
+                            :class="{
+                                'ml-2': !mobile
+                            }"
+                            v-if="tab === 'quotations' && showBackButton"
+                            type="button"
+                            variant="flat"
+                            :icon="mdiDownload"
+                            @click.prevent="downloadQuotation"></v-btn>
+                        <v-btn density="compact"
+                            class="pointer"
+                            :class="{
+                                'ml-2': !mobile,
+                                'w-100': mobile
+                            }"
+                            v-if="tab === 'quotations' && !showBackButton && (!detailOfProjectDeal.is_final)"
+                            type="button"
+                            color="primary"
+                            variant="flat"
+                            @click.prevent="addMoreQuotation">
+                            Add Quotation
+                        </v-btn>
+                    </div>
                     <v-tabs v-model="tab">
                         <v-tab value="transactions">Transactions</v-tab>
                         <v-tab value="quotations">Quotations</v-tab>
@@ -112,7 +167,7 @@ onMounted(() => {
                         <v-tabs-window-item
                             class="mt-4"
                             value="transactions">
-                            <transaction-detail />
+                            <transaction-detail @update-transaction="updateTranscation" />
                         </v-tabs-window-item>
                         <v-tabs-window-item value="quotations" class="mt-4">
                             <quotation-wrapper ref="quotationWrapperRef" @handling-event="callTheEvent" />
@@ -135,5 +190,12 @@ onMounted(() => {
     top: 30px;
     right: 30px;
     z-index: 999999;
+}
+
+.btn-overflow.is-mobile {
+    position: relative !important;
+    top: unset;
+    right: unset;
+    margin-bottom: 15px;
 }
 </style>

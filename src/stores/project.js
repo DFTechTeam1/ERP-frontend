@@ -164,6 +164,9 @@ export const useProjectStore = defineStore('project', {
         setQuotationCustomer({customer}) {
             this.quotationPart.customer = customer;
         },
+        setQuotationNumber({number}) {
+            this.quotationPart.quotation_number = number;
+        },
         setQuotationRules({rules}) {
             this.quotationPart.rules = rules;
         },
@@ -1707,13 +1710,27 @@ export const useProjectStore = defineStore('project', {
                 return error;
             }
         },
-        async storeProjectDeal(payload) {
+        async storeProjectDeal({payload: payload}) {
             try {
                 const resp = await axios.post(`production/project/deals`, payload);
 
                 this.quotationUrl = resp.data.data.url;
 
                 return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async updateProjectDeal({payload, uid}) {
+            try {
+                return await axios.post(`production/project/deals/${uid}`, payload);
+            } catch (error) {
+                return error;
+            }
+        },
+        async addMoreQuotation({payload, uid}) {
+            try {
+                return await axios.post(`production/project/deals/${uid}/quotation`, payload);
             } catch (error) {
                 return error;
             }

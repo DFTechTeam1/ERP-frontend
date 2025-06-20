@@ -759,5 +759,8 @@
     "downloadQuotation": "Download Quotation",
     "makeAsFinal": "Make as Final",
     "publishAsFinal": "Publish as Final",
-    "publish": "Publish"
+    "publish": "Publish",
+    "confirmationDeleteProjectDeal": "Are you sure to delete this event with all quotations?",
+    "confirmationUpdateProjectDeal": "This change will also affect the final quotation, are you sure?",
+    "ledRequired": "LED is required"
 }

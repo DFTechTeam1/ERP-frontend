@@ -8,8 +8,11 @@ import { useProjectStore } from '@/stores/project';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useProjectDealStore } from '@/stores/projectDeal';
+import { useRoute } from 'vue-router';
 
 const { t } = useI18n();
+
+const route = useRoute();
 
 const store = useProjectStore();
 
@@ -75,7 +78,7 @@ function setPreview(values) {
 
     detailData.value = values.led_detail;
 
-    if (detailOfProjectDeal.value) {
+    if (Object.keys(detailOfProjectDeal.value).length && !route.params.type) {
         equipment.value = detailOfProjectDeal.value.equipment_type;
     } else {
         equipment.value = quotationContent.value.equipment_type ? quotationContent.value.equipment_type : 'lasika';
@@ -100,7 +103,7 @@ function setPreview(values) {
         event_location.value = quotationContent.value.event_location ? quotationContent.value.event_location : formattedArea.value[0].value;
     }
 
-    if (detailOfProjectDeal.value) {
+    if (Object.keys(detailOfProjectDeal.value).length && !route.params.type) {
         event_location.value = detailOfProjectDeal.value.latest_quotation.event_location_guide;
 
         // set items
@@ -117,7 +120,7 @@ async function checkHighSeason() {
         high_season.value = resp.data.data.is_high_season ? '1' : '0';
     }
 
-    if (detailOfProjectDeal.value) {
+    if (Object.keys(detailOfProjectDeal.value).length) {
         high_season.value = detailOfProjectDeal.value.latest_quotation.is_high_season.toString()
     }
 }
@@ -203,10 +206,15 @@ const subTotal = computed(() => {
         output = guideOfPriceCalculation.value.minimum_price;
     }
 
+    if (Object.keys(detailOfProjectDeal.value).length && !route.params.type) {
+        output = detailOfProjectDeal.value.latest_quotation.sub_total;
+    }
+
     return output;
 });
 
-const fix_price = ref(subTotal.value);
+// const fix_price = ref(subTotal.value);
+const fix_price = ref(Object.keys(detailOfProjectDeal.value).length && !route.params.type ? detailOfProjectDeal.value.latest_quotation.fix_price : subTotal.value);
 
 const maxDiscount = computed(() => {
     let output = 0;
@@ -260,7 +268,7 @@ const equipmentList = computed(() => {
 
 const total = computed(() => {
     let output = subTotal.value - maxDiscount.value;
-    if ((guideOfPriceCalculation.value) && (maxDiscount.value <= guideOfPriceCalculation.value.minimum_price)) {
+    if ((guideOfPriceCalculation.value) && (output <= guideOfPriceCalculation.value.minimum_price)) {
         output = guideOfPriceCalculation.value.minimum_price
     }
 

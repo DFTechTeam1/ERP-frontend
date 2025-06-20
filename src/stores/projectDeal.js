@@ -68,6 +68,13 @@ export const useProjectDealStore = defineStore('projectDeal', {
         },
         setProjectDealDetailState({value}) {
             this.detailProjectDeal = value;
+        },
+        async deleteProjectDeal({uid}) {
+            try {
+                return await axios.delete(`/production/project/deals/${uid}`);
+            } catch (error) {
+                return error;
+            }
         }
     }
 });

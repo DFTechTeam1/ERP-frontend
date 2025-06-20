@@ -237,6 +237,15 @@ const router = createRouter({
           }
         },
         {
+          path: '/admin/deals/:id/edit/:type',
+          name: "Add More Quotation",
+          component: CreateDeals,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/deals'
+          }
+        },
+        {
           path: '/admin/deals/:id',
           name: "Detail Deals",
           component: DetailDeals,

@@ -1,6 +1,6 @@
 <script setup>
 import {mdiClose, mdiMonitorScreenshot} from "@mdi/js";
-import {ref, onMounted} from "vue";
+import {ref, watch} from "vue";
 import LedForm from "@/pages/admin/production/LedForm.vue";
 
 const emit = defineEmits(['update-led-event']);
@@ -43,7 +43,14 @@ function removeLed(key) {
   }
 
   // call emit to update parent component
-  emit("update-led-event", total.value);
+  let returnValue = total.value;
+    if (props.returnObject) {
+      returnValue = {
+        total: total.value,
+        detail: ledSetting.value
+      };
+    }
+  emit("update-led-event", returnValue);
 }
 
 function showLedForm() {
@@ -95,7 +102,6 @@ defineExpose({
 // })
 
 watch(props, (values) => {
-  console.log('values props', values);
   if (values) {
     ledSetting.value = values.data;
   }

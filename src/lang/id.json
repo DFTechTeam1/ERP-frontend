@@ -754,5 +754,6 @@
     "downloadQuotation": "Download Quotation",
     "makeAsFinal": "Ubah ke Final",
     "publishAsFinal": "Terbitkan dan Ubah ke Final",
-    "publish": "Terbitkan"
+    "publish": "Terbitkan",
+    "confirmationUpdateProjectDeal": "Perubahan ini juga akan mempengaruhi quotation terakhir, apakah kamu yakin?"
 }

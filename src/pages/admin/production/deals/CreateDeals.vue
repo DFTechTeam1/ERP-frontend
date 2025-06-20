@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onBeforeMount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ProjectDetailForm from './ProjectDetailForm.vue';
 import CalculationForm from './CalculationForm.vue';
@@ -116,7 +116,15 @@ async function getCompanySetting() {
 }
 
 async function getQuotationNumber() {
-    await store.getQuotationNumber();
+    if (
+        !route.params.id ||
+        (
+            route.params.id &&
+            route.params.type
+        )
+    ) {
+        await store.getQuotationNumber();
+    }
 }
 
 async function getQuotationItems() {
@@ -128,7 +136,9 @@ async function getCalculation() {
 }
 
 const getDetail = async () => {
-    await storeDeal.getProjectDetail({projectUid: route.params.id, payload: {edit: 1}});
+    if (route.params.id) {
+        await storeDeal.getProjectDetail({projectUid: route.params.id, payload: {edit: 1}});
+    }
 };
 
 async function initEventType() {
@@ -169,10 +179,12 @@ const prepareData = async () => {
 };
 
 onMounted(() => {
+    prepareData();
+});
+
+onBeforeMount(() => {
     // set detail project to null
     storeDeal.setProjectDealDetailState({value: {}});
-
-    prepareData();
 });
 
 const submitData = async (payload) => {
@@ -201,13 +213,19 @@ const submitData = async (payload) => {
     completePayload.request_type = requestType;
     completePayload.equipment_type = completePayload.quotation.equipment_type;
     completePayload.is_high_season = completePayload.quotation.is_high_season;
-
+    
+    
+    let method = route.params.id && !route.params.type ? 'updateProjectDeal' : (route.params.type ? 'addMoreQuotation' : 'storeProjectDeal');
+    let queryParam = route.params.id ? {payload: completePayload, uid: route.params.id} : {payload: completePayload};
     console.log('project detail', completePayload);
+    console.log('method', method);
+    
+    if (route.params.id && !route.params.type) completePayload._method = 'PUT';
 
     quotationFormRef.value.setLoading(true);
-    const resp = await store.storeProjectDeal(completePayload);
+    const resp = await store[method](queryParam);
     quotationFormRef.value.setLoading(false);
-
+    
     if (resp.status < 300) {
         showNotification(resp.data.message);
         router.push(`/admin/deals`);

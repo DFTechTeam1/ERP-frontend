@@ -1,14 +1,24 @@
 <script setup>
 import { useProjectStore } from '@/stores/project';
-import { mdiCurrencyUsd, mdiDatabase, mdiFile } from '@mdi/js';
+import { mdiCircle, mdiCurrencyUsd, mdiDatabase, mdiFile } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
+
+const { t } = useI18n();
+
+const route = useRoute();
 
 const store = useProjectStore();
 
 const emit = defineEmits(['next-event']);
 
 const loading = ref(false);
+
+const showConfirmation = ref(false);
+
+const selectedIds = ref([1]);
 
 const { quotationContent } = storeToRefs(store);
 
@@ -27,6 +37,10 @@ const submitProject = (type) => {
 const setLoading = (type) => {
     loading.value = type;
 };
+
+const updateProjectDate = () => {
+    emit('next-event', {type: 'update'});
+}
 
 defineExpose({
     setLoading
@@ -147,7 +161,9 @@ defineExpose({
     
                                         <div class="item-content">
                                             <p class="title">Premium LED Visual</p>
-                                            <p v-for="(item, i) in quotationContent.event.itemPreviews" :key="i">{{ parseInt(i) + 1 }}. {{ item }}</p>
+                                            <p v-for="(item, i) in quotationContent.event.itemPreviews" :key="i">
+                                                <v-icon :icon="mdiCircle" size="4" class="mb-1 mr-1"></v-icon> {{ item }}
+                                            </p>
                                         </div>
 
                                         <div class="note-preview" v-if="quotationContent.note">
@@ -172,56 +188,75 @@ defineExpose({
         </div>
         <v-stepper-actions>
             <template v-slot:next>
-                <v-menu>
-                    <template v-slot:activator="{ props }">
-                        <v-btn color="primary" :disabled="loading" variant="flat" type="button" v-bind="props">Save</v-btn>
-                    </template>
+                <template v-if="!route.params.id">
+                    <v-menu>
+                        <template v-slot:activator="{ props }">
+                            <v-btn color="primary" :disabled="loading" variant="flat" type="button" v-bind="props">Save</v-btn>
+                        </template>
+    
+                        <v-list :disabled="loading">
+                            <v-list-item @click.prevent="submitProject('draft')">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiFile" size="15"></v-icon>
+                                </template>
+    
+                                <template v-slot:title>
+                                    Save as Draft
+                                </template>
+                            </v-list-item>
+                            <v-list-item @click.prevent="submitProject('final')">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiCurrencyUsd" size="15"></v-icon>
+                                </template>
+    
+                                <template v-slot:title>
+                                    Save as Final
+                                </template>
+                            </v-list-item>
+                            <v-list-item @click.prevent="submitProject('save_and_download')">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiDatabase" size="15"></v-icon>
+                                </template>
+    
+                                <template v-slot:title>
+                                    Save and Download Quotation
+                                </template>
+                            </v-list-item>
+                            <v-list-item @click.prevent="submitProject('save')">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiDatabase" size="15"></v-icon>
+                                </template>
+    
+                                <template v-slot:title>
+                                    Save
+                                </template>
+                            </v-list-item>
+                        </v-list>
+                    </v-menu>
+                </template>
 
-                    <v-list :disabled="loading">
-                        <v-list-item @click.prevent="submitProject('draft')">
-                            <template v-slot:prepend>
-                                <v-icon :icon="mdiFile" size="15"></v-icon>
-                            </template>
+                <template v-else-if="route.params.type">
+                    <v-btn color="primary" :disabled="loading" variant="flat" type="button" @click.prevent="submitProject('new_quotation')">Add Quotation</v-btn>
+                </template>
 
-                            <template v-slot:title>
-                                Save as Draft
-                            </template>
-                        </v-list-item>
-                        <v-list-item @click.prevent="submitProject('final')">
-                            <template v-slot:prepend>
-                                <v-icon :icon="mdiCurrencyUsd" size="15"></v-icon>
-                            </template>
-
-                            <template v-slot:title>
-                                Save as Final
-                            </template>
-                        </v-list-item>
-                        <v-list-item @click.prevent="submitProject('save_and_download')">
-                            <template v-slot:prepend>
-                                <v-icon :icon="mdiDatabase" size="15"></v-icon>
-                            </template>
-
-                            <template v-slot:title>
-                                Save and Download Quotation
-                            </template>
-                        </v-list-item>
-                        <v-list-item @click.prevent="submitProject('save')">
-                            <template v-slot:prepend>
-                                <v-icon :icon="mdiDatabase" size="15"></v-icon>
-                            </template>
-
-                            <template v-slot:title>
-                                Save
-                            </template>
-                        </v-list-item>
-                    </v-list>
-                </v-menu>
+                <template v-else>
+                    <v-btn color="primary" :disabled="loading" variant="flat" type="button" @click.prevent="showConfirmation = true">Update</v-btn>
+                </template>
             </template>
 
             <template v-slot:prev>
                 <v-btn color="#FAFAFA" variant="flat" @click.prevent="$emit('back-event')">Previous</v-btn>
             </template>
         </v-stepper-actions>
+
+        <confirmation-modal
+            :title="t('update')"
+            :text="t('confirmationUpdateProjectDeal')"
+            :showConfirm="showConfirmation"
+            :loading="loading"
+            :deleteIds="selectedIds"
+            @cancel-confirm="showConfirmation = false"
+            @action-bulk-submit="updateProjectDate"></confirmation-modal>
     </div>
 </template>
 

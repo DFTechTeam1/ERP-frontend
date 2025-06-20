@@ -1,7 +1,7 @@
 <script setup>
 import { useProjectStore } from '@/stores/project';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiCheckDecagram, mdiCogOutline, mdiDownload, mdiEyeCircle, mdiInvoice, mdiLogin, mdiPencilOutline } from '@mdi/js';
+import { mdiCheckDecagram, mdiCogOutline, mdiDownload, mdiEyeCircle, mdiInvoice, mdiLogin, mdiPencilOutline, mdiTrashCanOutline } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -129,6 +129,10 @@ const selectedPaymentDeal = ref(null);
 
 const selectedRemainingBills = ref(0);
 
+const showConfirmation = ref(false);
+
+const selectedIds = ref([]);
+
 const createDeal = () => {
     router.push('/admin/deals/create');
 };
@@ -148,6 +152,11 @@ const detailDeal = (uid) => {
 
 const editDeal = (uid) => {
     router.push(`/admin/deals/${uid}/edit`);
+};
+
+const confirmDeleteData = (uid) => {
+    showConfirmation.value = true;
+    selectedIds.value = [uid];
 };
 
 const initProjectDeals = async(payload = '') => {
@@ -183,6 +192,21 @@ const publishProject = async (projectDealId, type) => {
     if (resp.status < 300) {
         showNotification(resp.data.message);
         initProjectDeals();
+    } else {
+        showNotification(resp.response.data.message, 'error');
+    }
+};
+
+const deleteProjectDeal = async (uid) => {
+    loading.value = true;
+    const resp = await storeDeal.deleteProjectDeal({uid: uid});
+    loading.value = false;
+
+    if (resp.status < 300) {
+        showNotification(resp.data.message);
+        initProjectDeals();
+
+        showConfirmation.value = false;
     } else {
         showNotification(resp.response.data.message, 'error');
     }
@@ -261,7 +285,7 @@ onMounted(() => {
                     </template>
 
                     <v-list>
-                        <v-list-item class="pointer" @click.prevent=""
+                        <!-- <v-list-item class="pointer" @click.prevent=""
                             v-if="!value.can_publish_project">
                             <template v-slot:title>
                                 <div class="d-flex align-center"
@@ -273,7 +297,7 @@ onMounted(() => {
                                     <span>{{ $t('downloadInvoice') }}</span>
                                 </div>
                             </template>
-                        </v-list-item>
+                        </v-list-item> -->
 
                         <v-list-item class="pointer" @click.prevent="downloadQuotation(value.latest_quotation_id)"
                             v-if="!value.can_publish_project">
@@ -352,7 +376,8 @@ onMounted(() => {
                             </template>
                         </v-list-item>
 
-                        <v-list-item class="pointer" @click.prevent="editDeal(value.uid)">
+                        <v-list-item class="pointer" @click.prevent="editDeal(value.uid)"
+                            v-if="value.can_edit">
                             <template v-slot:title>
                                 <div class="d-flex align-center"
                                     style="gap: 8px; font-size: 12px;">
@@ -363,10 +388,30 @@ onMounted(() => {
                                 </div>
                             </template>
                         </v-list-item>
+
+                        <v-list-item class="pointer" @click.prevent="confirmDeleteData(value.uid)">
+                            <template v-slot:title>
+                                <div class="d-flex align-center"
+                                    style="gap: 8px; font-size: 12px;">
+                                    <v-icon
+                                        :icon="mdiTrashCanOutline"
+                                        size="13"></v-icon>
+                                    <span>{{ t('delete') }}</span>
+                                </div>
+                            </template>
+                        </v-list-item>
                     </v-list>
                 </v-menu>
             </template>
         </table-list>
+
+        <confirmation-modal
+            :title="t('delete')"
+            :text="t('confirmationDeleteProjectDeal')"
+            :showConfirm="showConfirmation"
+            :loading="loading"
+            :deleteIds="selectedIds"
+            @action-bulk-submit="deleteProjectDeal"></confirmation-modal>
 
         <confirmation-modal 
             title="Make final"
