@@ -4,8 +4,8 @@
             :variant=" props.isSolo ? 'solo' : 'outlined'"
             :single-line="props.isSolo"
             v-model="model"
-            :clearable="props.isClearable"
             autocomplete="off"
+            :clearable="props.isClearable"
             @click:clear="$emit('clear-event')"
             :disabled="isDisabled"
             :readonly="isReadonly"
@@ -13,10 +13,7 @@
             :value="model"
             :type="props.fieldType"
             :density="props.density"
-            :class="{
-                'position-relative': fieldTypeValue == 'password',
-                'new-border-form-control': props.isSolo
-            }"
+            :class="textFieldClass"
             :hint="props.hint"
             :error-messages="props.errorMessage"
             v-if="props.inputType == 'text'">
@@ -66,14 +63,19 @@
             autocomplete="off"
             :multiple="props.isMultiple"
             v-model="model"
+            :return-object="props.isReturnObject"
             :error-messages="props.errorMessage"
             :clearable="props.isClearable"
+            :item-value="props.itemValue"
+            :item-title="props.itemTitle"
+            item-title="title"
             :disabled="props.isDisabled"
             variant="outlined"
             :single-line="props.isSolo"
             :hint="props.hint"
             :density="props.density"
             :items="props.selectOptions"
+            :class="selectFieldClass"
             @update:model-value="getChanges"
             v-if="props.inputType == 'select'">
             <!-- <template v-slot:prepend-item v-if="!inventoryTypesAll.length">
@@ -114,6 +116,9 @@
         <v-textarea
             v-if="props.inputType == 'textarea'"
             :label="props.label"
+            variant="outlined"
+            :single-line="props.isSolo"
+            :rows="props.row"
             :error-messages="props.errorMessage"
             v-model="model"></v-textarea>
 
@@ -128,7 +133,7 @@
 
 <script setup>
 import { mdiAsterisk, mdiEyeCircle, mdiEyeClosed } from '@mdi/js';
-import { watch } from 'vue';
+import { onMounted, watch } from 'vue';
 import { ref } from 'vue';
 
 const model = defineModel()
@@ -140,6 +145,26 @@ const fieldTypeValue = ref('password');
 const showTogglePassword = ref(false);
 
 const props = defineProps({
+    itemValue: {
+        type: String,
+        default: 'value'
+    },
+    itemTitle: {
+        type: String,
+        default: 'title'
+    },
+    customClass: {
+        type: String,
+        default: ''
+    },
+    row: {
+        type: Number,
+        default: 5
+    },
+    isReturnObject: {
+        type: Boolean,
+        default: false
+    },
     isClearable: {
       type: Boolean,
       default: true,
@@ -205,7 +230,23 @@ const props = defineProps({
         type: Boolean,
         default: false,
     }
-})
+});
+
+const textFieldClass = ref({
+    'position-relative': fieldTypeValue == 'password',
+    'new-border-form-control': props.isSolo,
+});
+
+const selectFieldClass = ref('');
+
+onMounted(() => {
+    if ((props) && (props.customClass != '')) {
+        textFieldClass.value[props.customClass] = true;
+
+        selectFieldClass.value = {};
+        selectFieldClass.value[props.customClass] = true;
+    }
+});
 
 watch(props, (values) => {
     fieldTypeValue.value = values.fieldType;

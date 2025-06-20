@@ -16,6 +16,7 @@ export const useSettingStore = defineStore('setting', {
         generalSetting: [],
         emailSetting: [],
         variableSetting: [],
+        companySetting: []
     }),
     getters: {
         globalAppName: (state) => state.appName,
@@ -26,6 +27,7 @@ export const useSettingStore = defineStore('setting', {
         globalEmailSetting: (state) => state.emailSetting,
         globalGeneralSetting: (state) => state.generalSetting,
         globalVariableSetting: (state) => state.variableSetting,
+        globalCompanySetting: (state) => state.companySetting
     },
     actions: {
         setBoardCalculated() {
@@ -40,6 +42,7 @@ export const useSettingStore = defineStore('setting', {
                 this.generalSetting = resp.data.data.general;
                 this.emailSetting = resp.data.data.email || [];
                 this.variableSetting = resp.data.data.variables || [];
+                this.companySetting = resp.data.data.company || [];
 
                 return resp;
             } catch (error) {
@@ -122,6 +125,7 @@ export const useSettingStore = defineStore('setting', {
                 this.generalSetting = resp.data.data.general;
                 this.emailSetting = resp.data.data.email;
                 this.variableSetting = resp.data.data.variables;
+                this.companySetting = resp.data.data.company;
 
                 showNotification(resp.data.message);
 

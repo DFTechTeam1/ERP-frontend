@@ -3,8 +3,7 @@
         <v-card-text>
             <v-form @submit="validateData">
                 <v-row>
-                    <v-col cols="12"
-                        md="6">
+                    <v-col cols="12" md="6">
                         <field-input
                             :label="t('emailHost')"
                             class="mt-5"

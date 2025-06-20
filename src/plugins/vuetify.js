@@ -12,13 +12,11 @@ import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg'
 
-import { VNumberInput } from 'vuetify/labs/VNumberInput'
 import { VStepperVertical, VStepperVerticalItem } from 'vuetify/labs/VStepperVertical'
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
   components: {
-    VNumberInput,
     VStepperVertical,
     VStepperVerticalItem,
   },

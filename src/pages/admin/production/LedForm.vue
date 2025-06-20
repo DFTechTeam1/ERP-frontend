@@ -25,6 +25,8 @@
                             'mb-3': errors.name
                         }"
                         :error-message="errors.name"
+                        input-type="select"
+                        :select-options="ledNameList"
                         density="compact"
 
                         ></field-input>
@@ -116,6 +118,17 @@ const props = defineProps({
         default: false,
     },
 })
+
+const ledNameList = ref([
+  {
+    value: 'main',
+    title: 'Main'
+  },
+  {
+    value: 'prefunction',
+    title: 'Prefunction'
+  }
+]);
 
 const emit = defineEmits(['close-event'])
 

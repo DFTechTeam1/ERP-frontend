@@ -108,7 +108,6 @@
 
     <v-card-text>
       <v-data-table-server
-        :showSelect="props.hasCheckbox"
         v-model="selected"
         v-model:items-per-page="itemTablePerPage"
         :headers="props.headers"
@@ -119,6 +118,9 @@
         :search="search"
         :multi-sort="props.multiSort"
         class="table-componenent"
+        :class="{
+          'table-sticky': props.isStickyAction
+        }"
         item-value="name"
         @update:options="updateEventTable"
         return-object
@@ -137,12 +139,16 @@
           <slot name="status" :value="item"></slot>
         </template>
 
+        <template v-slot:item.status_project="{ item }" v-if="props.customStatus">
+          <slot name="status_project" :value="item"></slot>
+        </template>
+
         <template v-slot:item="{ item }" v-if="props.fullCustomBody">
           <slot name="bodytable" :value="item" :selecteddata="selected"></slot>
         </template>
 
-        <template v-slot:item.uid="{ value }" v-if="!props.fullCustomBody">
-          <slot name="action" :value="value" :items="itemsTable"></slot>
+        <template v-slot:item.uid="{ item }" v-if="!props.fullCustomBody">
+          <slot name="action" :value="item" :items="itemsTable"></slot>
 
         </template>
 
@@ -264,6 +270,10 @@ const props = defineProps({
   filterTooltip: {
     type: String,
   },
+  isStickyAction: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const filterButtonTooltip = ref(t('filter'));
@@ -379,5 +389,26 @@ watch(selected, (value) => {
     top: 5px;
     right: 10px;
   }
+}
+</style>
+
+<style lang="scss">
+.table-sticky th:last-child,
+.table-sticky td:last-child {
+  position: sticky;
+  right: 0;
+  background-color: white;
+  z-index: 2;
+}
+
+/* For header specifically (if needed) */
+.table-sticky thead tr th:last-child {
+  z-index: 3;
+}
+
+/* Optional: Add shadow for better visibility */
+.table-sticky th:last-child,
+.table-sticky td:last-child {
+  box-shadow: -2px 0 4px -2px rgba(0,0,0,0.2);
 }
 </style>
