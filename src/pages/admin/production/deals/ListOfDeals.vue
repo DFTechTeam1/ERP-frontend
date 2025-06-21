@@ -263,6 +263,7 @@ onMounted(() => {
             :total-items="totalOfProjectDeals"
             :loading="loading"
             :has-checkbox="false"
+            :has-filter="false"
             :items="listOfProjectDeals"
             :custom-status="true"
             @table-event="initProjectDeals"
