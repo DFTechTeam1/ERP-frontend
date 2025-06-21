@@ -103,7 +103,7 @@ function setPreview(values) {
         event_location.value = quotationContent.value.event_location ? quotationContent.value.event_location : formattedArea.value[0].value;
     }
 
-    if (Object.keys(detailOfProjectDeal.value).length && !route.params.type) {
+    if (Object.keys(detailOfProjectDeal.value).length) {
         event_location.value = detailOfProjectDeal.value.latest_quotation.event_location_guide;
 
         // set items
