@@ -607,12 +607,6 @@ onMounted(() => {
     currentLang.value = localStorage.getItem('lang')
   }
 
-  let forceClearCache = localStorage.getItem('ccbrowser');
-  if (!forceClearCache) {
-    localStorage.removeItem('dfauth');
-    localStorage.setItem('ccbrowser', 1);
-  }
-
   setMenu();
 
   initNotification()
