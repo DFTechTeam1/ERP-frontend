@@ -268,7 +268,7 @@ defineExpose({
         margin-bottom: 10px;
 
         img {
-            width: 80px;
+            width: 20px;
             height: auto;
         }
     }
