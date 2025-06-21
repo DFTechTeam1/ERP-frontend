@@ -172,11 +172,11 @@ const validateData = handleSubmit(async (values) => {
         return city.value == values.city_id;
     });
     let selectedCountry = listOfWorldCountries.value.filter((country) => {
-        return country.value == values.city_id;
+        return country.value == values.country_id;
     });
     let customerData = {
         name: selectedCustomer[0].title,
-        place: selectedCity[0].title + ' ' + selectedCountry.title
+        place: selectedCity[0].title + ' ' + selectedCountry[0].title
     };
     
     let mainLed = [];
