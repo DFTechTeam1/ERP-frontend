@@ -195,15 +195,6 @@ defineExpose({
                         </template>
     
                         <v-list :disabled="loading">
-                            <v-list-item @click.prevent="submitProject('draft')">
-                                <template v-slot:prepend>
-                                    <v-icon :icon="mdiFile" size="15"></v-icon>
-                                </template>
-    
-                                <template v-slot:title>
-                                    Save as Draft
-                                </template>
-                            </v-list-item>
                             <v-list-item @click.prevent="submitProject('final')">
                                 <template v-slot:prepend>
                                     <v-icon :icon="mdiCurrencyUsd" size="15"></v-icon>
