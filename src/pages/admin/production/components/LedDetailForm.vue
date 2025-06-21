@@ -1,6 +1,6 @@
 <script setup>
 import {mdiClose, mdiMonitorScreenshot} from "@mdi/js";
-import {ref, onMounted} from "vue";
+import {ref, watch} from "vue";
 import LedForm from "@/pages/admin/production/LedForm.vue";
 
 const emit = defineEmits(['update-led-event']);
@@ -8,6 +8,18 @@ const emit = defineEmits(['update-led-event']);
 const props = defineProps({
   data: {
     type: Array
+  },
+  withAddButton: {
+    type: Boolean,
+    default: true
+  },
+  withDeleteButton: {
+    type: Boolean,
+    default: true
+  },
+  returnObject: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -31,7 +43,14 @@ function removeLed(key) {
   }
 
   // call emit to update parent component
-  emit("update-led-event", total.value);
+  let returnValue = total.value;
+    if (props.returnObject) {
+      returnValue = {
+        total: total.value,
+        detail: ledSetting.value
+      };
+    }
+  emit("update-led-event", returnValue);
 }
 
 function showLedForm() {
@@ -55,7 +74,14 @@ function closeLedForm(payload = null) {
 
     updateTotalLed()
 
-    emit("update-led-event", total.value);
+    let returnValue = total.value;
+    if (props.returnObject) {
+      returnValue = {
+        total: total.value,
+        detail: ledSetting.value
+      };
+    }
+    emit("update-led-event", returnValue);
   }
 }
 
@@ -67,13 +93,19 @@ defineExpose({
   getValue
 })
 
-onMounted(() => {
-  if (props.data) {
-    ledSetting.value = props.data
-  }
+// onMounted(() => {
+//   if (props.data) {
+//     ledSetting.value = props.data
+//   }
 
-  console.log("ledSetting", props.data)
-})
+//   console.log("ledSetting", props.data)
+// })
+
+watch(props, (values) => {
+  if (values) {
+    ledSetting.value = values.data;
+  }
+});
 </script>
 
 <template>
@@ -105,6 +137,7 @@ onMounted(() => {
         </template>
         <template v-slot:append>
           <v-icon
+            v-if="props.withDeleteButton"
             :icon="mdiClose"
             @click.prevent="removeLed(l)"></v-icon>
         </template>
@@ -121,6 +154,7 @@ onMounted(() => {
     <v-btn
       class="w-100"
       variant="flat"
+      v-if="props.withAddButton"
       color="grey-lighten-3"
       @click.prevent="showLedForm">
       {{ $t('addMore') }}

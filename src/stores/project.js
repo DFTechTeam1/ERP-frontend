@@ -30,6 +30,7 @@ export const useProjectStore = defineStore('project', {
         forceUpdatePages: false,
         keepProjectParams: false,
         haveFilterData: false,
+        quotationPreview: null,
         teams: [
             {
                 uid: '99383',
@@ -74,8 +75,57 @@ export const useProjectStore = defineStore('project', {
                 status_color: 'success',
             },
         ],
+        priceGuideSettings: {
+            mainBallroom: {
+                type: "general",
+                formula: "{main_led_size}*{area_guide_price}"
+            },
+            prefunction: {
+                type: "general",
+                formula: "{prefunc_led_size}*({area_guide_price}*0.75)"
+            },
+            highSeason: {
+                type: "percentage",
+                formula: "25"
+            },
+            equipment: {
+                type: "fix",
+                formula: "2500000"
+            },
+            discount: {
+                type: "percentage",
+                formula: "10"
+            },
+            priceUp: {
+                type: "percentage",
+                formula: "1.1"
+            }
+        },
+        areaGuidePrice: {
+            surabaya: 750000,
+            jakarta: 1250000,
+            jawa: 850000,
+            luar_jawa: 950000
+        },
+        quotationPart: {
+            customer: {},
+            office: {},
+            event: {},
+            note: null,
+            rules: '',
+            quotation_number: null,
+            equipment_type: null,
+            event_location: null
+        },
+        quotationItems: [],
+        priceCalculation: null,
+        quotationUrl: null,
+        eventTypes: [],
+        marketings: []
     }),
     getters: {
+        listOfMarketings: (state) => state.marketings,
+        listOfEventTypes: (state) => state.eventTypes,
         listProjectNeedToBeComplete: (state) => state.projectNeedToBeComplete,
         listOfDetailEntertainmentWorkload: (state) => state.detailEntertainmentWorkload,
         isHaveFilterData: (state) => state.haveFilterData,
@@ -97,8 +147,45 @@ export const useProjectStore = defineStore('project', {
         listOfProjectStatusses: (state) => state.projectStatusses,
         totalOfTransferTeam: (state) => state.totalTransferTeam,
         listOfTransferTeam: (state) => state.transferTeamList,
+        listOfPriceGuide: (state) => state.priceGuideSettings,
+        listAreaGuidePrice: (state) => state.areaGuidePrice,
+        quotationContent: (state) => state.quotationPart,
+        listOfQuotationItems: (state) => state.quotationItems,
+        guideOfPriceCalculation: (state) => state.priceCalculation,
+        linkOfQuotationUrl: (state) => state.quotationUrl
     },
     actions: {
+        setQuotationEquipmentType({type}) {
+            this.quotationPart.equipment_type = type;
+        },
+        setQuotationEventLocation({location}) {
+            this.quotationPart.event_location = location;
+        },
+        setQuotationCustomer({customer}) {
+            this.quotationPart.customer = customer;
+        },
+        setQuotationNumber({number}) {
+            this.quotationPart.quotation_number = number;
+        },
+        setQuotationRules({rules}) {
+            this.quotationPart.rules = rules;
+        },
+        setQuotationOffice({office}) {
+            this.quotationPart.office = office;
+        },
+        setQuotationItems({items, itemPreviews}) {
+            this.quotationPart.event.items = items;
+            this.quotationPart.event.itemPreviews = itemPreviews;
+        },
+        setQuotationPrice({price}) {
+            this.quotationPart.event.price = price;
+        },
+        setQuotationNote({note}) {
+            this.quotationPart.note = note;
+        },
+        setQuotationEvent({event}) {
+            this.quotationPart.event = event;
+        },
         setFilterData(payload) {
           this.haveFilterData = payload;
         },
@@ -170,7 +257,7 @@ export const useProjectStore = defineStore('project', {
                 notify({
                     title: 'Success',
                     text: resp.data.message,
-                    type: 'success',
+                    type: 'success', 
                 });
 
                 return resp;
@@ -267,6 +354,8 @@ export const useProjectStore = defineStore('project', {
         async initEventTypes() {
             try {
                 const resp = await axios.get('/production/eventTypes');
+
+                this.eventTypes = resp.data.data;
 
                 return resp;
             } catch (error) {
@@ -725,6 +814,8 @@ export const useProjectStore = defineStore('project', {
         async getProjectMarketings() {
             try {
                 const resp = await axios.get('/production/project/marketings')
+
+                this.marketings = resp.data.data;
 
                 return resp
             } catch(e) {
@@ -1585,6 +1676,89 @@ export const useProjectStore = defineStore('project', {
           } catch (error) {
             return error;
           }
+        },
+        async checkHighSeason(payload) {
+            try {
+                return await axios.post(`production/project/checkHighSeason`, payload);
+            } catch (error) {
+                return error;
+            }
+        },
+        setQuotationPreview({
+            customer,
+            officeInformation,
+            event,
+            ledDetail,
+            selectedItem,
+            rules
+        }) {
+            this.quotationPreview = {
+                customer: customer,
+                officeInformation: officeInformation,
+                event: event,
+                ledDetail: ledDetail,
+                selectedItem: selectedItem,
+                rules: rules
+            }
+        },
+        async getQuotationNumber() {
+            try {
+                const resp = await axios.get(`/production/project/getQuotationNumber`);
+
+                this.quotationPart.quotation_number = resp.data.data.number;                
+            } catch (error) {
+                return error;
+            }
+        },
+        async storeProjectDeal({payload: payload}) {
+            try {
+                const resp = await axios.post(`production/project/deals`, payload);
+
+                this.quotationUrl = resp.data.data.url;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async updateProjectDeal({payload, uid}) {
+            try {
+                return await axios.post(`production/project/deals/${uid}`, payload);
+            } catch (error) {
+                return error;
+            }
+        },
+        async addMoreQuotation({payload, uid}) {
+            try {
+                return await axios.post(`production/project/deals/${uid}/quotation`, payload);
+            } catch (error) {
+                return error;
+            }
+        },
+        async getQuotationItems() {
+            try {
+                const resp = await axios.get(`/production/quotations?all=1`);
+
+                this.quotationItems = resp.data.data;
+                
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async getCalculation() {
+            try {
+                const resp = await axios.get(`/setting/calculation`);
+
+                this.priceCalculation = resp.data.data;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        resetQuotationUrl() {
+            this.quotationUrl = null;
         }
     },
 })

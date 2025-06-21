@@ -62,6 +62,9 @@ import RedirectingView from '@/pages/admin/RedirectingView.vue';
 import LayoutEmpty from "@/layouts/LayoutEmpty.vue";
 import NotAllowed from "@/components/NotAllowed.vue";
 import UnderDevelopment from "@/components/UnderDevelopment.vue";
+import CreateDeals from "@/pages/admin/production/deals/CreateDeals.vue";
+import ListOfDeals from "@/pages/admin/production/deals/ListOfDeals.vue";
+import DetailDeals from "@/pages/admin/production/deals/DetailDeals.vue";
 import { createRouter, createWebHistory } from "vue-router/auto";
 import moment from "moment";
 import { useEncrypt } from "@/compose/encrypt";
@@ -207,8 +210,53 @@ const router = createRouter({
           },
         },
         {
+          path: '/admin/deals/create',
+          name: "Create Deals",
+          component: CreateDeals,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/deals'
+          }
+        },
+        {
+          path: '/admin/deals',
+          name: "List of Deals",
+          component: ListOfDeals,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/deals'
+          }
+        },
+        {
+          path: '/admin/deals/:id/edit',
+          name: "Edit Deal",
+          component: CreateDeals,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/deals'
+          }
+        },
+        {
+          path: '/admin/deals/:id/edit/:type',
+          name: "Add More Quotation",
+          component: CreateDeals,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/deals'
+          }
+        },
+        {
+          path: '/admin/deals/:id',
+          name: "Detail Deals",
+          component: DetailDeals,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/deals'
+          }
+        },
+        {
           path: '/admin/employees',
-          name: 'Employees',
+          name: 'Employees Master',
           children: [
             {
               path: 'list',

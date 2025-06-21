@@ -5,12 +5,11 @@
             v-model="model"
             :clearable="true"
             :density="props.density"
-            :class="{
-            'new-border-form-control': props.isSolo
-            }"
+            :class="pickerClass"
             :variant=" props.isSolo ? 'solo' : 'outlined'"
             :hide-details="props.isSolo"
             :single-line="props.isSolo"
+            :disabled="props.isDisabled"
             :error-messages="props.errorMessage"
             @click:control="showDatePicker">
 
@@ -44,6 +43,7 @@
 
 <script setup>
     import { mdiAsterisk } from '@mdi/js';
+import moment from 'moment';
     import { ref, onMounted } from 'vue';
     
     import { useDate } from 'vuetify/lib/framework.mjs';
@@ -58,7 +58,13 @@
 
     const datepicker = ref(null)
 
+    const pickerClass = ref('');
+
     const props = defineProps({
+        customClass: {
+            type: String,
+            default: ''
+        },
         label: {
             type: String,
             required: true,
@@ -66,6 +72,10 @@
         isRequired: {
             type: Boolean,
             default: true,
+        },
+        isDisabled: {
+            type: Boolean,
+            default: false,
         },
         isSolo: {
             type: Boolean,
@@ -83,6 +93,10 @@
         },
         maxDate: {
             type: String,
+        },
+        formatOutput: {
+            type: String,
+            default: 'default'
         }
     })
 
@@ -93,13 +107,26 @@
     }
 
     function handleDate(val) {
-        model.value = _date.format(date.value, 'year') + ', ' + _date.format(date.value, 'monthAndDate');
+        let format = _date.format(date.value, 'year') + ', ' + _date.format(date.value, 'monthAndDate');
+
+        if (props.formatOutput != 'default') {
+            format = moment(format, 'YYYY, MMMM DD').format(props.formatOutput)
+        }
+        model.value = format;
         isShowDatePicker.value = false;
     }
 
     onMounted(() => {
         if (model.value) {
             date.value = new Date(model.value);
+        }
+
+        if ((props) && (props.customClass)) {
+            pickerClass.value = {
+                'new-border-form-control': props.isSolo
+            };
+
+            pickerClass.value[props.customClass] = true;
         }
     })
 </script>

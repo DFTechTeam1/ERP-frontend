@@ -11,7 +11,9 @@ import ImagePreview from './ImagePreview.vue'
 import LoadingView from './LoadingView.vue'
 import ColorPicker from './ColorPicker.vue'
 import ImportExcel from './ImportExcel.vue'
+import DividerText from "./DividerText.vue";
 import MasterCard from './MasterCard.vue'
+import { VFileUpload, VFileUploadItem } from 'vuetify/labs/VFileUpload'
 import ButtonGroupNavigation from './ButtonGroupNavigation.vue'
 import RoundedInput from './RoundedInput.vue'
 import vSelect from 'vue-select';
@@ -28,6 +30,7 @@ import FilePondPluginImageTransform from 'filepond-plugin-image-transform'
 import FilePondPluginImageEdit from 'filepond-plugin-image-edit'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import VueCountdown from '@chenfengyuan/vue-countdown';
+import CurrencyInput from "./CurrencyInput.vue";
 import '@vuepic/vue-datepicker/dist/main.css'
 
 import 'filepond/dist/filepond.min.css';
@@ -74,11 +77,15 @@ export function registerComponent(app) {
         .component('date-picker', DatePicker)
         .component('file-pond-com', FilePond)
         .component('file-pond-avatar', FilePondAvatar)
+        .component('currency-input', CurrencyInput)
         .component('VueDatePicker', VueDatePicker)
         .component('ButtonSubmit', ButtonSubmit)
         .component('LoadingView', LoadingView)
         .component(VueCountdown.name, VueCountdown)
+        .component('v-file-upload', VFileUpload)
+        .component('v-file-upload-item', VFileUploadItem)
         .component('file-picker', FilePicker)
         .component('master-card', MasterCard)
+        .component('divider-text', DividerText)
         .component('import-excel', ImportExcel);
 }
