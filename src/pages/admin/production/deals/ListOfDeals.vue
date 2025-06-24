@@ -390,7 +390,8 @@ onMounted(() => {
                             </template>
                         </v-list-item>
 
-                        <v-list-item class="pointer" @click.prevent="confirmDeleteData(value.uid)">
+                        <v-list-item class="pointer" @click.prevent="confirmDeleteData(value.uid)"
+                            v-if="value.can_delete">
                             <template v-slot:title>
                                 <div class="d-flex align-center"
                                     style="gap: 8px; font-size: 12px;">

@@ -95,7 +95,7 @@ const props = defineProps({
                             <span :style="{
                                 textTransform: 'uppercase'
                             }">
-                                {{ props.quotation.event.event_class }}
+                                {{ props.quotation.design_job }}
                             </span>
                         </div>
                     </div>

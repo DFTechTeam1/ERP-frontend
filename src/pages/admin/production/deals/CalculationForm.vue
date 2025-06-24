@@ -496,7 +496,7 @@ watch(projectItemData, (values) => {
                     gap: '40px'
                 }">
                     <div class="form-wrapper">
-                        <label>{{ $t('highSeasaon') }}</label>
+                        <label>{{ $t('highSeason') }}</label>
                         <v-radio-group inline
                             v-model="high_season"
                             class="mt-1"
