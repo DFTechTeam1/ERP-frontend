@@ -1,5 +1,6 @@
 <script setup>
 import { useProjectStore } from '@/stores/project';
+import { useProjectDealStore } from '@/stores/projectDeal';
 import { mdiCircle, mdiCurrencyUsd, mdiDatabase, mdiFile } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
@@ -12,6 +13,8 @@ const route = useRoute();
 
 const store = useProjectStore();
 
+const storeDeal = useProjectDealStore();
+
 const emit = defineEmits(['next-event']);
 
 const loading = ref(false);
@@ -20,7 +23,11 @@ const showConfirmation = ref(false);
 
 const selectedIds = ref([1]);
 
-const { quotationContent } = storeToRefs(store);
+const { quotationContent, designJob } = storeToRefs(store);
+
+const {
+    detailOfProjectDeal
+} = storeToRefs(storeDeal);
 
 const formatPrice = (number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -103,7 +110,7 @@ defineExpose({
                             <span :style="{
                                 textTransform: 'uppercase'
                             }">
-                                {{ quotationContent.event.event_class }}
+                                {{ Object.keys(detailOfProjectDeal).length ? detailOfProjectDeal.latest_quotation.design_job : designJob }}
                             </span>
                         </div>
                     </div>
@@ -189,54 +196,32 @@ defineExpose({
         <v-stepper-actions>
             <template v-slot:next>
                 <template v-if="!route.params.id">
-                    <v-menu>
-                        <template v-slot:activator="{ props }">
-                            <v-btn color="primary" :disabled="loading" variant="flat" type="button" v-bind="props">Save</v-btn>
-                        </template>
-    
-                        <v-list :disabled="loading">
-                            <v-list-item @click.prevent="submitProject('final')">
-                                <template v-slot:prepend>
-                                    <v-icon :icon="mdiCurrencyUsd" size="15"></v-icon>
-                                </template>
-    
-                                <template v-slot:title>
-                                    Save as Final
-                                </template>
-                            </v-list-item>
-                            <v-list-item @click.prevent="submitProject('save_and_download')">
-                                <template v-slot:prepend>
-                                    <v-icon :icon="mdiDatabase" size="15"></v-icon>
-                                </template>
-    
-                                <template v-slot:title>
-                                    Save and Download Quotation
-                                </template>
-                            </v-list-item>
-                            <v-list-item @click.prevent="submitProject('save')">
-                                <template v-slot:prepend>
-                                    <v-icon :icon="mdiDatabase" size="15"></v-icon>
-                                </template>
-    
-                                <template v-slot:title>
-                                    Save
-                                </template>
-                            </v-list-item>
-                        </v-list>
-                    </v-menu>
+                    <div>
+                        <v-btn color="primary"
+                            :disabled="loading"
+                            variant="flat"
+                            @click.prevent="submitProject('save')"
+                            type="button">{{ $t('save') }}</v-btn>
+                        <v-btn color="primary"
+                            :disabled="loading"
+                            variant="flat"
+                            class="ml-2"
+                            @click.prevent="submitProject('final')"
+                            type="button">{{ $t('proceedAsFinal') }}</v-btn>
+                    </div>
                 </template>
 
                 <template v-else-if="route.params.type">
-                    <v-btn color="primary" :disabled="loading" variant="flat" type="button" @click.prevent="submitProject('new_quotation')">Add Quotation</v-btn>
+                    <v-btn color="primary" :disabled="loading" variant="flat" type="button" @click.prevent="submitProject('new_quotation')">{{ $t('addQuotation') }}</v-btn>
                 </template>
 
                 <template v-else>
-                    <v-btn color="primary" :disabled="loading" variant="flat" type="button" @click.prevent="showConfirmation = true">Update</v-btn>
+                    <v-btn color="primary" :disabled="loading" variant="flat" type="button" @click.prevent="showConfirmation = true">{{ $t('update') }}</v-btn>
                 </template>
             </template>
 
             <template v-slot:prev>
-                <v-btn color="#FAFAFA" variant="flat" @click.prevent="$emit('back-event')">Previous</v-btn>
+                <v-btn color="#FAFAFA" variant="flat" @click.prevent="$emit('back-event')">{{ $t('previous') }}</v-btn>
             </template>
         </v-stepper-actions>
 

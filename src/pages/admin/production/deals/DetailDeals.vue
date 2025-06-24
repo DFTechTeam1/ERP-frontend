@@ -80,7 +80,6 @@ const getDetail = async () => {
     loading.value = true;
     await store.getProjectDetail({projectUid: route.params.id});
     loading.value = false;
-    console.log('detail detail', detailOfProjectDeal.value)
 };
 
 const updateTranscation = () => {

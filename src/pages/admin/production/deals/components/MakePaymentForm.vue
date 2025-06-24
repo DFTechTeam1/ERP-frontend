@@ -18,7 +18,7 @@ const { defineField, errors, handleSubmit, setFieldValue } = useForm({
         transaction_date: yup.string().required(t('dateRequired')),
         note: yup.string().nullable(),
         references: yup.string().nullable(),
-        images: yup.array()
+        images: yup.array().required()
     }),
     initialValues: {
         transaction_date: moment().format('YYYY, MMMM DD')
@@ -162,6 +162,11 @@ const validateData = handleSubmit(async(values) => {
                     v-on:init="handleFilePondInit"
                     v-on:addfile="updateImageValue"
                 ></file-pond-com>
+                <div :style="{
+                    color: 'rgb(176,0,32)',
+                    fontSize: '12px',
+                }"
+                v-if="errors.images">{{ errors.images }}</div>
             </v-col>
 
             <v-col cols="12">

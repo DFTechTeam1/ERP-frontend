@@ -4,8 +4,17 @@ import { useI18n } from 'vue-i18n';
 import InputGroup from './components/forms/PriceInputGroup.vue';
 import { mdiHelpCircle } from '@mdi/js';
 import { computed } from 'vue';
+import { useSettingStore } from '@/stores/setting';
+import { storeToRefs } from 'pinia';
+import { showNotification } from '@/compose/notification';
 
 const { t } = useI18n();
+
+const store = useSettingStore();
+
+const {
+    globalPriceSetting
+} = storeToRefs(store);
 
 const types = ref([
     {
@@ -166,10 +175,14 @@ const equipmentSetting = ref([
 
 const price_up_type = ref('percentage');
 const price_up_value = ref(0);
+const high_season_type = ref('percentage');
+const high_season_value = ref(0);
 const prefunction_percentage = ref(0);
 const minimum_price = ref(0);
 
-const validateData = () => {
+const loading = ref(false);
+
+const validateData = async () => {
     let payload = {
         area: guides.value,
         equipment: equipmentSetting.value,
@@ -177,10 +190,17 @@ const validateData = () => {
             type: price_up_type.value,
             value: price_up_value.value
         },
+        high_season: {
+            type: high_season_type.value,
+            value: high_season_value.value
+        },
         prefunction_percentage: prefunction_percentage.value,
         minimum_price: minimum_price.value
     };
-    console.log('guides', payload);
+
+    loading.value = true;
+    store.storeSetting(payload, 'price');
+    loading.value = false;
 };
 
 const defineType = (type) => {
@@ -194,6 +214,21 @@ const defineType = (type) => {
 
     return output;
 }
+
+watch(
+    () => globalPriceSetting.value,
+    (newValue) => {
+        guides.value = newValue.area;
+        equipmentSetting.value = newValue.equipment;
+        price_up_type.value = newValue.price_up.type;
+        price_up_value.value = newValue.price_up.value;
+        high_season_type.value = newValue.high_season.type;
+        high_season_value.value = newValue.high_season.value;
+        prefunction_percentage.value = newValue.prefunction_percentage;
+        minimum_price.value = newValue.minimum_price;
+    },
+    { immediate: true }
+)
 </script>
 
 <template>
@@ -223,26 +258,6 @@ const defineType = (type) => {
                             <template v-slot:prepend-item>
                                 <span v-if="item.type == 'fixed'">Rp</span>
                             </template>
-
-                            <!-- <template v-slot:label-data>
-                                <label class="w-100 align-content-center">
-                                    <span>{{ item.name }}</span>
-                                    <span style="font-size: 9px; margin-left: 4px;" class="pointer">
-                                        <v-icon :icon="mdiHelpCircle"></v-icon>
-
-                                        <v-tooltip
-                                            activator="parent">
-                                            <div class="preview-formula mt-5 mb-10 d-flex items-center justify-center">
-                                                <p>
-                                                    <i>
-                                                        {Main Ballroom Area} * {{ item.value }}
-                                                    </i>
-                                                </p>
-                                            </div>
-                                        </v-tooltip>
-                                    </span>
-                                </label>
-                            </template> -->
                         </input-group>
 
                     </template>
@@ -294,6 +309,23 @@ const defineType = (type) => {
 
                 <input-group
                     :is-solo="true"
+                    :option-label="t('highSeason')"
+                    :value-label="t('type')"
+                    :type-options="types"
+                    :show-prepend-inner="true"
+                    :show-append-inner="true"
+                    v-model:option="high_season_type"
+                    v-model:value="high_season_value">
+                    <template v-slot:append-item>
+                        <span v-if="high_season_type == 'percentage'">%</span>
+                    </template>
+                    <template v-slot:prepend-item>
+                        <span v-if="high_season_type == 'fixed'">Rp</span>
+                    </template>
+                </input-group>
+
+                <input-group
+                    :is-solo="true"
                     :option-label="t('prefunctionPercentage')"
                     :show-append-inner="true"
                     :only-price="true"
@@ -315,7 +347,8 @@ const defineType = (type) => {
                 </input-group>
 
                 <div class="d-flex items-center justify-end mt-5">
-                    <v-btn variant="flat" color="primary" type="submit">
+                    <v-btn variant="flat" color="primary" type="submit"
+                        :disabled="loading">
                         Save
                     </v-btn>
                 </div>

@@ -729,7 +729,7 @@
     "addCustomer": "Add Customer",
     "customer": "Customer",
     "eventName": "Event Name",
-    "highSeasaon": "High Season",
+    "highSeason": "High Season",
     "no": "No",
     "equipment": "Equipment",
     "pricingSetting": "Pricing Setting",
@@ -762,5 +762,11 @@
     "publish": "Publish",
     "confirmationDeleteProjectDeal": "Are you sure to delete this event with all quotations?",
     "confirmationUpdateProjectDeal": "This change will also affect the final quotation, are you sure?",
-    "ledRequired": "LED is required"
+    "ledRequired": "LED is required",
+    "proceedAsFinal": "Proceed as Final",
+    "addQuotation": "Add Quotation",
+    "quotationItems": "Quotation Items",
+    "createQuotationItem": "Create Quotation Item",
+    "editQuotationItem": "Edit Quotation Item",
+    "confirmationdeleteQuotationItem": "Are you sure to delete this quotation item?"
 }
