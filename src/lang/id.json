@@ -755,5 +755,11 @@
     "makeAsFinal": "Ubah ke Final",
     "publishAsFinal": "Terbitkan dan Ubah ke Final",
     "publish": "Terbitkan",
-    "confirmationUpdateProjectDeal": "Perubahan ini juga akan mempengaruhi quotation terakhir, apakah kamu yakin?"
+    "confirmationUpdateProjectDeal": "Perubahan ini juga akan mempengaruhi quotation terakhir, apakah kamu yakin?",
+    "proceedAsFinal": "Lanjutkan sebagai Final",
+    "addQuotation": "Tambah Quotation",
+    "quotationItems": "Quotation Items",
+    "createQuotationItem": "Buat Quotation Item",
+    "editQuotationItem": "Ubah Quotation Item",
+    "confirmationdeleteQuotationItem": "Kamu yakin ingin menghapus quotation item ini?"
 }

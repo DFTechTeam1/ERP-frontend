@@ -18,10 +18,10 @@ const selectedQuotation = ref({});
 const selectedQuotationUid = ref(null);
 
 const detailQuotation = (uid) => {
+    let rawQuotation = detailOfProjectDeal.value.quotations.filter(filter => filter.id === uid)[0]
     selectedQuotation.value = detailOfProjectDeal.value.quotations.filter(filter => filter.id === uid)[0].detail;
+    selectedQuotation.value.design_job = rawQuotation.design_job;
     selectedQuotationUid.value = detailOfProjectDeal.value.quotations.filter(filter => filter.id === uid)[0].quotation_id;
-
-    console.log('selectedQuotation.value', selectedQuotation.value);
 
     showPreviewQuotation.value = true;
     

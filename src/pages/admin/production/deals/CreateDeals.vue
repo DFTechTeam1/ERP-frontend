@@ -49,6 +49,10 @@ const {
     detailOfProjectDeal
 } = storeToRefs(storeDeal);
 
+const {
+    designJob
+} = storeToRefs(store);
+
 const detailFormRef = ref(null);
 
 const calculationFormRef = ref(null);
@@ -161,6 +165,10 @@ async function getCustomer() {
     await customerStore.getCustomer();
 }
 
+async function getProjectCount() {
+    await store.getProjectCount();
+}
+
 const prepareData = async () => {
     loading.value = true;
     await Promise.all([
@@ -173,6 +181,7 @@ const prepareData = async () => {
         initMarketing(),
         initCountries(),
         getCustomer(),
+        getProjectCount(),
         getDetail(),
     ]);
     loading.value = false;
@@ -213,12 +222,10 @@ const submitData = async (payload) => {
     completePayload.request_type = requestType;
     completePayload.equipment_type = completePayload.quotation.equipment_type;
     completePayload.is_high_season = completePayload.quotation.is_high_season;
-    
+    completePayload.quotation.design_job = route.params.id ? detailOfProjectDeal.value.latest_quotation.design_job : designJob.value;
     
     let method = route.params.id && !route.params.type ? 'updateProjectDeal' : (route.params.type ? 'addMoreQuotation' : 'storeProjectDeal');
     let queryParam = route.params.id ? {payload: completePayload, uid: route.params.id} : {payload: completePayload};
-    console.log('project detail', completePayload);
-    console.log('method', method);
     
     if (route.params.id && !route.params.type) completePayload._method = 'PUT';
 

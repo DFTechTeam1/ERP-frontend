@@ -31,6 +31,7 @@ export const useProjectStore = defineStore('project', {
         keepProjectParams: false,
         haveFilterData: false,
         quotationPreview: null,
+        totalProjectCount: 0,
         teams: [
             {
                 uid: '99383',
@@ -124,6 +125,7 @@ export const useProjectStore = defineStore('project', {
         marketings: []
     }),
     getters: {
+        designJob: (state) => state.totalProjectCount,
         listOfMarketings: (state) => state.marketings,
         listOfEventTypes: (state) => state.eventTypes,
         listProjectNeedToBeComplete: (state) => state.projectNeedToBeComplete,
@@ -1759,6 +1761,17 @@ export const useProjectStore = defineStore('project', {
         },
         resetQuotationUrl() {
             this.quotationUrl = null;
+        },
+        async getProjectCount() {
+            try {
+                const resp = await axios.get(`/production/project/initProjectCount`);
+
+                this.totalProjectCount = resp.data.data.count;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
         }
     },
 })
