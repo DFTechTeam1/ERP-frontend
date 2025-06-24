@@ -211,7 +211,7 @@ const router = createRouter({
           },
         },
         {
-          path: '/admin/quotation-items',
+          path: 'quotation-items',
           name: "List Quotation Item",
           component: ListQuotationItem,
           meta: {
