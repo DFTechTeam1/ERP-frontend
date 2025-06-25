@@ -1,14 +1,18 @@
 <script setup>
 import { formatPrice } from '@/compose/formatPrice';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiDownload, mdiMailbox, mdiPhoneOutline, mdiPrinterOutline, mdiShareVariant } from '@mdi/js';
+import { mdiDownload, mdiInvoice, mdiMailbox, mdiPhoneOutline, mdiPrinterOutline, mdiShareVariant } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import MakePaymentForm from '../components/MakePaymentForm.vue';
+import GenerateInvoiceForm from '../components/GenerateInvoiceForm.vue';
+import TransactionList from './TransactionList.vue';
 
 const store = useProjectDealStore();
 
 const { detailOfProjectDeal } = storeToRefs(store);
+
+const showGenerateInvoice = ref(false);
 
 const headers = ref([
     { title: 'Product', align: 'start', key: 'product', sortable: false },
@@ -31,6 +35,17 @@ const items = ref([
 
 const previewQuotation = ({uid, type}) => {
     window.open(import.meta.env.VITE_BACKEND + `/quotations/download/${uid}/${type}`);
+};
+
+const stateRemainingPayment = ref(0);
+
+const closeGenerateInvoiceForm = () => {
+    showGenerateInvoice.value = false;
+}
+
+const generateInvoice = (remainingPayment) => {
+    showGenerateInvoice.value = true;
+    stateRemainingPayment.value = parseInt(remainingPayment);
 };
 </script>
 
@@ -60,6 +75,10 @@ const previewQuotation = ({uid, type}) => {
                             </template>
 
                             <v-list>
+                                <v-list-item @click.prevent="generateInvoice(detailOfProjectDeal.final_quotation.remaining)"
+                                    :prepend-icon="mdiInvoice">
+                                    <v-list-item-title>Generate Invoice</v-list-item-title>
+                                </v-list-item>
                                 <v-list-item @click.prevent="previewQuotation({uid: detailOfProjectDeal.final_quotation.quotation_id, type: 'download'})"
                                     :prepend-icon="mdiDownload">
                                     <v-list-item-title>Download Quotation</v-list-item-title>
@@ -72,6 +91,13 @@ const previewQuotation = ({uid, type}) => {
                         </v-menu>
                     </div>
                 </div>
+
+                <!-- invoice form -->
+                <generate-invoice-form
+                    v-if="(detailOfProjectDeal)"
+                    :remaining-payment="stateRemainingPayment"
+                    @close-event="closeGenerateInvoiceForm(detailOfProjectDeal.final_quotation.remaining)"
+                    :is-show="showGenerateInvoice"></generate-invoice-form>
 
                 <div class="transaction-box__customer">
                     <v-row>
@@ -184,29 +210,7 @@ const previewQuotation = ({uid, type}) => {
                 </div>
             </div>
 
-            <div class="transaction-box">
-                <div class="transaction-box__status">
-                    <p class="status" :style="{
-                        color: '#000'
-                    }">Transactions</p>
-                </div>
-
-                <div class="transaction-box__product">
-                    <v-data-table-virtual
-                        :headers="headerTransactions"
-                        :items="detailOfProjectDeal.transactions"
-                        class="product-item"
-                        fixed-header>
-                        <template v-slot:item.description="{ item }">
-                            <span v-html="item.description"></span>
-                        </template>
-
-                        <template v-slot:item.payment_amount="{ item }">
-                            Rp{{ formatPrice(item.payment_amount) }}
-                        </template>
-                    </v-data-table-virtual>
-                </div>
-            </div>
+            <transaction-list :products="detailOfProjectDeal.transactions"></transaction-list>
         </template>
     </div>
 </template>
