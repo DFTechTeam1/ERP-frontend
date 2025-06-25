@@ -153,7 +153,6 @@ const formatPrice = (number) => {
 
 const mainBallroomFee = computed(() => {
     let output = 0;
-    console.log('led area', ledArea.value);
     if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined)) {
         if (guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.fixed) {
             output = eval(guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.fixed.replaceAll("{total_led}", ledArea.value.main));
