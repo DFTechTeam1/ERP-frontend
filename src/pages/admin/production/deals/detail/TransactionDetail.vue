@@ -189,7 +189,7 @@ const generateInvoice = (remainingPayment) => {
                         <v-col cols="12" md="6" v-if="(detailOfProjectDeal) && (detailOfProjectDeal.final_quotation)">
                             <div class="transaction-box__product__body">
                                 <div class="left">Sub Total</div>
-                                <div class="right">Rp{{ formatPrice(detailOfProjectDeal.final_quotation.fix_price) }}</div>
+                                <div class="right">Rp{{ formatPrice(detailOfProjectDeal.fix_price) }}</div>
                             </div>
                             <div class="transaction-box__product__body transaction"
                                 v-for="(trx, t) in detailOfProjectDeal.transactions"
@@ -199,7 +199,7 @@ const generateInvoice = (remainingPayment) => {
                             </div>
                             <div class="transaction-box__product__body">
                                 <div class="left">Balance Due</div>
-                                <div class="right">Rp{{ formatPrice(detailOfProjectDeal.final_quotation.remaining) }}</div>
+                                <div class="right">Rp{{ formatPrice(detailOfProjectDeal.remaining_price) }}</div>
                             </div>
                         </v-col>
                     </v-row>
