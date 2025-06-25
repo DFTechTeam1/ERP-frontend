@@ -768,5 +768,7 @@
     "quotationItems": "Quotation Items",
     "createQuotationItem": "Create Quotation Item",
     "editQuotationItem": "Edit Quotation Item",
-    "confirmationdeleteQuotationItem": "Are you sure to delete this quotation item?"
+    "confirmationdeleteQuotationItem": "Are you sure to delete this quotation item?",
+    "requestInvoice": "Request Invoice",
+    "generate": "Generate"
 }

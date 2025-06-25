@@ -761,5 +761,7 @@
     "quotationItems": "Quotation Items",
     "createQuotationItem": "Buat Quotation Item",
     "editQuotationItem": "Ubah Quotation Item",
-    "confirmationdeleteQuotationItem": "Kamu yakin ingin menghapus quotation item ini?"
+    "confirmationdeleteQuotationItem": "Kamu yakin ingin menghapus quotation item ini?",
+    "requestInvoice": "Request Invoice",
+    "generate": "Generate"
 }
