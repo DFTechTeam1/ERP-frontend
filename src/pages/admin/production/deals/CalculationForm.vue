@@ -153,6 +153,7 @@ const formatPrice = (number) => {
 
 const mainBallroomFee = computed(() => {
     let output = 0;
+    console.log('led area', ledArea.value);
     if ((guideOfPriceCalculation.value) && (guideOfPriceCalculation.value.areaGuide[event_location.value] != undefined)) {
         if (guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.fixed) {
             output = eval(guideOfPriceCalculation.value.areaGuide[event_location.value].mainBallroom.fixed.replaceAll("{total_led}", ledArea.value.main));
@@ -201,13 +202,16 @@ const equipmentFee = computed(() => {
 });
 
 const subTotal = computed(() => {
-    let output = parseFloat(equipmentFee.value) + parseFloat(highSeasonFee.value) + parseFloat(mainBallroomFee.value) + parseFloat(prefunctionFee.value);
-    if ((guideOfPriceCalculation.value) && (output < guideOfPriceCalculation.value.minimum_price)) {
-        output = guideOfPriceCalculation.value.minimum_price;
-    }
-
+    let output = 0;
     if (Object.keys(detailOfProjectDeal.value).length && !route.params.type) {
         output = detailOfProjectDeal.value.latest_quotation.sub_total;
+    }
+
+    output = parseFloat(equipmentFee.value) + parseFloat(highSeasonFee.value) + parseFloat(mainBallroomFee.value) + parseFloat(prefunctionFee.value);
+
+
+    if ((guideOfPriceCalculation.value) && (output < guideOfPriceCalculation.value.minimum_price)) {
+        output = guideOfPriceCalculation.value.minimum_price;
     }
 
     return output;
