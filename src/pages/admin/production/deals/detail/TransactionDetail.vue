@@ -51,7 +51,7 @@ const generateInvoice = (remainingPayment) => {
 
 <template>
     <div class="transaction-wrapper">
-        <template v-if="(detailOfProjectDeal) && (detailOfProjectDeal.transactions) && (!detailOfProjectDeal.transactions.length)">
+        <template v-if="(detailOfProjectDeal) && (!detailOfProjectDeal.is_final)">
             <v-row>
                 <v-col cols="12">
                     <v-empty-state
@@ -63,7 +63,17 @@ const generateInvoice = (remainingPayment) => {
         <template v-else>
             <div class="transaction-box">
                 <div class="transaction-box__status">
-                    <p class="status">Partial</p>
+                    <p class="status"
+                        :class="'text-' + detailOfProjectDeal.status_payment_color">
+                        {{ detailOfProjectDeal.status_payment }}
+
+                        <span :style="{
+                            color: '#000',
+                            fontWeight: 'normal',
+                            fontSize: '12px',
+                            marginLeft: '10px'
+                        }">({{ detailOfProjectDeal.event_date }})</span>
+                    </p>
                     <div class="transaction-box__status__action">
                         <v-menu>
                             <template v-slot:activator="{ props }">
@@ -76,6 +86,7 @@ const generateInvoice = (remainingPayment) => {
 
                             <v-list>
                                 <v-list-item @click.prevent="generateInvoice(detailOfProjectDeal.final_quotation.remaining)"
+                                    v-if="!detailOfProjectDeal.is_paid"
                                     :prepend-icon="mdiInvoice">
                                     <v-list-item-title>Generate Invoice</v-list-item-title>
                                 </v-list-item>
@@ -195,7 +206,7 @@ const generateInvoice = (remainingPayment) => {
                 </div>
             </div>
 
-            <div class="transaction-box">
+            <div class="transaction-box" v-if="!detailOfProjectDeal.is_paid">
                 <div class="transaction-box__status">
                     <p class="status" :style="{
                         color: '#000'
@@ -282,7 +293,6 @@ const generateInvoice = (remainingPayment) => {
         .status {
             font-weight: bold;
             font-size: 16px;
-            color: #F4511E;
         }
     }
     

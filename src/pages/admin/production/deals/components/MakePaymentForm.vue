@@ -166,7 +166,7 @@ const validateData = handleSubmit(async(values) => {
                     color: 'rgb(176,0,32)',
                     fontSize: '12px',
                 }"
-                v-if="errors.images">{{ errors.images }}adsf</div>
+                v-if="errors.images">{{ errors.images }}</div>
             </v-col>
 
             <v-col cols="12">
