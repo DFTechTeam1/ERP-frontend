@@ -770,5 +770,6 @@
     "editQuotationItem": "Edit Quotation Item",
     "confirmationdeleteQuotationItem": "Are you sure to delete this quotation item?",
     "requestInvoice": "Request Invoice",
-    "generate": "Generate"
+    "generate": "Generate",
+    "averageTaskExecution": "Average Task Execution"
 }

@@ -11,6 +11,7 @@
     "lint": "eslint . --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@ark-ui/vue": "^5.15.3",
     "@chenfengyuan/vue-countdown": "^2.1.2",
     "@kyvg/vue3-notification": "^3.2.1",
     "@popperjs/core": "^2.11.8",
