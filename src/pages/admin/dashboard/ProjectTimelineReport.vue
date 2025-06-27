@@ -2,6 +2,7 @@
 import { showNotification } from '@/compose/notification';
 import { useDashboardStore } from '@/stores/dashboard';
 import { mdiClose, mdiDotsVertical } from '@mdi/js';
+import moment from 'moment';
 import { storeToRefs } from 'pinia';
 import { nextTick, onMounted, ref } from 'vue';
 import { useDisplay } from 'vuetify';
@@ -69,7 +70,10 @@ const chartOptions = ref({
             return `<div class="main-chart-tooltip">
                 <div class="header-tooltip">${seriesData.value[seriesIndex].name}</div>
                 <div class="body-tooltip">
-                    <span class="body-tooltip__title">Average Time: </span> ${val}    
+                    <span class="body-tooltip__title">Average Time: </span> ${val}
+                </div>
+                <div class="body-tooltip">
+                    <span class="body-tooltip__title">Total Project: </span> ${seriesData.value[seriesIndex].raw[dataPointIndex].total_project}
                 </div>
             </div>`;
         }
@@ -127,6 +131,7 @@ const formatResponseToChartData = () => {
                     hour: foundDetail.hour,
                     minute: foundDetail.minute,
                     second: foundDetail.second,
+                    total_project: foundDetail.total_project,
                 });
             } else {
                 // Push 0 if classification doesn't exist in this month
@@ -237,6 +242,15 @@ const filterChart = () => {
 
 onMounted(() => {
     formatResponseToChartData();
+
+    // init reporting
+    date_filter.value = [
+        {month: 0, year: moment().format('YYYY')},
+        {month: 11, year: moment().format('YYYY')},
+    ];
+    filterType.value = 'monthly';
+
+    closeFilter();
 });
 </script>
 
