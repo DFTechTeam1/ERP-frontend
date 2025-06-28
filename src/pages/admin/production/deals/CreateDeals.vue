@@ -166,7 +166,7 @@ async function getCustomer() {
 }
 
 async function getProjectCount() {
-    let uid = route.params.id ? route.params.id : null
+    let uid = route.params.id ? route.params.id : ''
     await store.getProjectCount(uid);
 }
 

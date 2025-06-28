@@ -5,9 +5,9 @@ export const useFinanceStore = defineStore('finance', {
     state: () => ({}),
     getters: {},
     actions: {
-        async createTransaction({payload, quotationId}) {
+        async createTransaction({payload, quotationId, projectDealUid}) {
             try {
-                return await axios.post(`/finance/transaction/${quotationId}`, payload);
+                return await axios.post(`/finance/transaction/${quotationId}/${projectDealUid}`, payload);
             } catch (error) {
                 return error;
             }

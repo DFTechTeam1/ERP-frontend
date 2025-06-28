@@ -37,6 +37,10 @@ const previewQuotation = ({uid, type}) => {
     window.open(import.meta.env.VITE_BACKEND + `/quotations/download/${uid}/${type}`);
 };
 
+const previewGeneralInvoice = ({uid, type}) => {
+    window.open(import.meta.env.VITE_BACKEND + `/deal-invoice/download/${uid}/${type}`, '__blank');
+}
+
 const stateRemainingPayment = ref(0);
 
 const closeGenerateInvoiceForm = () => {
@@ -97,6 +101,10 @@ const generateInvoice = (remainingPayment) => {
                                 <v-list-item @click.prevent="previewQuotation({uid: detailOfProjectDeal.final_quotation.quotation_id, type: 'stream'})"
                                     :prepend-icon="mdiPrinterOutline">
                                     <v-list-item-title>Quotation</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item @click.prevent="previewGeneralInvoice({uid: detailOfProjectDeal.uid, type: 'stream'})"
+                                    :prepend-icon="mdiPrinterOutline">
+                                    <v-list-item-title>General Invoice</v-list-item-title>
                                 </v-list-item>
                             </v-list>
                         </v-menu>
