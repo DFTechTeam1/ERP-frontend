@@ -87,9 +87,9 @@
             <calendar-event />
 
             <!-- MAIN INTERNAL REPORT -->
-            <project-timeline-report></project-timeline-report>
+            <project-timeline-report v-if="enableReportingChart"></project-timeline-report>
 
-            <project-timeline-per-pic></project-timeline-per-pic>
+            <project-timeline-per-pic v-if="enableReportingChart"></project-timeline-per-pic>
             <!-- END MAIN INTERNAL REPORT -->
 
             <entertainment-workload v-if="useGetRole() == BaseRole.ProjectManagerEntertainment || useGetRole() == BaseRole.ProjectManagerAdmin || useGetRole() == BaseRole.Root || useGetRole() == BaseRole.Director"></entertainment-workload>
@@ -211,6 +211,8 @@ const { listOfReports } = storeToRefs(store)
 const username = ref('')
 
 const loading = ref(false)
+
+const enableReportingChart = ref(false);
 
 async function getReport() {
     loading.value = true

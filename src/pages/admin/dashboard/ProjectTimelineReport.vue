@@ -17,8 +17,9 @@ const {
 } = storeToRefs(store);
 
 const chartOptions = ref({
+    colors: ['#008FFB', '#00E396', '#FEB019', '#775DD0', '#546E7A'],
     chart: {
-        type: 'bar',
+        type: 'line',
         height: 350,
         stacked: true,
         toolbar: {
@@ -27,13 +28,13 @@ const chartOptions = ref({
     },
     dataLabels: {
         enabled: !mobile.value,
-        formatter: function(val, { seriesIndex, dataPointIndex, w }) {
-            if (val != undefined) {
-                if (seriesData.value[seriesIndex].raw[dataPointIndex] != undefined) {
-                    return `${seriesData.value[seriesIndex].raw[dataPointIndex].day}d`;
-                }
-            }
-        },
+        // formatter: function(val, { seriesIndex, dataPointIndex, w }) {
+        //     if (val != undefined) {
+        //         if (seriesData.value[seriesIndex].raw[dataPointIndex] != undefined) {
+        //             return `${seriesData.value[seriesIndex].raw[dataPointIndex].day}d`;
+        //         }
+        //     }
+        // },
         style: {
             fontSize: '12px',
             colors: ['#000'],
@@ -88,11 +89,11 @@ const menu = ref(false);
 
 const formatResponseToChartData = () => {
     const availableSeries = [
-        { name: 'S (Spesial)', data: [], raw: [] },
-        { name: 'A (besar)', data: [], raw: [] },
-        { name: 'B (Standard)', data: [], raw: [] },
-        { name: 'C (Budget)', data: [], raw: [] },
-        { name: 'D (Template)', data: [], raw: [] }
+        { name: 'S (Spesial)', data: [], raw: [], type: 'bar' },
+        { name: 'A (besar)', data: [], raw: [], type: 'bar' },
+        { name: 'B (Standard)', data: [], raw: [], type: 'bar' },
+        { name: 'C (Budget)', data: [], raw: [], type: 'bar' },
+        { name: 'D (Template)', data: [], raw: [], type: 'bar' }
     ];
 
     // Create categories (month labels)
@@ -148,6 +149,12 @@ const formatResponseToChartData = () => {
     });
 
     seriesData.value = availableSeries;
+
+    seriesData.value.push({
+        name: "Total Project",
+        type: 'line',
+        data: [304159,3500000,4000000,225000,5000000]
+    });
 
     chartOptions.value.xaxis.categories = categories;
 }
@@ -356,7 +363,7 @@ onMounted(() => {
             </template>
             <apexchart
                 v-else
-                type="bar" height="350" :options="chartOptions" :series="seriesData"></apexchart>
+                type="line" height="350" :options="chartOptions" :series="seriesData"></apexchart>
         </v-card-text>
     </master-card>
 </template>
