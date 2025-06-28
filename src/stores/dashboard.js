@@ -10,7 +10,8 @@ export const useDashboardStore = defineStore('dashboard', {
         projectDeadline: [],
         reports: [],
         projectSongs: [],
-        projectClassTimeline: []
+        projectClassTimeline: [],
+        projectClassTimelinePerPic: []
     }),
     getters: {
         listOfProjectCalendar: (state) => state.projectCalendar,
@@ -18,7 +19,8 @@ export const useDashboardStore = defineStore('dashboard', {
         listOfProjectDeadline: (state) => state.projectDeadline,
         listOfReports: (state) => state.reports,
         listOfProjectSongs: (state) => state.projectSongs,
-        dataProjectClassTimeline: (state) => state.projectClassTimeline
+        dataProjectClassTimeline: (state) => state.projectClassTimeline,
+        dataProjectClassTimelinePerPic: (state) => state.projectClassTimelinePerPic
     },
     actions: {
         async getProjectSong() {
@@ -113,6 +115,17 @@ export const useDashboardStore = defineStore('dashboard', {
                 const resp = await reportingBridge.post(`/report/project-timeline/global`, params);
                 
                 this.projectClassTimeline = resp.data.data;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async getGlobalProjectTimelinePerPic(params) {
+            try {
+                const resp = await reportingBridge.post(`/report/project-timeline/team`, params);
+                
+                this.projectClassTimelinePerPic = resp.data.data || [];
 
                 return resp;
             } catch (error) {

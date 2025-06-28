@@ -88,6 +88,8 @@
 
             <!-- MAIN INTERNAL REPORT -->
             <project-timeline-report></project-timeline-report>
+
+            <project-timeline-per-pic></project-timeline-per-pic>
             <!-- END MAIN INTERNAL REPORT -->
 
             <entertainment-workload v-if="useGetRole() == BaseRole.ProjectManagerEntertainment || useGetRole() == BaseRole.ProjectManagerAdmin || useGetRole() == BaseRole.Root || useGetRole() == BaseRole.Director"></entertainment-workload>
@@ -188,6 +190,7 @@ import CalendarEvent from './CalendarEvent.vue'
 import ProjectDeadline from './ProjectDeadline.vue'
 import ProjectSong from './ProjectSong.vue';
 import ProjectTimelineReport from './ProjectTimelineReport.vue';
+import ProjectTimelinePerPic from './ProjectTimelinePerPic.vue';
 import { useBreakToken } from '@/compose/breakToken';
 import { useDashboardStore } from '@/stores/dashboard';
 import { storeToRefs } from 'pinia';

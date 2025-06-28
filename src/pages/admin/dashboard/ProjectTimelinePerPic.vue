@@ -12,9 +12,21 @@ const { mobile } = useDisplay();
 
 const store = useDashboardStore();
 
+const employeeStore = useEmployeesStore();
+
 const {
-    dataProjectClassTimeline
+    listOfAllEmployees
+} = storeToRefs(employeeStore);
+
+const {
+    dataProjectClassTimelinePerPic
 } = storeToRefs(store);
+
+const date_filter = ref(null);
+
+const employee_id = ref(null);
+
+const chartRef = ref(null);
 
 const chartOptions = ref({
     chart: {
@@ -34,6 +46,8 @@ const chartOptions = ref({
                     return `${seriesData.value[seriesIndex].raw[dataPointIndex].day}d ${seriesData.value[seriesIndex].raw[dataPointIndex].hour}h ${seriesData.value[seriesIndex].raw[dataPointIndex].minute}m`;
                 }
             }
+            console.log('seriesData', seriesData.value);
+            return val;
         },
         style: {
             fontSize: '12px',
@@ -46,6 +60,20 @@ const chartOptions = ref({
     },
     fill: {
         opacity: 1
+    },
+    yaxis: {
+        title: {
+            text: employee_id.value ? employee_id.value.title : '',
+            style: {
+                fontSize: '12px'
+            }
+        },
+        labels: {
+            formatter: function(val) {
+                return `${val.toFixed(0)}%`;
+            }
+        },
+        max: 100
     },
     legend: {
         position: 'right',
@@ -73,9 +101,6 @@ const chartOptions = ref({
                 <div class="body-tooltip">
                     <span class="body-tooltip__title">Average Time: </span> ${val}
                 </div>
-                <div class="body-tooltip">
-                    <span class="body-tooltip__title">Total Project: </span> ${seriesData.value[seriesIndex].raw[dataPointIndex].total_project}
-                </div>
             </div>`;
         }
     }
@@ -86,6 +111,8 @@ const seriesData = ref([]);
 const filterType = ref('monthly');
 
 const menu = ref(false);
+
+const employeeDataMap = ref({});
 
 const formatResponseToChartData = () => {
     const availableSeries = [
@@ -101,44 +128,32 @@ const formatResponseToChartData = () => {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     // Process each month
-    dataProjectClassTimeline.value.forEach(month => {
+    dataProjectClassTimelinePerPic.value.forEach(month => {
         // Add month label (e.g., "Jan 2025")
         if (filterType.value == 'monthly') {
             categories.push(`${monthNames[month.id - 1]} ${month.year}`);
         } else {
             categories.push(`Q${month.id}`);
         }
-        
-        // Initialize totals for percentage calculation
-        const monthTotals = {};
-        
-        // First pass: calculate total execution time per month
-        month.details.forEach(detail => {
-            if (!monthTotals[detail.classification]) {
-                monthTotals[detail.classification] = 0;
-            }
-            monthTotals[detail.classification] += detail.avg_execution_time_in_seconds * detail.total_project;
-        });
 
         // Second pass: calculate percentages for each classification
         availableSeries.forEach(series => {
             const foundDetail = month.details.find(d => d.classification === series.name);
             
             if (foundDetail) {
-                series.data.push(foundDetail.avg_execution_time_in_seconds);
+                series.data.push(foundDetail.average_execution_time);
                 series.raw.push({
-                    avg_execution_time_in_seconds: foundDetail.avg_execution_time_in_seconds,
-                    day: foundDetail.day,
-                    hour: foundDetail.hour,
-                    minute: foundDetail.minute,
-                    second: foundDetail.second,
-                    total_project: foundDetail.total_project,
+                    average_execution_time: foundDetail.average_execution_time,
+                    day: foundDetail.days,
+                    hour: foundDetail.hours,
+                    minute: foundDetail.minutes,
+                    second: foundDetail.seconds,
                 });
             } else {
                 // Push 0 if classification doesn't exist in this month
                 series.data.push(0);
                 series.raw.push({
-                    avg_execution_time_in_seconds: null,
+                    average_execution_time: null,
                     day: null,
                     hour: null,
                     minute: null,
@@ -155,8 +170,6 @@ const formatResponseToChartData = () => {
 
 const datePickerRef = ref(null);
 
-const date_filter = ref(null);
-
 const loading = ref(false);
 
 const filterIsOpen = async (values) => {
@@ -168,8 +181,8 @@ const filterIsOpen = async (values) => {
 
 const closeFilter = async ({forceClose} = {forceClose: false}) => {
     if (forceClose) menu.value = false;
-
-    if (date_filter.value) {
+    console.log('employee_id', employee_id.value);
+    if (date_filter.value && employee_id.value) {
         // validation
         if (!date_filter.value[1] || !date_filter.value[0]) {
             return showNotification('Please choose a month / quartal range', 'error');
@@ -184,7 +197,8 @@ const closeFilter = async ({forceClose} = {forceClose: false}) => {
                 end_quartal: null,
                 start_year: null,
                 end_year: null,
-                range_type: 'momth'
+                range_type: 'momth',
+                uid: employee_id.value.value
             };
     
             // do filter
@@ -214,13 +228,28 @@ const closeFilter = async ({forceClose} = {forceClose: false}) => {
     
             // do filtering
             loading.value = true;
-            const resp = await store.getGlobalProjectTimeline(payload);
+            const resp = await store.getGlobalProjectTimelinePerPic(payload);
             loading.value = false;
 
             if (resp.status < 300) {
-                menu.value = false;
-                date_filter.value = null;
+                // menu.value = false;
+                // date_filter.value = null;
                 formatResponseToChartData();
+
+                // update options
+                if (chartRef.value) {
+                    chartRef.value.updateOptions({
+                        yaxis: {
+                            title: {
+                                text: employee_id.value.title,
+                                style: {
+                                    fontSize: '12px'
+                                }
+                            },
+                            max: 100
+                        },
+                    });
+                }
             }
         }
     }
@@ -237,11 +266,16 @@ const changeFilterType = (type) => {
 
 const filterChart = () => {
     closeFilter();
+}
+
+const getAllLed = async () => {
+    await employeeStore.getAll({min_level: 'lead'});
 };
 
 const prepareData = async () => {
     loading.value = true;
     await Promise.all([
+        getAllLed(),
         closeFilter()
     ]);
     loading.value = false;
@@ -265,7 +299,7 @@ onMounted(() => {
     <master-card style="transition: height 2s" class="mt-5">
         <v-card-item>
             <v-card-title class="d-flex align-center justify-space-between">
-                {{ $t("averageTaskExecution") }}
+                {{ $t("averageTaskExecutionPerPIC") }}
 
                 <!-- filter by month and year -->
                  <v-btn
@@ -318,16 +352,38 @@ onMounted(() => {
                                     </v-btn>
                                 </div>
     
+                                <field-input
+                                    input-type="select"
+                                    label="Choose PIC"
+                                    v-model="employee_id"
+                                    :select-options="listOfAllEmployees"
+                                    item-title="title"
+                                    class="mt-5"
+                                    density="compact"
+                                    :is-return-object="true"
+                                    item-value="value"></field-input>
+
                                 <VueDatePicker
                                     :month-picker="filterType == 'monthly' ? true : false"
                                     :quarter-picker="filterType == 'quartal' ? true : false"
-                                    class="mt-5"
                                     ref="datePickerRef"
                                     multi-calendars
                                     v-model="date_filter"
-                                    @closed="filterChart"
+                                    label="Choose Time Range"
                                     range></VueDatePicker>
                             </v-card-text>
+
+                            <v-card-actions class="pl-3">
+                                <div class="d-flex justify-end w-100">
+                                    <v-btn
+                                        variant="flat"
+                                        color="primary"
+                                        type="button"
+                                        @click.prevent="closeFilter({forceClose: true})">
+                                        Search
+                                    </v-btn>
+                                </div>
+                            </v-card-actions>
                         </master-card>
                     </v-menu>
                 </v-btn>
@@ -357,6 +413,7 @@ onMounted(() => {
             </template>
             <apexchart
                 v-else
+                ref="chartRef"
                 type="bar" height="350" :options="chartOptions" :series="seriesData"></apexchart>
         </v-card-text>
     </master-card>

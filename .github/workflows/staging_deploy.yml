@@ -36,6 +36,7 @@ jobs:
           echo "VITE_API_URL=${{ secrets.VITE_API_URL_STAGING }}" >> .env.staging
           echo "VITE_OFFICE_URL=${{ secrets.VITE_OFFICE_URL_STAGING }}" >> .env.staging
           echo "VITE_BACKEND=${{ secrets.VITE_BACKEND_STAGING }}" >> .env.staging
+          echo "VITE_REPORTING_URL=${{ secrets.VITE_REPORTING_URL_STAGING }}" >> .env.staging
 
       - name: Build for staging
         run: npm run build-staging
