@@ -269,7 +269,7 @@ const filterChart = () => {
 }
 
 const getAllLed = async () => {
-    await employeeStore.getAll({min_level: 'lead'});
+    await employeeStore.getAll({min_level: 'staff'});
 };
 
 const prepareData = async () => {
