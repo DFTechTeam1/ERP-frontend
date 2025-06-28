@@ -166,6 +166,18 @@ const formatResponseToChartData = () => {
     seriesData.value = availableSeries;
 
     chartOptions.value.xaxis.categories = categories;
+
+    if (employee_id.value) {
+        chartOptions.value.yaxis = {
+            title: {
+                text: employee_id.value.title,
+                style: {
+                    fontSize: '12px'
+                }
+            },
+            max: 100
+        };
+    }
 }
 
 const datePickerRef = ref(null);
@@ -235,21 +247,6 @@ const closeFilter = async ({forceClose} = {forceClose: false}) => {
                 // menu.value = false;
                 // date_filter.value = null;
                 formatResponseToChartData();
-
-                // update options
-                if (chartRef.value) {
-                    chartRef.value.updateOptions({
-                        yaxis: {
-                            title: {
-                                text: employee_id.value.title,
-                                style: {
-                                    fontSize: '12px'
-                                }
-                            },
-                            max: 100
-                        },
-                    });
-                }
             }
         }
     }
