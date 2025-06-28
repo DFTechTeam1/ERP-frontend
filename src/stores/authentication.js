@@ -21,6 +21,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 const resp = await axios.post('/auth/login', payload);
 
                 localStorage.setItem('dfauth', resp.data.data.token);
+                localStorage.setItem('dfreportauth', resp.data.data.reportingToken);
 
                 var appName = useBreakToken('app_name');
                 if (appName) {

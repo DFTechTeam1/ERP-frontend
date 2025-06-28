@@ -74,7 +74,7 @@ export const useEmployeesStore = defineStore('employees', {
             try {
                 var url = '/employees/all';
                 if (payload) {
-                    url += '?min_level=' + payload.min_levelt;
+                    url += '?min_level=' + payload.min_level;
                 }
     
                 const resp = await axios.get(url);

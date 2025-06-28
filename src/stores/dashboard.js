@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
+import reportingBridge from "@/plugins/reportingBridge";
 
 export const useDashboardStore = defineStore('dashboard', {
     state: () => ({
@@ -9,13 +10,17 @@ export const useDashboardStore = defineStore('dashboard', {
         projectDeadline: [],
         reports: [],
         projectSongs: [],
+        projectClassTimeline: [],
+        projectClassTimelinePerPic: []
     }),
     getters: {
         listOfProjectCalendar: (state) => state.projectCalendar,
         detailOfProjectCalendar: (state) => state.projectCalendarDetail,
         listOfProjectDeadline: (state) => state.projectDeadline,
         listOfReports: (state) => state.reports,
-        listOfProjectSongs: (state) => state.projectSongs
+        listOfProjectSongs: (state) => state.projectSongs,
+        dataProjectClassTimeline: (state) => state.projectClassTimeline,
+        dataProjectClassTimelinePerPic: (state) => state.projectClassTimelinePerPic
     },
     actions: {
         async getProjectSong() {
@@ -105,5 +110,27 @@ export const useDashboardStore = defineStore('dashboard', {
             return error;
           }
         },
+        async getGlobalProjectTimeline(params) {
+            try {
+                const resp = await reportingBridge.post(`/report/project-timeline/global`, params);
+                
+                this.projectClassTimeline = resp.data.data;
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        },
+        async getGlobalProjectTimelinePerPic(params) {
+            try {
+                const resp = await reportingBridge.post(`/report/project-timeline/team`, params);
+                
+                this.projectClassTimelinePerPic = resp.data.data || [];
+
+                return resp;
+            } catch (error) {
+                return error;
+            }
+        }
     },
 })
