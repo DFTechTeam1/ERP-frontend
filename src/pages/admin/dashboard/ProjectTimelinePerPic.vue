@@ -33,7 +33,6 @@ const chartOptions = ref({
         type: 'bar',
         height: 350,
         stacked: true,
-        stackType: '100%',
         toolbar: {
             show: false
         }
@@ -43,10 +42,9 @@ const chartOptions = ref({
         formatter: function(val, { seriesIndex, dataPointIndex, w }) {
             if (val != undefined) {
                 if (seriesData.value[seriesIndex].raw[dataPointIndex] != undefined) {
-                    return `${seriesData.value[seriesIndex].raw[dataPointIndex].day}d ${seriesData.value[seriesIndex].raw[dataPointIndex].hour}h ${seriesData.value[seriesIndex].raw[dataPointIndex].minute}m`;
+                    return `${seriesData.value[seriesIndex].raw[dataPointIndex].day}d`;
                 }
             }
-            console.log('seriesData', seriesData.value);
             return val;
         },
         style: {
@@ -175,7 +173,6 @@ const formatResponseToChartData = () => {
                     fontSize: '12px'
                 }
             },
-            max: 100
         };
     }
 }
