@@ -229,7 +229,7 @@ export const useProjectStore = defineStore('project', {
 
                 const saltKey = import.meta.env.VITE_SALT_KEY;
                 const { decodedString } = useEncrypt(resp.data.data.detail, saltKey);
-
+                console.log('decodedString', decodedString);
                 this.detail = decodedString;
                 this.projectBoards = decodedString.boards;
 
