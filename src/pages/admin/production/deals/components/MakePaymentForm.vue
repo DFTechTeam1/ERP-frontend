@@ -6,7 +6,6 @@ import { mdiAsterisk } from '@mdi/js';
 import moment from 'moment';
 import { useForm } from 'vee-validate';
 import { computed } from 'vue';
-import { watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as yup from 'yup';
 
@@ -69,7 +68,6 @@ function handleFilePondInit() {
 
 function updateImageValue() {
     var _value = pond.value ? pond.value.getFile().file : '';
-    console.log('file', _value);
     setFieldValue('images', [{image: _value}]);
 }
 
@@ -88,7 +86,7 @@ const validateData = handleSubmit(async(values) => {
     }
 
     loading.value = true;
-    const resp = await store.createTransaction({payload: formData, quotationId: props.deal.latest_quotation_id});
+    const resp = await store.createTransaction({payload: formData, quotationId: props.deal.latest_quotation_id, projectDealUid: props.deal.uid});
     loading.value = false;
 
     const message = resp.status < 300 ? resp.data.message : resp.response.data.message;

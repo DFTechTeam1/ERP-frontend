@@ -772,5 +772,6 @@
     "requestInvoice": "Request Invoice",
     "generate": "Generate",
     "averageTaskExecution": "Average Task Execution",
-    "averageTaskExecutionPerPIC": "Average Task Execution per PIC"
+    "averageTaskExecutionPerPIC": "Average Task Execution per PIC",
+    "downloadGeneralInvoice": "Download General Invoice"
 }

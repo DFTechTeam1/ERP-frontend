@@ -61,6 +61,7 @@ const generateInvoice = handleSubmit(async (values) => {
     let url = import.meta.env.VITE_BACKEND + `/deal-invoice/download/${route.params.id}/download`;
     url += '?amount=' + values.payment_amount;
     url += '&date=' + values.payment_date;
+    url += '&gen=1'
     resetForm();
     window.open(url, '__blank');
 });
@@ -68,6 +69,7 @@ const generateInvoice = handleSubmit(async (values) => {
 
 <template>
     <v-dialog
+        :persistent="true"
         v-model="show"
         max-width="500">
         <master-card>
