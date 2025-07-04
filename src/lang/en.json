@@ -773,5 +773,8 @@
     "generate": "Generate",
     "averageTaskExecution": "Average Task Execution",
     "averageTaskExecutionPerPIC": "Average Task Execution per PIC",
-    "downloadGeneralInvoice": "Download General Invoice"
+    "downloadGeneralInvoice": "Download General Invoice",
+    "invoice": "Invoice",
+    "chooseInvoice": "Choose Invoice",
+    "invoiceRequired": "Invoice is required"
 }

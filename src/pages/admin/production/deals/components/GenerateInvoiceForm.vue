@@ -1,6 +1,9 @@
 <script setup>
+import { showNotification } from '@/compose/notification';
+import { useFinanceStore } from '@/stores/finance';
 import { useProjectDealStore } from '@/stores/projectDeal';
 import { mdiClose } from '@mdi/js';
+import moment from 'moment';
 import { storeToRefs } from 'pinia';
 import { useForm } from 'vee-validate';
 import { ref, watch } from 'vue';
@@ -11,6 +14,8 @@ import * as yup from 'yup';
 const { t } = useI18n();
 
 const store = useProjectDealStore();
+
+const financeStore = useFinanceStore();
 
 const {
     detailOfProjectDeal
@@ -27,19 +32,19 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['close-event']);
+const emit = defineEmits(['close-event', 'update-transaction']);
 
 const route = useRoute();
 
 const { defineField, errors, resetForm, handleSubmit, setFieldError } = useForm({
     validationSchema: yup.object({
-        payment_amount: yup.string().required(t('paymentAmountRequired')),
-        payment_date: yup.string().required()
+        amount: yup.string().required(t('paymentAmountRequired')),
+        transaction_date: yup.string().required()
     })
 });
 
-const [payment_amount] = defineField('payment_amount');
-const [payment_date] = defineField('payment_date');
+const [amount] = defineField('amount');
+const [transaction_date] = defineField('transaction_date');
 
 const show = ref(false);
 
@@ -51,26 +56,37 @@ watch(props, (values) => {
 
 const generateInvoice = handleSubmit(async (values) => {
     // validate
-    if (values.payment_amount > detailOfProjectDeal.value.final_quotation.remaining) {
-        setFieldError('payment_amount', `Cannot create invoice more than ${detailOfProjectDeal.value.final_quotation.remaining.toLocaleString()}`);
+    if (values.amount > detailOfProjectDeal.value.final_quotation.remaining) {
+        setFieldError('amount', `Cannot create invoice more than ${detailOfProjectDeal.value.final_quotation.remaining.toLocaleString()}`);
         return;
     }
 
-    emit('close-event');
+    let transactionDate = moment(values.transaction_date, 'YYYY, MMMM DD').format('YYYY-MM-DD');
+    values.transaction_date = transactionDate;
 
-    let url = import.meta.env.VITE_BACKEND + `/deal-invoice/download/${route.params.id}/download`;
-    url += '?amount=' + values.payment_amount;
-    url += '&date=' + values.payment_date;
-    url += '&gen=1'
-    resetForm();
-    window.open(url, '__blank');
+    const resp = await financeStore.generateBillInvoice(values, route.params.id);
+
+    if (resp.status < 300) {
+        resetForm();
+        emit('update-transaction');
+
+        window.open(resp.data.data.url, '__blank');
+    } else {
+        showNotification(resp.response.data.message, 'error');
+    }
 });
+
+const closeForm = () => {
+    resetForm();
+    emit('close-event', false);
+};
 </script>
 
 <template>
     <v-dialog
         :persistent="true"
         v-model="show"
+        persistent
         max-width="500">
         <master-card>
             <v-card-item>
@@ -81,22 +97,22 @@ const generateInvoice = handleSubmit(async (values) => {
                         :icon="mdiClose"
                         size="15"
                         class="pointer"
-                        @click.prevent="$emit('close-event', false)"></v-icon>
+                        @click.prevent="closeForm()"></v-icon>
                 </v-card-text>
             </v-card-item>
 
             <v-card-text>
                 <v-form @submit.prevent="generateInvoice">
-                    <currency-input v-model="payment_amount"
+                    <currency-input v-model="amount"
                         density="compact"
-                        :error-message="errors.payment_amount"
+                        :error-message="errors.amount"
                         class="custom-input"
                         label="Payment Amount"></currency-input>
 
-                    <date-picker :label="t('paymentDate')" v-model="payment_date"
+                    <date-picker :label="t('paymentDate')" v-model="transaction_date"
                         class="mt-5"
                         density="compact"
-                        :error-message="errors.payment_date"></date-picker>
+                        :error-message="errors.transaction_date"></date-picker>
     
                     <div class="d-flex items-center justify-end">
                         <v-btn
