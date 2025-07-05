@@ -770,5 +770,12 @@
     "editQuotationItem": "Edit Quotation Item",
     "confirmationdeleteQuotationItem": "Are you sure to delete this quotation item?",
     "requestInvoice": "Request Invoice",
-    "generate": "Generate"
+    "generate": "Generate",
+    "averageTaskExecution": "Average Task Execution",
+    "averageTaskExecutionPerPIC": "Average Task Execution per PIC",
+    "downloadGeneralInvoice": "Download General Invoice",
+    "invoice": "Invoice",
+    "chooseInvoice": "Choose Invoice",
+    "invoiceRequired": "Invoice is required",
+    "detailTransaction": "Detail Transaction"
 }

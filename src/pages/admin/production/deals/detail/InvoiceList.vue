@@ -1,74 +1,72 @@
 <script setup>
 import { formatPrice } from '@/compose/formatPrice';
-import PerTransactionDetail from './PerTransactionDetail.vue';
-import { ref } from 'vue';
+import { useProjectDealStore } from '@/stores/projectDeal';
+import { mdiDownload } from '@mdi/js';
+import { storeToRefs } from 'pinia';
+import { useEncrypt } from '@/compose/encrypt';
+import { computed } from 'vue';
 
-const props = defineProps({
-    products: {
-        type: Array,
-        default: []
-    }
-});
+const store = useProjectDealStore();
+
+const { detailOfProjectDeal } = storeToRefs(store);
 
 const headerTransactions = ref([
-    { title: 'Date', align: 'start', key: 'transaction_date_raw', sortable: false },
-    { title: 'Description', align: 'start', key: 'description', sortable: false },
-    { title: 'Reference', align: 'start', key: 'reference', sortable: false },
-    { title: 'Amount', align: 'start', key: 'payment_amount', sortable: false },
+    { title: 'Number', align: 'start', key: 'number', sortable: false },
+    { title: 'Date', align: 'start', key: 'payment_date', sortable: false },
+    { title: 'Status', align: 'start', key: 'status', sortable: false },
+    { title: 'Payment Due', align: 'start', key: 'payment_due', sortable: false },
+    { title: 'Payment At', align: 'start', key: 'paid_at', sortable: false },
+    { title: 'Amount', align: 'start', key: 'amount', sortable: false },
     { title: 'Action', align: 'start', key: 'uid', sortable: false },
 ]);
 
-const showTransactionDetail = ref(false);
-
-const selectedTransaction = ref(null);
-
-const detailTransaction = (uid) => {
-    showTransactionDetail.value = true;
-
-    selectedTransaction.value = props.products.find(item => item.uid == uid);
-
-    console.log('selectedTransaction', selectedTransaction.value);
+const downloadInvoice = (url) => {
+    window.open(url, '__blank');
 };
 
-const closeDetailPerTransaction = () => {
-    showTransactionDetail.value = false;
-    selectedTransaction.value = null;
-};
+const invoices = computed(() => {
+    let output = [];
+
+    if (detailOfProjectDeal.value) {
+        const saltKey = import.meta.env.VITE_SALT_KEY;
+        var { decodedString } = useEncrypt(detailOfProjectDeal.value.invoices, saltKey);
+        output = decodedString;
+    }
+    return output;
+});
 </script>
 
 <template>
     <div class="transaction-box">
-        <per-transaction-detail :is-show="showTransactionDetail"
-            :transaction="selectedTransaction"
-            @close-event="closeDetailPerTransaction"></per-transaction-detail>
-
         <div class="transaction-box__status">
             <p class="status" :style="{
                 color: '#000'
-            }">Transactions</p>
+            }">Invoice List</p>
         </div>
 
         <div class="transaction-box__product">
             <v-data-table-virtual
                 :headers="headerTransactions"
-                :items="products"
+                :items="invoices"
                 class="product-item"
                 fixed-header>
-                <template v-slot:item.description="{ item }">
-                    <span v-html="item.description"></span>
+                <template v-slot:item.status="{ item }">
+                    <v-chip size="small" :color="item.status_color">{{ item.status }}</v-chip>
                 </template>
 
-                <template v-slot:item.payment_amount="{ item }">
-                    Rp{{ formatPrice(item.payment_amount) }}
+                <template v-slot:item.amount="{ item }">
+                    {{ formatPrice(item.amount) }}
                 </template>
 
                 <template v-slot:item.uid="{ item }">
-                    <v-btn variant="outlined"
-                        size="small"
-                        type="button"
-                        @click.prevent="detailTransaction(item.uid)">
-                        {{ $t('detail') }}
-                    </v-btn>
+                    <v-tooltip text="Download Invoice">
+                        <template v-slot:activator="{ props }">
+                            <v-icon :icon="mdiDownload"
+                                class="pointer"
+                                @click.prevent="downloadInvoice(item.invoice_url)"
+                                v-bind="props"></v-icon>
+                        </template>
+                    </v-tooltip>
                 </template>
             </v-data-table-virtual>
         </div>
