@@ -1,6 +1,7 @@
 <script setup>
 import { formatPrice } from '@/compose/formatPrice';
-import { mdiDownload } from '@mdi/js';
+import PerTransactionDetail from './PerTransactionDetail.vue';
+import { ref } from 'vue';
 
 const props = defineProps({
     products: {
@@ -17,13 +18,30 @@ const headerTransactions = ref([
     { title: 'Action', align: 'start', key: 'uid', sortable: false },
 ]);
 
-const downloadInvoice = (uid) => {
-    window.open(import.meta.env.VITE_BACKEND + `/invoices/download/${uid}/download`);
+const showTransactionDetail = ref(false);
+
+const selectedTransaction = ref(null);
+
+const detailTransaction = (uid) => {
+    showTransactionDetail.value = true;
+
+    selectedTransaction.value = props.products.find(item => item.uid == uid);
+
+    console.log('selectedTransaction', selectedTransaction.value);
+};
+
+const closeDetailPerTransaction = () => {
+    showTransactionDetail.value = false;
+    selectedTransaction.value = null;
 };
 </script>
 
 <template>
     <div class="transaction-box">
+        <per-transaction-detail :is-show="showTransactionDetail"
+            :transaction="selectedTransaction"
+            @close-event="closeDetailPerTransaction"></per-transaction-detail>
+
         <div class="transaction-box__status">
             <p class="status" :style="{
                 color: '#000'
@@ -45,14 +63,12 @@ const downloadInvoice = (uid) => {
                 </template>
 
                 <template v-slot:item.uid="{ item }">
-                    <v-tooltip text="Download Invoice">
-                        <template v-slot:activator="{ props }">
-                            <v-icon :icon="mdiDownload"
-                                class="pointer"
-                                @click.prevent="downloadInvoice(item.uid)"
-                                v-bind="props"></v-icon>
-                        </template>
-                    </v-tooltip>
+                    <v-btn variant="outlined"
+                        size="small"
+                        type="button"
+                        @click.prevent="detailTransaction(item.uid)">
+                        {{ $t('detail') }}
+                    </v-btn>
                 </template>
             </v-data-table-virtual>
         </div>

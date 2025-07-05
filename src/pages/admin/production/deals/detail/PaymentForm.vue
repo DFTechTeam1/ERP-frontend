@@ -3,6 +3,7 @@ import { useProjectDealStore } from '@/stores/projectDeal';
 import { storeToRefs } from 'pinia';
 import MakePaymentForm from '../components/MakePaymentForm.vue';
 import { computed } from 'vue';
+import { useEncrypt } from '@/compose/encrypt';
 
 const store = useProjectDealStore();
 
@@ -11,7 +12,12 @@ const { detailOfProjectDeal } = storeToRefs(store);
 defineEmits(['update-transaction']);
 
 const invoiceList = computed(() => {
-    return detailOfProjectDeal.value.invoices.filter(filter => filter.need_to_pay);
+    let output = [];
+
+    const saltKey = import.meta.env.VITE_SALT_KEY;
+    var { decodedString } = useEncrypt(detailOfProjectDeal.value.invoices, saltKey);
+    output = decodedString;
+    return output.filter(filter => filter.need_to_pay);
 });
 </script>
 

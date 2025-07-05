@@ -776,5 +776,6 @@
     "downloadGeneralInvoice": "Download General Invoice",
     "invoice": "Invoice",
     "chooseInvoice": "Choose Invoice",
-    "invoiceRequired": "Invoice is required"
+    "invoiceRequired": "Invoice is required",
+    "detailTransaction": "Detail Transaction"
 }

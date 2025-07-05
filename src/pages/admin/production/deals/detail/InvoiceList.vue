@@ -20,8 +20,8 @@ const headerTransactions = ref([
     { title: 'Action', align: 'start', key: 'uid', sortable: false },
 ]);
 
-const downloadInvoice = (uid) => {
-    window.open(import.meta.env.VITE_BACKEND + `/invoices/download/${uid}/download`);
+const downloadInvoice = (url) => {
+    window.open(url, '__blank');
 };
 
 const invoices = computed(() => {
@@ -47,7 +47,7 @@ const invoices = computed(() => {
         <div class="transaction-box__product">
             <v-data-table-virtual
                 :headers="headerTransactions"
-                :items="detailOfProjectDeal.invoices"
+                :items="invoices"
                 class="product-item"
                 fixed-header>
                 <template v-slot:item.status="{ item }">
@@ -63,7 +63,7 @@ const invoices = computed(() => {
                         <template v-slot:activator="{ props }">
                             <v-icon :icon="mdiDownload"
                                 class="pointer"
-                                @click.prevent="downloadInvoice(item.uid)"
+                                @click.prevent="downloadInvoice(item.invoice_url)"
                                 v-bind="props"></v-icon>
                         </template>
                     </v-tooltip>
