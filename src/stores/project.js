@@ -1762,9 +1762,9 @@ export const useProjectStore = defineStore('project', {
         resetQuotationUrl() {
             this.quotationUrl = null;
         },
-        async getProjectCount() {
+        async getProjectCount(uid) {
             try {
-                const resp = await axios.get(`/production/project/initProjectCount`);
+                const resp = await axios.get(`/production/project/initProjectCount?projectDealUid=${uid}`);
 
                 this.totalProjectCount = resp.data.data.count;
 

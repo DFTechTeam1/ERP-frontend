@@ -6,7 +6,6 @@ import { mdiAsterisk } from '@mdi/js';
 import moment from 'moment';
 import { useForm } from 'vee-validate';
 import { computed } from 'vue';
-import { watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as yup from 'yup';
 
@@ -16,6 +15,7 @@ const { defineField, errors, handleSubmit, setFieldValue } = useForm({
     validationSchema: yup.object({
         payment_amount: yup.string().required(t('paymentAmountRequired')),
         transaction_date: yup.string().required(t('dateRequired')),
+        invoice_id: yup.string().required(t('invoiceRequired')),
         note: yup.string().nullable(),
         references: yup.string().nullable(),
         images: yup.array().required()
@@ -27,6 +27,7 @@ const { defineField, errors, handleSubmit, setFieldValue } = useForm({
 
 const [transaction_date] = defineField('transaction_date');
 const [payment_amount] = defineField('payment_amount');
+const [invoice_id] = defineField('invoice_id');
 const [note] = defineField('note');
 const [reference] = defineField('reference');
 
@@ -41,6 +42,10 @@ const props = defineProps({
     deal: {
         type: Object,
         default: () => ({})
+    },
+    invoiceList: {
+        type: Array,
+        default: []
     }
 });
 
@@ -67,9 +72,10 @@ function handleFilePondInit() {
   pond.value;
 }
 
+const inoviceSelection = ref(null);
+
 function updateImageValue() {
     var _value = pond.value ? pond.value.getFile().file : '';
-    console.log('file', _value);
     setFieldValue('images', [{image: _value}]);
 }
 
@@ -79,6 +85,7 @@ const validateData = handleSubmit(async(values) => {
 
     formData.append('payment_amount', values.payment_amount);
     formData.append('transaction_date', transactionDate);
+    formData.append('invoice_id', values.invoice_id);
     formData.append('note', values.note == undefined ? '' : values.note);
     formData.append('reference', values.reference == undefined ? '' : values.reference);
     if ((values.images) && (values.images.length)) {
@@ -88,7 +95,7 @@ const validateData = handleSubmit(async(values) => {
     }
 
     loading.value = true;
-    const resp = await store.createTransaction({payload: formData, quotationId: props.deal.latest_quotation_id});
+    const resp = await store.createTransaction({payload: formData, projectDealUid: props.deal.uid});
     loading.value = false;
 
     const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
@@ -97,17 +104,29 @@ const validateData = handleSubmit(async(values) => {
 
     emit('on-submit', {isSuccess: resp.status < 300 ? true : false});
 });
+
+const inoviceListChanges = (payload) => {
+    setFieldValue('payment_amount', payload.payload ? payload.payload.amount : 0);
+    setFieldValue('invoice_id', payload.payload ? payload.payload.id : null);
+}
 </script>
 
 <template>
     <v-form @submit.prevent="validateData">
         <v-row>
             <v-col cols="12" md="6" class="pb-0 pt-2">
-                <currency-input v-model="payment_amount"
+                <field-input
+                    :label="t('chooseInvoice')"
+                    input-type="select"
+                    :select-options="props.invoiceList"
+                    :error-message="errors.invoice_id"
+                    item-value="uid"
+                    item-title="number"
+                    :is-return-object="true"
+                    v-model="inoviceSelection"
                     density="compact"
-                    :error-message="errors.payment_amount"
-                    class="custom-input"
-                    label="Payment Amount"></currency-input>
+                    @changes-event="inoviceListChanges"
+                    class="custom-input"></field-input>
             </v-col>
             <v-col cols="12" md="6" class="pb-0 pt-2">
                 <date-picker :label="t('paymentDate')" v-model="transaction_date"
@@ -124,12 +143,19 @@ const validateData = handleSubmit(async(values) => {
                     :label="t('note')"></field-input>
             </v-col>
             <v-col cols="12" md="6" class="pb-0 pt-2">
+                <currency-input v-model="payment_amount"
+                    density="compact"
+                    :error-message="errors.payment_amount"
+                    :is-readonly="true"
+                    class="custom-input"
+                    label="Payment Amount"></currency-input>
+
                 <field-input
                     :label="t('references')"
                     v-model="reference"
                     :is-required="false"
                     density="compact"
-                    class="custom-input"></field-input>
+                    class="custom-input mt-7"></field-input>
 
                 <!-- remaining bills -->
                 <div class="remain mt-5 d-flex align-center justify-space-between">

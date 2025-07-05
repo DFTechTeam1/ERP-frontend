@@ -765,5 +765,7 @@
     "requestInvoice": "Request Invoice",
     "generate": "Generate",
     "averageTaskExecution": "Rata-rata Pengerjaan Tugas",
-    "averageTaskExecutionPerPIC": "Rata-rata Pengerjaan Tugas per Tim"
+    "averageTaskExecutionPerPIC": "Rata-rata Pengerjaan Tugas per Tim",
+    "downloadGeneralInvoice": "Unduh General Invoice",
+    "detailTransaction": "Detil Transaksi"
 }

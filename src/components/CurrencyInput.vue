@@ -18,6 +18,10 @@ const props = defineProps({
         type: Boolean,
         default: true
     },
+    isReadonly: {
+        type: Boolean,
+        default: false
+    },
     density: {
         type: String,
         default: 'default'
@@ -81,6 +85,7 @@ onMounted(() => {
             :single-line="props.isSolo"
             autocomplete="off"
             v-model="valuePrice"
+            :readonly="props.isReadonly"
             :class="textFieldClass"
             :clearable="props.isClearable"
             :label="props.label"
