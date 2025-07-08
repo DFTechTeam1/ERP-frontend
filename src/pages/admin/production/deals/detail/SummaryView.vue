@@ -5,6 +5,7 @@ import { mdiDownload, mdiInvoice, mdiMailbox, mdiPhoneOutline, mdiPrinterOutline
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import GenerateInvoiceForm from '../components/GenerateInvoiceForm.vue';
+import { useEncrypt } from '@/compose/encrypt';
 
 const store = useProjectDealStore();
 
@@ -24,8 +25,12 @@ const previewQuotation = ({uid, type}) => {
     window.open(import.meta.env.VITE_BACKEND + `/quotations/download/${uid}/${type}`);
 };
 
-const previewGeneralInvoice = ({uid, type}) => {
-    window.open(import.meta.env.VITE_BACKEND + `/deal-invoice/download/${uid}/${type}`, '__blank');
+const previewGeneralInvoice = () => {
+    // get url
+    const saltKey = import.meta.env.VITE_SALT_KEY;
+    let { decodedString } = useEncrypt(detailOfProjectDeal.value.general_invoice_url, saltKey);
+
+    window.open(decodedString.url, '__blank');
 }
 
 const stateRemainingPayment = ref(0);
@@ -83,7 +88,7 @@ const generateInvoice = (remainingPayment) => {
                             :prepend-icon="mdiPrinterOutline">
                             <v-list-item-title>Quotation</v-list-item-title>
                         </v-list-item>
-                        <v-list-item @click.prevent="previewGeneralInvoice({uid: detailOfProjectDeal.uid, type: 'stream'})"
+                        <v-list-item @click.prevent="previewGeneralInvoice"
                             :prepend-icon="mdiPrinterOutline">
                             <v-list-item-title>General Invoice</v-list-item-title>
                         </v-list-item>
