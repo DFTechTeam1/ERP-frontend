@@ -325,7 +325,10 @@
         </v-menu>
 
         <v-menu open-on-click
-          :close-on-content-click="false">
+          max-width="600"
+          v-model="notificationMenu"
+          :close-on-content-click="false"
+          :close-on-back="false">
           <template v-slot:activator="{ props }">
             <v-icon
               v-bind="props"
@@ -335,7 +338,8 @@
             ></v-icon>
           </template>
 
-          <BellNotification />
+          <!-- <BellNotification /> -->
+           <new-bell-notification @close-event="notificationMenu = false"></new-bell-notification>
         </v-menu>
 
         <v-menu open-on-click>
@@ -456,6 +460,7 @@
 <script setup>
 import AppFooter from "@/components/AppFooter.vue";
 import BellNotification from './BellNotification.vue'
+import NewBellNotification from "./NewBellNotification.vue";
 import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower, mdiKeyOutline } from "@mdi/js";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 import { ref, onMounted, watch } from "vue";
@@ -481,6 +486,8 @@ const storeNotification = useNotificationStore()
 const { listOfNotification } = storeToRefs(storeNotification)
 
 const { globalAppName } = storeToRefs(storeSetting);
+
+const notificationMenu = ref(false);
 
 var encodedText = localStorage.getItem('dfauth');
 const saltKey = import.meta.env.VITE_SALT_KEY;
@@ -540,12 +547,20 @@ function retrieveNotification() {
   channel.bind("notification-event", (notif) => {
     console.log("notif", notif);
 
-    storeNotification.setNotif(notif)
+    if ((notif.type) && (notif.type == 'finance')) {
+      financeNotitication();
+    } else {
+      storeNotification.setNotif(notif)
+    }
   });
 }
 
 function initNotification() {
   storeNotification.setNotif(useBreakToken('notifications'))
+}
+
+async function financeNotitication() {
+  await storeNotification.getNotifications();
 }
 
 function changeLocal(lang) {
@@ -609,9 +624,12 @@ onMounted(() => {
 
   setMenu();
 
-  initNotification()
+  initNotification();
 
-  retrieveNotification()
+  // initNotification for finance
+  financeNotitication();
+
+  retrieveNotification();
 
   var check = store.getMenus();
 
