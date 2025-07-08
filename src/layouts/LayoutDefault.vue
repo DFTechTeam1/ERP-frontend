@@ -543,10 +543,9 @@ const accountLists = ref([
 function retrieveNotification() {
   var userId = useBreakToken("user");
   var channel = pusher.subscribe("my-channel-" + userId.id);
-
   channel.bind("notification-event", (notif) => {
     console.log("notif", notif);
-
+    
     if ((notif.type) && (notif.type == 'finance')) {
       financeNotitication();
     } else {
@@ -573,7 +572,7 @@ function changeLocal(lang) {
 
 function setMenu() {
   let menus = useBreakToken('menus').old; // here we just take the 'old' menu.
-  console.log('menus layout', menus)
+  
   let newLayout = menus.map((map) => {
     if (map.type == 'regular') {
       map.childs.map((child) => {

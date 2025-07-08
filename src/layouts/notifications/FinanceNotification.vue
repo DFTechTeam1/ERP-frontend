@@ -30,9 +30,12 @@ const detailNotification = async (url, notificationId) => {
 
 <template>
     <div class="px-3 py-3">
-        <span class="text-center " v-if="!listOfFinanceNotification.length">No notification.</span>
+        <div class="text-center" v-if="!listOfFinanceNotification.length">
+            <span class="text-center ">No notification.</span>
+        </div>
 
         <v-list
+            v-else
             height="500">
             <template
                 v-for="(notif, n) in listOfFinanceNotification"
