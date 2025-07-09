@@ -325,17 +325,38 @@
         </v-menu>
 
         <v-menu open-on-click
-          :close-on-content-click="false">
+          max-width="600"
+          width="600"
+          v-model="notificationMenu"
+          :close-on-content-click="false"
+          :close-on-back="false">
           <template v-slot:activator="{ props }">
-            <v-icon
-              v-bind="props"
-              :icon="listOfNotification.length ? mdiBellBadgeOutline : mdiBellOutline"
-              color="blue"
-              class="header-bell"
-            ></v-icon>
+            <div :style="{
+                position: 'relative'
+              }"
+              v-bind="props">
+              <v-badge
+                v-if="notificationCount > 0"
+                :content="notificationCount"
+                color="red"
+                size="x-small"
+                :style="{
+                  position: 'absolute',
+                  top: '0',
+                  right: '20px',
+                  zIndex: '1000'
+                }"></v-badge>
+              <v-icon
+                :icon="listOfNotification.length || listOfFinanceNotification.length ? mdiBellBadgeOutline : mdiBellOutline"
+                color="blue"
+                size="25"
+                class="header-bell"
+              ></v-icon>
+            </div>
           </template>
 
-          <BellNotification />
+          <!-- <BellNotification /> -->
+           <new-bell-notification @close-event="notificationMenu = false"></new-bell-notification>
         </v-menu>
 
         <v-menu open-on-click>
@@ -455,10 +476,10 @@
 
 <script setup>
 import AppFooter from "@/components/AppFooter.vue";
-import BellNotification from './BellNotification.vue'
+import NewBellNotification from "./NewBellNotification.vue";
 import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower, mdiKeyOutline } from "@mdi/js";
 import { useDisplay } from "vuetify/lib/framework.mjs";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, onUnmounted } from "vue";
 import { useMenusStore } from "@/stores/menus";
 import { useAuthenticationStore } from "@/stores/authentication";
 import { useRouter, useRoute } from "vue-router";
@@ -467,10 +488,11 @@ import { mdiBellBadgeOutline, mdiAccount, mdiTable } from "@mdi/js";
 import { useEncrypt } from '@/compose/encrypt';
 import { useBreakToken } from '@/compose/breakToken';
 import { useSettingStore } from "@/stores/setting";
-import pusher from "@/plugins/pusher";
 import { useNotificationStore } from "@/stores/notification";
 import { useI18n } from "vue-i18n";
 import ResetPassword from '@/components/ResetPassword.vue'
+import { usePusher } from "@/compose/pusher";
+import { computed } from "vue";
 
 const i18n = useI18n()
 
@@ -478,9 +500,11 @@ const storeSetting = useSettingStore();
 
 const storeNotification = useNotificationStore()
 
-const { listOfNotification } = storeToRefs(storeNotification)
+const { listOfNotification, listOfFinanceNotification } = storeToRefs(storeNotification)
 
 const { globalAppName } = storeToRefs(storeSetting);
+
+const notificationMenu = ref(false);
 
 var encodedText = localStorage.getItem('dfauth');
 const saltKey = import.meta.env.VITE_SALT_KEY;
@@ -526,6 +550,10 @@ const currentLang = ref('en')
 
 const layoutItems = ref(useBreakToken('menus'));
 
+const notificationCount = computed(() => {
+  return listOfFinanceNotification.value.length + listOfNotification.value.length;
+});
+
 const accountLists = ref([
   { title: "Click Me" },
   { title: "Click Me" },
@@ -533,19 +561,12 @@ const accountLists = ref([
   { title: "Click Me 2" },
 ]);
 
-function retrieveNotification() {
-  var userId = useBreakToken("user");
-  var channel = pusher.subscribe("my-channel-" + userId.id);
-
-  channel.bind("notification-event", (notif) => {
-    console.log("notif", notif);
-
-    storeNotification.setNotif(notif)
-  });
-}
-
 function initNotification() {
   storeNotification.setNotif(useBreakToken('notifications'))
+}
+
+async function financeNotitication() {
+  await storeNotification.getNotifications();
 }
 
 function changeLocal(lang) {
@@ -558,7 +579,7 @@ function changeLocal(lang) {
 
 function setMenu() {
   let menus = useBreakToken('menus').old; // here we just take the 'old' menu.
-  console.log('menus layout', menus)
+  
   let newLayout = menus.map((map) => {
     if (map.type == 'regular') {
       map.childs.map((child) => {
@@ -599,6 +620,8 @@ function setMenu() {
   layoutItems.value = newLayout
 }
 
+const { setupPusher, cleanup } = usePusher();
+
 onMounted(() => {
   openMenu.value = []
   // eriksaputro@dfactory.pro
@@ -609,9 +632,24 @@ onMounted(() => {
 
   setMenu();
 
-  initNotification()
+  initNotification();
 
-  retrieveNotification()
+  // initNotification for finance
+  financeNotitication();
+
+  // setup pusher
+  var userId = useBreakToken("user").id;
+  
+  const channel = setupPusher(userId);
+  channel.bind('notification-event', (notif) => {
+    
+    if (notif.type == 'finance') {
+      financeNotitication();
+    }
+  });
+
+  // init permission notification panel
+  storeNotification.defineNotificationPanel();
 
   var check = store.getMenus();
 

@@ -132,10 +132,10 @@ const generateInvoice = (remainingPayment) => {
                 <v-col cols="12" md="4">
                     <template v-if="(detailOfProjectDeal) && (detailOfProjectDeal.customer)">
                         <p class="transaction-box__customer__title">
-                            Invoice
+                            Project Name
                         </p>
                         <p class="transaction-box__customer__name">
-                            DF-INV0931
+                            {{ detailOfProjectDeal.name }}
                         </p>
                     </template>
                     <template v-else>
@@ -146,21 +146,21 @@ const generateInvoice = (remainingPayment) => {
             <v-row>
                 <v-col cols="12" md="4">
                     <p class="transaction-box__customer__title">
-                        Transaction Date
+                        Project Date
                     </p>
                     <p class="transaction-box__customer__name">
-                        2025/05/31
+                        {{ detailOfProjectDeal.event_date }}
                     </p>
                 </v-col>
 
-                <v-col cols="12" md="4">
+                <!-- <v-col cols="12" md="4">
                     <p class="transaction-box__customer__title">
                         Due Date
                     </p>
                     <p class="transaction-box__customer__name">
                         -
                     </p>
-                </v-col>
+                </v-col> -->
             </v-row>
         </div>
 

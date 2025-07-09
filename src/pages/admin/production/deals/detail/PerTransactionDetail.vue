@@ -91,6 +91,14 @@ const detailImage = (indexImage) => {
                             <p>Payment Date</p>
                             <p>{{ props.transaction.payment_date }}</p>
                         </div>
+                        <div class="transaction-wrapper__detail__item">
+                            <p>Reference</p>
+                            <p>{{ props.transaction.reference || '-' }}</p>
+                        </div>
+                        <div class="transaction-wrapper__detail__item">
+                            <p>Note</p>
+                            <p>{{ props.transaction.note || '-' }}</p>
+                        </div>
 
                         <div class="transaction-wrapper__detail__item">
                             <template v-for="(img, i) in props.transaction.images"
