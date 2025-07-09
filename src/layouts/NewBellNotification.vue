@@ -1,20 +1,55 @@
 <script setup>
 import { ref } from 'vue';
 import FinanceNotification from './notifications/FinanceNotification.vue';
+import { mdiClose } from '@mdi/js';
+import { useNotificationStore } from '@/stores/notification';
+import { storeToRefs } from 'pinia';
 
 const tab = ref('finance');
 
 defineEmits(['close-event']);
 
+const store = useNotificationStore();
+
+const {
+    listOfNotificationSection
+} = storeToRefs(store);
+
+const clearAllNotification = async () => {
+    await store.readAllNotification();
+};
 </script>
 
 <template>
     <v-card>
+        <v-card-item>
+            <div :style="{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+            }">
+                <p :style="{
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    margin: '0',
+                    padding: '0'
+                }">Notification Center</p>
+                <v-btn variant="outlined" color="red" size="small"
+                    type="button"
+                    @click.prevent="clearAllNotification">
+                    <template v-slot:prepend>
+                        <v-icon :icon="mdiClose" size="20"></v-icon>
+                    </template>
+
+                    Mark all as read
+                </v-btn>
+            </div>
+        </v-card-item>
         <v-tabs v-model="tab">
-            <v-tab value="general">General</v-tab>
-            <v-tab value="finance">Finance</v-tab>
-            <v-tab value="production">Production</v-tab>
-            <v-tab value="hrd">HRD</v-tab>
+            <v-tab value="general" v-if="listOfNotificationSection.general">General</v-tab>
+            <v-tab value="finance" v-if="listOfNotificationSection.finance">Finance</v-tab>
+            <v-tab value="production" v-if="listOfNotificationSection.production">Production</v-tab>
+            <v-tab value="hrd" v-if="listOfNotificationSection.hrd">HRD</v-tab>
         </v-tabs>
 
         <v-card-text :style="{

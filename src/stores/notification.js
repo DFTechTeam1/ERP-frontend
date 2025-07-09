@@ -1,15 +1,18 @@
 import { defineStore } from "pinia"
 import axios from 'axios'
 import { useEncrypt } from "@/compose/encrypt"
+import { useBreakToken } from "@/compose/breakToken"
 
 export const useNotificationStore = defineStore('notification', {
     state: () => ({
         notifications: [],
-        financeNotitications: []
+        financeNotitications: [],
+        notificationSection: null
     }),
     getters: {
         listOfNotification: (state) => state.notifications,
-        listOfFinanceNotification: (state) => state.financeNotitications
+        listOfFinanceNotification: (state) => state.financeNotitications,
+        listOfNotificationSection: (state) => state.notificationSection
     },
     actions: {
         setNotif(payload) {
@@ -53,10 +56,27 @@ export const useNotificationStore = defineStore('notification', {
                 const resp = await axios.get('/user/notifications');
 
                 var { decodedString } = useEncrypt(resp.data.data.data, saltKey);
-
+                console.log('decodedString', decodedString);
                 this.financeNotitications = decodedString;
             } catch (error) {
                 return error;
+            }
+        },
+        async readAllNotification() {
+            try {
+                await axios.get('/notification/readAll');
+
+                this.notifications = [];
+                this.financeNotitications = [];
+            } catch (error) {
+                return error;
+            }
+        },
+        defineNotificationPanel() {
+            if (!this.notificationSection) {
+                let notificationSection = useBreakToken('notification_section');
+    
+                this.notificationSection = notificationSection;
             }
         }
     }
