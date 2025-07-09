@@ -28,79 +28,186 @@ const employee_id = ref(null);
 
 const chartRef = ref(null);
 
+const chartData = ref({
+    data: [
+        {
+            name: "PIC_NAME_1",
+            data: [
+                20, // Average PIC_NAME_1 Duration on Jan
+                25 // Average PIC_NAME_1 Duration on Feb
+            ],
+        },
+        {
+            name: "PIC_NAME_2",
+            data: [
+                20, // Average PIC_NAME_2 Duration on Jan
+                25 // Average PIC_NAME_2 Duration on Feb
+            ]
+        },
+    ],
+    totalProjects: [
+        {
+            month: "Jan",
+            total: 0
+        },
+        {
+            month: "Feb",
+            total: 0
+        }
+    ],
+    raw: [
+        {
+            name: "Thalia",
+            details: [
+                {
+                    // detail for Thalia on Jan
+                },
+                {
+                    // detail for Thalia on Feb
+                },
+            ]
+        },
+        {
+            name: "Rudhi",
+            details: [
+                {
+                    // detail for Thalia on Jan
+                },
+                {
+                    // detail for Thalia on Feb
+                },
+            ]
+        },
+    ]
+});
+
+const series = ref([
+    {
+        name: 'Thalia',
+        type: 'column',
+        data: [40, 35]
+    },
+    {
+        name: 'Rudhi',
+        type: 'column',
+        data: [50, 35]
+    },
+    {
+        name: 'Total Project',
+        type: 'line',
+        data: [20, 14]
+    }
+]);
+
 const chartOptions = ref({
     chart: {
-        type: 'bar',
         height: 350,
-        stacked: true,
-        toolbar: {
-            show: false
+        type: 'line',
+        stacked: false,
+        events: {
+            dataPointSelection: function (event, chartContext, opts) {
+                console.log('event', event);
+                console.log('chartContext', chartContext);
+                console.log('opts', opts);
+            }
         }
     },
     dataLabels: {
-        enabled: !mobile.value,
-        formatter: function(val, { seriesIndex, dataPointIndex, w }) {
-            if (val != undefined) {
-                if (seriesData.value[seriesIndex].raw[dataPointIndex] != undefined) {
-                    return `${seriesData.value[seriesIndex].raw[dataPointIndex].day}d`;
-                }
-            }
-            return val;
-        },
-        style: {
-            fontSize: '12px',
-            colors: ['#000'],
-        },
-        textAnchor: 'middle',
+        enabled: true
+    },
+    stroke: {
+        width: [1, 1, 4],
+        curve: 'smooth'
+    },
+    title: {
+        text: 'XYZ - Stock Analysis (2009 - 2016)',
+        align: 'left',
+        offsetX: 110
     },
     xaxis: {
-        categories: [],
+        categories: ['January', 'Febuary'],
     },
-    fill: {
-        opacity: 1
-    },
-    yaxis: {
-        title: {
-            text: employee_id.value ? employee_id.value.title : '',
-            style: {
-                fontSize: '12px'
+    yaxis: [
+        {
+            seriesName: 'Rudhi',
+            axisTicks: {
+                show: true,
+            },
+            axisBorder: {
+                show: true,
+                color: '#008FFB'
+            },
+            labels: {
+                style: {
+                    colors: '#008FFB',
+                }
+            },
+            title: {
+                text: "Rudhi Graphic",
+                style: {
+                    color: '#008FFB',
+                }
+            },
+            tooltip: {
+                enabled: true
             }
         },
-        labels: {
-            formatter: function(val) {
-                return `${val.toFixed(0)}%`;
-            }
+        {
+            seriesName: 'Thalia',
+            opposite: true,
+            axisTicks: {
+                show: true,
+            },
+            axisBorder: {
+                show: true,
+                color: '#00E396'
+            },
+            labels: {
+                style: {
+                    colors: '#00E396',
+                }
+            },
+            title: {
+                text: "Thalia Graphic",
+                style: {
+                    color: '#00E396',
+                }
+            },
         },
-        max: 100
+        {
+            seriesName: 'Total Project',
+            opposite: true,
+            axisTicks: {
+                show: true,
+            },
+            axisBorder: {
+                show: true,
+                color: '#FEB019'
+            },
+            labels: {
+                style: {
+                    colors: '#FEB019',
+                },
+            },
+            title: {
+                text: "Total Project",
+                style: {
+                    color: '#FEB019',
+                }
+            }
+        }
+    ],
+    tooltip: {
+        fixed: {
+            enabled: false,
+            position: 'topLeft', // topRight, topLeft, bottomRight, bottomLeft
+            offsetY: 30,
+            offsetX: 60
+        },
     },
     legend: {
-        position: 'right',
-        offsetX: 0,
-        offsetY: 50
-    },
-    responsive: [{
-        breakpoint: 480,
-        options: {
-            legend: {
-                position: 'bottom',
-                offsetX: -10,
-                offsetY: 0
-            }
-        }
-    }],
-    tooltip: {
-        enabled: true,
-        custom: ({series, seriesIndex, dataPointIndex}) => {
-
-            let val = `${seriesData.value[seriesIndex].raw[dataPointIndex].day}d ${seriesData.value[seriesIndex].raw[dataPointIndex].hour}h ${seriesData.value[seriesIndex].raw[dataPointIndex].minute}m`;
-
-            return `<div class="main-chart-tooltip">
-                <div class="header-tooltip">${seriesData.value[seriesIndex].name}</div>
-                <div class="body-tooltip">
-                    <span class="body-tooltip__title">Average Time: </span> ${val}
-                </div>
-            </div>`;
-        }
+        horizontalAlign: 'left',
+        offsetX: 40
     }
 });
 
@@ -276,7 +383,7 @@ const prepareData = async () => {
 }
 
 onMounted(() => {
-    formatResponseToChartData();
+    // formatResponseToChartData();
 
     // init reporting
     date_filter.value = [
@@ -405,10 +512,7 @@ onMounted(() => {
                     <v-skeleton-loader type="ossein" width="30" height="240"></v-skeleton-loader>
                 </div>
             </template>
-            <apexchart
-                v-else
-                ref="chartRef"
-                type="bar" height="350" :options="chartOptions" :series="seriesData"></apexchart>
+            <apexchart v-else type="line" height="350" :options="chartOptions" :series="series"></apexchart>
         </v-card-text>
     </master-card>
 </template>

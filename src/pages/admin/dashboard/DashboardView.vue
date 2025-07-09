@@ -212,7 +212,7 @@ const username = ref('')
 
 const loading = ref(false)
 
-const enableReportingChart = ref(false);
+const enableReportingChart = ref(true);
 
 async function getReport() {
     loading.value = true
