@@ -1,5 +1,6 @@
 <script setup>
 import { useNotificationStore } from '@/stores/notification';
+import moment from 'moment/moment';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -50,6 +51,10 @@ const detailNotification = async (url, notificationId) => {
                         <div v-html="notif.data.message"></div>
                     </template>
 
+                    <template v-slot:append>
+                        <span class="time">{{ moment(notif.created_at, 'YYYY-MM-DD HH:mm').format('DD MMMM HH:mm') }}</span>
+                    </template>
+
                     <v-btn size="small" variant="flat" color="primary" class="mt-3 mb-3" v-if="notif.data.button"
                         @click.prevent="actionNotification(notif.data.button.button, notif.id)">{{ notif.data.button.text }}</v-btn>
     
@@ -65,6 +70,10 @@ const detailNotification = async (url, notificationId) => {
                     <template #subtitle>
                         <div v-html="notif.data.message"></div>
                     </template>
+
+                    <template v-slot:append>
+                        <span class="time">{{ moment(notif.created_at, 'YYYY-MM-DD HH:mm').format('DD MMMM HH:mm') }}</span>
+                    </template>
     
                 </v-list-item>
 
@@ -73,3 +82,10 @@ const detailNotification = async (url, notificationId) => {
         </v-list>
     </div>
 </template>
+
+<style lang="scss" scoped>
+.time {
+    font-size: 11px;
+    margin-top: 10px;
+}
+</style>
