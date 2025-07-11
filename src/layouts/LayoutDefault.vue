@@ -500,7 +500,7 @@ const storeSetting = useSettingStore();
 
 const storeNotification = useNotificationStore()
 
-const { listOfNotification, listOfFinanceNotification } = storeToRefs(storeNotification)
+const { listOfNotification, listOfFinanceNotification, listOfNotificationSection } = storeToRefs(storeNotification)
 
 const { globalAppName } = storeToRefs(storeSetting);
 
@@ -551,7 +551,19 @@ const currentLang = ref('en')
 const layoutItems = ref(useBreakToken('menus'));
 
 const notificationCount = computed(() => {
-  return listOfFinanceNotification.value.length + listOfNotification.value.length;
+  if ((listOfNotificationSection.value) && (Object.keys(listOfNotificationSection.value).length)) {
+    if (listOfNotificationSection.value.finance) {
+      return listOfFinanceNotification.value.length;
+    } else if (listOfNotificationSection.value.production && listOfNotificationSection.value.general) {
+      return 0
+    } else if (listOfNotificationSection.value.general && listOfNotificationSection.value.finance && listOfNotificationSection.value.production && listOfNotificationSection.value.hrd) {
+      return listOfFinanceNotification.value.length + listOfNotification.value.length;
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
 });
 
 const accountLists = ref([
