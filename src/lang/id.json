@@ -767,5 +767,8 @@
     "averageTaskExecution": "Rata-rata Pengerjaan Tugas",
     "averageTaskExecutionPerPIC": "Rata-rata Pengerjaan Tugas per Tim",
     "downloadGeneralInvoice": "Unduh General Invoice",
-    "detailTransaction": "Detil Transaksi"
+    "detailTransaction": "Detil Transaksi",
+    "deadlineChangeReason": "Alasan Terlambat Deadline",
+    "createReason": "Tambah Alasan",
+    "confirmationdeleteReason": "Apakah kamu yakin untuk menghapus alasan ini?"
 }

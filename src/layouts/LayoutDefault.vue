@@ -31,7 +31,9 @@
 
             <!-- menu group -->
             <template v-if="menus.type == 'regular'">
-              <v-list-subheader v-if="!rail">{{ menus.name }}</v-list-subheader>
+              <v-list-subheader v-if="!rail">
+                <span class="text-textColor sidebar-title">{{ menus.name }}</span>
+              </v-list-subheader>
             </template>
             <template v-else>
               <v-list-item
@@ -45,12 +47,10 @@
               :key="menu.id">
               <v-list-item
                 class="sub-menu pointer"
-                color="blue"
                 :class="{
                   'menu-active': menu.active_menu,
                   'menu-collapsed': rail,
                 }"
-                base-color="#000"
                 @click="navigate(menu)">
                 <template v-slot:prepend>
                   <v-img size="18"
@@ -60,7 +60,7 @@
                     class="mr-2"></v-img>
                 </template>
                 <template v-slot:title>
-                  {{ menu.name }}
+                  <span class="sidebar-menu-text">{{ menu.name }}</span>
                 </template>
               </v-list-item>
 
@@ -101,6 +101,7 @@
         <!-- END SHEETS -->
       </v-navigation-drawer>
     </template>
+    
     <template v-else>
       <v-navigation-drawer
         v-model="drawer"
@@ -125,94 +126,6 @@
           <template
             v-for="(menus, menuKey) in layoutItems"
             :key="menuKey">
-
-            <!-- <v-list-subheader v-if="!rail">{{ menuKey }}</v-list-subheader>
-
-            <template
-              v-for="(menu) in menus"
-              :key="menu.id">
-
-              <template v-if="!menu.children.length">
-                <v-list-item
-                  class="sub-menu pointer"
-                  color="blue"
-                  :class="{
-                    'menu-active': menu.active_menu,
-                    'menu-collapsed': rail,
-                  }"
-                  base-color="#000"
-                  @click="navigate(menu)">
-                  <template v-slot:prepend>
-                    <v-img size="18"
-                      :src="menu.icon"
-                      width="15"
-                      height="15"
-                      class="mr-2"></v-img>
-                  </template>
-                  <template v-slot:title>
-                    {{ menu.name }}
-                  </template>
-                </v-list-item>
-              </template>
-
-              <template v-else>
-
-                <v-list>
-
-                  <v-list-group
-                    :value="menu.name"
-                    color="blue"
-                    :class="{
-                      'menu-group-collapsed': rail
-                    }">
-
-                    <template v-slot:activator="{ props }">
-                      <v-list-item
-                        v-bind="props"
-                        class="sub-menu pointer">
-
-                        <template v-slot:prepend>
-                          <v-img size="18"
-                            :src="menu.icon"
-                            width="15"
-                            height="15"
-                            class="mr-2"></v-img>
-                        </template>
-                        <template v-slot:title>
-                          {{ menu.name }}
-                        </template>
-
-                      </v-list-item>
-                    </template>
-
-                    <v-list-item
-                      v-for="(children, c) in menu.children"
-                      :key="c"
-                      class="sub-menu pointer"
-                      :class="{
-                        'menu-active': children.link == activeMenuGetters,
-                        'menu-collapsed': rail,
-                      }"
-                      @click="navigate(children)"
-                    >
-                      <template v-slot:prepend>
-                        <v-icon
-                          :icon="mdiCircleOutline"
-                          size="15"></v-icon>
-                      </template>
-                      <template v-slot:title>
-                        {{ children.name }}
-                      </template>
-                    </v-list-item>
-
-                  </v-list-group>
-
-                </v-list>
-
-
-              </template>
-
-            </template> -->
 
             <!-- menu group -->
             <template v-if="menus.type == 'regular'">
@@ -283,6 +196,21 @@
         <v-app-bar-title>
           {{ globalAppName }}
         </v-app-bar-title>
+
+        <!-- <v-menu open-on-click>
+          <template v-slot:activator="{ props }">
+            <v-btn
+              :icon="mdiLightbulbOn10"
+              class="me-4"
+              @click.prevent="toggleTheme"
+              v-if="!theme.global.current.value.dark"></v-btn>
+            <v-btn
+              :icon="mdiLightbulbOn"
+              class="me-4"
+              @click.prevent="toggleTheme"
+              v-if="theme.global.current.value.dark"></v-btn>
+          </template>
+        </v-menu> -->
 
         <v-menu open-on-click>
           <template v-slot:activator="{props}">
@@ -417,8 +345,8 @@
 
               <template v-slot:title>
                 <div class="dropdown-profile-wrapper">
-                  <p class="title no-decoration">Reset Password</p>
-                  <p class="subtitle no-decoration">Reset your app password</p>
+                  <p class="title no-decoration text-textColor">Reset Password</p>
+                  <p class="subtitle no-decoration text-textColor">Reset your app password</p>
                 </div>
               </template>
             </v-list-item>
@@ -433,8 +361,8 @@
 
                 <template v-slot:title>
                   <div class="dropdown-profile-wrapper no-decoration">
-                    <p class="title no-decoration">My task</p>
-                    <p class="subtitle no-decoration">To do and Daily task</p>
+                    <p class="title no-decoration text-textColor">My task</p>
+                    <p class="subtitle no-decoration text-textColor">To do and Daily task</p>
                   </div>
                 </template>
               </v-list-item>
@@ -477,7 +405,7 @@
 <script setup>
 import AppFooter from "@/components/AppFooter.vue";
 import NewBellNotification from "./NewBellNotification.vue";
-import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower, mdiKeyOutline } from "@mdi/js";
+import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower, mdiKeyOutline, mdiLightbulbOn10, mdiLightbulbOn } from "@mdi/js";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 import { ref, onMounted, watch, onUnmounted } from "vue";
 import { useMenusStore } from "@/stores/menus";
@@ -493,6 +421,7 @@ import { useI18n } from "vue-i18n";
 import ResetPassword from '@/components/ResetPassword.vue'
 import { usePusher } from "@/compose/pusher";
 import { computed } from "vue";
+import { useTheme } from "vuetify";
 
 const i18n = useI18n()
 
@@ -549,6 +478,14 @@ const position = ref(null);
 const currentLang = ref('en')
 
 const layoutItems = ref(useBreakToken('menus'));
+
+const theme = useTheme();
+
+function toggleTheme() {
+  theme.global.name.value = theme.global.current.value.dark
+    ? 'customTheme'
+    : 'customDarkTheme'
+}
 
 const notificationCount = computed(() => {
   if ((listOfNotificationSection.value) && (Object.keys(listOfNotificationSection.value).length)) {
@@ -884,14 +821,17 @@ header {
   background-color: $base-light-primary !important;
   background: linear-gradient(270deg, rgba(115,103,240, .7), rgb(115,103,240)) !important;
   border-radius: 8px !important;
-
-  .v-list-item-title {
-    color: #fff !important;
-  }
 }
 .v-list-item-title {
   font-weight: 300 !important;
   font-size: 0.875rem !important;
-  color: rgb(47,43,61);
+}
+
+.sidebar-title {
+  opacity: var(--v-sidebar-title-opacity);
+}
+
+.sidebar-menu-text {
+  color: var(--v-text-color);
 }
 </style>
