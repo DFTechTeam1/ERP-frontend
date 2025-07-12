@@ -74,6 +74,7 @@ import { i18n } from '@/lang';
 import { useBreakToken } from "@/compose/breakToken";
 import { useCheckPermission } from "@/compose/checkPermission";
 import {useProjectStore} from "@/stores/project";
+import DeadlineChangeReason from "@/pages/admin/production/deadlineChangeReason/DeadlineChangeReason.vue";
 
 const { t } = i18n.global;
 
@@ -217,6 +218,15 @@ const router = createRouter({
           meta: {
             requiresAuth: true,
             parentLink: '/admin/quotation-items'
+          }
+        },
+        {
+          path: 'deadline-change-reason',
+          name: "List Deadline Change Reason",
+          component: DeadlineChangeReason,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/deadline-change-reason'
           }
         },
         {

@@ -777,5 +777,8 @@
     "invoice": "Invoice",
     "chooseInvoice": "Choose Invoice",
     "invoiceRequired": "Invoice is required",
-    "detailTransaction": "Detail Transaction"
+    "detailTransaction": "Detail Transaction",
+    "deadlineChangeReason": "Deadline Change Reason",
+    "createReason": "Create Reason",
+    "confirmationdeleteReason": "Are you sure to delete this reason"
 }
