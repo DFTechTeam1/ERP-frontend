@@ -1,64 +1,57 @@
 <template>
     <v-dialog
         v-model="show"
-        width="auto"
+        width="500"
         persistent>
         <v-card flat
             class="p-0">
+            <v-card-item>
+                <v-card-title class="d-flex align-center justify-space-between">
+                    <p :style="{
+                        fontSize: '12px'
+                    }">Current deadline: <span :style="{
+                        fontWeight: 'bold'
+                    }">{{ (detailOfTask.end_date) && (detailOfTask.end_date.length) ? moment(detailOfTask.end_date, 'YYYY-MM-DD HH:mm').format('YYYY, MMMM DD HH:mm') : '-' }}</span></p>
+                    <v-icon :icon="mdiClose"
+                        color="red"
+                        size="14"
+                        class="pointer"
+                        @click.prevent="$emit('close-event')"></v-icon>
+                </v-card-title>
+            </v-card-item>
             <v-card-text class="card-deadline-body">
-                <v-date-picker
-                    v-model="datepicker"
-                    @update:model-value="updatedDate"
-                    color="primary"></v-date-picker>
+                <v-form class="mt-4 px-5" @submit.prevent="validateData">
+                    <date-picker
+                        class="mt-3"
+                        :label="t('changeDeadliineTo')"
+                        :with-time-picker="true"
+                        :is-required="false"
+                        v-model="due_date"
+                        :error-message="errors.due_date"></date-picker>
 
-                <v-form class="mt-4 px-5">
-                    <div class="form-group mb-3">
-                        <v-label>Start Date</v-label>
-                        <div class="w-100">
-                            <input 
-                                @click.prevent="activeFieldAction('start')"
-                                type="text" 
-                                id="start-date"
-                                v-model="start_date"
-                                class="form-control">
-                            <div class="text-red" style="font-size: 12px;" v-if="errors.start_date">{{ errors.start_date }}</div>
-                        </div>
-                    </div>
-                    <div class="form-group mb-3">
-                        <v-label>End Date</v-label>
-                        <div class="w-100">
-                            <input 
-                                @click.prevent="activeFieldAction('end')"
-                                type="text" 
-                                id="end-date"
-                                v-model="end_date"
-                                class="form-control">
-                            <div class="text-red" style="font-size: 12px;" v-if="errors.end_date">{{ errors.end_date }}</div>
-                        </div>
-                    </div>
+                    <label>Reason</label>
+                    <v-radio-group>
+                        <v-radio label="Radio One" value="one"></v-radio>
+                        <v-radio label="Radio Two" value="two"></v-radio>
+                        <v-radio label="Radio Three" value="three"></v-radio>
+                    </v-radio-group>
 
-                    <v-btn
-                        variant="flat"
-                        color="primary"
-                        :disabled="loading"
-                        class="w-100 mb-3"
-                        @click.prevent="saveDate">
-                        <template v-if="loading">
-                            {{ $t('processing') }}
-                        </template>
-                        <template v-else>
-                            {{ $t('save') }}
-                        </template>
-                    </v-btn>
-                    <v-btn
-                        variant="flat"
-                        :disabled="loading"
-                        color="white"
-                        class="w-100 mb-3"
-                        @click.prevent="cancel">
-                        {{ $t('cancel') }}
-                    </v-btn>
+                    <div class="d-flex align-center justify-end pb-3" :style="{
+                        gap: '10px'
+                    }">
+                        <v-btn variant="flat" color="grey-lighten-2" type="button">Close</v-btn>
+                        <v-btn variant="flat" color="primary" type="submit">Submit</v-btn>
+                    </div>
                 </v-form>
+
+                <!-- confirmation -->
+                <confirmation-modal
+                    title="Change Deadline"
+                    :text="t('changeDeadlineConfirmationText', {from: (detailOfTask.end_date) && (detailOfTask.end_date.length) ? moment(detailOfTask.end_date, 'YYYY-MM-DD').format('YYYY, MMMM DD HH:mm') : '', to: due_date })"
+                    :loading="loading"
+                    :show-confirm="showConfirmation"
+                    :delete-ids="[]"
+                    @action-bulk-submit="doChangeDeadline"></confirmation-modal>
             </v-card-text>
         </v-card>
     </v-dialog>
@@ -72,17 +65,15 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { useDate } from 'vuetify/lib/framework.mjs';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from '@/stores/project';
+import { mdiClose } from '@mdi/js';
 import { storeToRefs } from 'pinia';
-import { useRoute } from 'vue-router';
+import moment from 'moment';
 
 const store = useProjectStore();
-
-const route = useRoute();
 
 const { detailOfTask } = storeToRefs(store);
 
@@ -90,25 +81,17 @@ const { t } = useI18n();
 
 const emit = defineEmits(['close-event', 'save-event']);
 
+const showConfirmation = ref(false);
+
 const { defineField, handleSubmit, errors, resetForm } = useForm({
     validationSchema: yup.object({
-        start_date: yup.string().nullable(),
-        end_date: yup.string().when('start_date', {
-            is: (value) => value != undefined,
-            then: function () {
-                return yup.date().min(start_date.value, t('dateMustBeGreater', {date: start_date.value})).required(t('endDateRequired'))
-            },
-            otherwise: function () {
-                return yup.string().nullable()
-            }
-        })
+        due_date: yup.string().required(),
+        reason_id: yup.string().required(),
+        reason_custom: yup.string().nullable()
     })
-})
+});
 
-const [start_date] = defineField('start_date');
-const [end_date] = defineField('end_date');
-
-const _date = useDate();
+const [due_date] = defineField('due_date');
 
 const loading = ref(false)
 
@@ -121,50 +104,22 @@ const props = defineProps({
     },
 });
 
-const activeField = ref(null);
-
-const datepicker = ref(null);
-
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow;
     }
 });
 
-function cancel() {
-    resetForm();
+const validateData = handleSubmit((values) => {
+    showConfirmation.value = true;
+});
 
-    emit('close-event');
-}
+function doChangeDeadline() {
+    console.log('due', due_date.value);
+    loading.value = true;
 
-function activeFieldAction(type) {
-    activeField.value = type;
-}
-
-function updatedDate(values) {
-    var dateChoose = _date.format(values, 'year') + ', ' + _date.format(values, 'monthAndDate');
-    if (activeField.value == 'start') {
-        start_date.value = dateChoose;
-        document.getElementById('start-date').focus();
-    } else if (activeField.value == 'end') {
-        end_date.value = dateChoose;
-        document.getElementById('end-date').focus();
-    }
-
-    // activeField.value = null;
-}
-
-const saveDate = handleSubmit(async (values) => {
-    loading.value = true
-    values.task_id = detailOfTask.value.uid;
-    const resp = await store.updateDeadline(values, route.params.id);
-
-    loading.value = false
-
-    if (resp.status < 300) {
-        emit('save-event', values);
     
-        cancel();
-    }
-})
+
+    loading.value = false;
+}
 </script>

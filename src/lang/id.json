@@ -770,5 +770,7 @@
     "detailTransaction": "Detil Transaksi",
     "deadlineChangeReason": "Alasan Terlambat Deadline",
     "createReason": "Tambah Alasan",
-    "confirmationdeleteReason": "Apakah kamu yakin untuk menghapus alasan ini?"
+    "confirmationdeleteReason": "Apakah kamu yakin untuk menghapus alasan ini?",
+    "dueDateRequired": "Deadline harus diisi",
+    "changeDeadliineTo": "Ubah deadline menjadi"
 }

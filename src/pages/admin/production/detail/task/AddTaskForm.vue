@@ -45,6 +45,7 @@
                     <date-picker
                         class="mt-3"
                         :label="t('dueDate')"
+                        :with-time-picker="true"
                         :is-required="false"
                         v-model="due_date"
                         :error-message="errors.due_date"></date-picker>
@@ -89,6 +90,7 @@ import { mdiClose } from '@mdi/js'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import { showNotification } from '@/compose/notification'
+import moment from 'moment'
 
 const emit = defineEmits(['close-event'])
 
@@ -103,7 +105,7 @@ const route = useRoute()
 const { defineField, errors, handleSubmit, resetForm, setFieldValue } = useForm({
     validationSchema: yup.object({
         task_type: yup.string().nullable(t('taskTypeRequired')),
-        due_date: yup.string().nullable(),
+        due_date: yup.string().required(t('dueDateRequired')),
         pic: yup.array().nullable(),
         project_id: yup.string().nullable(),
         board_id: yup.string().nullable(),
@@ -218,7 +220,7 @@ const validateData = handleSubmit(async(values) => {
     formData.append('name', values.name)
 
     if (values.due_date) {
-        formData.append('end_date', values.due_date)
+        formData.append('end_date', moment(values.due_date, 'YYYY, MMMM DD HH:mm').format('YYYY-MM-DD HH:mm'))
     }
 
     if (values.pic) {

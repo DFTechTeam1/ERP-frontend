@@ -10,6 +10,7 @@ import ButtonSubmit from './ButtonSubmit.vue'
 import ImagePreview from './ImagePreview.vue'
 import LoadingView from './LoadingView.vue'
 import ColorPicker from './ColorPicker.vue'
+import DialogDateTimePicker from "./DialogDateTimePicker.vue";
 import ImportExcel from './ImportExcel.vue'
 import DividerText from "./DividerText.vue";
 import MasterCard from './MasterCard.vue'
@@ -81,6 +82,7 @@ export function registerComponent(app) {
         .component('VueDatePicker', VueDatePicker)
         .component('ButtonSubmit', ButtonSubmit)
         .component('LoadingView', LoadingView)
+        .component('dialog-date-time-picker', DialogDateTimePicker)
         .component(VueCountdown.name, VueCountdown)
         .component('v-file-upload', VFileUpload)
         .component('v-file-upload-item', VFileUploadItem)
