@@ -8,6 +8,7 @@ import { Doughnut, PolarArea } from 'vue-chartjs'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import moment from 'moment';
 import { computed } from 'vue';
+import FacetedBar from '@/components/FacetedBar.vue';
 
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels, Title);
 ChartJS.register(RadialLinearScale, ArcElement, Tooltip, Legend, Title);
@@ -71,6 +72,50 @@ const menu = ref(false);
 const selectedMonth = ref(null);
 
 const selectedEmployee = ref([]);
+
+const series = ref([
+  {
+    name: 'Revenue',
+    type: 'column',
+    data: [100, 200, 300, 400],
+  },
+  {
+    name: 'Growth %',
+    type: 'line',
+    data: [10, 15, 12, 18],
+  },
+]);
+
+const chartOptions = ref({
+  chart: {
+    height: 400,
+    type: 'line',
+  },
+  stroke: {
+    width: [0, 4],
+  },
+  dataLabels: {
+    enabled: true,
+    enabledOnSeries: [1],
+  },
+  labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+  xaxis: {
+    type: 'category',
+  },
+  yaxis: [
+    {
+      title: {
+        text: 'Revenue',
+      },
+    },
+    {
+      opposite: true,
+      title: {
+        text: 'Growth %',
+      },
+    },
+  ],
+});
 
 const chooseDate = (value) => {
   selectedMonth.value = moment(value.year + '-' + (parseInt(value.month) + 1) + '-01', 'YYYY-MM-DD').format('YYYY-MM');
@@ -159,7 +204,7 @@ onMounted(() => {
 
         <v-card-text>
           <template v-if="!isChartEmpty">
-            <v-row style="height: 100%; max-height: 500px;">
+            <v-row style="height: 100%;">
               <v-col sm="12" :md="selectedEmployee.length ? '6' : '12'">
                 <template v-if="loading">
                   <v-skeleton-loader type="list-item-two-line" class="mb-2" width="100%" height="50"></v-skeleton-loader>
@@ -200,6 +245,10 @@ onMounted(() => {
                     </tr>
                   </template>
                 </v-data-table-virtual>
+              </v-col>
+
+              <v-col>
+                <FacetedBar />
               </v-col>
             </v-row>
           </template>

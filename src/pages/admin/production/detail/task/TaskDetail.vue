@@ -667,10 +667,13 @@ import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useCheckPermission } from '@/compose/checkPermission';
 import { showNotification } from '@/compose/notification';
+import { useDeadlineChangeReasonStore } from '@/stores/deadlineChangeReason';
 
 const { t } = useI18n();
 
 const store = useProjectStore();
+
+const storeDeadline = useDeadlineChangeReasonStore();
 
 const { detailOfTask, detailProject } = storeToRefs(store);
 
@@ -821,6 +824,9 @@ watch(props, (values) => {
 
         if (values.isShow) {
             getBoardsMoveTo();
+
+            // init deadline change reason
+            storeDeadline.getAllDeadlineReason();
         }
 
         if (detailOfTask.value) {

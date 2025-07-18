@@ -4,7 +4,7 @@
         <div 
             style="font-size: 13px; padding: 4px 12px; background-color: #f4f4f4;" 
             class="pointer">
-            {{ props.startDateText }} - {{ props.endDateText }}
+            {{ props.endDateText }}
         </div>
     </div>
 </template>

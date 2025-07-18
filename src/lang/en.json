@@ -783,5 +783,6 @@
     "confirmationdeleteReason": "Are you sure to delete this reason",
     "dueDateRequired": "Due date is required",
     "changeDeadliineTo": "Change deadline to",
-    "changeDeadlineConfirmationText": "Are you sure to change deadline from {from} to {to}?"
+    "changeDeadlineConfirmationText": "Are you sure to change deadline from {from} to {to}?",
+    "customReasonRequired": "Custom reason is required"
 }

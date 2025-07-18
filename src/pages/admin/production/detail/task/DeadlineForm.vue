@@ -29,19 +29,32 @@
                         v-model="due_date"
                         :error-message="errors.due_date"></date-picker>
 
-                    <label>Reason</label>
-                    <v-radio-group>
-                        <v-radio label="Radio One" value="one"></v-radio>
-                        <v-radio label="Radio Two" value="two"></v-radio>
-                        <v-radio label="Radio Three" value="three"></v-radio>
-                    </v-radio-group>
-
-                    <div class="d-flex align-center justify-end pb-3" :style="{
-                        gap: '10px'
-                    }">
-                        <v-btn variant="flat" color="grey-lighten-2" type="button">Close</v-btn>
-                        <v-btn variant="flat" color="primary" type="submit">Submit</v-btn>
-                    </div>
+                    <template v-if="detailOfTask.pics.length">
+                        <label>Reason</label>
+                        <v-radio-group v-model="reason_id"
+                            :error-messages="errors.reason_id">
+                            <v-radio
+                                v-for="(item, i) in listOfAllDeadlineChangeReasons"
+                                :label="item.name"
+                                :value="item.id"></v-radio>
+                            
+                            <!-- adding custom radio -->
+                            <v-radio label="Others ..." value="custom"></v-radio>
+                        </v-radio-group>
+                        <field-input
+                            label="Your Reason"
+                            :is-solo="true"
+                            v-if="reason_id == 'custom'"
+                            v-model="reason_custom"
+                            :error-message="errors.reason_custom"
+                            density="compact"></field-input>
+                        <div class="d-flex align-center justify-end pb-3" :style="{
+                            gap: '10px'
+                        }">
+                            <v-btn variant="flat" color="grey-lighten-2" type="button" @click.prevent="$emit('close-event')">Close</v-btn>
+                            <v-btn variant="flat" color="primary" type="submit">Submit</v-btn>
+                        </div>
+                    </template>
                 </v-form>
 
                 <!-- confirmation -->
@@ -72,10 +85,21 @@ import { useProjectStore } from '@/stores/project';
 import { mdiClose } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import moment from 'moment';
+import { useDeadlineChangeReasonStore } from '@/stores/deadlineChangeReason';
+import { useRoute } from 'vue-router';
+import { showNotification } from '@/compose/notification';
+
+const route = useRoute();
 
 const store = useProjectStore();
 
+const storeDeadline = useDeadlineChangeReasonStore();
+
 const { detailOfTask } = storeToRefs(store);
+
+const {
+    listOfAllDeadlineChangeReasons
+} = storeToRefs(storeDeadline);
 
 const { t } = useI18n();
 
@@ -83,15 +107,21 @@ const emit = defineEmits(['close-event', 'save-event']);
 
 const showConfirmation = ref(false);
 
-const { defineField, handleSubmit, errors, resetForm } = useForm({
+const { defineField, handleSubmit, errors, resetForm, setFieldValue } = useForm({
     validationSchema: yup.object({
         due_date: yup.string().required(),
         reason_id: yup.string().required(),
-        reason_custom: yup.string().nullable()
+        reason_custom: yup.string().when('reason_id', {
+            is: (value) => value == 'custom',
+            then: () => yup.string().required(t('customReasonRequired')),
+            otherwise: () => yup.string().nullable()
+        }),
     })
 });
 
 const [due_date] = defineField('due_date');
+const [reason_id] = defineField('reason_id');
+const [reason_custom] = defineField('reason_custom');
 
 const loading = ref(false)
 
@@ -110,15 +140,39 @@ watch(props, (values) => {
     }
 });
 
-const validateData = handleSubmit((values) => {
-    showConfirmation.value = true;
+watch(reason_id, (next, current) => {
+    if (current == 'custom' && next != 'custom') {
+        setFieldValue('reason_custom', '');
+    }
 });
 
-function doChangeDeadline() {
-    console.log('due', due_date.value);
+const validateData = handleSubmit((values) => {
+    if (values.reason_id) {
+        showConfirmation.value = true;
+    }
+});
+
+async function doChangeDeadline() {
+    let selectedDate = moment(due_date.value, 'YYYY, MMMM DD HH:mm').format('YYYY-MM-DD HH:mm');
+
+    let payload = {
+        task_id: detailOfTask.value.uid,
+        due_date: selectedDate,
+        reason_id: reason_id.value,
+        reason_custom: reason_custom.value,
+    };
     loading.value = true;
 
-    
+    const resp = await store.updateDeadline(payload, route.params.id);
+
+    const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
+    const type = resp.status < 300 ? 'success' : 'error';
+    showNotification(message, type);
+
+    if (resp.status < 300) {
+        resetForm();
+        emit('close-event');
+    }
 
     loading.value = false;
 }

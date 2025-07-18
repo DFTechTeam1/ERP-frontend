@@ -772,5 +772,7 @@
     "createReason": "Tambah Alasan",
     "confirmationdeleteReason": "Apakah kamu yakin untuk menghapus alasan ini?",
     "dueDateRequired": "Deadline harus diisi",
-    "changeDeadliineTo": "Ubah deadline menjadi"
+    "changeDeadliineTo": "Ubah deadline menjadi",
+    "changeDeadlineConfirmationText": "Are you sure to change deadline from {from} to {to}?",
+    "customReasonRequired": "Alasan harus diisi"
 }

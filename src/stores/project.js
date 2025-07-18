@@ -9,6 +9,7 @@ const { notify } = useNotification();
 export const useProjectStore = defineStore('project', {
     state: () => ({
         projects: [],
+        deadlineChangeReasons: [],
         allProjects: [],
         projectCalendar: [],
         projectStatusses: [],
@@ -126,6 +127,7 @@ export const useProjectStore = defineStore('project', {
     }),
     getters: {
         designJob: (state) => state.totalProjectCount,
+        listOfDeadlineChangeReasons: (state) => state.deadlineChangeReasons,
         listOfMarketings: (state) => state.marketings,
         listOfEventTypes: (state) => state.eventTypes,
         listProjectNeedToBeComplete: (state) => state.projectNeedToBeComplete,

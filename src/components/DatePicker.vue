@@ -25,7 +25,7 @@
 
         <dialog-date-time-picker
             :is-show="isShowDatePicker"
-            :with-time-picker="true"
+            :with-time-picker="props.withTimePicker"
             @submit-event="handleDate"></dialog-date-time-picker>
     </div>
 </template>

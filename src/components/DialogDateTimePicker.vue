@@ -38,7 +38,10 @@ function closeDialog() {
 
 function submitDateTime() {
     let selectedDate = moment(date.value).format('YYYY, MMMM DD');
-    let datetime = selectedDate + ' ' + time.value;
+    let datetime = selectedDate;
+    if (props.withTimePicker) {
+        datetime += ' ' + time.value;
+    }
     
     emit('submit-event', datetime);
 }
