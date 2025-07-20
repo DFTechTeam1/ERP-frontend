@@ -777,5 +777,7 @@
     "invoice": "Invoice",
     "chooseInvoice": "Choose Invoice",
     "invoiceRequired": "Invoice is required",
-    "detailTransaction": "Detail Transaction"
+    "detailTransaction": "Detail Transaction",
+    "customerName": "Customer Name",
+    "filterSummary": "Filter Summary"
 }
