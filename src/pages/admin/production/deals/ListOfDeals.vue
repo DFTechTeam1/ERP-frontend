@@ -9,6 +9,8 @@ import { useRouter } from 'vue-router';
 import PaymentDialog from './components/PaymentDialog.vue';
 import { showNotification } from '@/compose/notification';
 import { useCheckPermission } from '@/compose/checkPermission';
+import FilterDeal from './FilterDeal.vue';
+import { computed } from 'vue';
 
 const { t } = useI18n();
 
@@ -23,8 +25,13 @@ const {
 
 const {
     listOfProjectDeals,
-    totalOfProjectDeals
+    totalOfProjectDeals,
+    listOfFilterValue
 } = storeToRefs(storeDeal);
+
+const showButtonClearFilter = computed(() => {
+    return listOfFilterValue.value.filters.length || listOfFilterValue.value.preview.length ? true : false;
+});
 
 const breadcrumbs = ref([
     {
@@ -117,6 +124,8 @@ const headers = ref([
 
 const loading = ref(false);
 
+const isShowFilter = ref(false);
+
 const showConfirm = ref(false);
 
 const finalIds = ref(null);
@@ -125,6 +134,8 @@ const canCreateDeal = useCheckPermission('create_deals');
 
 const showPaymentDialog = ref(false);
 
+const advanceFilterValue = ref(null);
+
 const selectedPaymentDeal = ref(null);
 
 const selectedRemainingBills = ref(0);
@@ -132,6 +143,8 @@ const selectedRemainingBills = ref(0);
 const showConfirmation = ref(false);
 
 const selectedIds = ref([]);
+
+const filterDialog = ref(null);
 
 const createDeal = () => {
     router.push('/admin/deals/create');
@@ -171,7 +184,7 @@ const initProjectDeals = async(payload = '') => {
     });
 
     loading.value = true;
-    const resp = await storeDeal.initProjectDeals();
+    await storeDeal.initProjectDeals(advanceFilterValue.value);
     loading.value = false;
 
     totalItems.value = totalOfProjectDeals.value;
@@ -231,6 +244,41 @@ const doFinal = async (deleteIds) => {
     }
 };
 
+const showFilter = () => {
+    isShowFilter.value = true;
+};
+
+const submitFilter = (payload) => {
+    isShowFilter.value = false;
+
+    console.log('advance filter', payload);
+
+    if (Object.keys(payload).length) {
+        advanceFilterValue.value = payload;
+
+        initProjectDeals();
+    }
+}
+
+const clearFilter = () => {
+    isShowFilter.value = false;
+    advanceFilterValue.value = null;
+    storeDeal.clearAdvanceFilterValue();
+    storeDeal.setAdvanceFilterValue({
+        filters: [],
+        preview: []
+    });
+
+    // reset filter data
+    filterDialog.value.resetFilterDialog();
+
+    initProjectDeals();
+};
+
+const closeFilterDialog = () => {
+    isShowFilter.value = false;
+};
+
 onMounted(() => {
     if (linkOfQuotationUrl.value) {
         // duplicate in variable
@@ -259,16 +307,19 @@ onMounted(() => {
         <table-list
             :is-sticky-action="true"
             :headers="headers"
+            :show-clear-filter="showButtonClearFilter"
             :items-per-page="itemsPerPage"
             :total-items="totalOfProjectDeals"
             :loading="loading"
             :has-checkbox="false"
-            :has-filter="false"
+            :has-filter="true"
             :items="listOfProjectDeals"
             :custom-status="true"
             @table-event="initProjectDeals"
             :allowed-create-button="canCreateDeal"
-            @add-data-event="createDeal">
+            @add-data-event="createDeal"
+            @filter-action="showFilter"
+            @clear-filter-action="clearFilter">
             <template v-slot:status="{ value }">
                 <v-chip :color="value.status_payment_color" size="small" density="compact">{{ value.status_payment }}</v-chip>
             </template>
@@ -422,5 +473,11 @@ onMounted(() => {
             :show-confirm="showConfirm"
             :delete-ids="finalIds"
             @action-bulk-submit="doFinal" />
+
+        <filter-deal
+            ref="filterDialog"
+            :is-show="isShowFilter"
+            @submit-event="submitFilter"
+            @close-event="closeFilterDialog" />
     </div>
 </template>
