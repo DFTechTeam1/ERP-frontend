@@ -6,12 +6,17 @@ export const useProjectDealStore = defineStore('projectDeal', {
         totalProjectDeals: 0,
         projectDeals: [],
         projectDealParams: {},
-        detailProjectDeal: {}
+        detailProjectDeal: {},
+        listFilterValue: {
+            filters: [],
+            preview: []
+        }
     }),
     getters: {
         listOfProjectDeals: (state) => state.projectDeals,
         totalOfProjectDeals: (state) => state.totalProjectDeals,
-        detailOfProjectDeal: (state) => state.detailProjectDeal
+        detailOfProjectDeal: (state) => state.detailProjectDeal,
+        listOfFilterValue: (state) => state.listFilterValue
     },
     actions: {
         setProjectParams(payload) {
@@ -19,13 +24,20 @@ export const useProjectDealStore = defineStore('projectDeal', {
             this.projectDealParams.itemsPerPage = payload.itemsPerPage;
             this.projectDealParams.sortBy = payload.sortBy;
         },
-        async initProjectDeals() {
+        async initProjectDeals(advanceFilter = null) {
             try {
                 let params = {
                     page: this.projectDealParams ? this.projectDealParams.page : 1,
                     itemsPerPage: this.projectDealParams ? this.projectDealParams.itemsPerPage : 10,
                     sortBy: this.projectDealParams ? this.projectDealParams.sortBy : []
                 };
+
+                // combine advance filter
+                if (advanceFilter != null) {
+                    params = {...params, ...advanceFilter};
+                }
+
+                console.log('params filter', params);
     
                 this.projectDeals = [];
                 this.totalProjectDeals = 0;
@@ -75,6 +87,13 @@ export const useProjectDealStore = defineStore('projectDeal', {
             } catch (error) {
                 return error;
             }
+        },
+        setAdvanceFilterValue(payload) {
+            this.listFilterValue.filters = payload.filters;
+            this.listFilterValue.preview = payload.preview;
+        },
+        clearAdvanceFilterValue() {
+            this.listFilterValue = [];
         }
     }
 });
