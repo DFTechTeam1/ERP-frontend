@@ -68,7 +68,6 @@
             :clearable="props.isClearable"
             :item-value="props.itemValue"
             :item-title="props.itemTitle"
-            item-title="title"
             :disabled="props.isDisabled"
             variant="outlined"
             :single-line="props.isSolo"

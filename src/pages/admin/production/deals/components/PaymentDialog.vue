@@ -55,6 +55,7 @@ const submitPayment = (payload) => {
             <v-card-text>
                 <make-payment-form 
                     :deal="props.deal"
+                    :invoice-list="deal.unpaidInvoices"
                     @on-submit="submitPayment"
                     :selected-remaining-bills="props.remainingBills" />
             </v-card-text>

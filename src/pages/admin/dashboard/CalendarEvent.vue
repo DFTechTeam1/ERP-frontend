@@ -4,16 +4,6 @@
         <v-card-item>
             <v-card-title class="fw-bold d-flex align-items-center justify-space-between">
               <span>{{ $t('yourEvent') }}</span>
-
-              <!-- shortcut to create project -->
-              <v-btn
-                variant="outlined"
-                color="primary"
-                size="small"
-                @click.prevent="$router.push('/admin/production/project/create')"
-                v-if="useCheckPermission('create_project')">
-                {{ $t("createProject") }}
-              </v-btn>
             </v-card-title>
         </v-card-item>
         <v-card-text>

@@ -229,7 +229,7 @@ export const useProjectStore = defineStore('project', {
 
                 const saltKey = import.meta.env.VITE_SALT_KEY;
                 const { decodedString } = useEncrypt(resp.data.data.detail, saltKey);
-
+                console.log('decodedString', decodedString);
                 this.detail = decodedString;
                 this.projectBoards = decodedString.boards;
 
@@ -1762,9 +1762,9 @@ export const useProjectStore = defineStore('project', {
         resetQuotationUrl() {
             this.quotationUrl = null;
         },
-        async getProjectCount() {
+        async getProjectCount(uid) {
             try {
-                const resp = await axios.get(`/production/project/initProjectCount`);
+                const resp = await axios.get(`/production/project/initProjectCount?projectDealUid=${uid}`);
 
                 this.totalProjectCount = resp.data.data.count;
 
