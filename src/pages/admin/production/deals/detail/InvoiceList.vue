@@ -32,6 +32,10 @@ const showGenerateInvoice = ref(false);
 
 const currentInvoice = ref({});
 
+const isShowDeleteConfirmation = ref(false);
+
+const selectedIds = ref([]);
+
 const showEditForm = (remainingPayment, invoice) => {
     showGenerateInvoice.value = true;
     stateRemainingPayment.value = parseInt(remainingPayment);
@@ -57,6 +61,11 @@ const updateTransactionData = () => {
     showGenerateInvoice.value = false;
     // emit('update-transaction');
 };
+
+const deleteInvoice = (invoice) => {
+    isShowDeleteConfirmation.value = true;
+    console.log('invoice', invoice);
+}
 </script>
 
 <template>
@@ -104,7 +113,7 @@ const updateTransactionData = () => {
                                     <span>{{ $t('edit') }}</span>
                                 </template>
                             </v-list-item>
-                            <v-list-item @click.prevent="downloadInvoice(item.invoice_url)">
+                            <v-list-item @click.prevent="deleteInvoice(item)">
                                 <template v-slot:prepend>
                                     <v-icon :icon="mdiTrashCan"></v-icon>
                                 </template>
@@ -124,6 +133,12 @@ const updateTransactionData = () => {
                 @update-transaction="updateTransactionData"
                 :current-invoice="currentInvoice"
                 :is-show="showGenerateInvoice"></generate-invoice-form>
+
+            <confirmation-modal
+                title="Delete invoice"
+                text="Are you sure to delete this unpaid invoice?"
+                :show-confirm="isShowDeleteConfirmation"
+                :delete-ids="selectedIds"></confirmation-modal>
         </div>
     </div>
 </template>
