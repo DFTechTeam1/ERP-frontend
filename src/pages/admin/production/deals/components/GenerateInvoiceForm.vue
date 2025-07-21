@@ -56,8 +56,12 @@ watch(props, (values) => {
     if (values) {
         show.value = values.isShow;
 
-        if (Object.keys(values.currentInvoice).length) {
-            setFieldValue('amount', values.currentInvoice.amount);
+        if (values.currentInvoice) {
+            if (Object.keys(values.currentInvoice).length) {
+                setFieldValue('amount', values.currentInvoice.amount);
+
+                setFieldValue('transaction_date', moment(values.currentInvoice.payment_date, 'DD MMMM YYYY').format('YYYY, MMMM DD'));
+            }
         }
     }
 });
