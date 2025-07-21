@@ -29,6 +29,10 @@ const props = defineProps({
     remainingPayment: {
         type: Number,
         default: 0
+    },
+    currentInvoice: {
+        type: Object,
+        value: {}
     }
 });
 
@@ -36,7 +40,7 @@ const emit = defineEmits(['close-event', 'update-transaction']);
 
 const route = useRoute();
 
-const { defineField, errors, resetForm, handleSubmit, setFieldError } = useForm({
+const { defineField, errors, resetForm, handleSubmit, setFieldError, setFieldValue } = useForm({
     validationSchema: yup.object({
         amount: yup.string().required(t('paymentAmountRequired')),
         transaction_date: yup.string().required()
@@ -51,6 +55,10 @@ const show = ref(false);
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow;
+
+        if (Object.keys(values.currentInvoice).length) {
+            setFieldValue('amount', values.currentInvoice.amount);
+        }
     }
 });
 
