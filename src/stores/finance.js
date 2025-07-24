@@ -18,6 +18,13 @@ export const useFinanceStore = defineStore('finance', {
             } catch (error) {
                 return error;
             }
+        },
+        async updateInvoice(payload) {
+            try {
+                return await axios.post(`/finance/projectdealuid/invoices/temporary`, payload);
+            } catch (error) {
+                return error;
+            }
         }
     }
 })

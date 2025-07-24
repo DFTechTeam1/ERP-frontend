@@ -27,7 +27,7 @@ defineEmits(['update-transaction']);
         <template v-else>
             <summary-view @update-transaction="$emit('update-transaction')" />
 
-            <invoice-list />
+            <invoice-list @update-transaction="$emit('update-transaction')" />
 
             <payment-form @update-transaction="$emit('update-transaction')" />
 

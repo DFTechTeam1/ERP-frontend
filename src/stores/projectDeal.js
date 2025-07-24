@@ -36,8 +36,6 @@ export const useProjectDealStore = defineStore('projectDeal', {
                 if (advanceFilter != null) {
                     params = {...params, ...advanceFilter};
                 }
-
-                console.log('params filter', params);
     
                 this.projectDeals = [];
                 this.totalProjectDeals = 0;
@@ -94,6 +92,13 @@ export const useProjectDealStore = defineStore('projectDeal', {
         },
         clearAdvanceFilterValue() {
             this.listFilterValue = [];
+        },
+        async deleteInvoice(invoiceUid) {
+            try {
+                return await axios.delete(`/finance/projectDealUid/invoices/${invoiceUid}`);
+            } catch (error) {
+                return error;
+            }
         }
     }
 });
