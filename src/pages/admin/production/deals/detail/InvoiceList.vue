@@ -1,10 +1,12 @@
 <script setup>
 import { formatPrice } from '@/compose/formatPrice';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiDownload } from '@mdi/js';
+import { mdiDotsVertical, mdiDownload, mdiPen, mdiTrashCan } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { useEncrypt } from '@/compose/encrypt';
 import { computed } from 'vue';
+import GenerateInvoiceForm from '../components/GenerateInvoiceForm.vue';
+import { ref } from 'vue';
 
 const store = useProjectDealStore();
 
@@ -24,6 +26,22 @@ const downloadInvoice = (url) => {
     window.open(url, '__blank');
 };
 
+const stateRemainingPayment = ref(0);
+
+const showGenerateInvoice = ref(false);
+
+const currentInvoice = ref({});
+
+const isShowDeleteConfirmation = ref(false);
+
+const selectedIds = ref([]);
+
+const showEditForm = (remainingPayment, invoice) => {
+    showGenerateInvoice.value = true;
+    stateRemainingPayment.value = parseInt(remainingPayment);
+    currentInvoice.value = invoice;
+};
+
 const invoices = computed(() => {
     let output = [];
 
@@ -34,6 +52,20 @@ const invoices = computed(() => {
     }
     return output;
 });
+
+const closeGenerateInvoiceForm = () => {
+    showGenerateInvoice.value = false;
+};
+
+const updateTransactionData = () => {
+    showGenerateInvoice.value = false;
+    // emit('update-transaction');
+};
+
+const deleteInvoice = (invoice) => {
+    isShowDeleteConfirmation.value = true;
+    console.log('invoice', invoice);
+}
 </script>
 
 <template>
@@ -59,16 +91,54 @@ const invoices = computed(() => {
                 </template>
 
                 <template v-slot:item.uid="{ item }">
-                    <v-tooltip text="Download Invoice">
+                    <v-menu>
                         <template v-slot:activator="{ props }">
-                            <v-icon :icon="mdiDownload"
-                                class="pointer"
-                                @click.prevent="downloadInvoice(item.invoice_url)"
-                                v-bind="props"></v-icon>
+                            <v-btn :icon="mdiDotsVertical" v-bind="props" variant="flat"></v-btn>
                         </template>
-                    </v-tooltip>
+
+                        <v-list>
+                            <v-list-item @click.prevent="downloadInvoice(item.invoice_url)">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiDownload"></v-icon>
+                                </template>
+                                <template v-slot:title>
+                                    <span>Download Invoice</span>
+                                </template>
+                            </v-list-item>
+                            <v-list-item @click.prevent="showEditForm(detailOfProjectDeal.final_quotation.remaining, item)">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiPen"></v-icon>
+                                </template>
+                                <template v-slot:title>
+                                    <span>{{ $t('edit') }}</span>
+                                </template>
+                            </v-list-item>
+                            <v-list-item @click.prevent="deleteInvoice(item)">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiTrashCan"></v-icon>
+                                </template>
+                                <template v-slot:title>
+                                    <span>{{ $t('delete') }}</span>
+                                </template>
+                            </v-list-item>
+                        </v-list>
+                    </v-menu>
                 </template>
             </v-data-table-virtual>
+
+            <generate-invoice-form
+                v-if="(detailOfProjectDeal)"
+                :remaining-payment="stateRemainingPayment"
+                @close-event="closeGenerateInvoiceForm(detailOfProjectDeal.final_quotation.remaining)"
+                @update-transaction="updateTransactionData"
+                :current-invoice="currentInvoice"
+                :is-show="showGenerateInvoice"></generate-invoice-form>
+
+            <confirmation-modal
+                title="Delete invoice"
+                text="Are you sure to delete this unpaid invoice?"
+                :show-confirm="isShowDeleteConfirmation"
+                :delete-ids="selectedIds"></confirmation-modal>
         </div>
     </div>
 </template>
