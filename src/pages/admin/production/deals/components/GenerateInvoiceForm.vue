@@ -76,7 +76,15 @@ const generateInvoice = handleSubmit(async (values) => {
     let transactionDate = moment(values.transaction_date, 'YYYY, MMMM DD').format('YYYY-MM-DD');
     values.transaction_date = transactionDate;
 
-    const resp = await financeStore.generateBillInvoice(values, route.params.id);
+    let resp = null;
+
+    console.log('props', props);
+    if (props.currentInvoice == undefined || props.currentInvoice == null) {
+        resp = await financeStore.generateBillInvoice(values, route.params.id);
+    } else {
+        values.invoice_uid = props.currentInvoice.uid;
+        resp = await financeStore.updateInvoice(values);
+    }
 
     if (resp.status < 300) {
         resetForm();

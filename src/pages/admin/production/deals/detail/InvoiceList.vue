@@ -1,12 +1,15 @@
 <script setup>
 import { formatPrice } from '@/compose/formatPrice';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiDotsVertical, mdiDownload, mdiPen, mdiTrashCan } from '@mdi/js';
+import { mdiCheck, mdiDotsVertical, mdiDownload, mdiPen, mdiTrashCan } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { useEncrypt } from '@/compose/encrypt';
 import { computed } from 'vue';
 import GenerateInvoiceForm from '../components/GenerateInvoiceForm.vue';
 import { ref } from 'vue';
+import { showNotification } from '@/compose/notification';
+
+const emit = defineEmits(['update-transaction']);
 
 const store = useProjectDealStore();
 
@@ -32,6 +35,8 @@ const showGenerateInvoice = ref(false);
 
 const currentInvoice = ref({});
 
+const loading = ref(false);
+
 const isShowDeleteConfirmation = ref(false);
 
 const selectedIds = ref([]);
@@ -55,6 +60,7 @@ const invoices = computed(() => {
 
 const closeGenerateInvoiceForm = () => {
     showGenerateInvoice.value = false;
+    currentInvoice.value = {};
 };
 
 const updateTransactionData = () => {
@@ -64,8 +70,24 @@ const updateTransactionData = () => {
 
 const deleteInvoice = (invoice) => {
     isShowDeleteConfirmation.value = true;
-    console.log('invoice', invoice);
-}
+    selectedIds.value = [invoice.uid];
+};
+
+const doDeleteInvoice = async (uids) => {
+    loading.value = true;
+    const resp = await store.deleteInvoice(uids[0]);
+    loading.value = false;
+
+    const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
+    const type = resp.status < 300 ? 'success' : 'error';
+    showNotification(message, type);
+
+    if (resp.status < 300) {
+        isShowDeleteConfirmation.value = false;
+        selectedIds.value = [];
+        emit('update-transaction');
+    }
+};
 </script>
 
 <template>
@@ -105,7 +127,7 @@ const deleteInvoice = (invoice) => {
                                     <span>Download Invoice</span>
                                 </template>
                             </v-list-item>
-                            <v-list-item @click.prevent="showEditForm(detailOfProjectDeal.final_quotation.remaining, item)">
+                            <v-list-item @click.prevent="showEditForm(detailOfProjectDeal.final_quotation.remaining, item)" v-if="item.can_edit_invoice">
                                 <template v-slot:prepend>
                                     <v-icon :icon="mdiPen"></v-icon>
                                 </template>
@@ -113,12 +135,20 @@ const deleteInvoice = (invoice) => {
                                     <span>{{ $t('edit') }}</span>
                                 </template>
                             </v-list-item>
-                            <v-list-item @click.prevent="deleteInvoice(item)">
+                            <v-list-item @click.prevent="deleteInvoice(item)" v-if="item.can_delete_invoice">
                                 <template v-slot:prepend>
                                     <v-icon :icon="mdiTrashCan"></v-icon>
                                 </template>
                                 <template v-slot:title>
                                     <span>{{ $t('delete') }}</span>
+                                </template>
+                            </v-list-item>
+                            <v-list-item @click.prevent="deleteInvoice(item)" v-if="item.can_approve_invoice">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiCheck"></v-icon>
+                                </template>
+                                <template v-slot:title>
+                                    <span>{{ $t('approve') }}</span>
                                 </template>
                             </v-list-item>
                         </v-list>
@@ -137,8 +167,10 @@ const deleteInvoice = (invoice) => {
             <confirmation-modal
                 title="Delete invoice"
                 text="Are you sure to delete this unpaid invoice?"
+                :loading="loading"
                 :show-confirm="isShowDeleteConfirmation"
-                :delete-ids="selectedIds"></confirmation-modal>
+                :delete-ids="selectedIds"
+                @actionBulkSubmit="doDeleteInvoice"></confirmation-modal>
         </div>
     </div>
 </template>
