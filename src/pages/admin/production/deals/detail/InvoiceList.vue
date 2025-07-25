@@ -8,10 +8,13 @@ import { computed } from 'vue';
 import GenerateInvoiceForm from '../components/GenerateInvoiceForm.vue';
 import { ref } from 'vue';
 import { showNotification } from '@/compose/notification';
+import { useFinanceStore } from '@/stores/finance';
 
 const emit = defineEmits(['update-transaction']);
 
 const store = useProjectDealStore();
+
+const financeStore = useFinanceStore();
 
 const { detailOfProjectDeal } = storeToRefs(store);
 
@@ -20,6 +23,7 @@ const headerTransactions = ref([
     { title: 'Date', align: 'start', key: 'payment_date', sortable: false },
     { title: 'Status', align: 'start', key: 'status', sortable: false },
     { title: 'Payment Due', align: 'start', key: 'payment_due', sortable: false },
+    { title: 'Billing Date', align: 'start', key: 'billing_date', sortable: false },
     { title: 'Payment At', align: 'start', key: 'paid_at', sortable: false },
     { title: 'Amount', align: 'start', key: 'amount', sortable: false },
     { title: 'Action', align: 'start', key: 'uid', sortable: false },
@@ -32,6 +36,10 @@ const downloadInvoice = (url) => {
 const stateRemainingPayment = ref(0);
 
 const showGenerateInvoice = ref(false);
+
+const showConfirmationApproveChanges = ref(false);
+
+const selectedInvoiceToBeApprove = ref([]);
 
 const currentInvoice = ref({});
 
@@ -65,12 +73,37 @@ const closeGenerateInvoiceForm = () => {
 
 const updateTransactionData = () => {
     showGenerateInvoice.value = false;
-    // emit('update-transaction');
+    emit('update-transaction');
 };
 
 const deleteInvoice = (invoice) => {
     isShowDeleteConfirmation.value = true;
     selectedIds.value = [invoice.uid];
+};
+
+const approveInvoice = (invoice) => {
+    showConfirmationApproveChanges.value = true;
+    selectedInvoiceToBeApprove.value = [invoice.uid];
+};
+
+/**
+ * Approve changes
+ * @param {object} invoice
+ */
+const doApproveInvoice = async (invoice) => {
+    loading.value = true;
+    const resp = await financeStore.approveInvoiceChanges(invoice[0]);
+    loading.value = false;
+
+    const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
+    const type = resp.status < 300 ? 'success' : 'error';
+    showNotification(message, type);
+
+    if (resp.status < 300) {
+        showConfirmationApproveChanges.value = false;
+        selectedInvoiceToBeApprove.value = [];
+        emit('update-transaction');
+    }
 };
 
 const doDeleteInvoice = async (uids) => {
@@ -143,7 +176,7 @@ const doDeleteInvoice = async (uids) => {
                                     <span>{{ $t('delete') }}</span>
                                 </template>
                             </v-list-item>
-                            <v-list-item @click.prevent="deleteInvoice(item)" v-if="item.can_approve_invoice">
+                            <v-list-item @click.prevent="approveInvoice(item)" v-if="item.can_approve_invoice">
                                 <template v-slot:prepend>
                                     <v-icon :icon="mdiCheck"></v-icon>
                                 </template>
@@ -171,6 +204,14 @@ const doDeleteInvoice = async (uids) => {
                 :show-confirm="isShowDeleteConfirmation"
                 :delete-ids="selectedIds"
                 @actionBulkSubmit="doDeleteInvoice"></confirmation-modal>
+
+            <confirmation-modal
+                title="Approve Changes"
+                text="Are you sure to approve this changes?"
+                :loading="loading"
+                :show-confirm="showConfirmationApproveChanges"
+                :delete-ids="selectedInvoiceToBeApprove"
+                @actionBulkSubmit="doApproveInvoice"></confirmation-modal>
         </div>
     </div>
 </template>

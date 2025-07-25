@@ -25,6 +25,13 @@ export const useFinanceStore = defineStore('finance', {
             } catch (error) {
                 return error;
             }
+        },
+        async approveInvoiceChanges(invoiceUid) {
+            try {
+                return await axios.get(`/finance/projectDealUid/invoices/${invoiceUid}/approve`);
+            } catch (error) {
+                return error;
+            }
         }
     }
 })
