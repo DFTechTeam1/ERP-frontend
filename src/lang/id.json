@@ -767,5 +767,14 @@
     "averageTaskExecution": "Rata-rata Pengerjaan Tugas",
     "averageTaskExecutionPerPIC": "Rata-rata Pengerjaan Tugas per Tim",
     "downloadGeneralInvoice": "Unduh General Invoice",
-    "detailTransaction": "Detil Transaksi"
+    "detailTransaction": "Detil Transaksi",
+    "deadlineChangeReason": "Alasan Terlambat Deadline",
+    "createReason": "Tambah Alasan",
+    "confirmationdeleteReason": "Apakah kamu yakin untuk menghapus alasan ini?",
+    "areYouSureApproveChanges": "Apakah kamu yakin untuk menyetujui perubahan ini?",
+    "areYouRejectChanges": "Apakah kamu yakin untuk menolak perubahan ini?",
+    "rejectChanges": "Tolak Perubahan",
+    "createCollectionInvoice": "Buat Invoice Penagihan",
+    "downloadHistoryInvoice": "Unduh Riwayat Invoice",
+    "downloadProofOfPayment": "Unduh Bukti Pembayaran"
 }

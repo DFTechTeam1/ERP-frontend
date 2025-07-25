@@ -1,7 +1,7 @@
 <script setup>
 import { formatPrice } from '@/compose/formatPrice';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiCheck, mdiDotsVertical, mdiDownload, mdiPen, mdiTrashCan } from '@mdi/js';
+import { mdiCheck, mdiClose, mdiDotsVertical, mdiDownload, mdiPen, mdiTrashCan } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { useEncrypt } from '@/compose/encrypt';
 import { computed } from 'vue';
@@ -9,8 +9,11 @@ import GenerateInvoiceForm from '../components/GenerateInvoiceForm.vue';
 import { ref } from 'vue';
 import { showNotification } from '@/compose/notification';
 import { useFinanceStore } from '@/stores/finance';
+import { useI18n } from 'vue-i18n';
 
 const emit = defineEmits(['update-transaction']);
+
+const { t } = useI18n();
 
 const store = useProjectDealStore();
 
@@ -39,6 +42,10 @@ const showGenerateInvoice = ref(false);
 
 const showConfirmationApproveChanges = ref(false);
 
+const defaultInvoiceActionConfirmationTitle = ref(t("approveChanges"));
+
+const defaultInvoiceActionConfirmationText = ref(t("areYouSureApproveChanges"));
+
 const selectedInvoiceToBeApprove = ref([]);
 
 const currentInvoice = ref({});
@@ -46,6 +53,8 @@ const currentInvoice = ref({});
 const loading = ref(false);
 
 const isShowDeleteConfirmation = ref(false);
+
+const isOnRevise = ref(false);
 
 const selectedIds = ref([]);
 
@@ -83,7 +92,20 @@ const deleteInvoice = (invoice) => {
 
 const approveInvoice = (invoice) => {
     showConfirmationApproveChanges.value = true;
-    selectedInvoiceToBeApprove.value = [invoice.uid];
+    selectedInvoiceToBeApprove.value = [invoice];
+
+    isOnRevise.value = false;
+};
+
+const rejectInvoice = (invoice) => {
+    showConfirmationApproveChanges.value = true;
+    selectedInvoiceToBeApprove.value = [invoice];
+
+    isOnRevise.value = true;
+
+    // change title and text of confirmation modal
+    defaultInvoiceActionConfirmationTitle.value = t("rejectChanges");
+    defaultInvoiceActionConfirmationText.value = t("areYouRejectChanges");
 };
 
 /**
@@ -91,8 +113,14 @@ const approveInvoice = (invoice) => {
  * @param {object} invoice
  */
 const doApproveInvoice = async (invoice) => {
+    let invoiceUid = invoice[0].uid;
+    let invoicePendingUpdateId = invoice[0].pending_update_id;
     loading.value = true;
-    const resp = await financeStore.approveInvoiceChanges(invoice[0]);
+
+    // define the correct action based on type, is reject or not
+    let actionData = isOnRevise.value ? 'rejectInvoiceChanges' : 'approveInvoiceChanges';
+
+    const resp = await financeStore[actionData](invoiceUid, invoicePendingUpdateId);
     loading.value = false;
 
     const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
@@ -184,6 +212,14 @@ const doDeleteInvoice = async (uids) => {
                                     <span>{{ $t('approve') }}</span>
                                 </template>
                             </v-list-item>
+                            <v-list-item @click.prevent="rejectInvoice(item)" v-if="item.can_reject_invoice">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiClose"></v-icon>
+                                </template>
+                                <template v-slot:title>
+                                    <span>{{ $t('reject') }}</span>
+                                </template>
+                            </v-list-item>
                         </v-list>
                     </v-menu>
                 </template>
@@ -206,8 +242,8 @@ const doDeleteInvoice = async (uids) => {
                 @actionBulkSubmit="doDeleteInvoice"></confirmation-modal>
 
             <confirmation-modal
-                title="Approve Changes"
-                text="Are you sure to approve this changes?"
+                :title="defaultInvoiceActionConfirmationTitle"
+                :text="defaultInvoiceActionConfirmationText"
                 :loading="loading"
                 :show-confirm="showConfirmationApproveChanges"
                 :delete-ids="selectedInvoiceToBeApprove"
