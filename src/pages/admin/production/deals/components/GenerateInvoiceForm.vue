@@ -1,4 +1,5 @@
 <script setup>
+import { formatPrice } from '@/compose/formatPrice';
 import { showNotification } from '@/compose/notification';
 import { useFinanceStore } from '@/stores/finance';
 import { useProjectDealStore } from '@/stores/projectDeal';
@@ -60,7 +61,7 @@ watch(props, (values) => {
             if (Object.keys(values.currentInvoice).length) {
                 setFieldValue('amount', values.currentInvoice.amount);
 
-                setFieldValue('transaction_date', moment(values.currentInvoice.payment_date, 'DD MMMM YYYY').format('YYYY, MMMM DD'));
+                setFieldValue('transaction_date', moment(values.currentInvoice.billing_date, 'DD MMMM YYYY').format('YYYY, MMMM DD'));
             }
         }
     }
@@ -78,11 +79,11 @@ const generateInvoice = handleSubmit(async (values) => {
 
     let resp = null;
 
-    console.log('props', props);
     if (props.currentInvoice == undefined || props.currentInvoice == null) {
         resp = await financeStore.generateBillInvoice(values, route.params.id);
     } else {
         values.invoice_uid = props.currentInvoice.uid;
+        values.payment_date = values.transaction_date;
         resp = await financeStore.updateInvoice(values);
     }
 
@@ -90,7 +91,9 @@ const generateInvoice = handleSubmit(async (values) => {
         resetForm();
         emit('update-transaction');
 
-        window.open(resp.data.data.url, '__blank');
+        if (resp.data.data.url) {
+            window.open(resp.data.data.url, '__blank');
+        }
     } else {
         showNotification(resp.response.data.message, 'error');
     }
@@ -106,7 +109,6 @@ const closeForm = () => {
     <v-dialog
         :persistent="true"
         v-model="show"
-        persistent
         max-width="500">
         <master-card>
             <v-card-item>
@@ -133,6 +135,12 @@ const closeForm = () => {
                         class="mt-5"
                         density="compact"
                         :error-message="errors.transaction_date"></date-picker>
+
+                    <div class="d-flex items-center justify-end mb-3">
+                        <p :style="{
+                            fontSize: '12px'
+                        }">Remaining Amount <span :style="{fontWeight: 'bold', fontSize: '13px'}">{{ formatPrice(props.remainingPayment) }}</span></p>
+                    </div>
     
                     <div class="d-flex items-center justify-end">
                         <v-btn
