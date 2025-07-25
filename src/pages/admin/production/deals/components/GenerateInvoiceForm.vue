@@ -44,12 +44,14 @@ const route = useRoute();
 const { defineField, errors, resetForm, handleSubmit, setFieldError, setFieldValue } = useForm({
     validationSchema: yup.object({
         amount: yup.string().required(t('paymentAmountRequired')),
-        transaction_date: yup.string().required()
+        transaction_date: yup.string().required(),
+        is_down_payment: yup.boolean().default(false)
     })
 });
 
 const [amount] = defineField('amount');
 const [transaction_date] = defineField('transaction_date');
+const [is_down_payment] = defineField('is_down_payment');
 
 const show = ref(false);
 
@@ -135,6 +137,8 @@ const closeForm = () => {
                         class="mt-5"
                         density="compact"
                         :error-message="errors.transaction_date"></date-picker>
+
+                    <v-switch label="Down Payment Invoice?" color="primary" v-model="is_down_payment"></v-switch>
 
                     <div class="d-flex items-center justify-end mb-3">
                         <p :style="{

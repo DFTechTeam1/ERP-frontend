@@ -26,12 +26,19 @@ export const useFinanceStore = defineStore('finance', {
                 return error;
             }
         },
-        async approveInvoiceChanges(invoiceUid) {
+        async approveInvoiceChanges(invoiceUid, pendingUpdateId) {
             try {
-                return await axios.get(`/finance/projectDealUid/invoices/${invoiceUid}/approve`);
+                return await axios.get(`/finance/projectDealUid/invoices/${invoiceUid}/approve/${pendingUpdateId}`);
             } catch (error) {
                 return error;
             }
-        }
+        },
+        async rejectInvoiceChanges(invoiceUid, pendingUpdateId) {
+            try {
+                return await axios.get(`/finance/projectDealUid/invoices/${invoiceUid}/reject/${pendingUpdateId}`);
+            } catch (error) {
+                return error;
+            }
+        },
     }
 })
