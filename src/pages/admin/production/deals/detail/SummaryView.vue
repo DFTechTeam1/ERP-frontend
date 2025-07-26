@@ -26,11 +26,7 @@ const previewQuotation = ({uid, type}) => {
 };
 
 const previewGeneralInvoice = () => {
-    // get url
-    const saltKey = import.meta.env.VITE_SALT_KEY;
-    let { decodedString } = useEncrypt(detailOfProjectDeal.value.general_invoice_url, saltKey);
-
-    window.open(decodedString.url, '__blank');
+    window.open(import.meta.env.VITE_BACKEND + `/invoices/download/general?projectDealUid=${detailOfProjectDeal.value.uid}`, '__blank');
 }
 
 const stateRemainingPayment = ref(0);
@@ -47,6 +43,11 @@ const updateTransactionData = () => {
 const generateInvoice = (remainingPayment) => {
     showGenerateInvoice.value = true;
     stateRemainingPayment.value = parseInt(remainingPayment);
+};
+
+// download historical invoice, we only need project deal uid here
+const generateHistoryInvoice = () => {
+    return window.open(import.meta.env.VITE_BACKEND + `/invoices/download/history?projectDealUid=${detailOfProjectDeal.value.uid}`, '__blank');
 };
 </script>
 
@@ -78,7 +79,15 @@ const generateInvoice = (remainingPayment) => {
                         <v-list-item @click.prevent="generateInvoice(detailOfProjectDeal.final_quotation.remaining)"
                             v-if="!detailOfProjectDeal.is_paid"
                             :prepend-icon="mdiInvoice">
-                            <v-list-item-title>Generate Invoice</v-list-item-title>
+                            <v-list-item-title>{{ $t('createCollectionInvoice') }}</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item @click.prevent="generateHistoryInvoice"
+                            :prepend-icon="mdiDownload">
+                            <v-list-item-title>{{ $t('downloadHistoryInvoice') }}</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item @click.prevent="previewGeneralInvoice"
+                            :prepend-icon="mdiDownload">
+                            <v-list-item-title>{{ $t('downloadGeneralInvoice') }}</v-list-item-title>
                         </v-list-item>
                         <v-list-item @click.prevent="previewQuotation({uid: detailOfProjectDeal.final_quotation.quotation_id, type: 'download'})"
                             :prepend-icon="mdiDownload">
@@ -87,10 +96,6 @@ const generateInvoice = (remainingPayment) => {
                         <v-list-item @click.prevent="previewQuotation({uid: detailOfProjectDeal.final_quotation.quotation_id, type: 'stream'})"
                             :prepend-icon="mdiPrinterOutline">
                             <v-list-item-title>Quotation</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item @click.prevent="previewGeneralInvoice"
-                            :prepend-icon="mdiPrinterOutline">
-                            <v-list-item-title>General Invoice</v-list-item-title>
                         </v-list-item>
                     </v-list>
                 </v-menu>

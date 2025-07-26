@@ -1,4 +1,5 @@
 <script setup>
+import { formatPrice } from '@/compose/formatPrice';
 import { showNotification } from '@/compose/notification';
 import { useFinanceStore } from '@/stores/finance';
 import { useProjectDealStore } from '@/stores/projectDeal';
@@ -29,6 +30,10 @@ const props = defineProps({
     remainingPayment: {
         type: Number,
         default: 0
+    },
+    currentInvoice: {
+        type: Object,
+        value: {}
     }
 });
 
@@ -36,21 +41,33 @@ const emit = defineEmits(['close-event', 'update-transaction']);
 
 const route = useRoute();
 
-const { defineField, errors, resetForm, handleSubmit, setFieldError } = useForm({
+const { defineField, errors, resetForm, handleSubmit, setFieldError, setFieldValue } = useForm({
     validationSchema: yup.object({
         amount: yup.string().required(t('paymentAmountRequired')),
-        transaction_date: yup.string().required()
+        transaction_date: yup.string().required(),
+        is_down_payment: yup.boolean().default(false)
     })
 });
 
 const [amount] = defineField('amount');
 const [transaction_date] = defineField('transaction_date');
+const [is_down_payment] = defineField('is_down_payment');
 
 const show = ref(false);
 
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow;
+
+        if (values.currentInvoice) {
+            if (Object.keys(values.currentInvoice).length) {
+                setFieldValue('amount', values.currentInvoice.amount);
+
+                setFieldValue('transaction_date', moment(values.currentInvoice.billing_date, 'DD MMMM YYYY').format('YYYY, MMMM DD'));
+
+                setFieldValue('is_down_payment', values.currentInvoice.is_down_payment ? true : false);
+            }
+        }
     }
 });
 
@@ -64,13 +81,25 @@ const generateInvoice = handleSubmit(async (values) => {
     let transactionDate = moment(values.transaction_date, 'YYYY, MMMM DD').format('YYYY-MM-DD');
     values.transaction_date = transactionDate;
 
-    const resp = await financeStore.generateBillInvoice(values, route.params.id);
+    values.is_down_payment = values.is_down_payment ? 1 : 0;
+
+    let resp = null;
+
+    if (props.currentInvoice == undefined || props.currentInvoice == null) {
+        resp = await financeStore.generateBillInvoice(values, route.params.id);
+    } else {
+        values.invoice_uid = props.currentInvoice.uid;
+        values.payment_date = values.transaction_date;
+        resp = await financeStore.updateInvoice(values);
+    }
 
     if (resp.status < 300) {
         resetForm();
         emit('update-transaction');
 
-        window.open(resp.data.data.url, '__blank');
+        if (resp.data.data.url) {
+            window.open(resp.data.data.url, '__blank');
+        }
     } else {
         showNotification(resp.response.data.message, 'error');
     }
@@ -86,7 +115,6 @@ const closeForm = () => {
     <v-dialog
         :persistent="true"
         v-model="show"
-        persistent
         max-width="500">
         <master-card>
             <v-card-item>
@@ -113,6 +141,14 @@ const closeForm = () => {
                         class="mt-5"
                         density="compact"
                         :error-message="errors.transaction_date"></date-picker>
+
+                    <v-switch label="Down Payment Invoice?" color="primary" v-model="is_down_payment"></v-switch>
+
+                    <div class="d-flex items-center justify-end mb-3">
+                        <p :style="{
+                            fontSize: '12px'
+                        }">Remaining Amount <span :style="{fontWeight: 'bold', fontSize: '13px'}">{{ formatPrice(props.remainingPayment) }}</span></p>
+                    </div>
     
                     <div class="d-flex items-center justify-end">
                         <v-btn

@@ -1,12 +1,23 @@
 <script setup>
 import { formatPrice } from '@/compose/formatPrice';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiDownload } from '@mdi/js';
+import { mdiCheck, mdiClose, mdiDotsVertical, mdiDownload, mdiPen, mdiTrashCan } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { useEncrypt } from '@/compose/encrypt';
 import { computed } from 'vue';
+import GenerateInvoiceForm from '../components/GenerateInvoiceForm.vue';
+import { ref } from 'vue';
+import { showNotification } from '@/compose/notification';
+import { useFinanceStore } from '@/stores/finance';
+import { useI18n } from 'vue-i18n';
+
+const emit = defineEmits(['update-transaction']);
+
+const { t } = useI18n();
 
 const store = useProjectDealStore();
+
+const financeStore = useFinanceStore();
 
 const { detailOfProjectDeal } = storeToRefs(store);
 
@@ -15,6 +26,7 @@ const headerTransactions = ref([
     { title: 'Date', align: 'start', key: 'payment_date', sortable: false },
     { title: 'Status', align: 'start', key: 'status', sortable: false },
     { title: 'Payment Due', align: 'start', key: 'payment_due', sortable: false },
+    { title: 'Billing Date', align: 'start', key: 'billing_date', sortable: false },
     { title: 'Payment At', align: 'start', key: 'paid_at', sortable: false },
     { title: 'Amount', align: 'start', key: 'amount', sortable: false },
     { title: 'Action', align: 'start', key: 'uid', sortable: false },
@@ -22,6 +34,34 @@ const headerTransactions = ref([
 
 const downloadInvoice = (url) => {
     window.open(url, '__blank');
+};
+
+const stateRemainingPayment = ref(0);
+
+const showGenerateInvoice = ref(false);
+
+const showConfirmationApproveChanges = ref(false);
+
+const defaultInvoiceActionConfirmationTitle = ref(t("approveChanges"));
+
+const defaultInvoiceActionConfirmationText = ref(t("areYouSureApproveChanges"));
+
+const selectedInvoiceToBeApprove = ref([]);
+
+const currentInvoice = ref({});
+
+const loading = ref(false);
+
+const isShowDeleteConfirmation = ref(false);
+
+const isOnRevise = ref(false);
+
+const selectedIds = ref([]);
+
+const showEditForm = (remainingPayment, invoice) => {
+    showGenerateInvoice.value = true;
+    stateRemainingPayment.value = parseInt(remainingPayment);
+    currentInvoice.value = invoice;
 };
 
 const invoices = computed(() => {
@@ -34,6 +74,81 @@ const invoices = computed(() => {
     }
     return output;
 });
+
+const closeGenerateInvoiceForm = () => {
+    showGenerateInvoice.value = false;
+    currentInvoice.value = {};
+};
+
+const updateTransactionData = () => {
+    showGenerateInvoice.value = false;
+    emit('update-transaction');
+};
+
+const deleteInvoice = (invoice) => {
+    isShowDeleteConfirmation.value = true;
+    selectedIds.value = [invoice.uid];
+};
+
+const approveInvoice = (invoice) => {
+    showConfirmationApproveChanges.value = true;
+    selectedInvoiceToBeApprove.value = [invoice];
+
+    isOnRevise.value = false;
+};
+
+const rejectInvoice = (invoice) => {
+    showConfirmationApproveChanges.value = true;
+    selectedInvoiceToBeApprove.value = [invoice];
+
+    isOnRevise.value = true;
+
+    // change title and text of confirmation modal
+    defaultInvoiceActionConfirmationTitle.value = t("rejectChanges");
+    defaultInvoiceActionConfirmationText.value = t("areYouRejectChanges");
+};
+
+/**
+ * Approve changes
+ * @param {object} invoice
+ */
+const doApproveInvoice = async (invoice) => {
+    let invoiceUid = invoice[0].uid;
+    let invoicePendingUpdateId = invoice[0].pending_update_id;
+    loading.value = true;
+
+    // define the correct action based on type, is reject or not
+    let actionData = isOnRevise.value ? 'rejectInvoiceChanges' : 'approveInvoiceChanges';
+
+    const resp = await financeStore[actionData](invoiceUid, invoicePendingUpdateId);
+    loading.value = false;
+
+    const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
+    const type = resp.status < 300 ? 'success' : 'error';
+    showNotification(message, type);
+
+    if (resp.status < 300) {
+        showConfirmationApproveChanges.value = false;
+        selectedInvoiceToBeApprove.value = [];
+        emit('update-transaction');
+    }
+};
+
+const doDeleteInvoice = async (uids) => {
+    loading.value = true;
+    const resp = await store.deleteInvoice(uids[0]);
+    loading.value = false;
+
+    const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
+    const type = resp.status < 300 ? 'success' : 'error';
+    showNotification(message, type);
+
+    if (resp.status < 300) {
+        isShowDeleteConfirmation.value = false;
+        selectedIds.value = [];
+        emit('update-transaction');
+    }
+};
 </script>
 
 <template>
@@ -59,16 +174,80 @@ const invoices = computed(() => {
                 </template>
 
                 <template v-slot:item.uid="{ item }">
-                    <v-tooltip text="Download Invoice">
+                    <v-menu>
                         <template v-slot:activator="{ props }">
-                            <v-icon :icon="mdiDownload"
-                                class="pointer"
-                                @click.prevent="downloadInvoice(item.invoice_url)"
-                                v-bind="props"></v-icon>
+                            <v-btn :icon="mdiDotsVertical" v-bind="props" variant="flat"></v-btn>
                         </template>
-                    </v-tooltip>
+
+                        <v-list>
+                            <v-list-item @click.prevent="downloadInvoice(item.invoice_url)">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiDownload"></v-icon>
+                                </template>
+                                <template v-slot:title>
+                                    <span>{{ $t('downloadInvoice') }}</span>
+                                </template>
+                            </v-list-item>
+                            <v-list-item @click.prevent="showEditForm(detailOfProjectDeal.final_quotation.remaining, item)" v-if="item.can_edit_invoice">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiPen"></v-icon>
+                                </template>
+                                <template v-slot:title>
+                                    <span>{{ $t('edit') }}</span>
+                                </template>
+                            </v-list-item>
+                            <v-list-item @click.prevent="deleteInvoice(item)" v-if="item.can_delete_invoice">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiTrashCan"></v-icon>
+                                </template>
+                                <template v-slot:title>
+                                    <span>{{ $t('delete') }}</span>
+                                </template>
+                            </v-list-item>
+                            <v-list-item @click.prevent="approveInvoice(item)" v-if="item.can_approve_invoice">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiCheck"></v-icon>
+                                </template>
+                                <template v-slot:title>
+                                    <span>{{ $t('approve') }}</span>
+                                </template>
+                            </v-list-item>
+                            <v-list-item @click.prevent="rejectInvoice(item)" v-if="item.can_reject_invoice">
+                                <template v-slot:prepend>
+                                    <v-icon :icon="mdiClose"></v-icon>
+                                </template>
+                                <template v-slot:title>
+                                    <span>{{ $t('reject') }}</span>
+                                </template>
+                            </v-list-item>
+                        </v-list>
+                    </v-menu>
                 </template>
             </v-data-table-virtual>
+
+            <generate-invoice-form
+                v-if="(detailOfProjectDeal)"
+                :remaining-payment="stateRemainingPayment"
+                @close-event="closeGenerateInvoiceForm(detailOfProjectDeal.final_quotation.remaining)"
+                @update-transaction="updateTransactionData"
+                :current-invoice="currentInvoice"
+                :is-show="showGenerateInvoice"></generate-invoice-form>
+
+            <confirmation-modal
+                title="Delete invoice"
+                text="Are you sure to delete this unpaid invoice?"
+                :loading="loading"
+                :show-confirm="isShowDeleteConfirmation"
+                :delete-ids="selectedIds"
+                @actionBulkSubmit="doDeleteInvoice"></confirmation-modal>
+
+            <confirmation-modal
+                :title="defaultInvoiceActionConfirmationTitle"
+                :text="defaultInvoiceActionConfirmationText"
+                :loading="loading"
+                :show-confirm="showConfirmationApproveChanges"
+                :delete-ids="selectedInvoiceToBeApprove"
+                @actionBulkSubmit="doApproveInvoice"></confirmation-modal>
         </div>
     </div>
 </template>

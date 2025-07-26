@@ -782,5 +782,11 @@
     "detailTransaction": "Detail Transaction",
     "deadlineChangeReason": "Deadline Change Reason",
     "createReason": "Create Reason",
-    "confirmationdeleteReason": "Are you sure to delete this reason"
+    "confirmationdeleteReason": "Are you sure to delete this reason",
+    "areYouSureApproveChanges": "Are you sure to approve this changes?",
+    "areYouRejectChanges": "Are you sure to reject this changes?",
+    "rejectChanges": "Reject Changes",
+    "createCollectionInvoice": "Create Collection Invoice",
+    "downloadHistoryInvoice": "Download History Invoice",
+    "downloadProofOfPayment": "Download Proof of Payment"
 }

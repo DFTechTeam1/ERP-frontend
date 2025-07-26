@@ -2,6 +2,10 @@
 import { formatPrice } from '@/compose/formatPrice';
 import PerTransactionDetail from './PerTransactionDetail.vue';
 import { ref } from 'vue';
+import { mdiDownload } from '@mdi/js';
+import { useProjectDealStore } from '@/stores/projectDeal';
+import { storeToRefs } from 'pinia';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
     products: {
@@ -9,6 +13,14 @@ const props = defineProps({
         default: []
     }
 });
+
+const { t } = useI18n();
+
+const store = useProjectDealStore();
+
+const {
+    detailOfProjectDeal
+} = storeToRefs(store);
 
 const headerTransactions = ref([
     { title: 'Date', align: 'start', key: 'transaction_date_raw', sortable: false },
@@ -33,6 +45,11 @@ const detailTransaction = (uid) => {
 const closeDetailPerTransaction = () => {
     showTransactionDetail.value = false;
     selectedTransaction.value = null;
+};
+
+const downloadProofOfPayment = (invoiceUid) => {
+    let projectDealUid = detailOfProjectDeal.value.uid;
+    window.open(import.meta.env.VITE_BACKEND + `/invoices/download/proof_of_payment?projectDealUid=${projectDealUid}&invoiceUid=${invoiceUid}`, '__blank');
 };
 </script>
 
@@ -66,9 +83,22 @@ const closeDetailPerTransaction = () => {
                     <v-btn variant="outlined"
                         size="small"
                         type="button"
+                        class="mr-2"
                         @click.prevent="detailTransaction(item.uid)">
                         {{ $t('detail') }}
                     </v-btn>
+                    <v-tooltip :text="t('downloadProofOfPayment')">
+                        <template v-slot:activator="{ props }">
+                            <v-btn size="small"
+                                variant="outlined"
+                                type="button"
+                                v-bind="props"
+                                @click.prevent="downloadProofOfPayment(item.invoice.uid)">
+                                <v-icon
+                                    :icon="mdiDownload"></v-icon>
+                            </v-btn>
+                        </template>
+                    </v-tooltip>
                 </template>
             </v-data-table-virtual>
         </div>
