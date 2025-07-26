@@ -776,5 +776,6 @@
     "rejectChanges": "Tolak Perubahan",
     "createCollectionInvoice": "Buat Invoice Penagihan",
     "downloadHistoryInvoice": "Unduh Riwayat Invoice",
-    "downloadProofOfPayment": "Unduh Bukti Pembayaran"
+    "downloadProofOfPayment": "Unduh Bukti Pembayaran",
+    "definePersonToApproveInvoiceChanges": "Tentukan orang yang akan menyetujui perubahan invoice"
 }
