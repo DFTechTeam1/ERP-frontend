@@ -82,7 +82,6 @@ const generateHistoryInvoice = () => {
                             <v-list-item-title>{{ $t('createCollectionInvoice') }}</v-list-item-title>
                         </v-list-item>
                         <v-list-item @click.prevent="generateHistoryInvoice"
-                            v-if="!detailOfProjectDeal.is_paid"
                             :prepend-icon="mdiDownload">
                             <v-list-item-title>{{ $t('downloadHistoryInvoice') }}</v-list-item-title>
                         </v-list-item>
