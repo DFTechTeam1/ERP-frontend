@@ -185,7 +185,7 @@ const doDeleteInvoice = async (uids) => {
                                     <v-icon :icon="mdiDownload"></v-icon>
                                 </template>
                                 <template v-slot:title>
-                                    <span>Download Invoice</span>
+                                    <span>{{ $t('downloadInvoice') }}</span>
                                 </template>
                             </v-list-item>
                             <v-list-item @click.prevent="showEditForm(detailOfProjectDeal.final_quotation.remaining, item)" v-if="item.can_edit_invoice">

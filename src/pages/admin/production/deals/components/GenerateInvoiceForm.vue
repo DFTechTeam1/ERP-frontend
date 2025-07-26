@@ -64,6 +64,8 @@ watch(props, (values) => {
                 setFieldValue('amount', values.currentInvoice.amount);
 
                 setFieldValue('transaction_date', moment(values.currentInvoice.billing_date, 'DD MMMM YYYY').format('YYYY, MMMM DD'));
+
+                setFieldValue('is_down_payment', values.currentInvoice.is_down_payment ? true : false);
             }
         }
     }
@@ -78,6 +80,8 @@ const generateInvoice = handleSubmit(async (values) => {
 
     let transactionDate = moment(values.transaction_date, 'YYYY, MMMM DD').format('YYYY-MM-DD');
     values.transaction_date = transactionDate;
+
+    values.is_down_payment = values.is_down_payment ? 1 : 0;
 
     let resp = null;
 

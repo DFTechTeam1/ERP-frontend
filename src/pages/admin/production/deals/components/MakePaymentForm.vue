@@ -107,7 +107,7 @@ const validateData = handleSubmit(async(values) => {
 
 const inoviceListChanges = (payload) => {
     setFieldValue('payment_amount', payload.payload ? payload.payload.amount : 0);
-    setFieldValue('invoice_id', payload.payload ? payload.payload.id : null);
+    setFieldValue('invoice_id', payload.payload ? payload.payload.uid : null);
 }
 </script>
 
