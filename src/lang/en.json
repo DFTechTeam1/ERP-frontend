@@ -788,5 +788,6 @@
     "rejectChanges": "Reject Changes",
     "createCollectionInvoice": "Create Collection Invoice",
     "downloadHistoryInvoice": "Download History Invoice",
-    "downloadProofOfPayment": "Download Proof of Payment"
+    "downloadProofOfPayment": "Download Proof of Payment",
+    "definePersonToApproveInvoiceChanges": "Define person to approve invoice changes"
 }

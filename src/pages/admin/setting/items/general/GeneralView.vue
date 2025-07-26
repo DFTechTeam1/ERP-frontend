@@ -13,6 +13,18 @@
                             :error-message="errors.app_name"></field-input>
 
                         <field-input
+                            :label="t('definePersonToApproveInvoiceChanges')"
+                            class="mt-5"
+                            :is-required="false"
+                            input-type="select"
+                            :select-options="listOfAllEmployees"
+                            item-value="value"
+                            item-title="title"
+                            :is-multiple="true"
+                            v-model="person_to_approve_invoice_changes"
+                            :error-message="errors.person_to_approve_invoice_changes"></field-input>
+
+                        <field-input
                             :label="t('boardNameBacklog')"
                             class="mt-5"
                             :is-required="false"
@@ -118,18 +130,24 @@ import { onMounted, ref, watch } from 'vue';
 import { useSettingStore } from '@/stores/setting';
 import { useRoleStore } from '@/stores/role';
 import { storeToRefs } from 'pinia';
+import { useEmployeesStore } from '@/stores/employees';
 
 const store = useSettingStore();
 
 const storeRole = useRoleStore();
 
+const employeeStore = useEmployeesStore();
+
 const { globalGeneralSetting } = storeToRefs(store);
+
+const { listOfAllEmployees } = storeToRefs(employeeStore);
 
 const { t } = useI18n();
 
 const { defineField, errors, handleSubmit, setFieldValue, setFieldError } = useForm({
     validationSchema: yup.object({
         app_name: yup.string().nullable(),
+        person_to_approve_invoice_changes: yup.array().nullable(),
         board_as_backlog: yup.string().nullable(),
         board_as_3d: yup.string().nullable(),
         board_as_compositing: yup.string().nullable(),
@@ -143,6 +161,7 @@ const { defineField, errors, handleSubmit, setFieldValue, setFieldError } = useF
 });
 
 const [app_name] = defineField('app_name');
+const [person_to_approve_invoice_changes] = defineField('person_to_approve_invoice_changes');
 const [board_as_backlog] = defineField('board_as_backlog');
 const [board_as_3d] = defineField('board_as_3d');
 const [board_as_compositing] = defineField('board_as_compositing');
@@ -154,7 +173,7 @@ const [director_role] = defineField('director_role');
 const [all_employee_role] = defineField('all_employee_role');
 const [production_staff_role] = defineField('production_staff_role');
 
-const loading = ref(true);
+const loading = ref(false);
 
 const boards = ref([]);
 
@@ -299,6 +318,8 @@ async function initSetting() {
             setFieldValue('project_manager_role', elem.value);
         } else if (elem.key == 'director_role' && elem.value) {
             setFieldValue('director_role', elem.value);
+        } else if (elem.key == 'person_to_approve_invoice_changes') {
+            setFieldValue('person_to_approve_invoice_changes', elem.value);
         }
     })
 }
@@ -311,10 +332,15 @@ async function initRoles() {
     }
 }
 
+const initEmployees = async () => {
+    await employeeStore.getAll();
+};
+
 onMounted(() => {
     initRoles();
     initBoards();
-})
+    initEmployees();
+});
 
 watch(globalGeneralSetting, (values) => {
     if (values) {
