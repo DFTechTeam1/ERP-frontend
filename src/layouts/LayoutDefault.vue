@@ -548,7 +548,7 @@ const position = ref(null);
 
 const currentLang = ref('en')
 
-const layoutItems = ref(useBreakToken('menus'));
+const layoutItems = ref(useBreakToken('menus', 'mEnc'));
 
 const notificationCount = computed(() => {
   if ((listOfNotificationSection.value) && (Object.keys(listOfNotificationSection.value).length)) {
@@ -590,7 +590,7 @@ function changeLocal(lang) {
 }
 
 function setMenu() {
-  let menus = useBreakToken('menus').old; // here we just take the 'old' menu.
+  let menus = useBreakToken('menus', 'mEnc').old; // here we just take the 'old' menu.
   
   let newLayout = menus.map((map) => {
     if (map.type == 'regular') {

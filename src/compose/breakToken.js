@@ -1,8 +1,8 @@
 import { useEncrypt } from '@/compose/encrypt';
 
-export function useBreakToken(key) {
+export function useBreakToken(key, localStorageKey = 'dfauth') {
     const saltKey = import.meta.env.VITE_SALT_KEY;
-    var encodedText = localStorage.getItem('dfauth');
+    var encodedText = localStorage.getItem(localStorageKey);
     if (encodedText) {
         var { decodedString } = useEncrypt(encodedText, saltKey);
 
