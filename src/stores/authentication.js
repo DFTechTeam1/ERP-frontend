@@ -21,6 +21,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 const resp = await axios.post('/auth/login', payload);
 
                 localStorage.setItem('dfauth', resp.data.data.token);
+                localStorage.setItem('dfauthmain', resp.data.data.main);
                 localStorage.setItem('dfreportauth', resp.data.data.reportingToken);
                 localStorage.setItem('mEnc', resp.data.data.mEnc);
                 localStorage.setItem('pEnc', resp.data.data.pEnc);
@@ -64,6 +65,7 @@ export const useAuthenticationStore = defineStore('authentication', {
             await axios.post('/auth/logout')
                 .then(() => {
                     localStorage.removeItem('dfauth');
+                    localStorage.removeItem('dfauthmain');
                     localStorage.removeItem('dfreportauth');
                     localStorage.removeItem('mEnc');
                     localStorage.removeItem('pEnc');

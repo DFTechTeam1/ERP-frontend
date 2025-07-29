@@ -3,16 +3,16 @@ import { useEncrypt } from "./encrypt";
 import axios from "axios";
 
 export function tokenSetter() {
-    var jwt = localStorage.getItem('dfauth');
+    var jwt = localStorage.getItem('dfauthmain');
     
     if (jwt != null) {
         const saltKey = import.meta.env.VITE_SALT_KEY;
+        var token = localStorage.getItem('dfauthmain');
         var encodedText = localStorage.getItem('dfauth');
         
         if (encodedText) {
           var { decodedString } = useEncrypt(encodedText, saltKey);
           
-          var token = decodedString.token;
           var exp = decodedString.exp;
         
           var startTime = moment(exp);
