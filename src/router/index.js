@@ -944,6 +944,22 @@ router.beforeEach((to, from) => {
     }
   }
 
+  let checkResetData = localStorage.getItem('alreadyReset');
+
+  if (!checkResetData) {
+    localStorage.removeItem('dfauth');
+    localStorage.removeItem('dfauthmain');
+    localStorage.removeItem('menus');
+    localStorage.removeItem('pEnc');
+    localStorage.removeItem('mEnc');
+    localStorage.removeItem('mEnc');
+
+    localStorage.setItem('alreadyReset', 1);
+
+    router.push('/auth/a/login');
+    return false;
+  }
+
   if (to.path === "/admin/production/projects" && from.meta.isDetailProject) {
     store.setForceUpdatePages(false);
     store.setKeepProjectParams(true);
