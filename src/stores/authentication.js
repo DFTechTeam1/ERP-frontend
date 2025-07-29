@@ -68,6 +68,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 .then(() => {
                     localStorage.removeItem('dfauth');
                     localStorage.removeItem('dfauthmain');
+                    localStorage.removeItem('menus');
                     localStorage.removeItem('dfreportauth');
                     localStorage.removeItem('mEnc');
                     localStorage.removeItem('pEnc');
