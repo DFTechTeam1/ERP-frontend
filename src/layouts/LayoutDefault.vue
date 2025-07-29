@@ -548,7 +548,7 @@ const position = ref(null);
 
 const currentLang = ref('en')
 
-const layoutItems = ref(useBreakToken('menus', 'mEnc'));
+const layoutItems = ref([]);
 
 const notificationCount = computed(() => {
   if ((listOfNotificationSection.value) && (Object.keys(listOfNotificationSection.value).length)) {
