@@ -1043,7 +1043,7 @@ router.beforeEach((to, from) => {
     var hours = duration.asHours();
 
     if (hours < 0) {
-      localStorage.removeItem("dfauth");
+      localStorage.removeItem("dfauthmain");
       return {
         path: "/auth/a/login",
       };
@@ -1064,7 +1064,7 @@ router.beforeEach((to, from) => {
     window.document.title = to.name;
   }
 
-  if (to.path == "/auth/a/login" && localStorage.getItem("dfauth")) {
+  if (to.path == "/auth/a/login" && localStorage.getItem("dfauthmain")) {
     return {
       path: "/admin/dashboard",
     };
@@ -1080,7 +1080,7 @@ router.beforeEach((to, from) => {
 
   // instead of having to check every route record with
   // to.matched.some(record => record.meta.requiresAuth)
-  if (to.meta.requiresAuth && !localStorage.getItem("dfauth")) {
+  if (to.meta.requiresAuth && !localStorage.getItem("dfauthmain")) {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     return {

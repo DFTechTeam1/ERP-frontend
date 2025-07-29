@@ -38,6 +38,7 @@ export function useEncrypt(encryptedString, key) {
             decodedString = JSON.parse(decodedString);
         } catch (error) {
             localStorage.removeItem('dfauth');
+            localStorage.removeItem('dfauthmain');
             localStorage.removeItem('dfreportauth');
             window.location.href = '/auth/a/login';
         }
