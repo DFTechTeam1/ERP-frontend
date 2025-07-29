@@ -1,6 +1,7 @@
 import CryptoJS from "crypto-js";
 
 export function useEncrypt(encryptedString, key) {
+    console.log('encryptedString', encryptedString);
     var decodedString = '';
 
     function encryptMethod() {
