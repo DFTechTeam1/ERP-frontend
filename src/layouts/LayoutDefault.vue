@@ -506,7 +506,7 @@ const { globalAppName } = storeToRefs(storeSetting);
 
 const notificationMenu = ref(false);
 
-var encodedText = localStorage.getItem('dfauth');
+var encodedText = localStorage.getItem('permissions', 'pEnc');
 const saltKey = import.meta.env.VITE_SALT_KEY;
 const permissions = ref([]);
 

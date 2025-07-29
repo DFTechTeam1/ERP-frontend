@@ -36,12 +36,12 @@ var jwt = localStorage.getItem('dfauth');
 
 if (jwt != null) {
   const saltKey = import.meta.env.VITE_SALT_KEY;
+  var token = localStorage.getItem('dfauthmain');
   var encodedText = localStorage.getItem('dfauth');
   
   if (encodedText) {
     var { decodedString } = useEncrypt(encodedText, saltKey);
     
-    var token = decodedString.token;
     var exp = decodedString.exp;
   
     var startTime = moment(exp);
@@ -82,7 +82,6 @@ axios.interceptors.response.use(
     }
 
     if ((error.response.data) && (error.response.data.data) && (error.response.data.data.redirect)) {
-      console.log('global error', error.response.data.data.redirect)
       window.location.href = error.response.data.data.redirect
     }
 
