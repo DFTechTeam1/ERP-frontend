@@ -25,6 +25,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 localStorage.setItem('dfreportauth', resp.data.data.reportingToken);
                 localStorage.setItem('mEnc', resp.data.data.mEnc);
                 localStorage.setItem('pEnc', resp.data.data.pEnc);
+                localStorage.setItem('menus', JSON.stringify(resp.data.data.menus));
 
                 var appName = useBreakToken('app_name');
                 if (appName) {
