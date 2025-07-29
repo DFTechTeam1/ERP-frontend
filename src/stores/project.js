@@ -227,11 +227,8 @@ export const useProjectStore = defineStore('project', {
             try {
                 const resp = await axios.get('/production/project/' + payload.id);
 
-                const saltKey = import.meta.env.VITE_SALT_KEY;
-                const { decodedString } = useEncrypt(resp.data.data.detail, saltKey);
-                console.log('decodedString', decodedString);
-                this.detail = decodedString;
-                this.projectBoards = decodedString.boards;
+                this.detail = resp.data.data.data;
+                this.projectBoards = resp.data.data.data.boards;
 
                 return resp;
             } catch (error) {
