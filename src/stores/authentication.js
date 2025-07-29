@@ -19,7 +19,7 @@ export const useAuthenticationStore = defineStore('authentication', {
         async login(payload) {
             try {
                 const resp = await axios.post('/auth/login', payload);
-
+                console.log('resp login', resp);
                 localStorage.setItem('dfauth', resp.data.data.token);
                 localStorage.setItem('dfauthmain', resp.data.data.main);
                 localStorage.setItem('dfreportauth', resp.data.data.reportingToken);
@@ -36,6 +36,7 @@ export const useAuthenticationStore = defineStore('authentication', {
 
                 return resp
             } catch (error) {
+                console.log('error login', error);
                 notify({
                     title: 'Error',
                     text: error.response.data.message,
