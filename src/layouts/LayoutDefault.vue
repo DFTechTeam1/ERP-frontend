@@ -492,7 +492,7 @@ const notificationCount = computed(() => {
     if (listOfNotificationSection.value.finance) {
       return listOfFinanceNotification.value.length;
     } else if (listOfNotificationSection.value.production && listOfNotificationSection.value.general) {
-      return 0
+      return 0;
     } else if (listOfNotificationSection.value.general && listOfNotificationSection.value.finance && listOfNotificationSection.value.production && listOfNotificationSection.value.hrd) {
       return listOfFinanceNotification.value.length + listOfNotification.value.length;
     } else {
@@ -573,6 +573,23 @@ function setMenu() {
 const { setupPusher, cleanup } = usePusher();
 
 onMounted(() => {
+  // reset localstorage
+  let checkResetData = localStorage.getItem('alreadyReset');
+
+  if (!checkResetData) {
+    localStorage.removeItem('dfauth');
+    localStorage.removeItem('dfauthmain');
+    localStorage.removeItem('menus');
+    localStorage.removeItem('pEnc');
+    localStorage.removeItem('mEnc');
+    localStorage.removeItem('mEnc');
+
+    localStorage.setItem('alreadyReset', 1);
+
+    router.push('/auth/a/login');
+    return false;
+  }
+
   openMenu.value = []
   // eriksaputro@dfactory.pro
   if (localStorage.getItem('lang')) {
