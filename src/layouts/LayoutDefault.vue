@@ -508,13 +508,13 @@ const notificationMenu = ref(false);
 
 var encodedText = localStorage.getItem('permissions', 'pEnc');
 const saltKey = import.meta.env.VITE_SALT_KEY;
-const permissions = ref([]);
+// const permissions = ref([]);
 
-if (encodedText) {
-  var { decodedString } = useEncrypt(encodedText, saltKey);
+// if (encodedText) {
+//   var { decodedString } = useEncrypt(encodedText, saltKey);
 
-  permissions.value = decodedString.permissions;
-}
+//   permissions.value = decodedString.permissions;
+// }
 
 const router = useRouter();
 
@@ -590,8 +590,9 @@ function changeLocal(lang) {
 }
 
 function setMenu() {
-  let menus = useBreakToken('menus', 'mEnc').old; // here we just take the 'old' menu.
-  
+  // let menus = useBreakToken('menus', 'mEnc').old; // here we just take the 'old' menu.
+  let menus = JSON.parse(localStorage.getItem('menus')).old;
+
   let newLayout = menus.map((map) => {
     if (map.type == 'regular') {
       map.childs.map((child) => {
