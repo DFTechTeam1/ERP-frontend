@@ -22,6 +22,8 @@ export const useAuthenticationStore = defineStore('authentication', {
 
                 localStorage.setItem('dfauth', resp.data.data.token);
                 localStorage.setItem('dfreportauth', resp.data.data.reportingToken);
+                localStorage.setItem('mEnc', resp.data.data.mEnc);
+                localStorage.setItem('pEnc', resp.data.data.pEnc);
 
                 var appName = useBreakToken('app_name');
                 if (appName) {
@@ -62,6 +64,9 @@ export const useAuthenticationStore = defineStore('authentication', {
             await axios.post('/auth/logout')
                 .then(() => {
                     localStorage.removeItem('dfauth');
+                    localStorage.removeItem('dfreportauth');
+                    localStorage.removeItem('mEnc');
+                    localStorage.removeItem('pEnc');
                 })
                 .catch(err => {
                     notify({
