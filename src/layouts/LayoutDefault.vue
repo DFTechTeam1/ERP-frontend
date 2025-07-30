@@ -212,6 +212,16 @@
           </template>
         </v-menu> -->
 
+        <v-avatar class="me-5">
+          <v-img src="/envelope.png"
+            width="25"
+            height="25"
+            class="pointer"
+            @click.prevent="isShowInbox = true"></v-img>
+
+          <inbox-view :is-show="isShowInbox" @close-event="isShowInbox = false"></inbox-view>
+        </v-avatar>
+
         <v-menu open-on-click>
           <template v-slot:activator="{props}">
             <v-avatar class="me-5">
@@ -405,7 +415,7 @@
 <script setup>
 import AppFooter from "@/components/AppFooter.vue";
 import NewBellNotification from "./NewBellNotification.vue";
-import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower, mdiKeyOutline, mdiLightbulbOn10, mdiLightbulbOn } from "@mdi/js";
+import { mdiBellOutline, mdiCircleOutline, mdiMenu, mdiPower, mdiKeyOutline, mdiLightbulbOn10, mdiLightbulbOn, mdiMailbox, mdiMail } from "@mdi/js";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 import { ref, onMounted, watch, onUnmounted } from "vue";
 import { useMenusStore } from "@/stores/menus";
@@ -434,6 +444,8 @@ const { listOfNotification, listOfFinanceNotification, listOfNotificationSection
 const { globalAppName } = storeToRefs(storeSetting);
 
 const notificationMenu = ref(false);
+
+const isShowInbox = ref(false);
 
 var encodedText = localStorage.getItem('permissions', 'pEnc');
 const saltKey = import.meta.env.VITE_SALT_KEY;

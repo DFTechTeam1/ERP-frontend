@@ -80,14 +80,27 @@
               {{ props.btnAddText }}
             </v-btn>
 
+            <v-tooltip text="Export" v-if="props.hasExportButton">
+              <template v-slot:activator="{ props }">
+                <v-icon :icon="mdiExportVariant" size="20" class="ms-3 pointer"
+                  v-bind="props"
+                  @click.prevent="$emit('exportAction')"></v-icon>
+              </template>
+            </v-tooltip>
+
             <v-btn
               variant="flat"
               color="primary"
               size="small"
               v-if="props.hasAddButton && props.hasAddDropdown"
             >
-              <v-icon :icon="mdiPlus" size="20"></v-icon>
-              {{ props.btnAddText }}
+              <template v-if="!props.addDropdownText.length">
+                <v-icon :icon="mdiPlus" size="20"></v-icon>
+                {{ props.btnAddText }}
+              </template>
+              <template v-else>
+                {{ props.addDropdownText }}
+              </template>
 
               <v-menu activator="parent">
                 <slot name="addDropdown"></slot>
@@ -166,7 +179,7 @@
 </template>
 
 <script setup>
-import { mdiClose, mdiFilterCog, mdiMagnify, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
+import { mdiClose, mdiDotsVertical, mdiExport, mdiExportVariant, mdiFileExport, mdiFilterCog, mdiMagnify, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
 import { watch } from "vue";
 import { onMounted } from "vue";
 import { ref } from "vue";
@@ -175,6 +188,10 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const props = defineProps({
+  hasExportButton: {
+    type: Boolean,
+    default: false
+  },
   hasFilterMobile: {
     type: Boolean,
     default: false
@@ -218,6 +235,10 @@ const props = defineProps({
   hasAddDropdown: {
     type: Boolean,
     default: false,
+  },
+  addDropdownText: {
+    type: String,
+    default: ''
   },
   filterSearch: {
     type: Boolean,
@@ -294,7 +315,8 @@ const emit = defineEmits([
   "bulkDeleteEvent",
   "addDataEvent",
   "filterAction",
-  "clearFilterAction"
+  "clearFilterAction",
+  "exportAction"
 ]);
 
 function filterHeaders(headers) {
