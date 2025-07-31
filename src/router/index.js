@@ -5,6 +5,7 @@
  */
 
 // Composables
+import ReportingPage from "@/pages/admin/dashboard/ReportingPage.vue";
 import DashboardView from "@/pages/admin/dashboard/DashboardView.vue";
 import HomepageView from "@/pages/HomepageView.vue";
 import Layout from "@/layouts/LayoutDefault.vue";
@@ -474,6 +475,18 @@ const router = createRouter({
           meta: {
             requiresAuth: true,
             parentLink: '/admin/dashboard',
+            permissions: [
+              "dashboard_access"
+            ],
+          },
+        },
+        {
+          path: "/admin/dashboard/report",
+          name: "Dashboard Report",
+          component: ReportingPage,
+          meta: {
+            requiresAuth: true,
+            parentLink: '/admin/dashboard/report',
             permissions: [
               "dashboard_access"
             ],
