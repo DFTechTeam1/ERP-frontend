@@ -927,12 +927,26 @@ const router = createRouter({
 router.beforeEach((to, from) => {
   const store = useProjectStore();
 
+  let checkResetData = localStorage.getItem('alreadyReset');
+  if (!checkResetData) {
+    localStorage.removeItem('dfauth');
+    localStorage.removeItem('dfauthmain');
+    localStorage.removeItem('menus');
+    localStorage.removeItem('pEnc');
+    localStorage.removeItem('mEnc');
+    localStorage.removeItem('mEnc');
+
+    localStorage.setItem('alreadyReset', 1);
+
+    router.push('/auth/a/login');
+    return false;
+  }
+
   // TODO: DELETED SOON
   if (to.path == '/') {
-    return {
-      path: '/auth/a/login'
-    }
+    return '/auth/a/login'
   }
+
 
   if (to.path === "/admin/production/projects" && from.meta.isDetailProject) {
     store.setForceUpdatePages(false);
@@ -1033,7 +1047,12 @@ router.beforeEach((to, from) => {
     var hours = duration.asHours();
 
     if (hours < 0) {
-      localStorage.removeItem("dfauthmain");
+      localStorage.removeItem('dfauth');
+      localStorage.removeItem('dfauthmain');
+      localStorage.removeItem('menus');
+      localStorage.removeItem('dfreportauth');
+      localStorage.removeItem('mEnc');
+      localStorage.removeItem('pEnc');
       return {
         path: "/auth/a/login",
       };
@@ -1054,7 +1073,7 @@ router.beforeEach((to, from) => {
     window.document.title = to.name;
   }
 
-  if (to.path == "/auth/a/login" && localStorage.getItem("dfauthmain")) {
+  if (to.path == "/auth/a/login" && localStorage.getItem("dfauthmain") && localStorage.getItem('alreadyReset')) {
     return {
       path: "/admin/dashboard",
     };
