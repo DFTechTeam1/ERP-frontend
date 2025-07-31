@@ -432,6 +432,7 @@ import ResetPassword from '@/components/ResetPassword.vue'
 import { usePusher } from "@/compose/pusher";
 import { computed } from "vue";
 import { useTheme } from "vuetify";
+import { showNotification } from "@/compose/notification";
 
 const i18n = useI18n()
 
@@ -618,13 +619,19 @@ onMounted(() => {
 
   // setup pusher
   var userId = useBreakToken("user").id;
-  
+  console.log('userId pusher', userId);
   const channel = setupPusher(userId);
   channel.bind('notification-event', (notif) => {
     
     if (notif.type == 'finance') {
       financeNotitication();
     }
+  });
+
+  channel.bind('handle-export-import-notification', (notifImport) => {
+    notifImport = JSON.parse(notifImport);
+
+    showNotification(notifImport.message, notifImport.type == 'exportImportSuccess' ? 'success' : 'error');
   });
 
   // init permission notification panel
