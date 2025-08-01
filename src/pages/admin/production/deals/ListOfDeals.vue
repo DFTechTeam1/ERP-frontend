@@ -1,7 +1,7 @@
 <script setup>
 import { useProjectStore } from '@/stores/project';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiCheckDecagram, mdiCogOutline, mdiDownload, mdiEyeCircle, mdiInvoice, mdiLogin, mdiPencilOutline, mdiTrashCanOutline } from '@mdi/js';
+import { mdiCheckDecagram, mdiCogOutline, mdiDownload, mdiExport, mdiEyeCircle, mdiInvoice, mdiLogin, mdiPencilOutline, mdiPlus, mdiTrashCanOutline } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -10,6 +10,7 @@ import PaymentDialog from './components/PaymentDialog.vue';
 import { showNotification } from '@/compose/notification';
 import { useCheckPermission } from '@/compose/checkPermission';
 import FilterDeal from './FilterDeal.vue';
+import ExportDialog from './ExportDialog.vue';
 import { computed } from 'vue';
 
 const { t } = useI18n();
@@ -125,6 +126,8 @@ const headers = ref([
 const loading = ref(false);
 
 const isShowFilter = ref(false);
+
+const isShowExportDialog = ref(false);
 
 const showConfirm = ref(false);
 
@@ -279,6 +282,10 @@ const closeFilterDialog = () => {
     isShowFilter.value = false;
 };
 
+const openExportDialog = () => {
+    isShowExportDialog.value = true;
+};
+
 onMounted(() => {
     if (linkOfQuotationUrl.value) {
         // duplicate in variable
@@ -317,9 +324,26 @@ onMounted(() => {
             :custom-status="true"
             @table-event="initProjectDeals"
             :allowed-create-button="canCreateDeal"
+            :has-export-button="true"
+            @export-action="openExportDialog"
             @add-data-event="createDeal"
             @filter-action="showFilter"
             @clear-filter-action="clearFilter">
+            <template v-slot:addDropdown>
+                <v-list>
+                    <v-list-item @click.prevent="" :title="t('create')">
+                        <template v-slot:prepend>
+                            <v-icon :icon="mdiPlus" size="15"></v-icon>
+                        </template>
+                    </v-list-item>
+                    <v-list-item @click.prevent="" :title="t('export')">
+                        <template v-slot:prepend>
+                            <v-icon :icon="mdiExport" size="15"></v-icon>
+                        </template>
+                    </v-list-item>
+                </v-list>
+            </template>
+
             <template v-slot:status="{ value }">
                 <v-chip :color="value.status_payment_color" size="small" density="compact">{{ value.status_payment }}</v-chip>
             </template>
@@ -479,5 +503,10 @@ onMounted(() => {
             :is-show="isShowFilter"
             @submit-event="submitFilter"
             @close-event="closeFilterDialog" />
+            
+        <export-dialog
+            :is-show="isShowExportDialog"
+            @submit-event="submitFilter"
+            @close-event="isShowExportDialog =  false" />
     </div>
 </template>

@@ -7,12 +7,16 @@ export const useNotificationStore = defineStore('notification', {
     state: () => ({
         notifications: [],
         financeNotitications: [],
-        notificationSection: null
+        notificationSection: null,
+        inboxData: [],
+        totalInboxData: 0
     }),
     getters: {
         listOfNotification: (state) => state.notifications,
         listOfFinanceNotification: (state) => state.financeNotitications,
-        listOfNotificationSection: (state) => state.notificationSection
+        listOfNotificationSection: (state) => state.notificationSection,
+        listOfInboxData: (state) => state.inboxData,
+        totalOfInboxData: (state) => state.totalInboxData
     },
     actions: {
         setNotif(payload) {
@@ -77,6 +81,30 @@ export const useNotificationStore = defineStore('notification', {
                 let notificationSection = useBreakToken('notification_section');
     
                 this.notificationSection = notificationSection;
+            }
+        },
+        async getInboxData(params) {
+            try {
+                const resp = await axios.get('inboxData', {
+                    params: params
+                });
+
+                this.inboxData = resp.data.data.paginated;
+                this.totalInboxData = resp.data.data.totalData;
+            } catch (error) {
+                return error;
+            }
+        },
+        async clearInboxData() {
+            try {
+                const resp = await axios.get('inboxData/clear');
+
+                this.inboxData = [];
+                this.totalInboxData = 0;
+
+                return resp;
+            } catch (error) {
+                return error;
             }
         }
     }

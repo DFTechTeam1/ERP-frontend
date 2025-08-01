@@ -13,6 +13,7 @@ import ColorPicker from './ColorPicker.vue'
 import ImportExcel from './ImportExcel.vue'
 import DividerText from "./DividerText.vue";
 import MasterCard from './MasterCard.vue'
+import InboxView from "./InboxView.vue";
 import { VFileUpload, VFileUploadItem } from 'vuetify/labs/VFileUpload'
 import ButtonGroupNavigation from './ButtonGroupNavigation.vue'
 import RoundedInput from './RoundedInput.vue'
@@ -72,6 +73,7 @@ export function registerComponent(app) {
         .component('modalForm', ModalForm)
         .component('ve-select', vSelect)
         .component('QuillEditor', QuillEditor)
+        .component('inbox-view', InboxView)
         .component('field-input', FieldInput)
         .component('year-picker', YearPicker)
         .component('date-picker', DatePicker)
