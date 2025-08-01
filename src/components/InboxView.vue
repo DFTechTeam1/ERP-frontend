@@ -1,5 +1,7 @@
 <script setup>
+import { useNotificationStore } from '@/stores/notification';
 import { mdiClose } from '@mdi/js';
+import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 
 const props = defineProps({
@@ -9,11 +11,20 @@ const props = defineProps({
     }
 });
 
+const store = useNotificationStore();
+
+const {
+    listOfInboxData,
+    totalOfInboxData
+} = storeToRefs(store);
+
 defineEmits(['close-event']);
 
 const show = ref(false);
 
 const itemsPerPage = ref(10);
+
+const loading = ref(false);
 
 const headers = ref([
     {title: "Area", key: 'area', align: 'start'},
@@ -30,11 +41,26 @@ const items = ref([
     }
 ]);
 
+const loadInbox = async (payload) => {
+    loading.value = true;
+    await store.getInboxData({
+        page: payload.page,
+        itemsPerPage: payload.itemsPerPage
+    });
+    loading.value = false;
+};
+
 watch(props, (values) => {
     if (values) {
         show.value = values.isShow;
     }
 });
+
+const clearAllInbox = async () => {
+    loading.value = true;
+    await store.clearInboxData();
+    loading.value = false;
+}
 </script>
 
 <template>
@@ -45,7 +71,7 @@ watch(props, (values) => {
         
         <master-card>
             <v-card-item>
-                <v-card-title class="d-flex align-items-center justify-space-between">
+                <v-card-title class="d-flex align-center justify-space-between">
                     <span>Inbox</span>
                     <v-icon :icon="mdiClose"
                         size="14"
@@ -56,12 +82,22 @@ watch(props, (values) => {
             </v-card-item>
 
             <v-card-text>
+                <div class="d-flex justify-end">
+                    <v-btn size="small" variant="text" color="red" type="button"
+                        @click.prevent="clearAllInbox">
+                        <v-icon :icon="mdiClose" size="12"></v-icon>
+
+                        Clear All
+                    </v-btn>
+                </div>
                 <v-data-table-server
                     :headers="headers"
-                    :items="items"
-                    :items-length="1"
+                    :items="listOfInboxData"
+                    :items-length="totalOfInboxData"
                     v-model:items-per-page="itemsPerPage"
-                    item-vaue="description">
+                    item-vaue="description"
+                    :loading="loading"
+                    @update:options="loadInbox">
 
                     <template v-slot:item.message="{ item }">
                         <div v-html="item.message"></div>

@@ -1,5 +1,7 @@
 <script setup>
+import { showNotification } from '@/compose/notification';
 import { useCustomerStore } from '@/stores/customer';
+import { useFinanceStore } from '@/stores/finance';
 import { useProjectStore } from '@/stores/project';
 import { useProjectDealStore } from '@/stores/projectDeal';
 import { mdiAccount, mdiCalendar, mdiCash, mdiChevronRight, mdiClose, mdiFileQuestion, mdiMailbox, mdiOfficeBuilding } from '@mdi/js';
@@ -20,6 +22,8 @@ const store = useProjectDealStore();
 const projectStore = useProjectStore();
 
 const customerStore = useCustomerStore();
+
+const financeStore = useFinanceStore();
 
 const {
     listOfAllCustomer
@@ -48,16 +52,14 @@ const { handleSubmit, resetForm, defineField, setFieldValue, errors } = useForm(
         date: yup.array().nullable(),
         status: yup.array().nullable(),
         customer: yup.array().nullable(),
-        marketing: yup.array().nullable(),
+        marketings: yup.array().nullable(),
         price: yup.array().nullable(),
     })
 });
 
-const [event] = defineField('event');
 const [date] = defineField('date');
 const [status] = defineField('status');
-const [customer] = defineField('customer');
-const [marketing] = defineField('marketing');
+const [marketings] = defineField('marketings');
 const [price] = defineField('price');
 
 const filters = ref([
@@ -134,8 +136,6 @@ const chooseFilterItem = (item) => {
 
             return currentFilter;
         });
-
-        console.log('filters', filters.value);
     }
 
     // update the status in current filters
@@ -168,23 +168,13 @@ watch(props, (values) => {
         show.value = values.isShow;
 
         if (values.isShow) {
-            // here we set current filter the same with current session
-            if (listOfFilterValue.value) {
-                if (listOfFilterValue.value.preview.length) {
-                    filterPreviews.value = listOfFilterValue.value.preview;
-                }
-                if (listOfFilterValue.value.filters.length) {
-                    filters.value = listOfFilterValue.value.filters;
-                }
-            }
-
             // get marketing list
             prepareData();
         }
     }
 });
 
-watch(marketing, (values) => {
+watch(marketings, (values) => {
     
     filters.value = filters.value.map((mapping) => {
         if (mapping.icon === 'marketing') {
@@ -235,33 +225,10 @@ watch(date, (values) => {
 
             startDate += ' - ' + endDate;
         }
-
-        // update value
-        console.log('start', startDate);
     }
     filters.value = filters.value.map((mapping) => {
         if (mapping.icon == 'date') {
             mapping.value = startDate;
-        }
-
-        return mapping;
-    });
-});
-
-watch(customer, (values) => {
-    filters.value = filters.value.map((mapping) => {
-        if (mapping.icon === 'customer') {
-            mapping.value = values;
-        }
-
-        return mapping;
-    });
-});
-
-watch(event, (values) => {
-    filters.value = filters.value.map((mapping) => {
-        if (mapping.icon === 'event') {
-            mapping.value = values;
         }
 
         return mapping;
@@ -283,32 +250,26 @@ const closeFilterDialog = () => {
     emit('close-event');
 };
 
-const validateData = handleSubmit((values) => {
-    let payload = {};
-
-    filters.value.forEach((item) => {
-        if (item.value && item.active) {
-            payload[item.icon] = values[item.icon]
-        }
-    });
-
-    store.setAdvanceFilterValue({
-        filters: filters.value,
-        preview: filterPreviews.value
-    });
-
-    // format the date
-    if ('date' in payload) {
+const validateData = handleSubmit(async (values) => {
+    if (values.date) {
         let startDate = moment(payload.date[0]).format('YYYY-MM-DD');
         if (payload.date.length > 1) {
             let endDate = moment(payload.date[payload.date.length - 1]).format('YYYY-MM-DD');
             startDate += " - " + endDate;
         }
 
-        payload.date = startDate;
+        values.date = startDate;
     }
+    console.log('values', values);
 
-    emit('submit-event', payload);
+    const resp = await financeStore.exportFinanceGlobalData(values);
+
+    const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
+    const type = resp.status < 300 ? 'success' : 'error';
+    showNotification(message, type);
+    resetFilterDialog();
+
+    emit('close-event');
 });
 
 defineExpose({
@@ -422,7 +383,7 @@ defineExpose({
                                         <field-input
                                             :label="t('marketing')"
                                             :is-solo="true"
-                                            v-model="marketing"
+                                            v-model="marketings"
                                             :is-required="false"
                                             input-type="select"
                                             :select-options="listOfMarketings"

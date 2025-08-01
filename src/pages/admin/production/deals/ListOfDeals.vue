@@ -507,6 +507,6 @@ onMounted(() => {
         <export-dialog
             :is-show="isShowExportDialog"
             @submit-event="submitFilter"
-            @close-event="closeFilterDialog" />
+            @close-event="isShowExportDialog =  false" />
     </div>
 </template>

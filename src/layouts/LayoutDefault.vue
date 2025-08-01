@@ -630,6 +630,7 @@ onMounted(() => {
 
   channel.bind('handle-export-import-notification', (notifImport) => {
     notifImport = JSON.parse(notifImport);
+    console.log('notifImport', notifImport);
 
     showNotification(notifImport.message, notifImport.type == 'exportImportSuccess' ? 'success' : 'error');
   });

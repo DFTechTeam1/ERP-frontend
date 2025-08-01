@@ -40,5 +40,12 @@ export const useFinanceStore = defineStore('finance', {
                 return error;
             }
         },
+        async exportFinanceGlobalData(payload) {
+            try {
+                return await axios.post(`/finance/report/global`, payload);
+            } catch (error) {
+                return error;   
+            }
+        }
     }
 })
