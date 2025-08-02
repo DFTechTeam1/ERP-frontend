@@ -619,7 +619,6 @@ onMounted(() => {
 
   // setup pusher
   var userId = useBreakToken("user").id;
-  console.log('userId pusher', userId);
   const channel = setupPusher(userId);
   channel.bind('notification-event', (notif) => {
     
@@ -630,7 +629,6 @@ onMounted(() => {
 
   channel.bind('handle-export-import-notification', (notifImport) => {
     notifImport = JSON.parse(notifImport);
-    console.log('notifImport', notifImport);
 
     showNotification(notifImport.message, notifImport.type == 'exportImportSuccess' ? 'success' : 'error');
   });

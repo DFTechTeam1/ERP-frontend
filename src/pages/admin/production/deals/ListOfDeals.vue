@@ -1,7 +1,7 @@
 <script setup>
 import { useProjectStore } from '@/stores/project';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiCheckDecagram, mdiCogOutline, mdiDownload, mdiExport, mdiEyeCircle, mdiInvoice, mdiLogin, mdiPencilOutline, mdiPlus, mdiTrashCanOutline } from '@mdi/js';
+import { mdiCheckDecagram, mdiClose, mdiCogOutline, mdiDownload, mdiExport, mdiEyeCircle, mdiInvoice, mdiLogin, mdiPencilOutline, mdiPlus, mdiTrashCanOutline } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -27,7 +27,8 @@ const {
 const {
     listOfProjectDeals,
     totalOfProjectDeals,
-    listOfFilterValue
+    listOfFilterValue,
+    listOfFinalProjectFilter
 } = storeToRefs(storeDeal);
 
 const showButtonClearFilter = computed(() => {
@@ -131,17 +132,25 @@ const isShowExportDialog = ref(false);
 
 const showConfirm = ref(false);
 
+const showConfirmCancel = ref(false);
+
 const finalIds = ref(null);
+
+const cancelIds = ref(null);
 
 const canCreateDeal = useCheckPermission('create_deals');
 
 const showPaymentDialog = ref(false);
+
+const isShowDialogReason = ref(false);
 
 const advanceFilterValue = ref(null);
 
 const selectedPaymentDeal = ref(null);
 
 const selectedRemainingBills = ref(0);
+
+const reasonOfCancel = ref(null);
 
 const showConfirmation = ref(false);
 
@@ -175,6 +184,23 @@ const confirmDeleteData = (uid) => {
     selectedIds.value = [uid];
 };
 
+const showCancelConfirmation = (values) => {
+    showConfirmCancel.value = true;
+    reasonOfCancel.value = values.reason;
+};
+
+const showCancelReason = (uid) => {
+    cancelIds.value = [uid];
+    isShowDialogReason.value = true;
+};
+
+const closeCancelReasonDialog = () => {
+    cancelIds.value = [];
+    isShowDialogReason.value = false;
+    reasonOfCancel.value = null;
+    showConfirmCancel.value = false;
+}
+
 const initProjectDeals = async(payload = '') => {
     if (payload === '') {
         payload = {page: 1, itemsPerPage: 10}
@@ -185,6 +211,10 @@ const initProjectDeals = async(payload = '') => {
         itemsPerPage: payload.itemsPerPage,
         sortBy: payload.sortBy,
     });
+
+    if (listOfFinalProjectFilter.value) {
+        advanceFilterValue.value = listOfFinalProjectFilter.value;
+    }
 
     loading.value = true;
     await storeDeal.initProjectDeals(advanceFilterValue.value);
@@ -247,6 +277,23 @@ const doFinal = async (deleteIds) => {
     }
 };
 
+const doCancel = async () => {
+    loading.value = true;
+    const resp = await storeDeal.cancelProjectDeal(cancelIds.value[0], {
+        reason: reasonOfCancel.value
+    });
+    loading.value = false;
+
+    const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
+    const type = resp.status < 300 ? 'success' : 'error';
+    showNotification(message, type);
+
+    if (resp.status < 300) {
+        closeCancelReasonDialog()
+        initProjectDeals();
+    }
+};
+
 const showFilter = () => {
     isShowFilter.value = true;
 };
@@ -254,10 +301,10 @@ const showFilter = () => {
 const submitFilter = (payload) => {
     isShowFilter.value = false;
 
-    console.log('advance filter', payload);
-
     if (Object.keys(payload).length) {
         advanceFilterValue.value = payload;
+
+        storeDeal.setGlobalProjectFilter(advanceFilterValue.value);
 
         initProjectDeals();
     }
@@ -267,6 +314,7 @@ const clearFilter = () => {
     isShowFilter.value = false;
     advanceFilterValue.value = null;
     storeDeal.clearAdvanceFilterValue();
+    storeDeal.setGlobalProjectFilter(null);
     storeDeal.setAdvanceFilterValue({
         filters: [],
         preview: []
@@ -296,6 +344,10 @@ onMounted(() => {
 
         // redirect
         window.open(url, '__blank');
+    }
+
+    if (listOfFinalProjectFilter.value) {
+        advanceFilterValue.value = listOfFinalProjectFilter.value;
     }
 });
 </script>
@@ -477,6 +529,19 @@ onMounted(() => {
                                 </div>
                             </template>
                         </v-list-item>
+
+                        <v-list-item class="pointer" @click.prevent="showCancelReason(value.uid)"
+                            v-if="value.can_cancel">
+                            <template v-slot:title>
+                                <div class="d-flex align-center"
+                                    style="gap: 8px; font-size: 12px;">
+                                    <v-icon
+                                        :icon="mdiClose"
+                                        size="13"></v-icon>
+                                    <span>{{ t('cancel') }}</span>
+                                </div>
+                            </template>
+                        </v-list-item>
                     </v-list>
                 </v-menu>
             </template>
@@ -498,6 +563,14 @@ onMounted(() => {
             :delete-ids="finalIds"
             @action-bulk-submit="doFinal" />
 
+        <confirmation-modal 
+            title="Cancel Event"
+            text="Are you sure to cancel this event? Cancelled event will no longer appear in the list unless you apply a filter to make it visible."
+            :laoding="loading"
+            :show-confirm="showConfirmCancel"
+            :delete-ids="cancelIds"
+            @action-bulk-submit="doCancel" />
+
         <filter-deal
             ref="filterDialog"
             :is-show="isShowFilter"
@@ -506,7 +579,11 @@ onMounted(() => {
             
         <export-dialog
             :is-show="isShowExportDialog"
-            @submit-event="submitFilter"
             @close-event="isShowExportDialog =  false" />
+
+        <dialog-reason :is-show="isShowDialogReason"
+            @close-event="closeCancelReasonDialog"
+            @submit-event="showCancelConfirmation"
+            :title="t('cancelEvent')"></dialog-reason>
     </div>
 </template>

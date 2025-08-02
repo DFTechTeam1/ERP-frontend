@@ -60,7 +60,7 @@ export const useNotificationStore = defineStore('notification', {
                 const resp = await axios.get('/user/notifications');
 
                 var { decodedString } = useEncrypt(resp.data.data.data, saltKey);
-                console.log('decodedString', decodedString);
+                
                 this.financeNotitications = decodedString;
             } catch (error) {
                 return error;

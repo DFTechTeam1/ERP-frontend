@@ -6,7 +6,7 @@ import QuotationList from './detail/QuotationList.vue';
 import QuotationWrapper from './detail/QuotationWrapper.vue';
 import { useProjectDealStore } from '@/stores/projectDeal';
 import { useRoute, useRouter } from 'vue-router';
-import { mdiDownload } from '@mdi/js';
+import { mdiDownload, mdiExclamation } from '@mdi/js';
 import { useDisplay } from 'vuetify';
 import { storeToRefs } from 'pinia';
 
@@ -100,6 +100,13 @@ onMounted(() => {
 
         <master-card>
             <v-card-text style="position: relative;">
+                <v-alert
+                    v-if="(detailOfProjectDeal) && (detailOfProjectDeal.is_cancel)"
+                    :text="detailOfProjectDeal.cancel_reason"
+                    :icon="mdiExclamation"
+                    variant="tonal"
+                    class="mb-3"></v-alert>
+
                 <template v-if="loading">
                     <div style="padding: 20px 40px">
                         <v-skeleton-loader type="ossein" width="100%" height="50px"></v-skeleton-loader>
@@ -150,7 +157,7 @@ onMounted(() => {
                                 'ml-2': !mobile,
                                 'w-100': mobile
                             }"
-                            v-if="tab === 'quotations' && !showBackButton && (!detailOfProjectDeal.is_final)"
+                            v-if="tab === 'quotations' && !showBackButton && (detailOfProjectDeal.can_add_more_quotation)"
                             type="button"
                             color="primary"
                             variant="flat"
