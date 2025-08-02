@@ -935,6 +935,33 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
+  // validate token
+  const saltKey = import.meta.env.VITE_SALT_KEY;
+  var encodedText = localStorage.getItem("dfauth");
+
+  if (encodedText != null) {
+    const { decodedString } = useEncrypt(encodedText, saltKey);
+
+    var exp = decodedString.exp;
+
+    var startTime = moment(exp);
+    var end = moment(new Date());
+    var duration = moment.duration(startTime.diff(end));
+    var hours = duration.asHours();
+
+    if (hours < 0) {
+      localStorage.removeItem('dfauthmain');
+      localStorage.removeItem('menus');
+      localStorage.removeItem('dfreportauth');
+      localStorage.removeItem('mEnc');
+      localStorage.removeItem('pEnc');
+      localStorage.removeItem('dfauth');
+      return {
+        path: "/auth/a/login",
+      };
+    }
+  }
+
   const store = useProjectStore();
 
   let checkResetData = localStorage.getItem('alreadyReset');
@@ -1040,33 +1067,6 @@ router.beforeEach((to, from) => {
 
   if (to.path == '/admin/inventories/list') {
     window.location.href = import.meta.env.VITE_OFFICE_URL + '/init/' + useBreakToken('encrypted_user_id') + `?path=inventories`;
-  }
-
-  // validate token
-  const saltKey = import.meta.env.VITE_SALT_KEY;
-  var encodedText = localStorage.getItem("dfauth");
-
-  if (encodedText != null) {
-    const { decodedString } = useEncrypt(encodedText, saltKey);
-
-    var exp = decodedString.exp;
-
-    var startTime = moment(exp);
-    var end = moment(new Date());
-    var duration = moment.duration(startTime.diff(end));
-    var hours = duration.asHours();
-
-    if (hours < 0) {
-      localStorage.removeItem('dfauth');
-      localStorage.removeItem('dfauthmain');
-      localStorage.removeItem('menus');
-      localStorage.removeItem('dfreportauth');
-      localStorage.removeItem('mEnc');
-      localStorage.removeItem('pEnc');
-      return {
-        path: "/auth/a/login",
-      };
-    }
   }
 
   // if query param have redirect items, redirect it

@@ -99,6 +99,13 @@ export const useProjectDealStore = defineStore('projectDeal', {
             } catch (error) {
                 return error;
             }
+        },
+        async cancelProjectDeal(projectDealUid, payload) {
+            try {
+                return await axios.post(`/production/project/deals/${projectDealUid}/cancel`, payload);
+            } catch (error) {
+                return error;
+            }
         }
     }
 });

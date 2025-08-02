@@ -260,7 +260,6 @@ const validateData = handleSubmit(async (values) => {
 
         values.date = startDate;
     }
-    console.log('values', values);
 
     const resp = await financeStore.exportFinanceGlobalData(values);
 

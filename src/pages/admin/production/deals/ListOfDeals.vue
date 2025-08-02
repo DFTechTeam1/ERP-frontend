@@ -1,7 +1,7 @@
 <script setup>
 import { useProjectStore } from '@/stores/project';
 import { useProjectDealStore } from '@/stores/projectDeal';
-import { mdiCheckDecagram, mdiCogOutline, mdiDownload, mdiExport, mdiEyeCircle, mdiInvoice, mdiLogin, mdiPencilOutline, mdiPlus, mdiTrashCanOutline } from '@mdi/js';
+import { mdiCheckDecagram, mdiClose, mdiCogOutline, mdiDownload, mdiExport, mdiEyeCircle, mdiInvoice, mdiLogin, mdiPencilOutline, mdiPlus, mdiTrashCanOutline } from '@mdi/js';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -131,7 +131,11 @@ const isShowExportDialog = ref(false);
 
 const showConfirm = ref(false);
 
+const showConfirmCancel = ref(false);
+
 const finalIds = ref(null);
+
+const cancelIds = ref(null);
 
 const canCreateDeal = useCheckPermission('create_deals');
 
@@ -173,6 +177,11 @@ const editDeal = (uid) => {
 const confirmDeleteData = (uid) => {
     showConfirmation.value = true;
     selectedIds.value = [uid];
+};
+
+const showCancelConfirmation = (uid) => {
+    showConfirmCancel.value = true;
+    cancelIds.value = [uid];
 };
 
 const initProjectDeals = async(payload = '') => {
@@ -244,6 +253,20 @@ const doFinal = async (deleteIds) => {
         showConfirm.value = false;
     } else {
         showNotification(resp.response.data.message, 'error');
+    }
+};
+
+const doCancel = async (ids) => {
+    loading.value = true;
+    const resp = await storeDeal.cancelProjectDeal(ids[0])
+    loading.value = false;
+
+    const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
+    const type = resp.status < 300 ? 'success' : 'error';
+    showNotification(message, type);
+
+    if (resp.status < 300) {
+        initProjectDeals();
     }
 };
 
@@ -477,6 +500,19 @@ onMounted(() => {
                                 </div>
                             </template>
                         </v-list-item>
+
+                        <v-list-item class="pointer" @click.prevent="showCancelConfirmation(value.uid)"
+                            v-if="value.can_cancel">
+                            <template v-slot:title>
+                                <div class="d-flex align-center"
+                                    style="gap: 8px; font-size: 12px;">
+                                    <v-icon
+                                        :icon="mdiClose"
+                                        size="13"></v-icon>
+                                    <span>{{ t('cancel') }}</span>
+                                </div>
+                            </template>
+                        </v-list-item>
                     </v-list>
                 </v-menu>
             </template>
@@ -497,6 +533,14 @@ onMounted(() => {
             :show-confirm="showConfirm"
             :delete-ids="finalIds"
             @action-bulk-submit="doFinal" />
+
+        <confirmation-modal 
+            title="Cancel Event"
+            text="Are you sure to cancel this event? Cancelled event will no longer appear in the list unless you apply a filter to make it visible."
+            :laoding="loading"
+            :show-confirm="showConfirmCancel"
+            :delete-ids="cancelIds"
+            @action-bulk-submit="doCancel" />
 
         <filter-deal
             ref="filterDialog"
