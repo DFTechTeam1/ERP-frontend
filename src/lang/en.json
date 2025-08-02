@@ -790,5 +790,6 @@
     "downloadHistoryInvoice": "Download History Invoice",
     "downloadProofOfPayment": "Download Proof of Payment",
     "definePersonToApproveInvoiceChanges": "Define person to approve invoice changes",
-    "exportSummary": "Export Summary"
+    "exportSummary": "Export Summary",
+    "cancelEvent": "Cancel Event"
 }

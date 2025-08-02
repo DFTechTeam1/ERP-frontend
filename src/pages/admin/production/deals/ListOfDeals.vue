@@ -27,7 +27,8 @@ const {
 const {
     listOfProjectDeals,
     totalOfProjectDeals,
-    listOfFilterValue
+    listOfFilterValue,
+    listOfFinalProjectFilter
 } = storeToRefs(storeDeal);
 
 const showButtonClearFilter = computed(() => {
@@ -141,11 +142,15 @@ const canCreateDeal = useCheckPermission('create_deals');
 
 const showPaymentDialog = ref(false);
 
+const isShowDialogReason = ref(false);
+
 const advanceFilterValue = ref(null);
 
 const selectedPaymentDeal = ref(null);
 
 const selectedRemainingBills = ref(0);
+
+const reasonOfCancel = ref(null);
 
 const showConfirmation = ref(false);
 
@@ -179,10 +184,22 @@ const confirmDeleteData = (uid) => {
     selectedIds.value = [uid];
 };
 
-const showCancelConfirmation = (uid) => {
+const showCancelConfirmation = (values) => {
     showConfirmCancel.value = true;
-    cancelIds.value = [uid];
+    reasonOfCancel.value = values.reason;
 };
+
+const showCancelReason = (uid) => {
+    cancelIds.value = [uid];
+    isShowDialogReason.value = true;
+};
+
+const closeCancelReasonDialog = () => {
+    cancelIds.value = [];
+    isShowDialogReason.value = false;
+    reasonOfCancel.value = null;
+    showConfirmCancel.value = false;
+}
 
 const initProjectDeals = async(payload = '') => {
     if (payload === '') {
@@ -194,6 +211,10 @@ const initProjectDeals = async(payload = '') => {
         itemsPerPage: payload.itemsPerPage,
         sortBy: payload.sortBy,
     });
+
+    if (listOfFinalProjectFilter.value) {
+        advanceFilterValue.value = listOfFinalProjectFilter.value;
+    }
 
     loading.value = true;
     await storeDeal.initProjectDeals(advanceFilterValue.value);
@@ -256,9 +277,11 @@ const doFinal = async (deleteIds) => {
     }
 };
 
-const doCancel = async (ids) => {
+const doCancel = async () => {
     loading.value = true;
-    const resp = await storeDeal.cancelProjectDeal(ids[0])
+    const resp = await storeDeal.cancelProjectDeal(cancelIds.value[0], {
+        reason: reasonOfCancel.value
+    });
     loading.value = false;
 
     const message = resp.status < 300 ? resp.data.message : resp.response.data.message;
@@ -266,6 +289,7 @@ const doCancel = async (ids) => {
     showNotification(message, type);
 
     if (resp.status < 300) {
+        closeCancelReasonDialog()
         initProjectDeals();
     }
 };
@@ -277,10 +301,10 @@ const showFilter = () => {
 const submitFilter = (payload) => {
     isShowFilter.value = false;
 
-    console.log('advance filter', payload);
-
     if (Object.keys(payload).length) {
         advanceFilterValue.value = payload;
+
+        storeDeal.setGlobalProjectFilter(advanceFilterValue.value);
 
         initProjectDeals();
     }
@@ -290,6 +314,7 @@ const clearFilter = () => {
     isShowFilter.value = false;
     advanceFilterValue.value = null;
     storeDeal.clearAdvanceFilterValue();
+    storeDeal.setGlobalProjectFilter(null);
     storeDeal.setAdvanceFilterValue({
         filters: [],
         preview: []
@@ -319,6 +344,10 @@ onMounted(() => {
 
         // redirect
         window.open(url, '__blank');
+    }
+
+    if (listOfFinalProjectFilter.value) {
+        advanceFilterValue.value = listOfFinalProjectFilter.value;
     }
 });
 </script>
@@ -501,7 +530,7 @@ onMounted(() => {
                             </template>
                         </v-list-item>
 
-                        <v-list-item class="pointer" @click.prevent="showCancelConfirmation(value.uid)"
+                        <v-list-item class="pointer" @click.prevent="showCancelReason(value.uid)"
                             v-if="value.can_cancel">
                             <template v-slot:title>
                                 <div class="d-flex align-center"
@@ -550,7 +579,11 @@ onMounted(() => {
             
         <export-dialog
             :is-show="isShowExportDialog"
-            @submit-event="submitFilter"
             @close-event="isShowExportDialog =  false" />
+
+        <dialog-reason :is-show="isShowDialogReason"
+            @close-event="closeCancelReasonDialog"
+            @submit-event="showCancelConfirmation"
+            :title="t('cancelEvent')"></dialog-reason>
     </div>
 </template>

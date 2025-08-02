@@ -10,13 +10,15 @@ export const useProjectDealStore = defineStore('projectDeal', {
         listFilterValue: {
             filters: [],
             preview: []
-        }
+        },
+        finalProjectFilter: null
     }),
     getters: {
         listOfProjectDeals: (state) => state.projectDeals,
         totalOfProjectDeals: (state) => state.totalProjectDeals,
         detailOfProjectDeal: (state) => state.detailProjectDeal,
-        listOfFilterValue: (state) => state.listFilterValue
+        listOfFilterValue: (state) => state.listFilterValue,
+        listOfFinalProjectFilter: (state) => state.finalProjectFilter
     },
     actions: {
         setProjectParams(payload) {
@@ -106,6 +108,9 @@ export const useProjectDealStore = defineStore('projectDeal', {
             } catch (error) {
                 return error;
             }
+        },
+        async setGlobalProjectFilter(payload) {
+            this.finalProjectFilter = payload;
         }
     }
 });

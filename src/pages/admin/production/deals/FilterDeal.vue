@@ -120,6 +120,10 @@ const statusList = ref([
         id: 2,
         name: "Temporary"
     },
+    {
+        id: 3,
+        name: "Cancel"
+    },
 ])
 
 const removeFilterItem = (item) => {
